@@ -1,0 +1,62 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}VeraOracle - Candidate{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h4 class="center">About candidate</h4>
+        <table class="bordered highlight">
+            <tr>
+                <td>Name:</td>
+                <td>{{ candidate.first_name }}</td>
+            </tr>
+            <tr>
+                <td>Last name:</td>
+                <td>{{ candidate.last_name }}</td>
+            </tr>
+            <tr>
+                <td>Middle name:</td>
+                <td>{{ candidate.middle_name }}</td>
+            </tr>
+            <tr>
+                <td>Snails:</td>
+                <td>{{ candidate.snails }}</td>
+            </tr>
+            <tr>
+                <td>Contract address:</td>
+                <td>{{ candidate.contract_address }}</td>
+            </tr>
+        </table>
+        {% if vacancies %}
+            <br><br><br>
+            <table class="bordered highligth">
+                <thead>
+                <tr>
+                    <th>Your vacancies, candidate subscribed to</th>
+                    <th class="center">State</th>
+                    <th class="right">Approve</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for vacancy in vacancies %}
+                    <tr>
+                        <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.address }}</a></td>
+                        <td class="center amber-text">{{ vacancy.state }}</td>
+                        <td class="right">
+                            {% if vacancy.state == 'wait' %}
+                                <form action="{% url 'approve_candidate' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="candidate" value="{{ candidate.id }}">
+                                    <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
+                                    <button type="submit" class="btn-floating btn-small waves-effect waves-light green"><i
+                                            class="material-icons">done</i></button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

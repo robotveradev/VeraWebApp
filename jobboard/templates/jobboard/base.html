@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block head_title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/materialize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+<div class="row headpanel">
+    <div class="col s12 m12 l4 offset-l8">
+        <i class="fa fa-telegram" aria-hidden="true"></i>
+        <i class="fa fa-twitter" aria-hidden="true"></i>
+        <i class="fa fa-facebook" aria-hidden="true"></i>
+        <i class="fa fa-whatsapp" aria-hidden="true"></i>
+        {% if user.is_authenticated %}
+            <a href="{% url 'account_logout' %}" class="btn waves-effect waves-light blue">Logout ({{ user }})</a>
+        {% else %}
+            <a href="{% url 'account_signup' %}" class="btn waves-effect waves-light blue">register</a>
+            <a href="{% url 'account_login' %}" class="btn waves-effect waves-light">login</a>
+        {% endif %}
+
+    </div>
+</div>
+<nav class="white">
+    <div class="nav-wrapper container">
+        <a href="#" class="brand-logo black-text">Vera Oracle</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a class="black-text" href="{% url 'index' %}">HOME</a></li>
+            <li><a class="black-text" href="{% url 'find_job' %}">JOB SEARCH</a></li>
+            <li><a class="black-text" href="{% url 'new_vacancy' %}">POST A JOB</a></li>
+            <li><a class="black-text" href="#">POST A RESUME</a></li>
+            {% if user.is_authenticated %}
+                <li><a class="black-text" href="{% url 'settings' %}">SETTINGS</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+{% block content %}{% endblock %}
+<div class="footer">
+    <div class="footermain">
+        <div class="container">
+            <div class="row">
+                <div class="col s6 m3 l3 left-align">
+                    <h5>About Us</h5>
+                    <a href="#">About Oracle</a>
+                    <a href="#">Terms & Conditions</a>
+                    <a href="#">International Partners</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Feedback</a>
+                    <a href="#">Contact Us</a>
+                </div>
+                <div class="col s6 m3 l3">
+                    <h5>Job Seekers</h5>
+                    <a href="#">Create Account</a>
+                    <a href="#">Career Counseling</a>
+                    <a href="#">My Bdjobs</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Video Guides</a>
+                </div>
+                <div class="col s6 m3 l3">
+                    <h5>Employers</h5>
+                    <a href="#">Create Account</a>
+                    <a href="#">Products/Service</a>
+                    <a href="#">Post a Job</a>
+                    <a href="#">FAQ</a>
+                </div>
+                <div class="col s6 m3 l3">
+                    <h5>Newsletter</h5>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+                    <form action="#">
+                        <div class="input-field">
+                            <label for="email">Email</label>
+                            <input type="email" name="email" id="email">
+                        </div>
+                        <button type="submit" class="btn waves-effect waves-light blue right">Sign Up</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br><br>
+    <div class="footerline">
+        <div class="container">
+            <div class="row">
+                <div class="col s8 m8 l8 grey-text">
+                    Copyright © 2017 OnGrid.pro. All rights reserved.
+                </div>
+                <div class="col s4 m4 l4 right-align grey-text">
+                    <i class="fa fa-telegram" aria-hidden="true"></i>
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                    <i class="fa fa-facebook" aria-hidden="true"></i>
+                    <i class="fa fa-whatsapp" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<script src="{% static 'js/script.js' %}"></script>
+</html>

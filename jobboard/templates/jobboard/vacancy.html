@@ -1,0 +1,51 @@
+{% extends 'jobboard/base.html' %}
+
+{% load jobboard_tags %}
+
+{% block head_title %}VeraOracle - Vacancy{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h4 class="center">
+            Vacancy #{{ vacancy.id }}
+        </h4>
+
+        <table class="bordered highlight">
+            <tr>
+                <td>Employer:</td>
+                <td>{{ vacancy.employer.organization }}</td>
+            </tr>
+            <tr>
+                <td>Title:</td>
+                <td>{{ vacancy.title }}</td>
+            </tr>
+            <tr>
+                <td>Contract address:</td>
+                <td>{{ vacancy.contract_address }}</td>
+            </tr>
+            <tr>
+                <td>Interview_fee:</td>
+                <td>{{ vacancy.interview_fee }} {{ vacancy.id | get_coin_symbol }}</td>
+            </tr>
+            {% if vacancy.employer.user == request.user %}
+                <tr>
+                    <td>Allowance:</td>
+                    <td>{{ vacancy.id | allowance_rest }} {{ vacancy.id | get_coin_symbol }}</td>
+                </tr>
+            {% endif %}
+        </table>
+        {% if vacancy.employer.user == request.user %}
+            {% get_candidates vacancy.id %}
+        {% endif %}
+        <br>
+        {% if role == 'candidate' %}
+            <form action="{% url 'subscrabe_to_vacancy' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
+                <button {% if not may_to_subscribe %}disabled{% endif %} type="submit"
+                        class="btn waves-light waves-effect blue right">I Want It!
+                </button>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% if candidates %}
+    <h5 class="center">Job seekers who subscribe to a job offer:</h5>
+    <table class="bordered highligth">
+        <thead>
+        <tr>
+            <th>Candiadate contract address</th>
+            <th class="center">Candidate state</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for candidate in candidates %}
+            <tr>
+                <td><a href="{% url 'candidate' candidate_id=candidate.id %}">{{ candidate.address }}</a></td>
+                <td class="amber-text center">
+                    <div class="state">{{ candidate.state }}</div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

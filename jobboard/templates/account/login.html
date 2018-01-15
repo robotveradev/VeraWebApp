@@ -1,0 +1,39 @@
+{% extends "jobboard/base.html" %}
+
+{% load account_tags material_form %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Log in" %}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col s12 m6 l6 offset-m3 offset-l3">
+            <form method="POST" action="{% url "account_login" %}" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+                <h4>{% trans "Log in to an existing account" %}</h4>
+                {% csrf_token %}
+                {% form form=form %}{% endform %}
+                {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                {% endif %}
+                <button type="submit" class="btn waves-effect waves-light blue">{% trans "Log in" %}</button>
+                <a href="{% url "account_password_reset" %}" class="btn waves-effect waves-light ">{% trans "Forgot your password?" %}</a>
+            </form>
+            {% if ACCOUNT_OPEN_SIGNUP %}
+                <p class="login-signup">
+                    <small>
+                        {% trans "Don't have an account?" %}  <strong><a href="{% urlnext 'account_signup' %}">{% trans "Sign up" %}</a></strong>
+                    </small>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#id_username').focus();
+        });
+    </script>
+{% endblock %}

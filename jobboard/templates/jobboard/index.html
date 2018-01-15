@@ -1,0 +1,302 @@
+{% extends 'jobboard/base.html' %}
+{% block content %}
+    <div class="slider">
+        <ul class="slides">
+            <li>
+                <img src="http://demo.minimalthemes.net/jobboard-static/images/upload/dummy-slide-1.jpg">
+                <div class="caption center-align sliderblock">
+                    <h4>Easiest Way To Find Your Dream Job</h4>
+                    <h6 class="light grey-text text-lighten-3">It is a long established fact that a reader will be
+                        distracted by the readable content of a page when looking at its layout. The point of
+                        using.</h6>
+                    <a href="{% url 'find_job' %}" class="btn waves-effect waves-light yellow">Find a job</a>
+                </div>
+            </li>
+            <li>
+                <img src="http://demo.minimalthemes.net/jobboard-static/images/upload/dummy-slide-2.jpg">
+                <div class="caption center-align sliderblock">
+                    <h4>Hire Skilled People, best of them</h4>
+                    <h6 class="light grey-text text-lighten-3">It is a long established fact that a reader will be
+                        distracted by the readable content of a page when looking at its layout. The point of
+                        using.</h6>
+                    <a href="{% url 'new_vacancy' %}" class="btn waves-effect waves-light grey">Post a job</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <br><br>
+    <div class="container">
+        <h5 class="center">JOBS YOU MAY BE INTERESTED IN</h5>
+        <div class="buttons center">
+            <button class="btn">Hot Jobs</button>
+            <button class="btn">Recent Jobs</button>
+            <button class="btn">Popular Jobs</button>
+        </div>
+        <br><br>
+    </div>
+    <div class="row">
+        <div class="col s12 m10 l10 offset-l1 offset-m1">
+            <div class="row">
+                <div class="col s6 m3 l3">
+                    <div class="card">
+                        <div class="card-image waves-effect waves-block waves-light">
+                            <img class="activator"
+                                 src="http://www.shireshag.ru/i/funfox/logo/funfox-logo.jpg">
+                        </div>
+                        <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Project Manager<i
+                                class="material-icons right">more_vert</i></span>
+                            <p><a href="#">This is a link</a></p>
+                        </div>
+                        <div class="card-reveal blue white-text">
+                        <span class="card-title"><i
+                                class="material-icons right">close</i></span>
+                            <div>
+                                <div class="chip blue lighten-2">
+                                    Full time
+                                </div>
+                                <h5>Project Manager</h5>
+                                <h6>Dig File</h6>
+                                <ul class="tr-list job-meta">
+                                    <li><i class="fa fa-map-signs" aria-hidden="true"></i>San Francisco, CA, US</li>
+                                    <li><i class="fa fa-briefcase" aria-hidden="true"></i>Mid Level</li>
+                                    <li><i class="fa fa-money" aria-hidden="true"></i>$5,000 - $6,000</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-action"><a class="btn waves-effect waves-light red white-text" href="#">Full
+                            time</a>
+                        <span class="grey-text right">2 hours ago</span></div>
+                    </div>
+                </div>
+                <div class="col s6 m3 l3">
+                    <div class="card">
+                        <div class="card-image waves-effect waves-block waves-light">
+                            <img class="activator"
+                                 src="http://www.shireshag.ru/i/funfox/logo/funfox-logo.jpg">
+                        </div>
+                        <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                            <p><a href="#">This is a link</a></p>
+                        </div>
+                       <div class="card-reveal blue white-text">
+                        <span class="card-title"><i
+                                class="material-icons right">close</i></span>
+                            <div>
+                                <div class="chip blue lighten-2">
+                                    Full time
+                                </div>
+                                <h5>Project Manager</h5>
+                                <h6>Dig File</h6>
+                                <ul class="tr-list job-meta">
+                                    <li><i class="fa fa-map-signs" aria-hidden="true"></i>San Francisco, CA, US</li>
+                                    <li><i class="fa fa-briefcase" aria-hidden="true"></i>Mid Level</li>
+                                    <li><i class="fa fa-money" aria-hidden="true"></i>$5,000 - $6,000</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-action"><a class="btn waves-effect waves-light blue" href="#">Part time</a>
+                            <span class="grey-text right">yesterday</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s6 m3 l3">
+                    <div class="card">
+                        <div class="card-image waves-effect waves-block waves-light">
+                            <img class="activator"
+                                 src="http://www.shireshag.ru/i/funfox/logo/funfox-logo.jpg">
+                        </div>
+                        <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                            <p><a href="#">This is a link</a></p>
+                        </div>
+                        <div class="card-reveal blue white-text">
+                        <span class="card-title"><i
+                                class="material-icons right">close</i></span>
+                            <div>
+                                <div class="chip blue lighten-2">
+                                    Full time
+                                </div>
+                                <h5>Project Manager</h5>
+                                <h6>Dig File</h6>
+                                <ul class="tr-list job-meta">
+                                    <li><i class="fa fa-map-signs" aria-hidden="true"></i>San Francisco, CA, US</li>
+                                    <li><i class="fa fa-briefcase" aria-hidden="true"></i>Mid Level</li>
+                                    <li><i class="fa fa-money" aria-hidden="true"></i>$5,000 - $6,000</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-action"><a class="btn waves-effect waves-light deep-purple"
+                                                    href="#">Freelance</a>
+                        <span class="grey-text right">5 minutes ago</span></div>
+                    </div>
+                </div>
+                <div class="col s6 m3 l3">
+                    <div class="card">
+                        <div class="card-image waves-effect waves-block waves-light">
+                            <img class="activator"
+                                 src="http://www.shireshag.ru/i/funfox/logo/funfox-logo.jpg">
+                        </div>
+                        <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                            <p><a href="#">This is a link</a></p>
+                        </div>
+                        <div class="card-reveal blue white-text">
+                        <span class="card-title"><i
+                                class="material-icons right">close</i></span>
+                            <div>
+                                <div class="chip blue lighten-2">
+                                    Full time
+                                </div>
+                                <h5>Project Manager</h5>
+                                <h6>Dig File</h6>
+                                <ul class="tr-list job-meta">
+                                    <li><i class="fa fa-map-signs" aria-hidden="true"></i>San Francisco, CA, US</li>
+                                    <li><i class="fa fa-briefcase" aria-hidden="true"></i>Mid Level</li>
+                                    <li><i class="fa fa-money" aria-hidden="true"></i>$5,000 - $6,000</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-action"><a class="btn waves-effect waves-light red" href="#">Full time</a>
+                            <span class="grey-text right">30 minutes ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s6 m3 l3">
+                    <div class="card">
+                        <div class="card-image waves-effect waves-block waves-light">
+                            <img class="activator"
+                                 src="http://www.shireshag.ru/i/funfox/logo/funfox-logo.jpg">
+                        </div>
+                        <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                            <p><a href="#">This is a link</a></p>
+                        </div>
+                        <div class="card-reveal blue white-text">
+                        <span class="card-title"><i
+                                class="material-icons right">close</i></span>
+                            <div>
+                                <div class="chip blue lighten-2">
+                                    Full time
+                                </div>
+                                <h5>Project Manager</h5>
+                                <h6>Dig File</h6>
+                                <ul class="tr-list job-meta">
+                                    <li><i class="fa fa-map-signs" aria-hidden="true"></i>San Francisco, CA, US</li>
+                                    <li><i class="fa fa-briefcase" aria-hidden="true"></i>Mid Level</li>
+                                    <li><i class="fa fa-money" aria-hidden="true"></i>$5,000 - $6,000</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-action"><a class="btn waves-effect waves-light blue" href="#">Part time</a>
+                            <span class="grey-text right">2 days ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s6 m3 l3">
+                    <div class="card">
+                        <div class="card-image waves-effect waves-block waves-light">
+                            <img class="activator"
+                                 src="http://www.shireshag.ru/i/funfox/logo/funfox-logo.jpg">
+                        </div>
+                        <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                            <p><a href="#">This is a link</a></p>
+                        </div>
+                        <div class="card-reveal blue white-text">
+                        <span class="card-title"><i
+                                class="material-icons right">close</i></span>
+                            <div>
+                                <div class="chip blue lighten-2">
+                                    Full time
+                                </div>
+                                <h5>Project Manager</h5>
+                                <h6>Dig File</h6>
+                                <ul class="tr-list job-meta">
+                                    <li><i class="fa fa-map-signs" aria-hidden="true"></i>San Francisco, CA, US</li>
+                                    <li><i class="fa fa-briefcase" aria-hidden="true"></i>Mid Level</li>
+                                    <li><i class="fa fa-money" aria-hidden="true"></i>$5,000 - $6,000</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-action"><a class="btn waves-effect waves-light red" href="#">Full time</a>
+                            <span class="grey-text right">11 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s6 m3 l3">
+                    <div class="card">
+                        <div class="card-image waves-effect waves-block waves-light">
+                            <img class="activator"
+                                 src="http://www.shireshag.ru/i/funfox/logo/funfox-logo.jpg">
+                        </div>
+                        <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                            <p><a href="#">This is a link</a></p>
+                        </div>
+                        <div class="card-reveal blue white-text">
+                        <span class="card-title"><i
+                                class="material-icons right">close</i></span>
+                            <div>
+                                <div class="chip blue lighten-2">
+                                    Full time
+                                </div>
+                                <h5>Project Manager</h5>
+                                <h6>Dig File</h6>
+                                <ul class="tr-list job-meta">
+                                    <li><i class="fa fa-map-signs" aria-hidden="true"></i>San Francisco, CA, US</li>
+                                    <li><i class="fa fa-briefcase" aria-hidden="true"></i>Mid Level</li>
+                                    <li><i class="fa fa-money" aria-hidden="true"></i>$5,000 - $6,000</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-action">
+                            <a class="btn waves-effect waves-light deep-purple"
+                                                    href="#">Freelance</a>
+                        <span class="grey-text right">1 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s6 m3 l3">
+                    <div class="card">
+                        <div class="card-image waves-effect waves-block waves-light">
+                            <img class="activator"
+                                 src="http://www.shireshag.ru/i/funfox/logo/funfox-logo.jpg">
+                        </div>
+                        <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4">Card Title<i
+                                class="material-icons right">more_vert</i></span>
+                            <p><a href="#">This is a link</a></p>
+                        </div>
+                        <div class="card-reveal blue white-text">
+                        <span class="card-title"><i
+                                class="material-icons right">close</i></span>
+                            <div>
+                                <div class="chip blue lighten-2">
+                                    Full time
+                                </div>
+                                <h5>Project Manager</h5>
+                                <h6>Dig File</h6>
+                                <ul class="tr-list job-meta">
+                                    <li><i class="fa fa-map-signs" aria-hidden="true"></i>San Francisco, CA, US</li>
+                                    <li><i class="fa fa-briefcase" aria-hidden="true"></i>Mid Level</li>
+                                    <li><i class="fa fa-money" aria-hidden="true"></i>$5,000 - $6,000</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-action">
+                            <a class="btn waves-effect waves-light blue" href="#">Part time</a>
+                            <span class="grey-text right">2 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

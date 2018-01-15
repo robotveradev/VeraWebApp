@@ -1,0 +1,71 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}Choose role{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h4 class="center">Choose your role</h4>
+        <ul class="collapsible" data-collapsible="accordion">
+            <li>
+                <div class="collapsible-header active"><i class="material-icons">face</i>Employer</div>
+                <div class="collapsible-body">
+                    <form action="{% url 'choose_role' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="role" value="employer">
+                        <input type="hidden" name="next" value="{{ request.GET.next }}">
+                        <div class="input-field">
+                            <label for="organization">Organization</label>
+                            <input type="text" name="organization" id="organization" required>
+                        </div>
+                        <div class="input-field">
+                            <label for="inn">Inn</label>
+                            <input type="text" name="inn" id="inn" required>
+                        </div>
+                        <div class="input-field">
+                            <label for="token">Token</label>
+                            <input type="text" name="token" id="token" value="{{ token }}" required>
+                        </div>
+                        <p>
+                            <input type="checkbox" id="personal_data_employer" required/>
+                            <label for="personal_data_employer">I agree with processing of my personal data.</label>
+                        </p>
+                        <button type="submit" class="btn waves-effect waves-light blue right">Send</button>
+                        <div class="clearfix"></div>
+                    </form>
+                </div>
+            </li>
+            <li>
+                <div class="collapsible-header"><i class="material-icons">child_care</i>Candidate</div>
+                <div class="collapsible-body">
+                    <form action="{% url 'choose_role' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="role" value="candidate">
+                        <input type="hidden" name="next" value="{{ request.GET.next }}">
+                        <div class="input-field">
+                            <label for="first_name">First name</label>
+                            <input type="text" name="first_name" id="first_name" required>
+                        </div>
+                        <div class="input-field">
+                            <label for="last_name">Last name</label>
+                            <input type="text" name="last_name" id="last_name" required>
+                        </div>
+                        <div class="input-field">
+                            <label for="middle_name">Middle name</label>
+                            <input type="text" name="middle_name" id="middle_name" required>
+                        </div>
+                        <div class="input-field">
+                            <label for="snails">Snails</label>
+                            <input type="text" name="snails" id="snails">
+                        </div>
+                        <p>
+                            <input type="checkbox" id="personal_data_candidate" required/>
+                            <label for="personal_data_candidate">I agree with processing of my personal data.</label>
+                        </p>
+                        <button type="submit" class="btn waves-effect waves-light blue right">Send</button>
+                        <div class="clearfix"></div>
+                    </form>
+                </div>
+            </li>
+        </ul>
+    </div>
+{% endblock %}

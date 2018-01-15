@@ -1,0 +1,79 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}VeraOracle - Find Job{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% if role == 'candidate' %}
+            <h4 class="center">Candidate info</h4>
+            <table class="bordered highlight">
+                <tr>
+                    <td>Name:</td>
+                    <td>{{ candidate.first_name }}</td>
+                </tr>
+                <tr>
+                    <td>Last name:</td>
+                    <td>{{ candidate.last_name }}</td>
+                </tr>
+                <tr>
+                    <td>Middle name:</td>
+                    <td>{{ candidate.middle_name }}</td>
+                </tr>
+                <tr>
+                    <td>Snails:</td>
+                    <td>{{ candidate.snails }}</td>
+                </tr>
+                <tr>
+                    <td>Contract address:</td>
+                    <td>{{ candidate.contract_address }}</td>
+                </tr>
+                <tr>
+                    <td>Balance:</td>
+                    <td>{{ balance }} {{ symbol }}</td>
+                </tr>
+            </table>
+        {% elif role == 'employer' %}
+            <h4 class="center">Employer info</h4>
+            <table class="bordered highlight">
+                <tr>
+                    <td>Organization:</td>
+                    <td>{{ employer.organization }}</td>
+                </tr>
+                <tr>
+                    <td>Inn:</td>
+                    <td>{{ employer.inn }}</td>
+                </tr>
+                <tr>
+                    <td>Contract address:</td>
+                    <td>{{ employer.contract_address }}</td>
+                </tr>
+                <tr>
+                    <td>Balance:</td>
+                    <td>{{ balance }} {{ symbol }}</td>
+                </tr>
+            </table>
+            {% if vacancies %}
+                <h5>Your vacancies</h5>
+                <table class="bordered highligth">
+                    <thead>
+                    <tr>
+                        <th>Vacancy title</th>
+                        <th>Contract address</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for vacancy in vacancies %}
+                        <tr>
+                            <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.title }}</a></td>
+                            <td>{{ vacancy.contract_address }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+
+                </table>
+            {% else %}
+                <p>Create a <a href="{% url 'new_vacancy' %}">new vacancy.</a></p>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}

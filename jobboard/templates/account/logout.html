@@ -1,0 +1,22 @@
+{% extends "jobboard/base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Log out" %}{% endblock %}
+
+{% block content %}
+    <br><br><br><br>
+    <div class="row">
+        <div class="col s12 m6 l6 offset-m3 offset-l3">
+            <form method="POST" action="{% url "account_logout" %}">
+                <h4>{% trans "Log out" %}</h4>
+                <div>
+                    {% csrf_token %}
+                    <p>{% trans "Are you sure you want to log out?" %}</p>
+                    <button type="submit" class="btn waves-effect waves-light blue">{% trans "Log out" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <br><br><br><br>
+{% endblock %}

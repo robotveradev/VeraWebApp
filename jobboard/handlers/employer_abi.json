@@ -1,0 +1,320 @@
+[
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_vacancy_address",
+				"type": "address"
+			},
+			{
+				"name": "_candidate_address",
+				"type": "address"
+			}
+		],
+		"name": "grant_access_to_candidate",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "revoke_access",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_vacancy_address",
+				"type": "address"
+			},
+			{
+				"name": "_candidate_address",
+				"type": "address"
+			}
+		],
+		"name": "revoke_access_to_candidate",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "get_vacancies",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "enable_vacancy",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_allowed_amount",
+				"type": "uint256"
+			},
+			{
+				"name": "_interview_fee",
+				"type": "uint256"
+			}
+		],
+		"name": "new_vacancy",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "allowed_contracts",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_vacancy_address",
+				"type": "address"
+			}
+		],
+		"name": "get_vacancy_state",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "disable_vacancy",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "id",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "grant_access",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_vacancy_address",
+				"type": "address"
+			},
+			{
+				"name": "_candidate_address",
+				"type": "address"
+			}
+		],
+		"name": "pay_to_candidate",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "token",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "bytes32"
+			},
+			{
+				"name": "_token",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "vacancy_address",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "time",
+				"type": "uint256"
+			}
+		],
+		"name": "NewVacancy",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "vacancy_address",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "time",
+				"type": "uint256"
+			}
+		],
+		"name": "DisabledVacancy",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "vacancy_address",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "time",
+				"type": "uint256"
+			}
+		],
+		"name": "EnabledVacancy",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "allowed",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "GrantAccess",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "allowed",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "RevokeAccess",
+		"type": "event"
+	}
+]

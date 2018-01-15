@@ -1,0 +1,308 @@
+[
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_vacancy_address",
+				"type": "address"
+			}
+		],
+		"name": "subscribe_to_interview",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_fact",
+				"type": "string"
+			}
+		],
+		"name": "new_fact",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "revoke_access",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "get_vacancies",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_vacancy_address",
+				"type": "address"
+			}
+		],
+		"name": "unsubscribe_from_interview",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "allowed_contracts",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "keys_of_facts",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_vacancy",
+				"type": "address"
+			}
+		],
+		"name": "get_vacancy_state",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_vacancy_address",
+				"type": "address"
+			}
+		],
+		"name": "set_vacancy_paid",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "id",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "grant_access",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "bytes32"
+			}
+		],
+		"name": "get_fact",
+		"outputs": [
+			{
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"name": "time",
+				"type": "uint256"
+			},
+			{
+				"name": "fact",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "time",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "id",
+				"type": "bytes32"
+			}
+		],
+		"name": "NewFact",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "allowed",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "GrantAccess",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "allowed",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "RevokeAccess",
+		"type": "event"
+	}
+]
