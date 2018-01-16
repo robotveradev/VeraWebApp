@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'jobboard',
     'account',
-
 ]
 
 SITE_ID = 1
@@ -141,3 +140,7 @@ VERA_COIN_CONTRACT_ADDRESS = '0xBbeEF425E33490110B57286c39e11F65493B9daD'
 VERA_ORACLE_CONTRACT_ADDRESS = '0xEc3253eb17B4B896dDABe08407bf7cf9A48001c7'
 
 WEB_ETH_COINBASE = '0x3CeFeEb323859762222bDae436bae30737D5f054'
+
+STATIC_ROOT = '/opt/vera_jobboard/static'
+
+MEDIA_ROOT = '/opt/vera_jobboard/media'
