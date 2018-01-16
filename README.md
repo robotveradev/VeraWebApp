@@ -178,6 +178,14 @@ read -d "" RCLOCAL <<"EOF"
 #!/bin/bash
 cd /opt/vera_jobboard
 source ./env/bin/activate
+
+read -d "" PYCODE <<"EOF"
+from jobboard.models import Employer, Candidate
+Employer.objects.all().delete()
+Candidate.objects.all().delete()
+EOF
+echo "$PYCODE" | ./manage.py shell
+
 screen -dmS vera_jobboard bash -c 'testrpc'
 exit 0
 python RobotVeraWebApp/deploy_contract.py

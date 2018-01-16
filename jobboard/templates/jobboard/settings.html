@@ -27,11 +27,53 @@
                     <td>Contract address:</td>
                     <td>{{ candidate.contract_address }}</td>
                 </tr>
+                {% if cv %}
+                    <tr>
+                        <td>Curriculum vitae:</td>
+                        <td>{{ cv.title }}</td>
+                    </tr>
+                    <tr>
+                        <td>Specialisation:</td>
+                        <td>
+                            {% for item in cv.specializations.all %}
+                                <div class="chip">{{ item }}</div>
+                            {% endfor %}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>About:</td>
+                        <td>{{ cv.description|safe }}</td>
+                    </tr>
+                    <tr>
+                        <td>Salary from:</td>
+                        <td>{{ cv.salary_from }} $</td>
+                    </tr>
+                {% endif %}
                 <tr>
                     <td>Balance:</td>
                     <td>{{ balance }} {{ symbol }}</td>
                 </tr>
             </table>
+            {% if vacancies %}
+                <h5 class="center">Vacancies, you subscribed to:</h5>
+                <table class="bordered highlight">
+                    <thead>
+                    <tr>
+                        <th>Vacancy address</th>
+                        <th>State</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for vacancy in vacancies %}
+                        <tr>
+                            <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.address }}</a></td>
+                            <td class="amber-text">{{ vacancy.state }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         {% elif role == 'employer' %}
             <h4 class="center">Employer info</h4>
             <table class="bordered highlight">

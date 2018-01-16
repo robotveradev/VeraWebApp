@@ -24,9 +24,11 @@ urlpatterns = [
     path('account/', include("account.urls")),
     path('job/find/', jobboard_views.find_job, name='find_job'),
     path('settings/', jobboard_views.user_settings, name='settings'),
+    path('cv/new/', jobboard_views.new_cv, name='new_cv'),
     path('vacancy/new/', jobboard_views.new_vacancy, name='new_vacancy'),
     path('vacancy/subscribe/', jobboard_views.subscrabe_to_vacancy, name='subscrabe_to_vacancy'),
     path('vacancy/<int:vacancy_id>/', jobboard_views.vacancy, name='vacancy'),
     path('candidate/<int:candidate_id>/', jobboard_views.candidate, name='candidate'),
     path('candidate/approve/', jobboard_views.approve_candidate, name='approve_candidate'),
+    path('candidate/revoke/', jobboard_views.revoke_candidate, name='revoke_candidate'),
 ]

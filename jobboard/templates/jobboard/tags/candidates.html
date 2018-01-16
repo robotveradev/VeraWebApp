@@ -11,8 +11,12 @@
         {% for candidate in candidates %}
             <tr>
                 <td><a href="{% url 'candidate' candidate_id=candidate.id %}">{{ candidate.address }}</a></td>
-                <td class="amber-text center">
-                    <div class="state">{{ candidate.state }}</div>
+                <td class="center
+                            {% if candidate.state == 'wait' %}
+                            amber-text
+                            {% elif candidate.state == 'accepted' %}
+                            green-text {% endif %}">
+                    {{ candidate.state }}
                 </td>
             </tr>
         {% endfor %}

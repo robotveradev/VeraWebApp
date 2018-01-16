@@ -36,9 +36,11 @@ class Candidate(models.Model):
 class CurriculumVitae(models.Model):
     title = models.CharField(max_length=255, blank=False, null=True)
     candidate = models.ForeignKey(Candidate, blank=False, null=False, on_delete=models.CASCADE)
+    description = models.TextField()
     specializations = models.ManyToManyField(Specialisation)
     keywords = models.ManyToManyField(Keyword)
     salary_from = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return str(self.candidate) + ' - ' + self.title

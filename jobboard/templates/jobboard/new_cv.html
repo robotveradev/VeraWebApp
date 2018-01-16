@@ -1,0 +1,59 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}VeraOracle - New CV{% endblock %}
+
+{% block content %}
+    {% if error %}
+        <div class="container">
+            <br><br><br><br>
+            <h4 class="center">
+                Employer cannot create CV.
+            </h4>
+            <br><br><br><br><br><br>
+        </div>
+
+    {% else %}
+        <div class="contrainer">
+            <div class="row">
+                <div class="col s12 m6 l6 offset-m3 offset-l3">
+                    <h4 class="center">New Vacancy</h4>
+                    <form action="{% url 'new_cv' %}" method="post">
+                        {% csrf_token %}
+                        <div class="input-field">
+                            <label for="title">Curriculum vitae title</label>
+                            <input type="text" name="title" id="title" data-length="120" required>
+                        </div>
+                        <div class="input-field">
+                            <textarea id="description" name="description" class="materialize-textarea" data-length="200"></textarea>
+                            <label for="description">About</label>
+                        </div>
+                        <div class="input-field">
+                            <label for="salary_from">Salary from, $</label>
+                            <input type="number" step="1" name="salary_from" id="salary_from" data-length="10">
+                        </div>
+                        <div class="input-field">
+                            <select multiple name="specialisation" id="specialisation">
+                                <option value="" disabled selected>Choose specialisations</option>
+                                {% for item in specializations %}
+                                    <option value="{{ item.id }}">{{ item.title }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="specialisation">Specialisation</label>
+                        </div>
+                        <div class="input-field">
+                            <select multiple name="keywords" id="keywords">
+                                <option value="" disabled selected>Choose keywords</option>
+                                {% for item in keywords %}
+                                    <option value="{{ item.id }}">{{ item.word }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="keywords">Keywords</label>
+                        </div>
+                        <button class="btn waves-effect waves-light blue right">Continue</button>
+                        <div class="clearfix"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

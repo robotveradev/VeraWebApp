@@ -24,7 +24,7 @@
                 <td>{{ vacancy.contract_address }}</td>
             </tr>
             <tr>
-                <td>Interview_fee:</td>
+                <td>Interview fee:</td>
                 <td>{{ vacancy.interview_fee }} {{ vacancy.id | get_coin_symbol }}</td>
             </tr>
             {% if vacancy.employer.user == request.user %}
@@ -34,6 +34,13 @@
                 </tr>
             {% endif %}
         </table>
+        <br>
+        {% for item in vacancy.specializations.all %}
+            <div class="chip blue white-text">{{ item }}</div>
+        {% endfor %}
+        {% for item in vacancy.keywords.all %}
+            <div class="chip amber white-text">{{ item }}</div>
+        {% endfor %}
         {% if vacancy.employer.user == request.user %}
             {% get_candidates vacancy.id %}
         {% endif %}

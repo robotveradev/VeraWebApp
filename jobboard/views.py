@@ -6,7 +6,7 @@ from django.views.decorators.http import require_POST
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from .handlers.candidate import CandidateHandler
-from .models import Vacancy, Employer, Candidate, Specialisation, Keyword
+from .models import Vacancy, Employer, Candidate, Specialisation, Keyword, CurriculumVitae
 from .decorators import choose_role_required
 from .handlers.oracle import OracleHandler
 from .handlers.coin import CoinHandler
@@ -21,19 +21,17 @@ def index(request):
 @login_required
 @choose_role_required(redirect_url='/role/')
 def find_job(request):
-    args = {'vacancies': Vacancy.objects.all()}
-    try:
-        Employer.objects.get(user=request.user)
-        args['emp'] = True
-    except Employer.DoesNotExist:
-        pass
+    args = {}
+    args['specializations'] = Specialisation.objects.all()
+    args['keywords'] = Keyword.objects.all()
+    if request.method == "POST":
+        sp = request.POST.getlist('specialization')
+        kw = request.POST.getlist('keyword')
+        if sp or kw:
+            args['vacancies'] = Vacancy.objects.filter(specializations__specialisation__in=sp)
+    else:
+        args['vacancies'] = Vacancy.objects.all()
     return render(request, 'jobboard/find_job.html', args)
-
-
-@login_required
-@choose_role_required(redirect_url='/role/')
-def main_page(request):
-    return HttpResponse('ok', status=200)
 
 
 def choose_role(request):
@@ -90,9 +88,14 @@ def user_settings(request):
             args['vacancies'] = Vacancy.objects.filter(employer=args['employer'])
         elif args['role'] == 'candidate':
             args['candidate'] = Candidate.objects.get(user_id=request.user.id)
+            args['cv'] = CurriculumVitae.objects.filter(candidate=args['candidate'])
             candidate_handler = CandidateHandler(django_settings.VERA_ORACLE_CONTRACT_ADDRESS,
                                                  args['candidate'].contract_address)
-            args['vacancies'] = candidate_handler.get_vacancies()
+            args['vacancies'] = []
+            for item in candidate_handler.get_vacancies():
+                args['vacancies'].append({'address': item,
+                                          'state': candidate_handler.get_vacancy_state(item),
+                                          'id': Vacancy.objects.values('id').get(contract_address=item)['id']})
             args['balance'] = coin_contract.balanceOf(args['candidate'].contract_address)
             args['symbol'] = coin_contract.symbol
 
@@ -130,9 +133,11 @@ def new_vacancy(request):
         vacancy.contract_address = res['vacancy_address']
         vacancy.save()
         return redirect(user_settings)
+    args = {}
     if user_role(request.user.id) == 'candidate':
-        return HttpResponse('Candidate cannot place a vacancy')
-    args = {'specializations': Specialisation.objects.all(), 'keywords': Keyword.objects.all()}
+        args['error'] = True
+    else:
+        args = {'specializations': Specialisation.objects.all(), 'keywords': Keyword.objects.all()}
     return render(request, 'jobboard/new_vacancy.html', args)
 
 
@@ -157,7 +162,10 @@ def vacancy(request, vacancy_id):
         if args['role'] == 'candidate':
             candidate = Candidate.objects.get(user_id=request.user.id)
             vacancy_handler = VacancyHandler(django_settings.WEB_ETH_COINBASE, args['vacancy'].contract_address)
-            if vacancy_handler.get_candidate_state(candidate.contract_address) == 'not exist':
+            candidate_handler = CandidateHandler(django_settings.WEB_ETH_COINBASE, candidate.contract_address)
+            c_state = vacancy_handler.get_candidate_state(candidate.contract_address)
+            v_state = candidate_handler.get_vacancy_state(args['vacancy'].contract_address)
+            if c_state == 'not exist' and v_state == 'not exist':
                 args['may_to_subscribe'] = True
         return render(request, 'jobboard/vacancy.html', args)
     except Vacancy.DoesNotExist:
@@ -168,10 +176,11 @@ def subscrabe_to_vacancy(request):
     if request.method == 'POST':
         vacancy_id = request.POST.get('vacancy')
         candidate = Candidate.objects.get(user_id=request.user.id)
-        vacancy = get_object_or_404(Vacancy, id=vacancy_id)
+        vacancy_obj = get_object_or_404(Vacancy, id=vacancy_id)
         candidate_handler = CandidateHandler(django_settings.WEB_ETH_COINBASE, candidate.contract_address)
-        candidate_handler.subscribe_to_interview(vacancy.contract_address)
-        return HttpResponse('ok', status=200)
+        print(candidate_handler.get_vacancy_state(vacancy_obj.contract_address))
+        candidate_handler.subscribe_to_interview(vacancy_obj.contract_address)
+        return redirect(vacancy, vacancy_id=vacancy_id)
 
 
 def candidate(request, candidate_id):
@@ -182,11 +191,11 @@ def candidate(request, candidate_id):
     args['vacancies'] = []
     for vacancy in employer_handler.get_vacancies():
         vacancy_handler = VacancyHandler(django_settings.WEB_ETH_COINBASE, vacancy)
-        if candidate_contract_address in vacancy_handler.candidates():
-            args['vacancies'].append(
-                {'address': vacancy,
-                 'state': vacancy_handler.get_candidate_state(candidate_contract_address),
-                 'id': Vacancy.objects.values('id').get(contract_address=vacancy)['id']})
+        if candidate_contract_address in vacancy_handler.candidates() and vacancy_handler.get_candidate_state(
+                candidate_contract_address) != 'not exist':
+            args['vacancies'].append({'address': vacancy,
+                                      'state': vacancy_handler.get_candidate_state(candidate_contract_address),
+                                      'id': Vacancy.objects.values('id').get(contract_address=vacancy)['id']})
     return render(request, 'jobboard/candidate.html', args)
 
 
@@ -195,6 +204,46 @@ def approve_candidate(request):
     vacancy_id = request.POST.get('vacancy')
     candidate_id = request.POST.get('candidate')
     vacancy = get_object_or_404(Vacancy, id=vacancy_id, employer__user=request.user)
-    candidate = get_object_or_404(Candidate, id=candidate_id)
-    vacancy_handler = VacancyHandler(vacancy.employer.contract_address, vacancy.contract_address)
-    vacancy_handler.grant_candidate(candidate.contract_address)
+    candidate_obj = get_object_or_404(Candidate, id=candidate_id)
+    employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE, vacancy.employer.contract_address)
+    employer_handler.grant_access_to_candidate(vacancy.contract_address, candidate_obj.contract_address)
+    return redirect(candidate, candidate_id=candidate_id)
+
+
+@require_POST
+def revoke_candidate(request):
+    vacancy_id = request.POST.get('vacancy')
+    candidate_id = request.POST.get('candidate')
+    vacancy = get_object_or_404(Vacancy, id=vacancy_id, employer__user=request.user)
+    candidate_obj = get_object_or_404(Candidate, id=candidate_id)
+    employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE, vacancy.employer.contract_address)
+    employer_handler.revoke_access_to_candidate(vacancy.contract_address, candidate_obj.contract_address)
+    return redirect(candidate, candidate_id=candidate_id)
+
+
+def new_cv(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        salary_from = request.POST.get('salary_from')
+        specialisations = request.POST.getlist('specialisation')
+        keywords = request.POST.getlist('keywords')
+        cv = CurriculumVitae()
+        cv.candidate = get_object_or_404(Candidate, user_id=request.user.id)
+        cv.title = title
+        cv.description = description
+        cv.salary_from = salary_from
+        cv.save()
+        cv.specializations.set(specialisations)
+        cv.keywords.set(keywords)
+        cv.save()
+        return redirect(user_settings)
+    else:
+        args = {}
+
+        if user_role(request.user.id) == 'candidate':
+            args = {'specializations': Specialisation.objects.all(), 'keywords': Keyword.objects.all()}
+        else:
+            args['error'] = True
+
+        return render(request, 'jobboard/new_cv.html', args)
