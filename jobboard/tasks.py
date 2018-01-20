@@ -28,7 +28,8 @@ def check_transactions():
                         if not abi:
                             print('Incorrect Event abi (VeraOracle, NewEmployer)' + txn.txn_hash + ' ' + txn.txn_type)
                             continue
-                        logs = get_event_data(abi, log_entry['logs'][1])
+                        tx_logs = [item for item in log_entry['logs'] if item['transactionHash'] == txn.txn_hash]
+                        logs = get_event_data(abi, tx_logs[1])
                         emp_o.contract_address = logs['args']['employer_address']
                         emp_o.save()
                         txn.delete()
@@ -43,7 +44,8 @@ def check_transactions():
                         if not abi:
                             print('Incorrect Event abi (VeraOracle, NewCandidate)' + txn.txn_hash + ' ' + txn.txn_type)
                             continue
-                        logs = get_event_data(abi, log_entry['logs'][1])
+                        tx_logs = [item for item in log_entry['logs'] if item['transactionHash'] == txn.txn_hash]
+                        logs = get_event_data(abi, tx_logs[1])
                         can_o.contract_address = logs['args']['candidate_address']
                         can_o.save()
                         txn.delete()
@@ -58,7 +60,8 @@ def check_transactions():
                         if not abi:
                             print('Incorrect Event abi (Employer, NewVacancy)' + txn.txn_hash + ' ' + txn.txn_type)
                             continue
-                        logs = get_event_data(abi, log_entry['logs'][1])
+                        tx_logs = [item for item in log_entry['logs'] if item['transactionHash'] == txn.txn_hash]
+                        logs = get_event_data(abi, tx_logs[1])
                         vac_o.contract_address = logs['args']['vacancy_address']
                         vac_o.save()
                         txn.delete()
