@@ -1,0 +1,9 @@
+{% if balances %}
+    {% for item in balances %}
+        {% for key, value in item.items %}
+            {{ value }} {{ key }}<br/>
+        {% endfor %}
+    {% endfor %}
+{% else %}
+    0
+{% endif %}

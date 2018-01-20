@@ -1,4 +1,4 @@
-{% load static jobboard_tags %}
+{% load static jobboard_tags w3_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +11,16 @@
 </head>
 <body>
 <div class="row headpanel">
-    <div class="col s12 m12 l4 offset-l8">
+    <div class="col s12 m12 l2 push-l2">
+        {% if request.user.is_staff %}
+            <div class="chip">
+                Last block:
+                <span id="time_to_block" data-per-block="{{ 12|time_per_block }}">{{ 12|next_block_in }}</span>
+                sec ago
+            </div>
+        {% endif %}
+    </div>
+    <div class="col s12 m12 l4 push-l6">
         <i class="fa fa-telegram" aria-hidden="true"></i>
         <i class="fa fa-twitter" aria-hidden="true"></i>
         <i class="fa fa-facebook" aria-hidden="true"></i>
@@ -41,7 +50,7 @@
                     {% endif %}
                 {% endif %}
                 {% if user.is_authenticated %}
-                    <li><a class="black-text" href="{% url 'settings' %}">SETTINGS</a></li>
+                    <li><a class="black-text" href="{% url 'profile' %}">PROFILE</a></li>
                 {% endif %}
             {% endwith %}
         </ul>

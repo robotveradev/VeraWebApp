@@ -85,6 +85,6 @@ body {
     margin-right: 15px;
 }
 
-.state {
+.state, .allowed-contracts {
     cursor: pointer;
 }

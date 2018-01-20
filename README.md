@@ -187,8 +187,8 @@ EOF
 echo "$PYCODE" | ./manage.py shell
 
 screen -dmS vera_jobboard bash -c 'testrpc'
-exit 0
 python RobotVeraWebApp/deploy_contract.py
+exit 0
 EOF
 echo "$RCLOCAL" > /etc/rc.local
 #

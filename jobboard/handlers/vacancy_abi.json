@@ -3,33 +3,19 @@
 		"constant": true,
 		"inputs": [
 			{
-				"name": "",
+				"name": "_candidate_address",
 				"type": "address"
 			}
 		],
-		"name": "is_paid",
+		"name": "get_candidate_state",
 		"outputs": [
 			{
 				"name": "",
-				"type": "bool"
+				"type": "uint8"
 			}
 		],
 		"payable": false,
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "subscribe_to_interview",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -78,20 +64,43 @@
 		"constant": true,
 		"inputs": [
 			{
-				"name": "_candidate_address",
+				"name": "",
 				"type": "address"
 			}
 		],
-		"name": "get_candidate_state",
+		"name": "is_paid",
 		"outputs": [
 			{
 				"name": "",
-				"type": "uint8"
+				"type": "bool"
 			}
 		],
 		"payable": false,
 		"stateMutability": "view",
 		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"name": "_interview_fee",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "candidate",
+				"type": "address"
+			}
+		],
+		"name": "CandidateGrantAccess",
+		"type": "event"
 	},
 	{
 		"constant": false,
@@ -108,15 +117,27 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
+		"anonymous": false,
 		"inputs": [
 			{
-				"name": "newOwner",
+				"indexed": true,
+				"name": "candidate",
 				"type": "address"
 			}
 		],
-		"name": "transferOwnership",
-		"outputs": [],
+		"name": "CandidateRevokeAccess",
+		"type": "event"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "subscribe_to_interview",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -183,38 +204,17 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
 		"inputs": [
 			{
-				"name": "_interview_fee",
-				"type": "uint256"
+				"name": "newOwner",
+				"type": "address"
 			}
 		],
+		"name": "transferOwnership",
+		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "candidate",
-				"type": "address"
-			}
-		],
-		"name": "CandidateGrantAccess",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "candidate",
-				"type": "address"
-			}
-		],
-		"name": "CandidateRevokeAccess",
-		"type": "event"
+		"type": "function"
 	}
 ]

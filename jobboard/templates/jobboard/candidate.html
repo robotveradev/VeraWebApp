@@ -34,7 +34,6 @@
                 <tr>
                     <th>Your vacancies, candidate subscribed to</th>
                     <th class="center">State</th>
-                    <th class="right">Approve</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -45,29 +44,11 @@
                             {% if vacancy.state == 'wait' %}
                             amber-text
                             {% elif vacancy.state == 'accepted' %}
-                            green-text {% endif %}">
-                            {{ vacancy.state }}
-                        </td>
-                        <td class="right">
-                            {% if vacancy.state == 'wait' %}
-                                <form action="{% url 'approve_candidate' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="candidate" value="{{ candidate.id }}">
-                                    <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                                    <button type="submit" class="btn-floating btn-small waves-effect waves-light green">
-                                        <i
-                                                class="material-icons">done</i></button>
-                                </form>
-                            {% elif vacancy.state == 'accepted' %}
-                                <form action="{% url 'revoke_candidate' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="candidate" value="{{ candidate.id }}">
-                                    <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                                    <button type="submit" class="btn-floating btn-small waves-effect waves-light red">
-                                        <i
-                                                class="material-icons">close</i></button>
-                                </form>
-                            {% endif %}
+                            green-text
+                            {% elif vacancy.state == 'revoked' %}
+                            red-text
+                            {% endif %}">
+                            {{ vacancy.state | capfirst }}
                         </td>
                     </tr>
                 {% endfor %}

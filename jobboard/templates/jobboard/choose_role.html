@@ -5,6 +5,9 @@
 {% block content %}
     <div class="container">
         <h4 class="center">Choose your role</h4>
+        {% if error %}
+            <span class="red-text">{{ error }}</span>
+        {% endif %}
         <ul class="collapsible" data-collapsible="accordion">
             <li>
                 <div class="collapsible-header active"><i class="material-icons">face</i>Employer</div>

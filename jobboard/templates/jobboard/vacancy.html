@@ -11,28 +11,40 @@
         </h4>
 
         <table class="bordered highlight">
-            <tr>
-                <td>Employer:</td>
-                <td>{{ vacancy.employer.organization }}</td>
-            </tr>
-            <tr>
-                <td>Title:</td>
-                <td>{{ vacancy.title }}</td>
-            </tr>
-            <tr>
-                <td>Contract address:</td>
-                <td>{{ vacancy.contract_address }}</td>
-            </tr>
-            <tr>
-                <td>Interview fee:</td>
-                <td>{{ vacancy.interview_fee }} {{ vacancy.id | get_coin_symbol }}</td>
-            </tr>
-            {% if vacancy.employer.user == request.user %}
+            {% with vacancy.employer.id|get_coin_symbol as symbol %}
                 <tr>
-                    <td>Allowance:</td>
-                    <td>{{ vacancy.id | allowance_rest }} {{ vacancy.id | get_coin_symbol }}</td>
+                    <td>Employer:</td>
+                    <td>
+                        <a href="{% url 'employer_about' employer_id=vacancy.employer.id %}">{{ vacancy.employer.organization }}</a>
+                    </td>
                 </tr>
-            {% endif %}
+                <tr>
+                    <td>Title:</td>
+                    <td>{{ vacancy.title }}</td>
+                </tr>
+                <tr>
+                    <td>Contract address:</td>
+                    <td>{{ vacancy.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}</td>
+                </tr>
+                <tr>
+                    <td>Interview fee:</td>
+                    <td>{% if vacancy.contract_address %}
+                        {{ vacancy.id|get_interview_fee }} {{ symbol }}
+                    {% else %}
+                        <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                    {% endif %}</td>
+                </tr>
+                <tr>
+                    <td>Salary:</td>
+                    <td>{{ vacancy.salary_from }}-{{ vacancy.salary_up_to }}$</td>
+                </tr>
+                {% if vacancy.employer.user == request.user and vacancy.contract_address %}
+                    <tr>
+                        <td>Allowance:</td>
+                        <td>{{ vacancy.id | allowance_rest }} {{ symbol }}</td>
+                    </tr>
+                {% endif %}
+            {% endwith %}
         </table>
         <br>
         {% for item in vacancy.specializations.all %}
@@ -41,15 +53,28 @@
         {% for item in vacancy.keywords.all %}
             <div class="chip amber white-text">{{ item }}</div>
         {% endfor %}
+        <br>
         {% if vacancy.employer.user == request.user %}
-            {% get_candidates vacancy.id %}
+            <div class="row">
+                <div class="col s12 l2 m2 offset-l10 offset-m10">
+                    <a href="{% url 'vacancy_tests' vacancy_id=vacancy.id %}"
+                       class="btn waves-light waves-effect blue">Tests</a>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+            {% if vacancy.contract_address %}
+                {% get_candidates vacancy.id %}
+            {% endif %}
         {% endif %}
         <br>
-        {% if role == 'candidate' %}
+        {% if role == 'candidate' and vacancy.contract_address %}
+
             <form action="{% url 'subscrabe_to_vacancy' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                <button {% if not may_to_subscribe %}disabled{% endif %} type="submit"
+                <button {% if not obj|is_can_subscribe:vacancy %}disabled{% endif %}
+                        type="submit"
                         class="btn waves-light waves-effect blue right">I Want It!
                 </button>
             </form>

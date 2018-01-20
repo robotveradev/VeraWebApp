@@ -7,91 +7,61 @@
     {% endif %}
     <div class="container">
         <div class="row">
-            <div class="col s12 m3 l3">
-                <h6>Filter</h6>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="input-field">
-                        <select multiple name="specialization" id="specialization">
-                            <option value="" disabled selected>Choose specializations</option>
-                            {% for item in specializations %}
-                                <option value="{{ item.id }}">{{ item.title }}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="specialization">Specialization</label>
-                    </div>
-                    <div class="input-field">
-                        <select multiple name="keyword" id="keyword">
-                            <option value="" disabled selected>Choose keywords</option>
-                            {% for item in keywords %}
-                                <option value="{{ item.id }}">{{ item.word }}</option>
-                            {% endfor %}
-                        </select>
-                        <label for="keyword">Keywords</label>
-                    </div>
-                    <button type="submit" class="btn grey white-text ">Go!</button>
-                </form>
-            </div>
-            <div class="col s12 m9 l9">
-                <div class="row">
-                    <div class="col s12 m12 l12">
-                        {% for vacancy in vacancies %}
-                            <div class="col s6 m4 l4">
-                                <div class="card">
-                                    <div class="card-image waves-effect waves-block waves-light">
-                                        <img style="margin: 17px;" class="activator"
-                                             src="https://remote-job.ru/assets/global/icons/logo.svg">
-                                    </div>
-                                    <div class="card-content">
+            <div class="col s12 m12 l12">
+                {% for vacancy in vacancies %}
+                    <div class="col s6 m3 l3">
+                        <div class="card">
+                            <div class="card-image waves-effect waves-block waves-light">
+                                <img style="margin: 17px;" class="activator"
+                                     src="https://remote-job.ru/assets/global/icons/logo.svg">
+                            </div>
+                            <div class="card-content">
                         <span class="card-title activator grey-text text-darken-4">{{ vacancy.title | truncatechars:'13' }}<i
                                 class="material-icons right">more_vert</i></span>
-                                        <p><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">More...</a></p>
-                                    </div>
-                                    <div class="card-reveal blue white-text">
+                                <p><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">More...</a></p>
+                            </div>
+                            <div class="card-reveal blue white-text">
                         <span class="card-title"><i
                                 class="material-icons right">close</i></span>
-                                        <div>
-                                            <div class="chip blue lighten-2">
-                                                Full time
-                                            </div>
-                                            <h5>{{ vacancy.title }}</h5>
-                                            <h6>Dig File</h6>
-                                            <ul class="tr-list job-meta">
-                                                <li><i class="fa fa-map-signs"
-                                                       aria-hidden="true"></i>Organization: {{ vacancy.employer.organization }}
-                                                </li>
-                                                <li><i class="fa fa-briefcase" aria-hidden="true"></i>Interview
-                                                    fee: {{ vacancy.interview_fee }} {{ vacancy.id | get_coin_symbol }}
-                                                </li>
-                                                <li><i class="fa fa-money" aria-hidden="true"></i>Salary:
-                                                    {% if vacancy.salary_from %}
-                                                        {{ vacancy.salary_from }}${% endif %}
-                                                    {% if vacancy.salary_up_to %} - {{ vacancy.salary_up_to }}
-                                                        ${% endif %}
-                                                    {% if not vacancy.salary_from and not vacancy.salary_up_to %}
-                                                        salary by agreement
-                                                    {% endif %}
-                                                </li>
-                                            </ul>
-                                        </div>
+                                <div>
+                                    <div class="chip blue lighten-2">
+                                        Full time
                                     </div>
-                                    <div class="card-action"><a class="btn waves-effect waves-light deep-purple"
-                                                                href="#">Freelance</a>
-                                        <span class="grey-text right">5 minutes ago</span></div>
+                                    <h5>{{ vacancy.title }}</h5>
+                                    <h6>Dig File</h6>
+                                    <ul class="tr-list job-meta">
+                                        <li><i class="fa fa-map-signs"
+                                               aria-hidden="true"></i>Organization: {{ vacancy.employer.organization }}
+                                        </li>
+                                        <li><i class="fa fa-briefcase" aria-hidden="true"></i>Interview
+                                            fee: {{ vacancy.interview_fee }} {{ vacancy.employer.id | get_coin_symbol }}
+                                        </li>
+                                        <li><i class="fa fa-money" aria-hidden="true"></i>Salary:
+                                            {% if vacancy.salary_from %}
+                                                {{ vacancy.salary_from }}${% endif %}
+                                            {% if vacancy.salary_up_to %} - {{ vacancy.salary_up_to }}
+                                                ${% endif %}
+                                            {% if not vacancy.salary_from and not vacancy.salary_up_to %}
+                                                salary by agreement
+                                            {% endif %}
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                        {% empty %}
-                            <h4 class="center">No vacancy is yet.</h4>
-                            {% if request.user.id|user_role == 'employer' %}
-                                <h6 class="center">
-                                    <a href="{% url 'new_vacancy' %}">Place your first vacancy right now.</a>
-                                </h6>
-                            {% endif %}
-                        {% endfor %}
+                            <div class="card-action"><a class="btn waves-effect waves-light deep-purple"
+                                                        href="#">Freelance</a>
+                                <span class="grey-text right">5 minutes ago</span></div>
+                        </div>
                     </div>
-                </div>
+                {% empty %}
+                    <h4 class="center">No vacancy is yet.</h4>
+                    {% if request.user.id|user_role == 'employer' %}
+                        <h6 class="center">
+                            <a href="{% url 'new_vacancy' %}">Place your first vacancy right now.</a>
+                        </h6>
+                    {% endif %}
+                {% endfor %}
             </div>
-
         </div>
     </div>
 {% endblock %}

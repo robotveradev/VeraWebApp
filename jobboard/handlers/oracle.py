@@ -1,9 +1,6 @@
 from web3 import Web3, RPCProvider
 import json
-import time
-
 from web3.exceptions import BadFunctionCallOutput
-from web3.utils.events import get_event_data
 from web3.utils.validation import validate_address
 
 from jobboard.handlers.coin import CoinHandler
@@ -18,12 +15,6 @@ class OracleHandler(object):
             self.abi = json.load(ad)
         self.contract = self.web3.eth.contract(self.abi, self.contract_address)
         self.state = ['not exist', 'enabled', 'disabled']
-
-    def wait_mined(self, tx_hash):
-        tx = self.web3.eth.getTransaction(tx_hash)
-        while tx['blockNumber'] is None:
-            time.sleep(.5)
-        return True
 
     @property
     def owner(self):
@@ -40,11 +31,7 @@ class OracleHandler(object):
     def new_employer(self, e_id, token):
         validate_address(token)
         if self.check_token_is_ERC20(token):
-            txn_hash = self.contract.transact({'from': self.account}).new_employer(e_id, token)
-            event_abi = self.contract._find_matching_event_abi("NewEmployer")
-            log_entry = self.web3.eth.getTransactionReceipt(txn_hash)
-            logs = get_event_data(event_abi, log_entry['logs'][1])
-            return logs['args']
+            return self.contract.transact({'from': self.account}).new_employer(e_id, token)
         else:
             return False
 
@@ -69,8 +56,7 @@ class OracleHandler(object):
         validate_address(address)
         if address in self.get_employers():
             if self.get_employer_state(address) == 'enabled':
-                self.wait_mined(self.contract.transact({'from': self.account}).disable_employer(address))
-                return True
+                return self.contract.transact({'from': self.account}).disable_employer(address)
             return False
         else:
             raise ValueError("Incorrect Employer")
@@ -79,18 +65,17 @@ class OracleHandler(object):
         validate_address(address)
         if address in self.get_employers():
             if self.get_employer_state(address) == 'disabled':
-                self.wait_mined(self.contract.transact({'from': self.account}).enable_employer(address))
-                return True
+                return self.contract.transact({'from': self.account}).enable_employer(address)
             return False
         else:
             raise ValueError("Incorrect Employer")
 
     def new_candidate(self, c_id):
-        txn_hash = self.contract.transact({'from': self.account}).new_candidate(c_id)
-        event_abi = self.contract._find_matching_event_abi("NewCandidate")
-        log_entry = self.web3.eth.getTransactionReceipt(txn_hash)
-        logs = get_event_data(event_abi, log_entry['logs'][1])
-        return logs['args']
+        return self.contract.transact({'from': self.account}).new_candidate(c_id)
+        # event_abi = self.contract._find_matching_event_abi("NewCandidate")
+        # log_entry = self.web3.eth.getTransactionReceipt(txn_hash)
+        # logs = get_event_data(event_abi, log_entry['logs'][1])
+        # return
 
     def get_candidates(self):
         return self.contract.call().get_candidates()
@@ -113,8 +98,7 @@ class OracleHandler(object):
         validate_address(address)
         if address in self.get_candidates():
             if self.get_candidate_state(address) == 'enabled':
-                self.wait_mined(self.contract.transact({'from': self.account}).disable_candidate(address))
-                return True
+                return self.contract.transact({'from': self.account}).disable_candidate(address)
             return False
         else:
             raise ValueError("Incorrect Candidate")
@@ -123,8 +107,7 @@ class OracleHandler(object):
         validate_address(address)
         if address in self.get_candidates():
             if self.get_candidate_state(address) == 'disabled':
-                self.wait_mined(self.contract.transact({'from': self.account}).enable_candidate(address))
-                return True
+                return self.contract.transact({'from': self.account}).enable_candidate(address)
             return False
         else:
             raise ValueError("Incorrect candidate")
@@ -132,9 +115,9 @@ class OracleHandler(object):
     def new_vacancy(self, employer_address, allowed_amount, interview_fee):
         validate_address(employer_address)
         if employer_address in self.get_employers():
-            self.wait_mined(self.contract.transact({'from': self.account}).new_vacancy(employer_address, allowed_amount,
-                                                                                       interview_fee))
-            return True
+            return self.contract.transact({'from': self.account}).new_vacancy(employer_address,
+                                                                              allowed_amount,
+                                                                              interview_fee)
         return False
 
     def get_vacancies(self):
@@ -151,8 +134,7 @@ class OracleHandler(object):
         validate_address(vacancy_address)
         if employer_address in self.get_employers():
             if vacancy_address in self.get_vacancies():
-                self.wait_mined(
-                    self.contract.transact({'from': self.account}).disable_vacancy(employer_address, vacancy_address))
+                return self.contract.transact({'from': self.account}).disable_vacancy(employer_address, vacancy_address)
             else:
                 raise ValueError("Incorrect Vacancy")
         else:
@@ -163,8 +145,7 @@ class OracleHandler(object):
         validate_address(vacancy_address)
         if employer_address in self.get_employers():
             if vacancy_address in self.get_vacancies():
-                self.wait_mined(
-                    self.contract.transact({'from': self.account}).enable_vacancy(employer_address, vacancy_address))
+                return self.contract.transact({'from': self.account}).enable_vacancy(employer_address, vacancy_address)
             else:
                 raise ValueError("Incorrect Vacancy")
         else:
@@ -173,12 +154,12 @@ class OracleHandler(object):
     def grant_access(self, to_contract, allowance_contract):
         validate_address(to_contract)
         validate_address(allowance_contract)
-        self.wait_mined(self.contract.transact({'from': self.account}).grant_access(to_contract, allowance_contract))
+        return self.contract.transact({'from': self.account}).grant_access(to_contract, allowance_contract)
 
     def revoke_access(self, to_contract, allowance_contract):
         validate_address(to_contract)
         validate_address(allowance_contract)
-        self.wait_mined(self.contract.transact({'from': self.account}).revoke_access(to_contract, allowance_contract))
+        return self.contract.transact({'from': self.account}).revoke_access(to_contract, allowance_contract)
 
     def check_token_is_ERC20(self, address):
         coin_handler = CoinHandler(address)

@@ -45,10 +45,24 @@ class AdminVacancy(admin.ModelAdmin):
 
 
 class AdminTxn(admin.ModelAdmin):
-    list_display = [field.name for field in Transactions._meta.fields]
+    list_display = [field.name for field in Transaction._meta.fields]
 
     class Meta:
-        model = Transactions
+        model = Transaction
+
+
+class AdminTest(admin.ModelAdmin):
+    list_display = [field.name for field in VacancyTest._meta.fields]
+
+    class Meta:
+        model = VacancyTest
+
+
+class AdminCandidateVacancyPassing(admin.ModelAdmin):
+    list_display = [field.name for field in CandidateVacancyPassing._meta.fields]
+
+    class Meta:
+        model = CandidateVacancyPassing
 
 
 admin.site.register(Specialisation, AdminSpecialisation)
@@ -57,4 +71,6 @@ admin.site.register(Candidate, AdminCandidate)
 admin.site.register(CurriculumVitae, AdminCurriculumVitae)
 admin.site.register(Employer, AdminEmployer)
 admin.site.register(Vacancy, AdminVacancy)
-admin.site.register(Transactions, AdminTxn)
+admin.site.register(Transaction, AdminTxn)
+admin.site.register(VacancyTest, AdminTest)
+admin.site.register(CandidateVacancyPassing, AdminCandidateVacancyPassing)

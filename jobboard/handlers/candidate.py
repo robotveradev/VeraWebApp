@@ -15,13 +15,7 @@ class CandidateHandler(object):
         with open('jobboard/handlers/candidate_abi.json', 'r') as ad:
             self.abi = json.load(ad)
         self.contract = self.web3.eth.contract(self.abi, self.contract_address)
-        self.phases = ['not exist', 'wait', 'paid']
-
-    def wait_mined(self, tx_hash):
-        tx = self.web3.eth.getTransaction(tx_hash)
-        while tx['blockNumber'] is None:
-            time.sleep(1)
-        return True
+        self.phases = ['not exist', 'wait', 'accepted', 'paid', 'revoked']
 
     def get_owner(self):
         return self.contract.call().owner()
@@ -51,33 +45,28 @@ class CandidateHandler(object):
     def new_fact(self, fact):
         if not isinstance(fact, dict):
             raise TypeError('Fact must be dict')
-        txn_hash = self.contract.transact({'from': self.account}).new_fact(json.dumps(fact))
-        event_abi = self.contract._find_matching_event_abi("NewFact")
-        log_entry = self.web3.eth.getTransactionReceipt(txn_hash)
-        logs = get_event_data(event_abi, log_entry['logs'][0])
-        return logs['args']
+        return self.contract.transact({'from': self.account}).new_fact(json.dumps(fact))
+        # event_abi = self.contract._find_matching_event_abi("NewFact")
+        # log_entry = self.web3.eth.getTransactionReceipt(txn_hash)
+        # logs = get_event_data(event_abi, log_entry['logs'][0])
+        # return logs['args']
 
     def grant_access_to_contract(self, address):
         validate_address(address)
-        self.wait_mined(self.contract.transact({'from': self.account}).grant_access(address))
-        return True
+        return self.contract.transact({'from': self.account}).grant_access(address)
 
     def revoke_access_to_contract(self, address):
         validate_address(address)
-        self.wait_mined(self.contract.transact({'from': self.account}).revoke_access(address))
-        return True
+        return self.contract.transact({'from': self.account}).revoke_access(address)
 
     def subscribe_to_interview(self, address):
         validate_address(address)
-        self.wait_mined(self.contract.transact({'from': self.account}).subscribe_to_interview(address))
-        return True
+        return self.contract.transact({'from': self.account}).subscribe_to_interview(address)
 
     def unsubscribe_from_interview(self, address):
         validate_address(address)
-        self.wait_mined(self.contract.transact({'from': self.account}).unsubscribe_from_interview(address))
-        return True
+        return self.contract.transact({'from': self.account}).unsubscribe_from_interview(address)
 
     def set_vacancy_paid(self, address):
         validate_address(address)
-        self.wait_mined(self.contract.transact({'from': self.account}).set_vacancy_paid(address))
-        return True
+        return self.contract.transact({'from': self.account}).set_vacancy_paid(address)

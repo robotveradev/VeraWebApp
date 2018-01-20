@@ -12,13 +12,7 @@ class VacancyHandler(object):
         with open('jobboard/handlers/vacancy_abi.json', 'r') as ad:
             self.abi = json.load(ad)
         self.contract = self.web3.eth.contract(self.abi, self.contract_address)
-        self.phases = ['not exist', 'wait', 'accepted']
-
-    def wait_mined(self, tx_hash):
-        tx = self.web3.eth.getTransaction(tx_hash)
-        while tx['blockNumber'] is None:
-            time.sleep(1)
-        return True
+        self.phases = ['not exist', 'wait', 'accepted', 'paid', 'revoked']
 
     def owner(self):
         return self.contract.call().owner()
@@ -40,15 +34,13 @@ class VacancyHandler(object):
     def grant_candidate(self, address):
         validate_address(address)
         if address in self.candidates():
-            self.wait_mined(self.contract.transact({'from': self.account}).grant_candidate(address))
-            return True
+            return self.contract.transact({'from': self.account}).grant_candidate(address)
         return False
 
     def revoke_candidate(self, address):
         validate_address(address)
         if address in self.candidates():
-            self.wait_mined(self.contract.transact({'from': self.account}).revoke_candidate(address))
-            return True
+            return self.contract.transact({'from': self.account}).revoke_candidate(address)
         return False
 
     def pay_to_candidate(self, address, token):
@@ -56,4 +48,4 @@ class VacancyHandler(object):
             return False
         if self.get_candidate_state(address) != 'accepted':
             return False
-        self.wait_mined(self.contract.transact({'from': self.account}).pay_to_candidate(address, token))
+        return self.contract.transact({'from': self.account}).pay_to_candidate(address, token)

@@ -1,0 +1,51 @@
+{% load jobboard_tags %}
+
+<table class="bordered highlight">
+    <thead>
+    <tr>
+        <th class="left">Employer contract address</th>
+        <th class="center">Is allowed</th>
+        <th class="center">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for employer in employers %}
+        {% with candidate_id|is_allowed:employer.address as is_allow %}
+            <tr>
+                <td class="left"><a href="{% url 'employer_about' employer_id=employer.id %}">{{ employer.address }}</a>
+                </td>
+                <td class="center">
+                    {% if is_allow %}
+                        <i class="fa fa-check green-text" aria-hidden="true"></i>
+                    {% else %}
+                        <i class="fa fa-ban red-text" aria-hidden="true"></i>
+                    {% endif %}
+                </td>
+                <td class="center">
+                    {% if is_allow %}
+                        <form action="#" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
+                            <input type="hidden" name="contract_address" value="{{ employer.address }}">
+                            <input type="hidden" name="type" value="revoke">
+                            <button type="submit" class="btn-flat">
+                                <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    {% else %}
+                        <form action="#" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
+                            <input type="hidden" name="contract_address" value="{{ employer.address }}">
+                            <input type="hidden" name="type" value="grant">
+                            <button type="submit" class="btn-flat">
+                                <i class="fa fa-thumbs-o-up " aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endwith %}
+    {% endfor %}
+    </tbody>
+</table>

@@ -646,7 +646,7 @@ contract Vacancy is Ownable {
 
     uint256 public interview_fee;
 
-    enum Interview_phase {_, wait, accepted}
+    enum Interview_phase {_, wait, accepted, paid, revoked}
 
     struct Interview_phase_dict {
         mapping (address => Interview_phase) dict;
@@ -701,12 +701,14 @@ contract Vacancy is Ownable {
 
     function grant_candidate(address _candidate_address) public onlyOwner returns(bool) {
         candidates_to_interview.dict[_candidate_address] = Interview_phase.accepted;
+        Candidate(_candidate_address).employer_accept(this);
         CandidateGrantAccess(_candidate_address);
         return true;
     }
 
     function revoke_candidate(address _candidate_address) public onlyOwner returns(bool) {
-        candidates_to_interview.dict[_candidate_address] = Interview_phase._;
+        candidates_to_interview.dict[_candidate_address] = Interview_phase.revoked;
+        Candidate(_candidate_address).employer_revoke(this);
         CandidateRevokeAccess(_candidate_address);
         return true;
     }
@@ -714,6 +716,7 @@ contract Vacancy is Ownable {
     function pay_to_candidate(address _candidate_address, address _token) public onlyOwner onlyAccepted(_candidate_address) returns(bool) {
         require(!is_paid[_candidate_address]);
         require(Candidate(_candidate_address).set_vacancy_paid(this));
+        candidates_to_interview.dict[_candidate_address] = Interview_phase.paid;
         ERC20(_token).transferFrom(msg.sender, _candidate_address, interview_fee);
         is_paid[_candidate_address] = true;
         return true;
@@ -724,7 +727,7 @@ contract Candidate is Accessable, Ownable {
 
     bytes32 public id;
 
-    enum Phase {_, wait, paid}
+    enum Phase {_, wait, accepted, paid, revoked}
 
     struct Fact {
         address from;
@@ -748,8 +751,8 @@ contract Candidate is Accessable, Ownable {
 
     event NewFact(address sender, uint256 time, bytes32 id);
 
-    modifier onlyVacancy(address _address) {
-        require(vacancies.dict[_address] == Phase.wait);
+    modifier vacancyPhase(address _address, Phase _phase) {
+        require(vacancies.dict[_address] == _phase);
         _;
     }
 
@@ -794,7 +797,16 @@ contract Candidate is Accessable, Ownable {
         vacancies.dict[_vacancy_address] = Phase._;
     }
 
-    function set_vacancy_paid(address _vacancy_address) onlyVacancy(_vacancy_address) public returns(bool) {
+    function employer_accept(address _vacancy_address)  vacancyPhase(_vacancy_address, Phase.wait) returns(bool) {
+        vacancies.dict[_vacancy_address] = Phase.accepted;
+    }
+
+    function employer_revoke(address _vacancy_address) public vacancyPhase(_vacancy_address, Phase.wait) returns(bool) {
+        vacancies.dict[_vacancy_address] = Phase.revoked;
+        return true;
+    }
+
+    function set_vacancy_paid(address _vacancy_address) public vacancyPhase(_vacancy_address, Phase.accepted) returns(bool) {
         vacancies.dict[_vacancy_address] = Phase.paid;
         return true;
     }

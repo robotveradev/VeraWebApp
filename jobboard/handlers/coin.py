@@ -1,6 +1,7 @@
 from web3 import Web3, RPCProvider
 import json
 from web3.utils.validation import validate_address
+from django.conf import settings
 
 
 class CoinHandler(object):
@@ -22,6 +23,10 @@ class CoinHandler(object):
     def symbol(self):
         return self.contract.call().symbol()
 
+    @property
+    def decimals(self):
+        return self.contract.call().decimals()
+
     def totalSupply(self):
         return self.contract.call().totalSupply()
 
@@ -29,3 +34,7 @@ class CoinHandler(object):
         validate_address(owner)
         validate_address(spender)
         return self.contract.call().allowance(owner, spender)
+
+    def transfer(self, address, amount):
+        validate_address(address)
+        self.contract.transact({'from': settings.WEB_ETH_COINBASE}).transfer(address, amount)

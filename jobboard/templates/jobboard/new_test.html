@@ -1,0 +1,33 @@
+{% extends 'jobboard/base.html' %}
+
+{% load jobboard_tags %}
+
+{% block head_title %}VeraOracle - New test{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h4 class="center">New test for vacancy #{{ vacancy.id }}</h4>
+        <form method="post" action="{% url 'new_test' %}">
+            {% csrf_token %}
+            <input type="hidden" value="{{ vacancy.id }}" name="vacancy">
+            <div class="input-field">
+                <input id="title" name="title" type="text" required>
+                <label for="title">Title</label>
+            </div>
+            <div class="input-field">
+                <textarea id="question" class="materialize-textarea" name="question" required></textarea>
+                <label for="question">Question</label>
+            </div>
+            <div class="input-field">
+                <input id="answer" name="answer" type="text" required>
+                <label for="answer">Answer</label>
+            </div>
+            <div class="input-field">
+                <input id="max_attempts" name="max_attempts" type="text" value="3">
+                <label for="max_attempts">Max attempts</label>
+            </div>
+            <button type="submit" class="btn waves-effect waves-light right blue">Continue</button>
+            <div class="clearfix"></div>
+        </form>
+    </div>
+{% endblock %}

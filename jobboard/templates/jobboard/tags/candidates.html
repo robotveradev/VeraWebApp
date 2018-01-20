@@ -1,3 +1,4 @@
+{% load jobboard_tags %}
 {% if candidates %}
     <h5 class="center">Job seekers who subscribe to a job offer:</h5>
     <table class="bordered highligth">
@@ -5,18 +6,51 @@
         <tr>
             <th>Candiadate contract address</th>
             <th class="center">Candidate state</th>
+            <th class="right">Approve</th>
         </tr>
         </thead>
         <tbody>
         {% for candidate in candidates %}
             <tr>
-                <td><a href="{% url 'candidate' candidate_id=candidate.id %}">{{ candidate.address }}</a></td>
+                <td><a href="{% url 'candidate' candidate_id=candidate.obj.id %}">{{ candidate.obj.contract_address }}
+                    ({{ candidate.obj.first_name }} {{ candidate.obj.last_name }})</a></td>
                 <td class="center
                             {% if candidate.state == 'wait' %}
                             amber-text
                             {% elif candidate.state == 'accepted' %}
-                            green-text {% endif %}">
-                    {{ candidate.state }}
+                            green-text
+                            {% elif candidate.state == 'revoked' %}
+                            red-text
+                            {% endif %}">
+                    {{ candidate.state | capfirst }}
+                </td>
+                <td class="right">
+
+
+                    {% if candidate.state == 'wait' %}
+                        {% if candidate.obj.id|employer_answered:vacancy.id %}
+                            <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                        {% else %}
+                            <form action="{% url 'approve_candidate' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="candidate" value="{{ candidate.obj.id }}">
+                                <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
+                                <button type="submit" class="btn-flat btn-small waves-effect waves-light">
+                                    <i class="material-icons green-text">done</i></button>
+                            </form>
+                            <form action="{% url 'revoke_candidate' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="candidate" value="{{ candidate.obj.id }}">
+                                <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
+                                <button type="submit" class="btn-flat btn-small waves-effect waves-light">
+                                    <i class="material-icons red-text">close</i></button>
+                            </form>
+                        {% endif %}
+                    {% elif candidate.state == 'accepted' %}
+                        <i class="material-icons green-text">done</i>
+                    {% elif candidate.state == 'revoked' %}
+                        <i class="material-icons red-text">close</i>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}

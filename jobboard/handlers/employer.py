@@ -17,12 +17,6 @@ class EmployerHandler(object):
         self.contract = self.web3.eth.contract(self.abi, self.contract_address)
         self.phases = ['not exist', 'enabled', 'disabled']
 
-    def wait_mined(self, tx_hash):
-        tx = self.web3.eth.getTransaction(tx_hash)
-        while tx['blockNumber'] is None:
-            time.sleep(1)
-        return True
-
     def get_owner(self):
         return self.contract.call().owner()
 
@@ -37,27 +31,23 @@ class EmployerHandler(object):
 
     def grant_access_to_contract(self, address):
         validate_address(address)
-        self.wait_mined(self.contract.transact({'from': self.account}).grant_access(address))
-        return True
+        return self.contract.transact({'from': self.account}).grant_access(address)
 
     def revoke_access_to_contract(self, address):
         validate_address(address)
-        self.wait_mined(self.contract.transact({'from': self.account}).revoke_access(address))
-        return True
+        return self.contract.transact({'from': self.account}).revoke_access(address)
 
     def grant_access_to_candidate(self, vacancy_address, candidate_address):
         validate_address(vacancy_address)
         validate_address(candidate_address)
-        self.wait_mined(self.contract.transact({'from': self.account}).grant_access_to_candidate(vacancy_address,
-                                                                                                 candidate_address))
-        return True
+        return self.contract.transact({'from': self.account}).grant_access_to_candidate(vacancy_address,
+                                                                                        candidate_address)
 
     def revoke_access_to_candidate(self, vacancy_address, candidate_address):
         validate_address(vacancy_address)
         validate_address(candidate_address)
-        self.wait_mined(self.contract.transact({'from': self.account}).revoke_access_to_candidate(vacancy_address,
-                                                                                                  candidate_address))
-        return True
+        return self.contract.transact({'from': self.account}).revoke_access_to_candidate(vacancy_address,
+                                                                                         candidate_address)
 
     def get_vacancies(self):
         return self.contract.call().get_vacancies()
@@ -68,24 +58,20 @@ class EmployerHandler(object):
 
     def disable_vacancy(self, address):
         validate_address(address)
-        self.wait_mined(self.contract.transact({'from': self.account}).disable_vacancy(address))
-        return True
+        return self.contract.transact({'from': self.account}).disable_vacancy(address)
 
     def enable_vacancy(self, address):
         validate_address(address)
-        self.wait_mined(self.contract.transact({'from': self.account}).enable_vacancy(address))
-        return True
+        return self.contract.transact({'from': self.account}).enable_vacancy(address)
 
     def new_vacancy(self, allowed_amount, interview_fee):
-        txn_hash = self.contract.transact({'from': self.account}).new_vacancy(allowed_amount, interview_fee)
-        event_abi = self.contract._find_matching_event_abi("NewVacancy")
-        log_entry = self.web3.eth.getTransactionReceipt(txn_hash)
-        logs = get_event_data(event_abi, log_entry['logs'][1])
-        return logs['args']
+        return self.contract.transact({'from': self.account}).new_vacancy(allowed_amount, interview_fee)
+        # event_abi = self.contract._find_matching_event_abi("NewVacancy")
+        # log_entry = self.web3.eth.getTransactionReceipt(txn_hash)
+        # logs = get_event_data(event_abi, log_entry['logs'][1])
+        # return logs['args']
 
     def pay_to_candidate(self, vacancy_address, candidate_address):
         validate_address(vacancy_address)
         validate_address(candidate_address)
-        self.wait_mined(
-            self.contract.transact({'from': self.account}).pay_to_candidate(vacancy_address, candidate_address))
-        return True
+        return self.contract.transact({'from': self.account}).pay_to_candidate(vacancy_address, candidate_address)

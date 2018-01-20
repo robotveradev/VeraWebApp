@@ -1,31 +1,43 @@
 {% extends 'jobboard/base.html' %}
-
-{% block head_title %}VeraOracle - Find Job{% endblock %}
+{% load jobboard_tags %}
+{% block head_title %}VeraOracle - Profile {% endblock %}
 
 {% block content %}
     <div class="container">
         {% if role == 'candidate' %}
+            {% if vacancies %}
+                <a href="#allowed" class="modal-trigger">
+                    <i class="fa fa-handshake-o right allowed-contracts" aria-hidden="true"></i>
+                </a>
+                <!-- Modal Structure -->
+                <div id="allowed" class="modal modal-fixed-footer">
+                    <div class="modal-content">
+                        <h4>Who may add info about me:</h4>
+                        <p>{% get_employers vacancies obj.id %}</p>
+                    </div>
+                </div>
+            {% endif %}
             <h4 class="center">Candidate info</h4>
             <table class="bordered highlight">
                 <tr>
                     <td>Name:</td>
-                    <td>{{ candidate.first_name }}</td>
+                    <td>{{ obj.first_name }}</td>
                 </tr>
                 <tr>
                     <td>Last name:</td>
-                    <td>{{ candidate.last_name }}</td>
+                    <td>{{ obj.last_name }}</td>
                 </tr>
                 <tr>
                     <td>Middle name:</td>
-                    <td>{{ candidate.middle_name }}</td>
+                    <td>{{ obj.middle_name }}</td>
                 </tr>
                 <tr>
                     <td>Snails:</td>
-                    <td>{{ candidate.snails }}</td>
+                    <td>{{ obj.snails }}</td>
                 </tr>
                 <tr>
                     <td>Contract address:</td>
-                    <td>{{ candidate.contract_address }}</td>
+                    <td>{{ obj.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}</td>
                 </tr>
                 {% if cv %}
                     <tr>
@@ -40,7 +52,6 @@
                             {% endfor %}
                         </td>
                     </tr>
-
                     <tr>
                         <td>About:</td>
                         <td>{{ cv.description|safe }}</td>
@@ -52,46 +63,32 @@
                 {% endif %}
                 <tr>
                     <td>Balance:</td>
-                    <td>{{ balance }} {{ symbol }}</td>
+                    <td>{% get_balance obj.contract_address %}</td>
                 </tr>
             </table>
-            {% if vacancies %}
-                <h5 class="center">Vacancies, you subscribed to:</h5>
-                <table class="bordered highlight">
-                    <thead>
-                    <tr>
-                        <th>Vacancy address</th>
-                        <th>State</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for vacancy in vacancies %}
-                        <tr>
-                            <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.address }}</a></td>
-                            <td class="amber-text">{{ vacancy.state }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
+            {% get_candidate_vacancies obj %}
         {% elif role == 'employer' %}
             <h4 class="center">Employer info</h4>
             <table class="bordered highlight">
                 <tr>
                     <td>Organization:</td>
-                    <td>{{ employer.organization }}</td>
+                    <td>{{ obj.organization }}</td>
                 </tr>
                 <tr>
                     <td>Inn:</td>
-                    <td>{{ employer.inn }}</td>
+                    <td>{{ obj.inn }}</td>
                 </tr>
                 <tr>
                     <td>Contract address:</td>
-                    <td>{{ employer.contract_address }}</td>
+                    <td>
+                        {{ obj.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}
+                    </td>
                 </tr>
                 <tr>
                     <td>Balance:</td>
-                    <td>{{ balance }} {{ symbol }}</td>
+                    <td>
+                        {% get_balance obj.contract_address %}
+                    </td>
                 </tr>
             </table>
             {% if vacancies %}
@@ -107,14 +104,16 @@
                     {% for vacancy in vacancies %}
                         <tr>
                             <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.title }}</a></td>
-                            <td>{{ vacancy.contract_address }}</td>
+                            <td>{{ vacancy.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
 
                 </table>
             {% else %}
-                <p>Create a <a href="{% url 'new_vacancy' %}">new vacancy.</a></p>
+                {% if obj.contract_address %}
+                    <p>Create a <a href="{% url 'new_vacancy' %}">new vacancy.</a></p>
+                {% endif %}
             {% endif %}
         {% endif %}
     </div>

@@ -1,6 +1,8 @@
+import time
 from web3 import Web3
 from solc import compile_source
 import re
+
 
 with(open('VeraCoin.sol', 'r')) as file:
     source_code = file.read()
@@ -16,6 +18,13 @@ VeraCoin = web3.eth.contract(
 )
 
 coin_trans_hash = VeraCoin.deploy(transaction={'from': web3.eth.accounts[0]})
+
+tx = web3.eth.getTransaction(coin_trans_hash)
+
+while tx is None:
+    tx = web3.eth.getTransaction(coin_trans_hash)
+    print('.')
+    time.sleep(60)
 
 trans_receipt = web3.eth.getTransactionReceipt(coin_trans_hash)
 
@@ -38,6 +47,12 @@ VeraOracle = web3.eth.contract(
 )
 
 oracle_txn_hash = VeraOracle.deploy(transaction={'from': web3.eth.accounts[0]}, args=vera_oracle_deploy_args)
+
+tx = web3.eth.getTransaction(oracle_txn_hash)
+while tx is None:
+    tx = web3.eth.getTransaction(oracle_txn_hash)
+    print('.')
+    time.sleep(1)
 
 oracle_trans_receipt = web3.eth.getTransactionReceipt(oracle_txn_hash)
 

@@ -1,0 +1,51 @@
+{% extends 'jobboard/base.html' %}
+
+{% load jobboard_tags %}
+
+{% block head_title %}VeraOracle - {{ employer.organization }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h4 class="center">Employer info</h4>
+        <table class="bordered highlight">
+            <tr>
+                <td>Organization:</td>
+                <td>{{ employer.organization }}</td>
+            </tr>
+            <tr>
+                <td>Inn:</td>
+                <td>{{ employer.inn }}</td>
+            </tr>
+            <tr>
+                <td>Contract address:</td>
+                <td>{{ employer.contract_address }}</td>
+            </tr>
+        </table>
+        {% if vacancies %}
+            <h5>Employer vacancies</h5>
+            <table class="bordered highlight">
+                <thead>
+                <tr>
+                    <th>Vacancy title</th>
+                    <th>Contract address</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for vacancy in vacancies %}
+                    {% with vacancy.id|is_enabled_vacancy as is_enabled %}
+                        <tr>
+                            <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.title }}</a></td>
+                            <td>{{ vacancy.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}
+                                {% if not is_enabled %}
+                                    <span class="badge">disabled</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endwith %}
+                {% endfor %}
+                </tbody>
+
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}
