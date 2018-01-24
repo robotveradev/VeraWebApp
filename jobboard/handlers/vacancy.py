@@ -27,10 +27,6 @@ class VacancyHandler(object):
     def interview_fee(self):
         return self.contract.call().interview_fee()
 
-    def is_paid(self, address):
-        validate_address(address)
-        return self.contract.call().is_paid(address)
-
     def grant_candidate(self, address):
         validate_address(address)
         if address in self.candidates():
@@ -44,8 +40,7 @@ class VacancyHandler(object):
         return False
 
     def pay_to_candidate(self, address, token):
-        if self.is_paid(address):
-            return False
         if self.get_candidate_state(address) != 'accepted':
             return False
         return self.contract.transact({'from': self.account}).pay_to_candidate(address, token)
+

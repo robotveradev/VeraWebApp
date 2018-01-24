@@ -50,6 +50,15 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [],
+		"name": "unpause",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [],
 		"name": "get_vacancies",
@@ -64,17 +73,36 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
+		"constant": true,
+		"inputs": [],
+		"name": "paused",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
 		"inputs": [
 			{
-				"name": "_address",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "vacancies",
+		"outputs": [
+			{
+				"name": "",
 				"type": "address"
 			}
 		],
-		"name": "enable_vacancy",
-		"outputs": [],
 		"payable": false,
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -96,55 +124,26 @@
 		"type": "function"
 	},
 	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "allowed_contracts",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_vacancy_address",
-				"type": "address"
-			}
-		],
-		"name": "get_vacancy_state",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint8"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"constant": false,
-		"inputs": [
-			{
-				"name": "_address",
-				"type": "address"
-			}
-		],
-		"name": "disable_vacancy",
+		"inputs": [],
+		"name": "pause",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -170,6 +169,20 @@
 			}
 		],
 		"name": "grant_access",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -208,6 +221,25 @@
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "agents",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"name": "_id",
@@ -221,6 +253,11 @@
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "constructor"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
 	},
 	{
 		"anonymous": false,
@@ -241,36 +278,14 @@
 	},
 	{
 		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "vacancy_address",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "time",
-				"type": "uint256"
-			}
-		],
-		"name": "DisabledVacancy",
+		"inputs": [],
+		"name": "Pause",
 		"type": "event"
 	},
 	{
 		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "vacancy_address",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "time",
-				"type": "uint256"
-			}
-		],
-		"name": "EnabledVacancy",
+		"inputs": [],
+		"name": "Unpause",
 		"type": "event"
 	},
 	{
@@ -292,7 +307,7 @@
 				"type": "uint256"
 			}
 		],
-		"name": "GrantAccess",
+		"name": "GrantAgent",
 		"type": "event"
 	},
 	{
@@ -314,7 +329,7 @@
 				"type": "uint256"
 			}
 		],
-		"name": "RevokeAccess",
+		"name": "RevokeAgent",
 		"type": "event"
 	}
 ]

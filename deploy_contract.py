@@ -24,7 +24,7 @@ tx = web3.eth.getTransaction(coin_trans_hash)
 while tx is None:
     tx = web3.eth.getTransaction(coin_trans_hash)
     print('.')
-    time.sleep(60)
+    time.sleep(5)
 
 trans_receipt = web3.eth.getTransactionReceipt(coin_trans_hash)
 
@@ -38,7 +38,7 @@ text = re.sub("VERA_COIN_CONTRACT_ADDRESS = '\w*'", "VERA_COIN_CONTRACT_ADDRESS 
 with open("vera/settings.py", "w") as file_out:
     file_out.write(text)
 
-vera_oracle_deploy_args = [contract_address, "VeraOracle"]
+vera_oracle_deploy_args = ["VeraOracle"]
 
 VeraOracle = web3.eth.contract(
     abi=compile_sol['<stdin>:VeraOracle']['abi'],
@@ -52,7 +52,7 @@ tx = web3.eth.getTransaction(oracle_txn_hash)
 while tx is None:
     tx = web3.eth.getTransaction(oracle_txn_hash)
     print('.')
-    time.sleep(1)
+    time.sleep(5)
 
 oracle_trans_receipt = web3.eth.getTransactionReceipt(oracle_txn_hash)
 

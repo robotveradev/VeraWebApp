@@ -1,10 +1,7 @@
 from web3 import Web3, RPCProvider
 import json
-import time
 from web3.utils.validation import validate_address
-from web3.utils.events import (
-    get_event_data
-)
+from jobboard.handlers.vacancy import VacancyHandler
 
 
 class CandidateHandler(object):
@@ -17,7 +14,7 @@ class CandidateHandler(object):
         self.contract = self.web3.eth.contract(self.abi, self.contract_address)
         self.phases = ['not exist', 'wait', 'accepted', 'paid', 'revoked']
 
-    def get_owner(self):
+    def owner(self):
         return self.contract.call().owner()
 
     def get_id(self):
@@ -34,7 +31,8 @@ class CandidateHandler(object):
 
     def get_vacancy_state(self, address):
         validate_address(address)
-        return self.phases[self.contract.call().get_vacancy_state(address)]
+        vac_h = VacancyHandler('', address)
+        return vac_h.get_candidate_state(self.contract_address)
 
     def get_fact(self, id):
         if Web3.toHex(id) in self.get_facts():
@@ -46,10 +44,6 @@ class CandidateHandler(object):
         if not isinstance(fact, dict):
             raise TypeError('Fact must be dict')
         return self.contract.transact({'from': self.account}).new_fact(json.dumps(fact))
-        # event_abi = self.contract._find_matching_event_abi("NewFact")
-        # log_entry = self.web3.eth.getTransactionReceipt(txn_hash)
-        # logs = get_event_data(event_abi, log_entry['logs'][0])
-        # return logs['args']
 
     def grant_access_to_contract(self, address):
         validate_address(address)
@@ -63,10 +57,8 @@ class CandidateHandler(object):
         validate_address(address)
         return self.contract.transact({'from': self.account}).subscribe_to_interview(address)
 
-    def unsubscribe_from_interview(self, address):
-        validate_address(address)
-        return self.contract.transact({'from': self.account}).unsubscribe_from_interview(address)
+    def paused(self):
+        return self.contract.call().paused()
 
-    def set_vacancy_paid(self, address):
-        validate_address(address)
-        return self.contract.transact({'from': self.account}).set_vacancy_paid(address)
+    def pause(self):
+        self.contract.transact({'from': self.account}).pause()

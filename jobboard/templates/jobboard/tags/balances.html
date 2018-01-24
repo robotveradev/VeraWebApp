@@ -1,7 +1,7 @@
 {% if balances %}
     {% for item in balances %}
         {% for key, value in item.items %}
-            {{ value }} {{ key }}<br/>
+            <div class="chip white-text grey">{{ value }} {{ key | title }}</div>
         {% endfor %}
     {% endfor %}
 {% else %}

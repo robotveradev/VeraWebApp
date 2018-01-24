@@ -392,30 +392,57 @@ contract VeraCoinPreSale is Haltable {
     }
 }
 
-contract Accessable {
-    mapping (address => bool) public allowed_contracts;
+contract PermissionedAgents {
+    mapping (address => bool) public agents;
 
-    event GrantAccess(address sender, address allowed, uint256);
+    event GrantAgent(address sender, address allowed, uint256);
 
-    event RevokeAccess(address sender, address allowed, uint256);
+    event RevokeAgent(address sender, address allowed, uint256);
 
-    function Accessable() {
-        allowed_contracts[msg.sender] = true;
+    function PermissionedAgents() {
+        agents[msg.sender] = true;
     }
 
-    modifier onlyAllowed() {
-        require(allowed_contracts[msg.sender]);
+    modifier onlyAgent() {
+        require(agents[msg.sender]);
         _;
     }
 
-    function grant_access(address _address) public onlyAllowed {
-        allowed_contracts[_address] = true;
-        GrantAccess(msg.sender, _address, now);
+    function grant_access(address _address) public onlyAgent {
+        agents[_address] = true;
+        GrantAgent(msg.sender, _address, now);
     }
 
-    function revoke_access(address _address) public onlyAllowed {
-        allowed_contracts[_address] = false;
-        RevokeAccess(msg.sender, _address, now);
+    function revoke_access(address _address) public onlyAgent {
+        agents[_address] = false;
+        RevokeAgent(msg.sender, _address, now);
+    }
+}
+
+contract Pausable is Ownable {
+    event Pause();
+    event Unpause();
+
+    bool public paused = false;
+
+    modifier whenNotPaused() {
+        require(!paused);
+        _;
+    }
+
+    modifier whenPaused() {
+        require(paused);
+        _;
+    }
+
+    function pause() onlyOwner whenNotPaused public {
+        paused = true;
+        Pause();
+    }
+
+    function unpause() onlyOwner whenPaused public {
+        paused = false;
+        Unpause();
     }
 }
 
@@ -423,224 +450,91 @@ contract VeraOracle is Ownable {
 
     using SafeMath for uint256;
 
-    address public token;
+    bytes32 public name;
 
-    string public name;
+    address[] public employers;
 
-    enum State {_, enabled, disabled}
-
-    struct State_dict {
-        mapping (address => State) dict;
-        address[] keys;
-    }
-
-    State_dict employers;
-
-    State_dict candidates;
+    address[] public candidates;
 
     event NewEmployer(address indexed employer_address, uint256 time);
 
-    event DisabledEmployer(address employer_address, uint256 time);
-
-    event EnabledEmployer(address employer_address, uint256 time);
-
     event NewCandidate(address indexed candidate_address, uint256 time);
 
-    event DisabledCandidate(address candidate_address, uint256 time);
+    function () payable public {}
 
-    event EnabledCandidate(address candidate_address, uint256 time);
-
-    modifier onlyEnabledEmployer(address _address) {
-        require(employers.dict[_address] == State.enabled);
-        _;
-    }
-
-    modifier onlyDisabledEmployer(address _address) {
-        require(employers.dict[_address] == State.disabled);
-        _;
-    }
-
-    modifier onlyEnabledCandidate(address _address) {
-        require(candidates.dict[_address] == State.enabled);
-        _;
-    }
-
-    modifier onlyDisabledCandidate(address _address) {
-        require(candidates.dict[_address] == State.disabled);
-        _;
-    }
-
-    function VeraOracle(address _token, string _name) public {
-        token = _token;
+    function VeraOracle(bytes32 _name) public {
         name = _name;
-    }
-
-    function get_employers() public view returns(address[]) {
-        return employers.keys;
-    }
-
-    function get_candidates() public view returns(address[]){
-        return candidates.keys;
     }
 
     function new_employer(bytes32 _id, address _token) public onlyOwner returns(bool) {
         Employer employer = new Employer(_id, _token);
-        employers.dict[employer] = State.enabled;
-        employers.keys.push(employer);
-        grant_access(employer, msg.sender);
+        employers.push(employer);
+        employer.grant_access(msg.sender);
         NewEmployer(employer, now);
         return true;
     }
 
-    function get_employer_id(address _address) public view returns(bytes32) {
-        return Employer(_address).id();
-    }
-
-    function disable_employer(address _address) public onlyOwner onlyEnabledEmployer(_address) {
-        employers.dict[_address] = State.disabled;
-        DisabledEmployer(_address, now);
-    }
-
-    function enable_employer(address _address) public onlyOwner onlyDisabledEmployer(_address) {
-        employers.dict[_address] = State.enabled;
-        EnabledEmployer(_address, now);
-    }
-
-    function get_employer_state(address _address) public view returns(State) {
-        return employers.dict[_address];
+    function get_employers() public view returns(address[]) {
+        return employers;
     }
 
     function new_candidate(bytes32 _id) public onlyOwner returns(bool) {
         Candidate candidate = new Candidate(_id);
-        candidates.dict[candidate] = State.enabled;
-        candidates.keys.push(candidate);
-        grant_access(candidate, msg.sender);
+        candidates.push(candidate);
+        candidate.grant_access(msg.sender);
         NewCandidate(candidate, now);
         return true;
     }
 
-    function get_candidate_id(address _address) public view returns(bytes32) {
-        return Candidate(_address).id();
-    }
-
-    function disable_candidate(address _address) public onlyOwner onlyEnabledCandidate(_address) {
-        candidates.dict[_address] = State.disabled;
-        DisabledCandidate(_address, now);
-    }
-
-    function enable_candidate(address _address) public onlyOwner onlyDisabledCandidate(_address) {
-        candidates.dict[_address] = State.enabled;
-        EnabledCandidate(_address, now);
-    }
-
-    function get_candidate_state(address _address) public view returns(State) {
-        return candidates.dict[_address];
-    }
-
-    function new_vacancy(address _employer_contract, uint256 _allowed_amount, uint256 _interview_fee) public onlyOwner onlyEnabledEmployer(_employer_contract) returns(bool) {
-        Employer(_employer_contract).new_vacancy(_allowed_amount, _interview_fee);
-        return true;
-    }
-
-    function disable_vacancy(address _employer_contract, address _vacancy_contract) public onlyOwner onlyEnabledEmployer(_employer_contract) {
-        Employer(_employer_contract).disable_vacancy(_vacancy_contract);
-    }
-
-    function enable_vacancy(address _employer_contract, address _vacancy_contract) public onlyOwner onlyEnabledEmployer(_employer_contract) {
-        Employer(_employer_contract).enable_vacancy(_vacancy_contract);
-    }
-
-    function grant_access(address _contract, address _allowed_contract) public onlyOwner {
-        Accessable(_contract).grant_access(_allowed_contract);
-    }
-
-    function revoke_access(address _contract, address _allowed_contract) public onlyOwner {
-        Accessable(_contract).revoke_access(_allowed_contract);
-    }
-
-    function pay_to_candidate(address _employer_address, address _vacancy_address, address _candidate_address) onlyOwner {
-        Employer(_employer_address).pay_to_candidate(_vacancy_address, _candidate_address);
+    function get_candidates() public view returns(address[]) {
+        return candidates;
     }
 }
 
-contract Employer is Accessable {
+contract Employer is PermissionedAgents, Pausable {
 
     using SafeMath for uint256;
-
-    enum State {_, enabled, disabled}
-
-    struct State_dict {
-        mapping (address => State) dict;
-        address[] keys;
-    }
 
     bytes32 public id;
 
     address public token;
 
-    State_dict vacancies;
+    address[] public vacancies;
 
     event NewVacancy(address indexed vacancy_address, uint256 time);
 
-    event DisabledVacancy(address indexed vacancy_address, uint256 time);
-
-    event EnabledVacancy(address indexed vacancy_address, uint256 time);
-
-    modifier onlyEnabledVacancy(address _address) {
-        require(vacancies.dict[_address] == State.enabled);
-        _;
-    }
-
-    modifier onlyDisabledVacancy(address _address) {
-        require(vacancies.dict[_address] == State.disabled);
-        _;
-    }
+    function () payable public {}
 
     function Employer(bytes32 _id, address _token) public {
         id = _id;
         token = _token;
     }
 
-    function new_vacancy(uint256 _allowed_amount, uint256 _interview_fee) public onlyAllowed {
+    function new_vacancy(uint256 _allowed_amount, uint256 _interview_fee) public onlyAgent whenNotPaused {
         Vacancy vacancy = new Vacancy(_interview_fee);
         require(ERC20(token).approve(vacancy, _allowed_amount));
-        vacancies.dict[vacancy] = State.enabled;
-        vacancies.keys.push(vacancy);
+        vacancies.push(vacancy);
         NewVacancy(vacancy, now);
     }
 
-    function disable_vacancy(address _address) public onlyAllowed onlyEnabledVacancy(_address) {
-        vacancies.dict[_address] = State.disabled;
-        DisabledVacancy(_address, now);
+    function get_vacancies() public view returns(address[]) {
+        return vacancies;
     }
 
-    function enable_vacancy(address _address) public onlyAllowed onlyDisabledVacancy(_address) {
-        vacancies.dict[_address] = State.enabled;
-        EnabledVacancy(_address, now);
-    }
-
-    function get_vacancies() public view returns (address[]) {
-        return vacancies.keys;
-    }
-
-    function get_vacancy_state(address _vacancy_address) public view returns(State) {
-        return vacancies.dict[_vacancy_address];
-    }
-
-    function grant_access_to_candidate(address _vacancy_address, address _candidate_address) public onlyAllowed onlyEnabledVacancy(_vacancy_address) {
+    function grant_access_to_candidate(address _vacancy_address, address _candidate_address) public onlyAgent {
         Vacancy(_vacancy_address).grant_candidate(_candidate_address);
     }
 
-    function revoke_access_to_candidate(address _vacancy_address, address _candidate_address) public onlyAllowed onlyEnabledVacancy(_vacancy_address) {
+    function revoke_access_to_candidate(address _vacancy_address, address _candidate_address) public onlyAgent {
         Vacancy(_vacancy_address).revoke_candidate(_candidate_address);
     }
 
-    function pay_to_candidate(address _vacancy_address, address _candidate_address) public onlyAllowed onlyEnabledVacancy(_vacancy_address) {
+    function pay_to_candidate(address _vacancy_address, address _candidate_address) public onlyAgent whenNotPaused {
         Vacancy(_vacancy_address).pay_to_candidate(_candidate_address, token);
     }
 }
 
-contract Vacancy is Ownable {
+contract Vacancy is Ownable, Pausable {
 
     using SafeMath for uint256;
 
@@ -653,8 +547,6 @@ contract Vacancy is Ownable {
         address[] keys;
     }
 
-    mapping (address => bool) public is_paid;
-
     Interview_phase_dict candidates_to_interview;
 
     event CandidateGrantAccess(address indexed candidate);
@@ -666,15 +558,17 @@ contract Vacancy is Ownable {
         _;
     }
 
-    modifier onlyExist() {
-        require(candidates_to_interview.dict[msg.sender] != Interview_phase._);
-        _;
-    }
-
     modifier onlyAccepted(address _address) {
         require(candidates_to_interview.dict[_address] == Interview_phase.accepted);
         _;
     }
+
+    modifier onlyNotPaid(address _address) {
+        require(candidates_to_interview.dict[_address] != Interview_phase.paid);
+        _;
+    }
+
+    function () payable public {}
 
     function Vacancy(uint256 _interview_fee) public {
         interview_fee = _interview_fee;
@@ -688,46 +582,35 @@ contract Vacancy is Ownable {
         return candidates_to_interview.dict[_candidate_address];
     }
 
-    function subscribe_to_interview() public onlyNotExist returns(bool) {
+    function subscribe_to_interview() public onlyNotExist whenNotPaused returns(bool) {
         candidates_to_interview.dict[msg.sender] = Interview_phase.wait;
         candidates_to_interview.keys.push(msg.sender);
         return true;
     }
 
-    function unsubscribe_from_interview() public onlyExist returns(bool) {
-        candidates_to_interview.dict[msg.sender] = Interview_phase._;
-        return true;
-    }
-
-    function grant_candidate(address _candidate_address) public onlyOwner returns(bool) {
+    function grant_candidate(address _candidate_address) public onlyOwner whenNotPaused returns(bool) {
         candidates_to_interview.dict[_candidate_address] = Interview_phase.accepted;
-        Candidate(_candidate_address).employer_accept(this);
         CandidateGrantAccess(_candidate_address);
         return true;
     }
 
     function revoke_candidate(address _candidate_address) public onlyOwner returns(bool) {
         candidates_to_interview.dict[_candidate_address] = Interview_phase.revoked;
-        Candidate(_candidate_address).employer_revoke(this);
         CandidateRevokeAccess(_candidate_address);
         return true;
     }
 
-    function pay_to_candidate(address _candidate_address, address _token) public onlyOwner onlyAccepted(_candidate_address) returns(bool) {
-        require(!is_paid[_candidate_address]);
-        require(Candidate(_candidate_address).set_vacancy_paid(this));
+    function pay_to_candidate(address _candidate_address, address _token) public onlyOwner onlyAccepted(_candidate_address) onlyNotPaid(_candidate_address) whenNotPaused returns(bool) {
+        require(ERC20(_token).balanceOf(msg.sender) > interview_fee);
         candidates_to_interview.dict[_candidate_address] = Interview_phase.paid;
         ERC20(_token).transferFrom(msg.sender, _candidate_address, interview_fee);
-        is_paid[_candidate_address] = true;
         return true;
     }
 }
 
-contract Candidate is Accessable, Ownable {
+contract Candidate is PermissionedAgents, Pausable {
 
     bytes32 public id;
-
-    enum Phase {_, wait, accepted, paid, revoked}
 
     struct Fact {
         address from;
@@ -740,28 +623,20 @@ contract Candidate is Accessable, Ownable {
         bytes32[] keys;
     }
 
-    struct Vacancies_dict {
-        mapping (address => Phase) dict;
-        address[] keys;
-    }
-
     Fact_dict facts;
 
-    Vacancies_dict vacancies;
+    address[] public vacancies;
 
     event NewFact(address sender, uint256 time, bytes32 id);
 
-    modifier vacancyPhase(address _address, Phase _phase) {
-        require(vacancies.dict[_address] == _phase);
-        _;
-    }
+    function () payable public {}
 
     function Candidate(bytes32 _id) public {
         id = _id;
     }
 
-    function new_fact(string _fact) public onlyAllowed returns(bool) {
-        bytes32 _id = sha3(_fact);
+    function new_fact(string _fact) public onlyAgent returns(bool) {
+        bytes32 _id = keccak256(_fact);
         facts.dict[_id] = Fact(msg.sender, now, _fact);
         facts.keys.push(_id);
         NewFact(msg.sender, now, _id);
@@ -776,38 +651,12 @@ contract Candidate is Accessable, Ownable {
         return (facts.dict[_id].from, facts.dict[_id].time, facts.dict[_id].fact);
     }
 
-    function subscribe_to_interview(address _vacancy_address) public onlyAllowed {
-        require(vacancies.dict[_vacancy_address] == Phase._);
+    function subscribe_to_interview(address _vacancy_address) public whenNotPaused onlyAgent {
         require(Vacancy(_vacancy_address).subscribe_to_interview());
-        vacancies.dict[_vacancy_address] = Phase.wait;
-        vacancies.keys.push(_vacancy_address);
+        vacancies.push(_vacancy_address);
     }
 
-    function get_vacancies() public view returns(address[]) {
-        return vacancies.keys;
-    }
-
-    function get_vacancy_state(address _vacancy) public view returns(Phase) {
-        return vacancies.dict[_vacancy];
-    }
-
-    function unsubscribe_from_interview(address _vacancy_address) public onlyAllowed {
-        require(vacancies.dict[_vacancy_address] == Phase.wait);
-        require(Vacancy(_vacancy_address).unsubscribe_from_interview());
-        vacancies.dict[_vacancy_address] = Phase._;
-    }
-
-    function employer_accept(address _vacancy_address)  vacancyPhase(_vacancy_address, Phase.wait) returns(bool) {
-        vacancies.dict[_vacancy_address] = Phase.accepted;
-    }
-
-    function employer_revoke(address _vacancy_address) public vacancyPhase(_vacancy_address, Phase.wait) returns(bool) {
-        vacancies.dict[_vacancy_address] = Phase.revoked;
-        return true;
-    }
-
-    function set_vacancy_paid(address _vacancy_address) public vacancyPhase(_vacancy_address, Phase.accepted) returns(bool) {
-        vacancies.dict[_vacancy_address] = Phase.paid;
-        return true;
+    function get_vacancies() public view returns(address[]){
+        return vacancies;
     }
 }

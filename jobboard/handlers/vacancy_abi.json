@@ -1,17 +1,35 @@
 [
 	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_candidate_address",
-				"type": "address"
-			}
-		],
-		"name": "get_candidate_state",
+		"constant": false,
+		"inputs": [],
+		"name": "unpause",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "subscribe_to_interview",
 		"outputs": [
 			{
 				"name": "",
-				"type": "uint8"
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "paused",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"payable": false,
@@ -47,6 +65,15 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [],
+		"name": "pause",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [],
 		"name": "owner",
@@ -64,15 +91,15 @@
 		"constant": true,
 		"inputs": [
 			{
-				"name": "",
+				"name": "_candidate_address",
 				"type": "address"
 			}
 		],
-		"name": "is_paid",
+		"name": "get_candidate_state",
 		"outputs": [
 			{
 				"name": "",
-				"type": "bool"
+				"type": "uint8"
 			}
 		],
 		"payable": false,
@@ -80,64 +107,15 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
 		"inputs": [
 			{
-				"name": "_interview_fee",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "candidate",
+				"name": "newOwner",
 				"type": "address"
 			}
 		],
-		"name": "CandidateGrantAccess",
-		"type": "event"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "unsubscribe_from_interview",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "candidate",
-				"type": "address"
-			}
-		],
-		"name": "CandidateRevokeAccess",
-		"type": "event"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "subscribe_to_interview",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
+		"name": "transferOwnership",
+		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -204,17 +182,55 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
 		"inputs": [
 			{
-				"name": "newOwner",
+				"name": "_interview_fee",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "candidate",
 				"type": "address"
 			}
 		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
+		"name": "CandidateGrantAccess",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "candidate",
+				"type": "address"
+			}
+		],
+		"name": "CandidateRevokeAccess",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "Pause",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "Unpause",
+		"type": "event"
 	}
 ]

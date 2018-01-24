@@ -1,24 +1,30 @@
 {% extends 'jobboard/base.html' %}
-{% load jobboard_tags %}
+{% load jobboard_tags w3_tags %}
 {% block head_title %}VeraOracle - Profile {% endblock %}
 
 {% block content %}
     <div class="container">
         {% if role == 'candidate' %}
-            {% if vacancies %}
-                <a href="#allowed" class="modal-trigger">
-                    <i class="fa fa-handshake-o right allowed-contracts" aria-hidden="true"></i>
-                </a>
-                <!-- Modal Structure -->
-                <div id="allowed" class="modal modal-fixed-footer">
-                    <div class="modal-content">
-                        <h4>Who may add info about me:</h4>
-                        <p>{% get_employers vacancies obj.id %}</p>
-                    </div>
-                </div>
-            {% endif %}
             <h4 class="center">Candidate info</h4>
-            <table class="bordered highlight">
+            <table class="bordered highlight" width="100%">
+                <colgroup>
+                    <col width="20%">
+                    <col width="80%">
+                </colgroup>
+                <tr>
+                    <td>Status:</td>
+                    <td>
+                        <form action="#" method="post">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="btn waves-effect waves-light blue">{{ obj.enabled|yesno:"enabled,disabled,pending..." }}</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Balance:</td>
+                    <td>{{ obj.contract_address|eth_getBalance }} ETH</td>
+                </tr>
                 <tr>
                     <td>Name:</td>
                     <td>{{ obj.first_name }}</td>
@@ -71,7 +77,11 @@
             {% endif %}
         {% elif role == 'employer' %}
             <h4 class="center">Employer info</h4>
-            <table class="bordered highlight">
+            <table class="bordered highlight" width="100%">
+                <colgroup>
+                    <col width="20%">
+                    <col width="80%">
+                </colgroup>
                 <tr>
                     <td>Organization:</td>
                     <td>{{ obj.organization }}</td>

@@ -14,9 +14,17 @@ def next_block_in(id):
     return int(time.time() - last_block['timestamp'])
 
 
-@register.filter(next='time_per_block')
+@register.filter(name='time_per_block')
 def time_per_block(id):
     w3 = Web3(HTTPProvider(settings.NODE_URL))
     last_block = w3.eth.getBlock('latest')
     prev_block = w3.eth.getBlock(last_block['number'] - 1)
     return last_block['timestamp'] - prev_block['timestamp']
+
+
+@register.filter(name='eth_getBalance')
+def eth_getBalance(address):
+    if address is None:
+        return 0
+    w3 = Web3(HTTPProvider(settings.NODE_URL))
+    return w3.eth.getBalance(address)

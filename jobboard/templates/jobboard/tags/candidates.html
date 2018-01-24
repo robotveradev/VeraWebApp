@@ -11,48 +11,49 @@
         </thead>
         <tbody>
         {% for candidate in candidates %}
-            <tr>
-                <td><a href="{% url 'candidate' candidate_id=candidate.obj.id %}">{{ candidate.obj.contract_address }}
-                    ({{ candidate.obj.first_name }} {{ candidate.obj.last_name }})</a></td>
-                <td class="center
-                            {% if candidate.state == 'wait' %}
+            {% with candidate.state as st %}
+                <tr>
+                    <td>
+                        <a href="{% url 'candidate' candidate_id=candidate.obj.id %}">{{ candidate.obj.contract_address }}
+                            ({{ candidate.obj.first_name }} {{ candidate.obj.last_name }})</a></td>
+                    <td class="center
+                            {% if st == 'wait' %}
                             amber-text
-                            {% elif candidate.state == 'accepted' %}
+                            {% elif st == 'accepted' %}
                             green-text
-                            {% elif candidate.state == 'revoked' %}
+                            {% elif st == 'revoked' %}
                             red-text
                             {% endif %}">
-                    {{ candidate.state | capfirst }}
-                </td>
-                <td class="right">
-
-
-                    {% if candidate.state == 'wait' %}
-                        {% if candidate.obj.id|employer_answered:vacancy.id %}
-                            <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                        {% else %}
-                            <form action="{% url 'approve_candidate' %}" method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="candidate" value="{{ candidate.obj.id }}">
-                                <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                                <button type="submit" class="btn-flat btn-small waves-effect waves-light">
-                                    <i class="material-icons green-text">done</i></button>
-                            </form>
-                            <form action="{% url 'revoke_candidate' %}" method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="candidate" value="{{ candidate.obj.id }}">
-                                <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                                <button type="submit" class="btn-flat btn-small waves-effect waves-light">
-                                    <i class="material-icons red-text">close</i></button>
-                            </form>
+                        {{ st | capfirst }}
+                    </td>
+                    <td class="right">
+                        {% if st == 'wait' %}
+                            {% if candidate.obj.id|employer_answered:vacancy.id %}
+                                <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                            {% else %}
+                                <form action="{% url 'approve_candidate' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="candidate" value="{{ candidate.obj.id }}">
+                                    <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
+                                    <button type="submit" class="btn-flat btn-small waves-effect waves-light">
+                                        <i class="material-icons green-text">done</i></button>
+                                </form>
+                                <form action="{% url 'revoke_candidate' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="candidate" value="{{ candidate.obj.id }}">
+                                    <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
+                                    <button type="submit" class="btn-flat btn-small waves-effect waves-light">
+                                        <i class="material-icons red-text">close</i></button>
+                                </form>
+                            {% endif %}
+                        {% elif st == 'accepted' or st == 'paid' %}
+                            <i class="material-icons green-text">done</i>
+                        {% elif st == 'revoked' %}
+                            <i class="material-icons red-text">close</i>
                         {% endif %}
-                    {% elif candidate.state == 'accepted' %}
-                        <i class="material-icons green-text">done</i>
-                    {% elif candidate.state == 'revoked' %}
-                        <i class="material-icons red-text">close</i>
-                    {% endif %}
-                </td>
-            </tr>
+                    </td>
+                </tr>
+            {% endwith %}
         {% endfor %}
         </tbody>
     </table>

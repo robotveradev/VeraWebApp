@@ -95,10 +95,7 @@ def profile(request):
         if args['role'] == 'employer':
             args['vacancies'] = Vacancy.objects.filter(employer=args['obj'])
         elif args['role'] == 'candidate':
-            try:
-                args['cv'] = CurriculumVitae.objects.get(candidate=args['obj'])
-            except CurriculumVitae.DoesNotExist:
-                pass
+            args['cv'] = CurriculumVitae.objects.filter(candidate=args['obj']).first()
     return render(request, 'jobboard/profile.html', args)
 
 

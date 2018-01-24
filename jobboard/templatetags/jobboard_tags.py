@@ -140,15 +140,18 @@ def get_balance(address):
             can_h = CandidateHandler(settings.WEB_ETH_COINBASE, can_o.contract_address)
             can_vac_list = can_h.get_vacancies()
             balances = []
+            tokens = []
             for item in can_vac_list:
                 state = can_h.get_vacancy_state(item)
                 if state == 'paid':
                     try:
                         vac_o = Vacancy.objects.get(contract_address=item)
                         token = EmployerHandler(settings.WEB_ETH_COINBASE, vac_o.employer.contract_address).token()
-                        coin_h = CoinHandler(token)
-                        balances.append(
-                            {coin_h.symbol: coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals})
+                        if token not in tokens:
+                            tokens.append(token)
+                            coin_h = CoinHandler(token)
+                            balances.append(
+                                {coin_h.symbol: coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals})
                     except Vacancy.DoesNotExist:
                         pass
             return {'balances': balances}

@@ -1,20 +1,21 @@
 [
 	{
-		"constant": false,
+		"constant": true,
 		"inputs": [
 			{
-				"name": "_employer_contract",
-				"type": "address"
-			},
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "employers",
+		"outputs": [
 			{
-				"name": "_vacancy_contract",
+				"name": "",
 				"type": "address"
 			}
 		],
-		"name": "enable_vacancy",
-		"outputs": [],
 		"payable": false,
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -24,43 +25,11 @@
 		"outputs": [
 			{
 				"name": "",
-				"type": "string"
+				"type": "bytes32"
 			}
 		],
 		"payable": false,
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_address",
-				"type": "address"
-			}
-		],
-		"name": "disable_candidate",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_contract",
-				"type": "address"
-			},
-			{
-				"name": "_allowed_contract",
-				"type": "address"
-			}
-		],
-		"name": "grant_access",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -87,32 +56,18 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_address",
-				"type": "address"
-			}
-		],
-		"name": "enable_employer",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"constant": true,
 		"inputs": [
 			{
-				"name": "_address",
-				"type": "address"
+				"name": "",
+				"type": "uint256"
 			}
 		],
-		"name": "get_employer_id",
+		"name": "candidates",
 		"outputs": [
 			{
 				"name": "",
-				"type": "bytes32"
+				"type": "address"
 			}
 		],
 		"payable": false,
@@ -145,20 +100,6 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_address",
-				"type": "address"
-			}
-		],
-		"name": "disable_employer",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -198,116 +139,6 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_employer_contract",
-				"type": "address"
-			},
-			{
-				"name": "_vacancy_contract",
-				"type": "address"
-			}
-		],
-		"name": "disable_vacancy",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_address",
-				"type": "address"
-			}
-		],
-		"name": "get_candidate_state",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint8"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_employer_address",
-				"type": "address"
-			},
-			{
-				"name": "_vacancy_address",
-				"type": "address"
-			},
-			{
-				"name": "_candidate_address",
-				"type": "address"
-			}
-		],
-		"name": "pay_to_candidate",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_address",
-				"type": "address"
-			}
-		],
-		"name": "get_employer_state",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint8"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_contract",
-				"type": "address"
-			},
-			{
-				"name": "_allowed_contract",
-				"type": "address"
-			}
-		],
-		"name": "revoke_access",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_address",
-				"type": "address"
-			}
-		],
-		"name": "enable_candidate",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
 				"name": "newOwner",
 				"type": "address"
 			}
@@ -319,79 +150,20 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
 		"inputs": [
-			{
-				"name": "_employer_contract",
-				"type": "address"
-			},
-			{
-				"name": "_allowed_amount",
-				"type": "uint256"
-			},
-			{
-				"name": "_interview_fee",
-				"type": "uint256"
-			}
-		],
-		"name": "new_vacancy",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_address",
-				"type": "address"
-			}
-		],
-		"name": "get_candidate_id",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bytes32"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "token",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"name": "_token",
-				"type": "address"
-			},
 			{
 				"name": "_name",
-				"type": "string"
+				"type": "bytes32"
 			}
 		],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "constructor"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
 	},
 	{
 		"anonymous": false,
@@ -414,40 +186,6 @@
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": false,
-				"name": "employer_address",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "time",
-				"type": "uint256"
-			}
-		],
-		"name": "DisabledEmployer",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "employer_address",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "time",
-				"type": "uint256"
-			}
-		],
-		"name": "EnabledEmployer",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
 				"indexed": true,
 				"name": "candidate_address",
 				"type": "address"
@@ -459,40 +197,6 @@
 			}
 		],
 		"name": "NewCandidate",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "candidate_address",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "time",
-				"type": "uint256"
-			}
-		],
-		"name": "DisabledCandidate",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "candidate_address",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "time",
-				"type": "uint256"
-			}
-		],
-		"name": "EnabledCandidate",
 		"type": "event"
 	}
 ]
