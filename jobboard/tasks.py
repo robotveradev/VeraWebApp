@@ -19,7 +19,7 @@ def check_transactions():
         w3 = Web3(HTTPProvider(settings.NODE_URL))
         for txn in txns_set:
             txn_info = w3.eth.getTransaction(txn.txn_hash)
-            if txn_info is not None:
+            if txn_info['blockNumber'] is not None:
                 if txn.txn_type == 'NewEmployer':
                     try:
                         emp_o = Employer.objects.get(id=txn.obj_id)
@@ -61,7 +61,7 @@ def check_transactions():
                             print('Incorrect Event abi (Employer, NewVacancy)' + txn.txn_hash + ' ' + txn.txn_type)
                             continue
                         tx_logs = [item for item in log_entry['logs'] if item['transactionHash'] == txn.txn_hash]
-                        logs = get_event_data(abi, tx_logs[1])
+                        logs = get_event_data(abi, tx_logs[2])
                         vac_o.contract_address = logs['args']['vacancy_address']
                         vac_o.save()
                         txn.delete()

@@ -27,11 +27,11 @@ class Candidate(models.Model):
     first_name = models.CharField(max_length=64, null=False, blank=False)
     middle_name = models.CharField(max_length=64, null=True, blank=True)
     last_name = models.CharField(max_length=64, null=False, blank=False)
-    snails = models.CharField(max_length=32, blank=False, null=False)
+    tax_number = models.CharField(max_length=32, blank=False, null=False)
     enabled = models.NullBooleanField(default=True)
 
     def __str__(self):
-        return self.first_name + ' ' + self.last_name + ' (' + self.snails + ')'
+        return self.first_name + ' ' + self.last_name + ' (' + self.tax_number + ')'
 
 
 class CurriculumVitae(models.Model):
@@ -51,11 +51,11 @@ class Employer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contract_address = models.CharField(max_length=64, null=True, blank=True)
     organization = models.CharField(max_length=255, null=False, blank=False)
-    inn = models.CharField(max_length=32, null=False, blank=False)
+    tax_number = models.CharField(max_length=32, null=False, blank=False)
     enabled = models.NullBooleanField(default=True)
 
     def __str__(self):
-        return self.organization + ' (' + self.inn + ')'
+        return self.organization + ' (' + self.tax_number + ')'
 
 
 class Vacancy(models.Model):

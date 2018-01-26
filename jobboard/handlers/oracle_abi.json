@@ -1,6 +1,20 @@
 [
 	{
 		"constant": true,
+		"inputs": [],
+		"name": "vacancy_fee",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
 		"inputs": [
 			{
 				"name": "",
@@ -30,6 +44,34 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "service_fee",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_beneficiary",
+				"type": "address"
+			}
+		],
+		"name": "new_beneficiary",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -72,6 +114,34 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "beneficiary",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_vacancy_fee",
+				"type": "uint256"
+			}
+		],
+		"name": "new_vacancy_fee",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -139,6 +209,42 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "_employer_address",
+				"type": "address"
+			},
+			{
+				"name": "_candidate_address",
+				"type": "address"
+			},
+			{
+				"name": "_vacancy_address",
+				"type": "address"
+			}
+		],
+		"name": "pay_to_candidate",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_service_fee",
+				"type": "uint8"
+			}
+		],
+		"name": "new_service_fee",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "newOwner",
 				"type": "address"
 			}
@@ -150,10 +256,44 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_employer",
+				"type": "address"
+			},
+			{
+				"name": "_allowed_amount",
+				"type": "uint256"
+			},
+			{
+				"name": "_interview_fee",
+				"type": "uint256"
+			}
+		],
+		"name": "new_vacancy",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"name": "_name",
 				"type": "bytes32"
+			},
+			{
+				"name": "_service_fee",
+				"type": "uint8"
+			},
+			{
+				"name": "_beneficiary",
+				"type": "address"
+			},
+			{
+				"name": "_vacancy_fee",
+				"type": "uint256"
 			}
 		],
 		"payable": false,
@@ -161,15 +301,10 @@
 		"type": "constructor"
 	},
 	{
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "fallback"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": true,
+				"indexed": false,
 				"name": "employer_address",
 				"type": "address"
 			},
@@ -186,7 +321,7 @@
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": true,
+				"indexed": false,
 				"name": "candidate_address",
 				"type": "address"
 			},

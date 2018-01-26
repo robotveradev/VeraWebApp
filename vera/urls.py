@@ -24,6 +24,7 @@ basic = [
     path('account/', include("account.urls")),
     path('job/find/', jobboard_views.find_job, name='find_job'),
     path('profile/', jobboard_views.profile, name='profile'),
+    path('help/', jobboard_views.user_help, name='user_help'),
 ]
 
 candidate_urlpatterns = [

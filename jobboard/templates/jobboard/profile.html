@@ -12,20 +12,6 @@
                     <col width="80%">
                 </colgroup>
                 <tr>
-                    <td>Status:</td>
-                    <td>
-                        <form action="#" method="post">
-                            {% csrf_token %}
-                            <button type="submit"
-                                    class="btn waves-effect waves-light blue">{{ obj.enabled|yesno:"enabled,disabled,pending..." }}</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Balance:</td>
-                    <td>{{ obj.contract_address|eth_getBalance }} ETH</td>
-                </tr>
-                <tr>
                     <td>Name:</td>
                     <td>{{ obj.first_name }}</td>
                 </tr>
@@ -38,12 +24,19 @@
                     <td>{{ obj.middle_name }}</td>
                 </tr>
                 <tr>
-                    <td>Snails:</td>
-                    <td>{{ obj.snails }}</td>
+                    <td>Tax number:</td>
+                    <td>{{ obj.tax_number }}</td>
                 </tr>
                 <tr>
                     <td>Contract address:</td>
-                    <td>{{ obj.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}</td>
+                    <td>
+                        {% if obj.contract_address is not None %}
+                            <a target="_blank"
+                               href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
+                        {% else %}
+                            Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% if cv %}
                     <tr>
@@ -69,7 +62,9 @@
                 {% endif %}
                 <tr>
                     <td>Balance:</td>
-                    <td>{% get_balance obj.contract_address %}</td>
+                    <td>
+                        {% get_balance obj.contract_address %}
+                    </td>
                 </tr>
             </table>
             {% if obj.contract_address %}
@@ -87,13 +82,18 @@
                     <td>{{ obj.organization }}</td>
                 </tr>
                 <tr>
-                    <td>Inn:</td>
-                    <td>{{ obj.inn }}</td>
+                    <td>Tax number:</td>
+                    <td>{{ obj.tax_number }}</td>
                 </tr>
                 <tr>
                     <td>Contract address:</td>
                     <td>
-                        {{ obj.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}
+                        {% if obj.contract_address is not None %}
+                            <a target="_blank"
+                               href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
+                        {% else %}
+                            Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                        {% endif %}
                     </td>
                 </tr>
                 <tr>
@@ -116,7 +116,14 @@
                     {% for vacancy in vacancies %}
                         <tr>
                             <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.title }}</a></td>
-                            <td>{{ vacancy.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}</td>
+                            <td>
+                                {% if vacancy.contract_address is not None %}
+                                    <a target="_blank"
+                                       href="https://rinkeby.etherscan.io/address/{{ vacancy.contract_address }}">{{ vacancy.contract_address }}</a>
+                                {% else %}
+                                    Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

@@ -39,14 +39,14 @@ def choose_role(request):
                                django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
         if role == 'employer':
             org = request.POST.get('organization')
-            inn = request.POST.get('inn')
-            token = request.POST.get('token')
+            tax_number = request.POST.get('tax_number')
             try:
-                txn_hash = oracle.new_employer(Web3.toBytes(hexstr=Web3.sha3(text=org + inn)), token)
+                txn_hash = oracle.new_employer(Web3.toBytes(hexstr=Web3.sha3(text=org + tax_number)),
+                                               django_settings.VERA_COIN_CONTRACT_ADDRESS)
                 emp = Employer()
                 emp.user = request.user
                 emp.organization = request.POST.get('organization')
-                emp.inn = request.POST.get('inn')
+                emp.tax_number = request.POST.get('tax_number')
                 emp.save()
                 txn = Transaction()
                 txn.user = request.user
@@ -61,28 +61,27 @@ def choose_role(request):
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
             middle_name = request.POST.get('middle_name')
-            snails = request.POST.get('snails')
+            tax_number = request.POST.get('tax_number')
             txn_hash = oracle.new_candidate(
-                Web3.toBytes(hexstr=Web3.sha3(text=first_name + middle_name + last_name + snails)))
+                Web3.toBytes(hexstr=Web3.sha3(text=first_name + middle_name + last_name + tax_number)))
             if txn_hash:
-                candidate = Candidate()
-                candidate.user = request.user
-                candidate.first_name = first_name
-                candidate.last_name = last_name
-                candidate.middle_name = middle_name
-                candidate.snails = snails
-                candidate.save()
+                can_o = Candidate()
+                can_o.user = request.user
+                can_o.first_name = first_name
+                can_o.last_name = last_name
+                can_o.middle_name = middle_name
+                can_o.tax_number = tax_number
+                can_o.save()
                 txn = Transaction()
                 txn.user = request.user
                 txn.txn_hash = txn_hash
                 txn.txn_type = 'NewCandidate'
-                txn.obj_id = candidate.id
+                txn.obj_id = can_o.id
                 txn.save()
         if next != '':
             return redirect(next)
         else:
-            return redirect(index)
-    args['token'] = django_settings.VERA_COIN_CONTRACT_ADDRESS
+            return redirect(profile)
     return render(request, 'jobboard/choose_role.html', args)
 
 
@@ -102,47 +101,53 @@ def profile(request):
 @login_required
 @choose_role_required(redirect_url='/role/')
 def new_vacancy(request):
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        interview_fee = request.POST.get('interview_fee')
-        salary_from = request.POST.get('salary_from')
-        salary_to = request.POST.get('salary_to')
-        specialisations = request.POST.getlist('specialisation')
-        keywords = request.POST.getlist('keywords')
-        allowed_amount = request.POST.get('allowed_amount')
-        emp_o = Employer.objects.get(user_id=request.user.id)
-        emp_h = EmployerHandler(django_settings.WEB_ETH_COINBASE,
-                                emp_o.contract_address)
-        coin_h = CoinHandler(emp_h.token())
-        decimals = coin_h.decimals
-        txn_hash = emp_h.new_vacancy(int(allowed_amount) * 10 ** decimals,
-                                     int(interview_fee) * 10 ** decimals)
-        if txn_hash:
-            vac_o = Vacancy()
-            vac_o.employer = emp_o
-            vac_o.title = title
-            vac_o.interview_fee = int(interview_fee) * 10 ** decimals
-            vac_o.allowed_amount = int(allowed_amount) * 10 ** decimals
-            vac_o.salary_from = salary_from
-            vac_o.salary_up_to = salary_to
-            vac_o.save()
-            vac_o.specializations.set(specialisations)
-            vac_o.keywords.set(keywords)
-            vac_o.save()
-            txn = Transaction()
-            txn.user = request.user
-            txn.txn_hash = txn_hash
-            txn.txn_type = 'NewVacancy'
-            txn.obj_id = vac_o.id
-            txn.save()
-        return redirect(profile)
     args = {}
     if user_role(request.user.id)[0] == 'candidate':
-        args['error'] = True
+        args['error'] = 'Candidate cannot place a vacancy'
     else:
-        args = {'specializations': Specialisation.objects.all(),
-                'keywords': Keyword.objects.all(),
-                'employer': Employer.objects.get(user_id=request.user.id)}
+        if request.method == 'POST':
+            title = request.POST.get('title')
+            interview_fee = request.POST.get('interview_fee')
+            salary_from = request.POST.get('salary_from')
+            salary_to = request.POST.get('salary_to')
+            specialisations = request.POST.getlist('specialisation')
+            keywords = request.POST.getlist('keywords')
+            allowed_amount = request.POST.get('allowed_amount')
+            emp_o = Employer.objects.get(user_id=request.user.id)
+            coin_h = CoinHandler(django_settings.VERA_COIN_CONTRACT_ADDRESS)
+            user_balance = coin_h.balanceOf(emp_o.contract_address)
+            oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+            decimals = coin_h.decimals
+            if user_balance < oracle.vacancy_fee * 10 ** decimals:
+                args['error'] = 'The cost of placing a vacancy of {} tokens. Your balance {} tokens'.format(
+                    oracle.vacancy_fee / 10 ** decimals,
+                    user_balance)
+            else:
+                txn_hash = oracle.new_vacancy(emp_o.contract_address,
+                                              int(allowed_amount) * 10 ** decimals,
+                                              int(interview_fee) * 10 ** decimals)
+                if txn_hash:
+                    vac_o = Vacancy()
+                    vac_o.employer = emp_o
+                    vac_o.title = title
+                    vac_o.interview_fee = int(interview_fee) * 10 ** decimals
+                    vac_o.allowed_amount = int(allowed_amount) * 10 ** decimals
+                    vac_o.salary_from = salary_from
+                    vac_o.salary_up_to = salary_to
+                    vac_o.save()
+                    vac_o.specializations.set(specialisations)
+                    vac_o.keywords.set(keywords)
+                    vac_o.save()
+                    txn = Transaction()
+                    txn.user = request.user
+                    txn.txn_hash = txn_hash
+                    txn.txn_type = 'NewVacancy'
+                    txn.obj_id = vac_o.id
+                    txn.save()
+                return redirect(profile)
+        args['specializations'] = Specialisation.objects.all()
+        args['keywords'] = Keyword.objects.all()
+        args['employer'] = Employer.objects.get(user_id=request.user.id)
     return render(request, 'jobboard/new_vacancy.html', args)
 
 
@@ -345,12 +350,15 @@ def pay_to_candidate(request, vacancy_id):
         passed = False
     vacancy_handler = VacancyHandler(django_settings.WEB_ETH_COINBASE, vacancy_obj.contract_address)
     state = vacancy_handler.get_candidate_state(candidate_obj.contract_address)
+    print(state)
     if state != 'accepted' or not passed:
         return HttpResponse('I see the cheater here', status=404)
     else:
-        employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE, vacancy_obj.employer.contract_address)
-        employer_handler.pay_to_candidate(vacancy_obj.contract_address, candidate_obj.contract_address)
-        return HttpResponse('ok', status=200)
+        oracle_h = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+        oracle_h.pay_to_candidate(vacancy_obj.employer.contract_address,
+                                  candidate_obj.contract_address,
+                                  vacancy_obj.contract_address)
+        return redirect(profile)
 
 
 def employer_about(request, employer_id):
@@ -358,3 +366,7 @@ def employer_about(request, employer_id):
     args['employer'] = get_object_or_404(Employer, id=employer_id)
     args['vacancies'] = Vacancy.objects.filter(employer_id=employer_id)
     return render(request, 'jobboard/employer_about.html', args)
+
+
+def user_help(request):
+    return render(request, 'jobboard/user_help.html', {})

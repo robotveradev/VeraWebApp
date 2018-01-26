@@ -110,6 +110,37 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "_candidate_address",
+				"type": "address"
+			},
+			{
+				"name": "_token",
+				"type": "address"
+			},
+			{
+				"name": "_beneficiary",
+				"type": "address"
+			},
+			{
+				"name": "_service_fee",
+				"type": "uint8"
+			}
+		],
+		"name": "pay_to_candidate",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "newOwner",
 				"type": "address"
 			}
@@ -159,29 +190,6 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_candidate_address",
-				"type": "address"
-			},
-			{
-				"name": "_token",
-				"type": "address"
-			}
-		],
-		"name": "pay_to_candidate",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"name": "_interview_fee",
@@ -191,11 +199,6 @@
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "constructor"
-	},
-	{
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "fallback"
 	},
 	{
 		"anonymous": false,

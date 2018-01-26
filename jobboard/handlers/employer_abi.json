@@ -21,6 +21,32 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "_allowed_amount",
+				"type": "uint256"
+			},
+			{
+				"name": "_interview_fee",
+				"type": "uint256"
+			},
+			{
+				"name": "_beneficiary",
+				"type": "address"
+			},
+			{
+				"name": "_vacancy_fee",
+				"type": "uint256"
+			}
+		],
+		"name": "new_vacancy",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "_address",
 				"type": "address"
 			}
@@ -107,24 +133,6 @@
 	},
 	{
 		"constant": false,
-		"inputs": [
-			{
-				"name": "_allowed_amount",
-				"type": "uint256"
-			},
-			{
-				"name": "_interview_fee",
-				"type": "uint256"
-			}
-		],
-		"name": "new_vacancy",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
 		"inputs": [],
 		"name": "pause",
 		"outputs": [],
@@ -178,11 +186,23 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "newOwner",
+				"name": "_vacancy_address",
 				"type": "address"
+			},
+			{
+				"name": "_candidate_address",
+				"type": "address"
+			},
+			{
+				"name": "_beneficiary",
+				"type": "address"
+			},
+			{
+				"name": "_service_fee",
+				"type": "uint8"
 			}
 		],
-		"name": "transferOwnership",
+		"name": "pay_to_candidate",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -192,15 +212,11 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_vacancy_address",
-				"type": "address"
-			},
-			{
-				"name": "_candidate_address",
+				"name": "newOwner",
 				"type": "address"
 			}
 		],
-		"name": "pay_to_candidate",
+		"name": "transferOwnership",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -255,15 +271,10 @@
 		"type": "constructor"
 	},
 	{
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "fallback"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": true,
+				"indexed": false,
 				"name": "vacancy_address",
 				"type": "address"
 			},

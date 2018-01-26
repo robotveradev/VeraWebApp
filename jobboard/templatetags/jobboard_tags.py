@@ -36,27 +36,23 @@ def has_cv(user_id):
 
 @register.filter(name='allowance_rest')
 def allowance_rest(vacancy_id):
-    vacancy = Vacancy.objects.get(id=vacancy_id)
-    emp_h = EmployerHandler(settings.WEB_ETH_COINBASE, vacancy.employer.contract_address)
-    coin_h = CoinHandler(emp_h.token())
-    return coin_h.allowance(vacancy.employer.contract_address,
-                            vacancy.contract_address) / 10 ** coin_h.decimals
+    vac = Vacancy.objects.values('employer__contract_address', 'contract_address').get(id=vacancy_id)
+    coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
+    return coin_h.allowance(vac['employer__contract_address'],
+                            vac['contract_address']) / 10 ** coin_h.decimals
 
 
 @register.filter(name='get_interview_fee')
 def get_interview_fee(vacancy_id):
-    vac_o = Vacancy.objects.get(id=vacancy_id)
-    emp_h = EmployerHandler(settings.WEB_ETH_COINBASE, vac_o.employer.contract_address)
-    coin_h = CoinHandler(emp_h.token())
-    vac_h = VacancyHandler(vac_o.employer.contract_address, vac_o.contract_address)
+    vac = Vacancy.objects.values('employer__contract_address', 'contract_address').get(id=vacancy_id)
+    coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
+    vac_h = VacancyHandler(vac['employer__contract_address'], vac['contract_address'])
     return vac_h.interview_fee() / 10 ** coin_h.decimals
 
 
 @register.filter(name='get_coin_symbol')
-def get_coin_symbol(employer_id):
-    emp_o = Employer.objects.get(id=employer_id)
-    employer_handler = EmployerHandler(settings.WEB_ETH_COINBASE, emp_o.contract_address)
-    coin_h = CoinHandler(employer_handler.token())
+def get_coin_symbol(id):
+    coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
     return coin_h.symbol
 
 
@@ -67,7 +63,6 @@ def get_candidates(vacancy_id):
     candidates = []
     vacancy_handler = VacancyHandler(settings.WEB_ETH_COINBASE, args['vacancy'].contract_address)
     c_candidates = vacancy_handler.candidates()
-
     for candidate in c_candidates:
         if vacancy_handler.get_candidate_state(candidate) != 'not exist':
             candidates.append({'state': vacancy_handler.get_candidate_state(candidate),
@@ -104,11 +99,13 @@ def get_employers(vacancies, candidate_id):
     employers = []
     already = []
     for item in vacancies:
-        address = Vacancy.objects.values('employer__contract_address', 'employer_id').get(pk=item['id'])
-        if address['employer__contract_address'] not in already:
-            already.append(address['employer__contract_address'])
-            employers.append({'address': address['employer__contract_address'], 'id': address['employer_id']})
-    return {'employers': employers, 'candidate_id': candidate_id}
+        vac = Vacancy.objects.values('employer__contract_address', 'employer_id').get(pk=item['id'])
+        if vac['employer__contract_address'] not in already:
+            already.append(vac['employer__contract_address'])
+            employers.append({'address': vac['employer__contract_address'],
+                              'id': vac['employer_id']})
+    return {'employers': employers,
+            'candidate_id': candidate_id}
 
 
 @register.filter(name='is_allowed')
@@ -130,31 +127,31 @@ def get_balance(address):
         return {'balances': None}
     try:
         emp_o = Employer.objects.get(contract_address=address)
-        emp_h = EmployerHandler(settings.WEB_ETH_COINBASE, emp_o.contract_address)
-        token = emp_h.token()
-        coin_h = CoinHandler(token)
+        coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
         return {'balances': [{coin_h.symbol: coin_h.balanceOf(emp_o.contract_address) / 10 ** coin_h.decimals}, ]}
     except Employer.DoesNotExist:
         try:
             can_o = Candidate.objects.get(contract_address=address)
-            can_h = CandidateHandler(settings.WEB_ETH_COINBASE, can_o.contract_address)
-            can_vac_list = can_h.get_vacancies()
-            balances = []
-            tokens = []
-            for item in can_vac_list:
-                state = can_h.get_vacancy_state(item)
-                if state == 'paid':
-                    try:
-                        vac_o = Vacancy.objects.get(contract_address=item)
-                        token = EmployerHandler(settings.WEB_ETH_COINBASE, vac_o.employer.contract_address).token()
-                        if token not in tokens:
-                            tokens.append(token)
-                            coin_h = CoinHandler(token)
-                            balances.append(
-                                {coin_h.symbol: coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals})
-                    except Vacancy.DoesNotExist:
-                        pass
-            return {'balances': balances}
+            coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
+            return {'balances': [{coin_h.symbol: coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals}, ]}
+            # can_h = CandidateHandler(settings.WEB_ETH_COINBASE, can_o.contract_address)
+            # can_vac_list = can_h.get_vacancies()
+            # balances = []
+            # tokens = []
+            # for item in can_vac_list:
+            #     state = can_h.get_vacancy_state(item)
+            #     if state == 'paid':
+            #         try:
+            #             vac_o = Vacancy.objects.get(contract_address=item)
+            #             token = EmployerHandler(settings.WEB_ETH_COINBASE, vac_o.employer.contract_address).token()
+            #             if token not in tokens:
+            #                 tokens.append(token)
+            #                 coin_h = CoinHandler(token)
+            #                 balances.append(
+            #                     {coin_h.symbol: coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals})
+            #         except Vacancy.DoesNotExist:
+            #             pass
+            # return {'balances': balances}
         except Candidate.DoesNotExist:
             return None
 

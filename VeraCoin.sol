@@ -392,33 +392,6 @@ contract VeraCoinPreSale is Haltable {
     }
 }
 
-contract PermissionedAgents {
-    mapping (address => bool) public agents;
-
-    event GrantAgent(address sender, address allowed, uint256);
-
-    event RevokeAgent(address sender, address allowed, uint256);
-
-    function PermissionedAgents() {
-        agents[msg.sender] = true;
-    }
-
-    modifier onlyAgent() {
-        require(agents[msg.sender]);
-        _;
-    }
-
-    function grant_access(address _address) public onlyAgent {
-        agents[_address] = true;
-        GrantAgent(msg.sender, _address, now);
-    }
-
-    function revoke_access(address _address) public onlyAgent {
-        agents[_address] = false;
-        RevokeAgent(msg.sender, _address, now);
-    }
-}
-
 contract Pausable is Ownable {
     event Pause();
     event Unpause();
@@ -446,6 +419,40 @@ contract Pausable is Ownable {
     }
 }
 
+contract PermissionedAgents is Pausable {
+    mapping (address => bool) public agents;
+
+    event GrantAgent(address sender, address allowed, uint256);
+
+    event RevokeAgent(address sender, address allowed, uint256);
+
+    function PermissionedAgents() {
+        agents[msg.sender] = true;
+    }
+
+    modifier onlyAgent() {
+        require(agents[msg.sender]);
+        _;
+    }
+
+    function grant_access(address _address) public onlyAgent {
+        agents[_address] = true;
+        GrantAgent(msg.sender, _address, now);
+    }
+
+    function revoke_access(address _address) public onlyAgent {
+        agents[_address] = false;
+        RevokeAgent(msg.sender, _address, now);
+    }
+}
+
+
+contract Withdrawable is PermissionedAgents{
+    function withdraw(address _token, address _to, uint256 _amount) public onlyAgent {
+        ERC20(_token).transfer(_to, _amount);
+    }
+}
+
 contract VeraOracle is Ownable {
 
     using SafeMath for uint256;
@@ -456,14 +463,33 @@ contract VeraOracle is Ownable {
 
     address[] public candidates;
 
-    event NewEmployer(address indexed employer_address, uint256 time);
+    uint8 public service_fee;
 
-    event NewCandidate(address indexed candidate_address, uint256 time);
+    uint256 public vacancy_fee;
 
-    function () payable public {}
+    address public beneficiary;
 
-    function VeraOracle(bytes32 _name) public {
+    event NewEmployer(address employer_address, uint256 time);
+
+    event NewCandidate(address candidate_address, uint256 time);
+
+    function VeraOracle(bytes32 _name, uint8 _service_fee, address _beneficiary, uint256 _vacancy_fee) public {
         name = _name;
+        service_fee = _service_fee;
+        beneficiary = _beneficiary;
+        vacancy_fee = _vacancy_fee;
+    }
+
+    function new_service_fee(uint8 _service_fee) public onlyOwner {
+        service_fee = _service_fee;
+    }
+
+    function new_beneficiary(address _beneficiary) public onlyOwner {
+        beneficiary = _beneficiary;
+    }
+
+    function new_vacancy_fee(uint256 _vacancy_fee) public onlyOwner {
+        vacancy_fee = _vacancy_fee;
     }
 
     function new_employer(bytes32 _id, address _token) public onlyOwner returns(bool) {
@@ -489,9 +515,21 @@ contract VeraOracle is Ownable {
     function get_candidates() public view returns(address[]) {
         return candidates;
     }
+
+    function new_vacancy(address _employer, uint256 _allowed_amount, uint256 _interview_fee) public {
+        Employer(_employer).new_vacancy(_allowed_amount, _interview_fee, beneficiary, vacancy_fee);
+    }
+
+    function pay_to_candidate(address _employer_address, address _candidate_address, address _vacancy_address) onlyOwner public {
+        Employer(_employer_address).pay_to_candidate(_vacancy_address, _candidate_address, beneficiary, service_fee);
+    }
+
+    function withdraw(address _token, address _from, address _to, uint256 _amount) public onlyOwner {
+        Withdrawable(_from).withdraw(_token, _to, _amount);
+    }
 }
 
-contract Employer is PermissionedAgents, Pausable {
+contract Employer is Withdrawable {
 
     using SafeMath for uint256;
 
@@ -501,17 +539,16 @@ contract Employer is PermissionedAgents, Pausable {
 
     address[] public vacancies;
 
-    event NewVacancy(address indexed vacancy_address, uint256 time);
-
-    function () payable public {}
+    event NewVacancy(address vacancy_address, uint256 time);
 
     function Employer(bytes32 _id, address _token) public {
         id = _id;
         token = _token;
     }
 
-    function new_vacancy(uint256 _allowed_amount, uint256 _interview_fee) public onlyAgent whenNotPaused {
+    function new_vacancy(uint256 _allowed_amount, uint256 _interview_fee, address _beneficiary, uint256 _vacancy_fee) public onlyAgent whenNotPaused {
         Vacancy vacancy = new Vacancy(_interview_fee);
+        require(ERC20(token).transfer(_beneficiary, _vacancy_fee));
         require(ERC20(token).approve(vacancy, _allowed_amount));
         vacancies.push(vacancy);
         NewVacancy(vacancy, now);
@@ -529,8 +566,8 @@ contract Employer is PermissionedAgents, Pausable {
         Vacancy(_vacancy_address).revoke_candidate(_candidate_address);
     }
 
-    function pay_to_candidate(address _vacancy_address, address _candidate_address) public onlyAgent whenNotPaused {
-        Vacancy(_vacancy_address).pay_to_candidate(_candidate_address, token);
+    function pay_to_candidate(address _vacancy_address, address _candidate_address, address _beneficiary, uint8 _service_fee) public onlyAgent whenNotPaused {
+        Vacancy(_vacancy_address).pay_to_candidate(_candidate_address, token, _beneficiary, _service_fee);
     }
 }
 
@@ -568,8 +605,6 @@ contract Vacancy is Ownable, Pausable {
         _;
     }
 
-    function () payable public {}
-
     function Vacancy(uint256 _interview_fee) public {
         interview_fee = _interview_fee;
     }
@@ -600,15 +635,17 @@ contract Vacancy is Ownable, Pausable {
         return true;
     }
 
-    function pay_to_candidate(address _candidate_address, address _token) public onlyOwner onlyAccepted(_candidate_address) onlyNotPaid(_candidate_address) whenNotPaused returns(bool) {
-        require(ERC20(_token).balanceOf(msg.sender) > interview_fee);
+    function pay_to_candidate(address _candidate_address, address _token, address _beneficiary, uint8 _service_fee) public onlyOwner onlyAccepted(_candidate_address) onlyNotPaid(_candidate_address) whenNotPaused returns(bool) {
+        uint256 candidate_fee = interview_fee - (interview_fee / 100 * _service_fee);
+        uint256 service_fee = interview_fee - candidate_fee;
+        ERC20(_token).transferFrom(msg.sender, _beneficiary, service_fee);
+        ERC20(_token).transferFrom(msg.sender, _candidate_address, candidate_fee);
         candidates_to_interview.dict[_candidate_address] = Interview_phase.paid;
-        ERC20(_token).transferFrom(msg.sender, _candidate_address, interview_fee);
         return true;
     }
 }
 
-contract Candidate is PermissionedAgents, Pausable {
+contract Candidate is Withdrawable {
 
     bytes32 public id;
 
@@ -628,8 +665,6 @@ contract Candidate is PermissionedAgents, Pausable {
     address[] public vacancies;
 
     event NewFact(address sender, uint256 time, bytes32 id);
-
-    function () payable public {}
 
     function Candidate(bytes32 _id) public {
         id = _id;

@@ -24,7 +24,13 @@
                 </tr>
                 <tr>
                     <td>Contract address:</td>
-                    <td>{{ vacancy.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}</td>
+                    <td>
+                        {% if not vacancy.cotract_address %}
+                            <a target="_blank" href="https://rinkeby.etherscan.io/address/{{ vacancy.contract_address }}">{{ vacancy.contract_address }}</a>
+                        {% else %}
+                            Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td>Interview fee:</td>

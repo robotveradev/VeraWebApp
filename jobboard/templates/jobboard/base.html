@@ -52,6 +52,7 @@
                 {% if user.is_authenticated %}
                     <li><a class="black-text" href="{% url 'profile' %}">PROFILE</a></li>
                 {% endif %}
+                <li><a class="black-text" href="{% url 'user_help' %}">HELP</a></li>
             {% endwith %}
         </ul>
     </div>

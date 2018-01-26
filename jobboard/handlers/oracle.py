@@ -13,8 +13,20 @@ class OracleHandler(object):
         self.contract_address = contract_address
         with open('jobboard/handlers/oracle_abi.json', 'r') as ad:
             self.abi = json.load(ad)
+        self.password = 'onGridTest_lGG%tts%QP'
         self.contract = self.web3.eth.contract(self.abi, self.contract_address)
         self.state = ['not exist', 'enabled', 'disabled']
+
+    def unlockAccount(self):
+        self.web3.personal.unlockAccount(self.account, self.password)
+
+    @property
+    def service_fee(self):
+        return self.contract.call().service_fee()
+
+    @property
+    def vacancy_fee(self):
+        return self.contract.call().vacancy_fee()
 
     @property
     def owner(self):
@@ -26,19 +38,30 @@ class OracleHandler(object):
 
     def new_employer(self, e_id, token):
         validate_address(token)
-        if self.check_token_is_ERC20(token):
-            return self.contract.transact({'from': self.account}).new_employer(e_id, token)
-        else:
-            return False
+        self.unlockAccount()
+        return self.contract.transact({'from': self.account}).new_employer(e_id, token)
 
     def get_employers(self):
         return self.contract.call().get_employers()
 
     def new_candidate(self, c_id):
+        self.unlockAccount()
         return self.contract.transact({'from': self.account}).new_candidate(c_id)
 
     def get_candidates(self):
         return self.contract.call().get_candidates()
+
+    def new_vacancy(self, address, allowed, fee):
+        validate_address(address)
+        self.unlockAccount()
+        return self.contract.transact({'from': self.account}).new_vacancy(address, allowed, fee)
+
+    def pay_to_candidate(self, emp_address, can_address, vac_address):
+        validate_address(emp_address)
+        validate_address(can_address)
+        validate_address(vac_address)
+        self.unlockAccount()
+        self.contract.transact({'from': self.account}).pay_to_candidate(emp_address, can_address, vac_address)
 
     def check_token_is_ERC20(self, address):
         coin_handler = CoinHandler(address)
