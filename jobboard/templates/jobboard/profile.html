@@ -21,7 +21,7 @@
                 </tr>
                 <tr>
                     <td>Middle name:</td>
-                    <td>{{ obj.middle_name }}</td>
+                    <td>{{ obj.middle_name|default:'-' }}</td>
                 </tr>
                 <tr>
                     <td>Tax number:</td>
@@ -67,7 +67,16 @@
                     </td>
                 </tr>
             </table>
+            <br>
+            {% if obj.enabled == True %}
+                <a href="{% url 'change_contract_status' %}">Disable my contract.</a>
+            {% elif obj.enabled == False %}
+                <a href="{% url 'change_contract_status' %}">Enable my contract.</a>
+            {% else %}
+                Renewal of contract status...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+            {% endif %}
             {% if obj.contract_address %}
+                {% get_facts obj %}
                 {% get_candidate_vacancies obj %}
             {% endif %}
         {% elif role == 'employer' %}
@@ -103,6 +112,14 @@
                     </td>
                 </tr>
             </table>
+            <br>
+            {% if obj.enabled == True %}
+                <a href="{% url 'change_contract_status' %}">Disable my contract.</a>
+            {% elif obj.enabled == False %}
+                <a href="{% url 'change_contract_status' %}">Enable my contract.</a>
+            {% else %}
+                Renewal of contract status...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+            {% endif %}
             {% if vacancies %}
                 <h5>Your vacancies</h5>
                 <table class="bordered highligth">
@@ -110,6 +127,7 @@
                     <tr>
                         <th>Vacancy title</th>
                         <th>Contract address</th>
+                        <th class="right">Enabled</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -124,6 +142,19 @@
                                     Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
                                 {% endif %}
                             </td>
+                        <td class="right">
+                            {% if vacancy.enabled is True %}
+                                <a href="{% url 'change_vacancy_status' vacancy_id=vacancy.id %}">
+                                    <i class="material-icons green-text">check</i>
+                                </a>
+                            {% elif vacancy.enabled is False %}
+                                <a href="{% url 'change_vacancy_status' vacancy_id=vacancy.id %}">
+                                    <i class="material-icons red-text">close</i>
+                                </a>
+                            {% else %}
+                                <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                            {% endif %}
+                        </td>
                         </tr>
                     {% endfor %}
                     </tbody>

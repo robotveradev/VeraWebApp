@@ -1,10 +1,6 @@
 from web3 import Web3, RPCProvider
 import json
-import time
 from web3.utils.validation import validate_address
-from web3.utils.events import (
-    get_event_data
-)
 
 
 class EmployerHandler(object):
@@ -20,11 +16,14 @@ class EmployerHandler(object):
     def get_id(self):
         return self.contract.call().id()
 
-    def is_allowed(self, address):
-        return self.contract.call().allowed_contracts(address)
+    def is_agent(self, address):
+        return self.contract.call().agents(address)
 
     def token(self):
         return self.contract.call().token()
+
+    def paused(self):
+        return self.contract.call().paused()
 
     def grant_access_to_contract(self, address):
         validate_address(address)
@@ -56,3 +55,17 @@ class EmployerHandler(object):
         validate_address(vacancy_address)
         validate_address(candidate_address)
         return self.contract.transact({'from': self.account}).pay_to_candidate(vacancy_address, candidate_address)
+
+    def pause(self):
+        return self.contract.transact({'from': self.account}).pause()
+
+    def unpause(self):
+        return self.contract.transact({'from': self.account}).unpause()
+
+    def pause_vacancy(self, vacancy_address):
+        validate_address(vacancy_address)
+        return self.contract.transact({'from': self.account}).pause_vacancy(vacancy_address)
+
+    def unpause_vacancy(self, vacancy_address):
+        validate_address(vacancy_address)
+        return self.contract.transact({'from': self.account}).unpause_vacancy(vacancy_address)

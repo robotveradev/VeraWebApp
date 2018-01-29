@@ -20,11 +20,14 @@ class CandidateHandler(object):
     def get_id(self):
         return self.contract.call().id()
 
-    def is_allowed(self, address):
-        return self.contract.call().allowed_contracts(address)
+    def is_agent(self, address):
+        return self.contract.call().agents(address)
+
+    def paused(self):
+        return self.contract.call().paused()
 
     def get_facts(self):
-        return [Web3.toHex(item) for item in self.contract.call().keys_of_facts()]
+        return self.contract.call().keys_of_facts()
 
     def get_vacancies(self):
         return self.contract.call().get_vacancies()
@@ -35,7 +38,7 @@ class CandidateHandler(object):
         return vac_h.get_candidate_state(self.contract_address)
 
     def get_fact(self, id):
-        if Web3.toHex(id) in self.get_facts():
+        if id in self.get_facts():
             return self.contract.call().get_fact(id)
         else:
             raise TypeError('Invalid FactId')
@@ -61,4 +64,7 @@ class CandidateHandler(object):
         return self.contract.call().paused()
 
     def pause(self):
-        self.contract.transact({'from': self.account}).pause()
+        return self.contract.transact({'from': self.account}).pause()
+
+    def unpause(self):
+        return self.contract.transact({'from': self.account}).unpause()

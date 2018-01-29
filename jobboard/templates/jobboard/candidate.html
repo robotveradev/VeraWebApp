@@ -1,5 +1,7 @@
 {% extends 'jobboard/base.html' %}
 
+{% load jobboard_tags %}
+
 {% block head_title %}VeraOracle - Candidate{% endblock %}
 
 {% block content %}
@@ -19,14 +21,24 @@
                 <td>{{ candidate.middle_name }}</td>
             </tr>
             <tr>
-                <td>Snails:</td>
-                <td>{{ candidate.snails }}</td>
+                <td>Tax number:</td>
+                <td>{{ candidate.tax_number }}</td>
             </tr>
             <tr>
                 <td>Contract address:</td>
-                <td>{{ candidate.contract_address }}</td>
+                <td>
+                    {% if candidate.contract_address is not None %}
+                        <a target="_blank"
+                           href="https://rinkeby.etherscan.io/address/{{ candidate.contract_address }}">{{ candidate.contract_address }}</a>
+                    {% else %}
+                        Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                    {% endif %}
+                </td>
             </tr>
         </table>
+        {% if candidate.contract_address %}
+            {% get_facts candidate %}
+        {% endif %}
         {% if vacancies %}
             <br><br><br>
             <table class="bordered highligth">

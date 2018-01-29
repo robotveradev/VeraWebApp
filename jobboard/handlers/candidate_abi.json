@@ -128,20 +128,6 @@
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
 		"name": "id",
 		"outputs": [
 			{
@@ -171,11 +157,19 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "newOwner",
+				"name": "_token",
 				"type": "address"
+			},
+			{
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"name": "_amount",
+				"type": "uint256"
 			}
 		],
-		"name": "transferOwnership",
+		"name": "withdraw",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",

@@ -25,6 +25,7 @@ basic = [
     path('job/find/', jobboard_views.find_job, name='find_job'),
     path('profile/', jobboard_views.profile, name='profile'),
     path('help/', jobboard_views.user_help, name='user_help'),
+    path('contract/status/change/', jobboard_views.change_contract_status, name='change_contract_status'),
 ]
 
 candidate_urlpatterns = [
@@ -42,6 +43,7 @@ vacancy_urlpatterns = [
     path('vacancy/<int:vacancy_id>/test/', jobboard_views.candidate_testing, name='candidate_testing'),
     path('vacancy/<int:vacancy_id>/tests/', jobboard_views.vacancy_tests, name='vacancy_tests'),
     path('vacancy/<int:vacancy_id>/tests/new/', jobboard_views.vacancy_test_new, name='vacancy_test_new'),
+    path('vacancy/<int:vacancy_id>/status/change/', jobboard_views.change_vacancy_status, name='change_vacancy_status'),
     path('vacancy/tests/add/', jobboard_views.new_test, name='new_test'),
 ]
 

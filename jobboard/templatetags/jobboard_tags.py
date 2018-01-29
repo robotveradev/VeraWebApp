@@ -1,3 +1,6 @@
+import json
+
+import datetime
 from django import template
 from django.shortcuts import get_object_or_404
 
@@ -184,3 +187,24 @@ def get_candidate_vacancies(candidate):
                           'state': can_h.get_vacancy_state(item),
                           'id': Vacancy.objects.values('id').get(contract_address=item)['id']})
     return {'vacancies': vacancies}
+
+
+@register.inclusion_tag('jobboard/tags/facts.html')
+def get_facts(candidate):
+    can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
+    fact_keys = can_h.get_facts()
+    facts = []
+    for item in fact_keys:
+        fact = can_h.get_fact(item)
+        facts.append({'from': fact[0],
+                      'date': datetime.datetime.fromtimestamp(int(fact[1])),
+                      'fact': json.loads(fact[2]),
+                      'verify': is_fact_verify(candidate.contract_address, item)})
+    return {'facts': facts}
+
+
+def is_fact_verify(address, id):
+    can_h = CandidateHandler(settings.WEB_ETH_COINBASE, address)
+    fact = can_h.get_fact(id)
+    return fact[0].lower() == settings.WEB_ETH_COINBASE.lower() or fact[
+        0].lower() == settings.VERA_ORACLE_CONTRACT_ADDRESS.lower()

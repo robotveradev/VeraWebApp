@@ -17,6 +17,9 @@ class VacancyHandler(object):
     def owner(self):
         return self.contract.call().owner()
 
+    def paused(self):
+        return self.contract.call().paused()
+
     def get_candidate_state(self, address):
         validate_address(address)
         return self.phases[self.contract.call().get_candidate_state(address)]

@@ -13,12 +13,19 @@
                 <td>{{ employer.organization }}</td>
             </tr>
             <tr>
-                <td>Inn:</td>
-                <td>{{ employer.inn }}</td>
+                <td>Tax number:</td>
+                <td>{{ employer.tax_number }}</td>
             </tr>
             <tr>
                 <td>Contract address:</td>
-                <td>{{ employer.contract_address }}</td>
+                <td>
+                    {% if employer.contract_address is not None %}
+                        <a target="_blank"
+                           href="https://rinkeby.etherscan.io/address/{{ employer.contract_address }}">{{ employer.contract_address }}</a>
+                    {% else %}
+                        Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                    {% endif %}
+                </td>
             </tr>
         </table>
         {% if vacancies %}

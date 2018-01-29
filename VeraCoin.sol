@@ -392,34 +392,7 @@ contract VeraCoinPreSale is Haltable {
     }
 }
 
-contract Pausable is Ownable {
-    event Pause();
-    event Unpause();
-
-    bool public paused = false;
-
-    modifier whenNotPaused() {
-        require(!paused);
-        _;
-    }
-
-    modifier whenPaused() {
-        require(paused);
-        _;
-    }
-
-    function pause() onlyOwner whenNotPaused public {
-        paused = true;
-        Pause();
-    }
-
-    function unpause() onlyOwner whenPaused public {
-        paused = false;
-        Unpause();
-    }
-}
-
-contract PermissionedAgents is Pausable {
+contract PermissionedAgents {
     mapping (address => bool) public agents;
 
     event GrantAgent(address sender, address allowed, uint256);
@@ -445,9 +418,35 @@ contract PermissionedAgents is Pausable {
         RevokeAgent(msg.sender, _address, now);
     }
 }
+contract Pausable is PermissionedAgents {
+    event Pause();
+    event Unpause();
+
+    bool public paused = false;
+
+    modifier whenNotPaused() {
+        require(!paused);
+        _;
+    }
+
+    modifier whenPaused() {
+        require(paused);
+        _;
+    }
+
+    function pause() onlyAgent whenNotPaused public {
+        paused = true;
+        Pause();
+    }
+
+    function unpause() onlyAgent whenPaused public {
+        paused = false;
+        Unpause();
+    }
+}
 
 
-contract Withdrawable is PermissionedAgents{
+contract Withdrawable is Pausable {
     function withdraw(address _token, address _to, uint256 _amount) public onlyAgent {
         ERC20(_token).transfer(_to, _amount);
     }
@@ -556,6 +555,14 @@ contract Employer is Withdrawable {
 
     function get_vacancies() public view returns(address[]) {
         return vacancies;
+    }
+
+    function pause_vacancy(address _vacancy_address) public onlyAgent {
+        Pausable(_vacancy_address).pause();
+    }
+
+    function unpause_vacancy(address _vacancy_address) public onlyAgent {
+        Pausable(_vacancy_address).unpause();
     }
 
     function grant_access_to_candidate(address _vacancy_address, address _candidate_address) public onlyAgent {

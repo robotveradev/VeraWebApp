@@ -1,0 +1,23 @@
+{% if facts %}
+    <h5 class="center">Achievements</h5>
+    <ul class="collapsible" data-collapsible="accordion">
+        {% for fact in facts %}
+            <li>
+                <div class="collapsible-header">
+                    {% if fact.verify %}
+                        <i class="material-icons green-text">done</i>
+                    {% else %}
+                        <i class="material-icons">help_outline</i>
+                    {% endif %}
+                    {{ fact.fact.title }}
+                </div>
+                <div class="collapsible-body">
+                    <ul>
+                        <li>Company: {{ fact.fact.employer }}</li>
+                        <li>Date: {{ fact.date|date }}</li>
+                    </ul>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

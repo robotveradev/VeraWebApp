@@ -25,7 +25,7 @@
                 <tr>
                     <td>Contract address:</td>
                     <td>
-                        {% if not vacancy.cotract_address %}
+                        {% if vacancy.contract_address is not None %}
                             <a target="_blank" href="https://rinkeby.etherscan.io/address/{{ vacancy.contract_address }}">{{ vacancy.contract_address }}</a>
                         {% else %}
                             Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
@@ -75,7 +75,6 @@
         {% endif %}
         <br>
         {% if role == 'candidate' and vacancy.contract_address %}
-
             <form action="{% url 'subscrabe_to_vacancy' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="vacancy" value="{{ vacancy.id }}">

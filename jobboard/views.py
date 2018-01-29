@@ -1,4 +1,6 @@
 import re
+
+import time
 from account.decorators import login_required
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
@@ -115,10 +117,10 @@ def new_vacancy(request):
             allowed_amount = request.POST.get('allowed_amount')
             emp_o = Employer.objects.get(user_id=request.user.id)
             coin_h = CoinHandler(django_settings.VERA_COIN_CONTRACT_ADDRESS)
-            user_balance = coin_h.balanceOf(emp_o.contract_address)
             oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
             decimals = coin_h.decimals
-            if user_balance < oracle.vacancy_fee * 10 ** decimals:
+            user_balance = coin_h.balanceOf(emp_o.contract_address) // 10 ** decimals
+            if user_balance < oracle.vacancy_fee // 10 ** decimals:
                 args['error'] = 'The cost of placing a vacancy of {} tokens. Your balance {} tokens'.format(
                     oracle.vacancy_fee / 10 ** decimals,
                     user_balance)
@@ -179,8 +181,10 @@ def subscrabe_to_vacancy(request):
         vac_o = get_object_or_404(Vacancy, id=vacancy_id)
         if not can_o.contract_address or not vac_o.contract_address:
             raise Http404
-        candidate_handler = CandidateHandler(django_settings.WEB_ETH_COINBASE, can_o.contract_address)
-        txn_hash = candidate_handler.subscribe_to_interview(vac_o.contract_address)
+        oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+        oracle.unlockAccount()
+        can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE, can_o.contract_address)
+        txn_hash = can_h.subscribe_to_interview(vac_o.contract_address)
         txn = Transaction()
         txn.txn_hash = txn_hash
         txn.txn_type = 'Subscribe'
@@ -213,6 +217,8 @@ def approve_candidate(request):
     vac_o = get_object_or_404(Vacancy, id=vacancy_id, employer__user=request.user)
     can_o = get_object_or_404(Candidate, id=candidate_id)
     employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE, vac_o.employer.contract_address)
+    oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+    oracle.unlockAccount()
     txn_hash = employer_handler.grant_access_to_candidate(vac_o.contract_address, can_o.contract_address)
     txn = Transaction()
     txn.txn_hash = txn_hash
@@ -231,6 +237,8 @@ def revoke_candidate(request):
     vac_o = get_object_or_404(Vacancy, id=vacancy_id, employer__user=request.user)
     can_o = get_object_or_404(Candidate, id=candidate_id)
     employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE, vac_o.employer.contract_address)
+    oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+    oracle.unlockAccount()
     txn_hash = employer_handler.revoke_access_to_candidate(vac_o.contract_address, can_o.contract_address)
     txn = Transaction()
     txn.txn_hash = txn_hash
@@ -338,26 +346,32 @@ def candidate_testing(request, vacancy_id):
 
 
 def pay_to_candidate(request, vacancy_id):
-    candidate_obj = get_object_or_404(Candidate, user=request.user)
-    vacancy_obj = get_object_or_404(Vacancy, id=vacancy_id)
+    can_o = get_object_or_404(Candidate, user=request.user)
+    vac_o = get_object_or_404(Vacancy, id=vacancy_id)
     test_count = VacancyTest.objects.filter(vacancy_id=vacancy_id).count()
     passed_count = CandidateVacancyPassing.objects.filter(test__vacancy_id=vacancy_id,
-                                                          candidate_id=candidate_obj.id,
+                                                          candidate_id=can_o.id,
                                                           passed=True).count()
     if passed_count >= test_count:
         passed = True
     else:
         passed = False
-    vacancy_handler = VacancyHandler(django_settings.WEB_ETH_COINBASE, vacancy_obj.contract_address)
-    state = vacancy_handler.get_candidate_state(candidate_obj.contract_address)
-    print(state)
+    vacancy_handler = VacancyHandler(django_settings.WEB_ETH_COINBASE, vac_o.contract_address)
+    state = vacancy_handler.get_candidate_state(can_o.contract_address)
     if state != 'accepted' or not passed:
         return HttpResponse('I see the cheater here', status=404)
     else:
         oracle_h = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
-        oracle_h.pay_to_candidate(vacancy_obj.employer.contract_address,
-                                  candidate_obj.contract_address,
-                                  vacancy_obj.contract_address)
+
+        oracle_h.pay_to_candidate(vac_o.employer.contract_address,
+                                  can_o.contract_address,
+                                  vac_o.contract_address)
+        can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE,
+                                 can_o.contract_address)
+        fact = {'title': 'Test for vacancy "{}" passed.'.format(vac_o.title),
+                'date': time.time(),
+                'employer': vac_o.employer.organization}
+        can_h.new_fact(fact)
         return redirect(profile)
 
 
@@ -370,3 +384,51 @@ def employer_about(request, employer_id):
 
 def user_help(request):
     return render(request, 'jobboard/user_help.html', {})
+
+
+def change_contract_status(request):
+    role, obj = user_role(request.user.id)
+    if role:
+        oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+
+        if obj.enabled:
+            txn_hash = oracle.pause_contract(obj.contract_address)
+        elif obj.enabled is False:
+            txn_hash = oracle.unpause_contract(obj.contract_address)
+        else:
+            txn_hash = False
+
+        if txn_hash:
+            obj.enabled = None
+            obj.save()
+            txn = Transaction()
+            txn.user = request.user
+            txn.txn_hash = txn_hash
+            txn.txn_type = role + 'Change'
+            txn.obj_id = obj.id
+            txn.save()
+    return redirect(profile)
+
+
+def change_vacancy_status(request, vacancy_id):
+    vac_o = get_object_or_404(Vacancy, employer__user=request.user, id=vacancy_id)
+    emp_h = EmployerHandler(django_settings.WEB_ETH_COINBASE, vac_o.employer.contract_address)
+    oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+    oracle.unlockAccount()
+    if vac_o.enabled is True:
+        txn_hash = emp_h.pause_vacancy(vac_o.contract_address)
+    elif vac_o.enabled is False:
+        txn_hash = emp_h.unpause_vacancy(vac_o.contract_address)
+    else:
+        txn_hash = False
+
+    if txn_hash:
+        vac_o.enabled = None
+        vac_o.save()
+        txn = Transaction()
+        txn.txn_hash = txn_hash
+        txn.user = request.user
+        txn.txn_type = 'vacancyChange'
+        txn.obj_id = vac_o.id
+        txn.save()
+    return redirect(profile)

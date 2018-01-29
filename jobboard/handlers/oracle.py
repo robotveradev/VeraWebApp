@@ -2,8 +2,9 @@ from web3 import Web3, RPCProvider
 import json
 from web3.exceptions import BadFunctionCallOutput
 from web3.utils.validation import validate_address
-
+from django.conf import settings
 from jobboard.handlers.coin import CoinHandler
+from jobboard.handlers.employer import EmployerHandler
 
 
 class OracleHandler(object):
@@ -13,12 +14,12 @@ class OracleHandler(object):
         self.contract_address = contract_address
         with open('jobboard/handlers/oracle_abi.json', 'r') as ad:
             self.abi = json.load(ad)
-        self.password = 'onGridTest_lGG%tts%QP'
+        self.__password = 'onGridTest_lGG%tts%QP'
         self.contract = self.web3.eth.contract(self.abi, self.contract_address)
         self.state = ['not exist', 'enabled', 'disabled']
 
     def unlockAccount(self):
-        self.web3.personal.unlockAccount(self.account, self.password)
+        self.web3.personal.unlockAccount(self.account, self.__password)
 
     @property
     def service_fee(self):
@@ -62,6 +63,25 @@ class OracleHandler(object):
         validate_address(vac_address)
         self.unlockAccount()
         self.contract.transact({'from': self.account}).pay_to_candidate(emp_address, can_address, vac_address)
+
+    def withdraw(self, from_address, to_address, amount):
+        self.unlockAccount()
+        self.contract.transact({'from': self.account}).withdraw(settings.VERA_COIN_CONTRACT_ADDRESS,
+                                                                from_address,
+                                                                to_address,
+                                                                amount)
+
+    def pause_contract(self, address):
+        validate_address(address)
+        self.unlockAccount()
+        handler = EmployerHandler(self.account, address)
+        return handler.pause()
+
+    def unpause_contract(self, address):
+        validate_address(address)
+        self.unlockAccount()
+        handler = EmployerHandler(self.account, address)
+        return handler.unpause()
 
     def check_token_is_ERC20(self, address):
         coin_handler = CoinHandler(address)
