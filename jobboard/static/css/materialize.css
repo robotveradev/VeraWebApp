@@ -2717,7 +2717,7 @@ thead {
 }
 
 td, th {
-    padding: 15px 5px;
+    padding: 5px 5px;
     display: table-cell;
     text-align: left;
     vertical-align: middle;
@@ -5705,8 +5705,8 @@ button.btn-floating {
     padding: 0 12px;
     border-radius: 16px;
     background-color: #e4e4e4;
-    margin-bottom: 5px;
-    margin-right: 5px
+    /*margin-bottom: 5px;*/
+    /*margin-right: 5px*/
 }
 
 .chip > img {
@@ -6453,7 +6453,7 @@ form p:last-child {
 }
 
 .switch label input[type=checkbox]:checked + .lever {
-    background-color: #84c7c1
+    background-color: #90caf9
 }
 
 .switch label input[type=checkbox]:checked + .lever:before, .switch label input[type=checkbox]:checked + .lever:after {
@@ -6461,7 +6461,7 @@ form p:last-child {
 }
 
 .switch label input[type=checkbox]:checked + .lever:after {
-    background-color: #26a69a
+    background-color: #2196f3
 }
 
 .switch label .lever {
@@ -6507,7 +6507,7 @@ form p:last-child {
 input[type=checkbox]:checked:not(:disabled) ~ .lever:active::before, input[type=checkbox]:checked:not(:disabled).tabbed:focus ~ .lever::before {
     -webkit-transform: scale(2.4);
     transform: scale(2.4);
-    background-color: rgba(38, 166, 154, 0.15)
+    background-color: rgba(187, 222, 251, 0.15);
 }
 
 input[type=checkbox]:not(:disabled) ~ .lever:active:before, input[type=checkbox]:not(:disabled).tabbed:focus ~ .lever::before {

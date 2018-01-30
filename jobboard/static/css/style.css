@@ -88,3 +88,7 @@ body {
 .state, .allowed-contracts {
     cursor: pointer;
 }
+
+.underline {
+    text-decoration: underline;
+}

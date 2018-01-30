@@ -9,7 +9,6 @@
         <h4 class="center">
             Vacancy #{{ vacancy.id }}
         </h4>
-
         <table class="bordered highlight">
             {% with vacancy.employer.id|get_coin_symbol as symbol %}
                 <tr>
@@ -26,7 +25,8 @@
                     <td>Contract address:</td>
                     <td>
                         {% if vacancy.contract_address is not None %}
-                            <a target="_blank" href="https://rinkeby.etherscan.io/address/{{ vacancy.contract_address }}">{{ vacancy.contract_address }}</a>
+                            <a target="_blank"
+                               href="https://rinkeby.etherscan.io/address/{{ vacancy.contract_address }}">{{ vacancy.contract_address }}</a>
                         {% else %}
                             Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
                         {% endif %}
@@ -62,12 +62,11 @@
         <br>
         {% if vacancy.employer.user == request.user %}
             <div class="row">
-                <div class="col s12 l2 m2 offset-l10 offset-m10">
+                <div class="col s12 l2 m2">
                     <a href="{% url 'vacancy_tests' vacancy_id=vacancy.id %}"
                        class="btn waves-light waves-effect blue">Tests</a>
                 </div>
             </div>
-
             <div class="clearfix"></div>
             {% if vacancy.contract_address %}
                 {% get_candidates vacancy.id %}
@@ -75,14 +74,23 @@
         {% endif %}
         <br>
         {% if role == 'candidate' and vacancy.contract_address %}
-            <form action="{% url 'subscrabe_to_vacancy' %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                <button {% if not obj|is_can_subscribe:vacancy %}disabled{% endif %}
-                        type="submit"
-                        class="btn waves-light waves-effect blue right">I Want It!
-                </button>
-            </form>
+            <a href="#subscribe" class="btn waves-light waves-effect blue right modal-trigger">I Want It!</a>
+
+            <div id="subscribe" class="modal modal-fixed-footer">
+                <form action="{% url 'subscrabe_to_vacancy' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
+                    <div class="modal-content">
+                        <h4>Choose cv for vacancy "{{ vacancy.title }}"</h4>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button {% if not obj|is_can_subscribe:vacancy %}disabled{% endif %} type="submit"
+                                class="modal-action modal-close waves-effect waves-green btn-flat ">Continue
+                        </button>
+                    </div>
+                </form>
+            </div>
         {% endif %}
     </div>
 {% endblock %}

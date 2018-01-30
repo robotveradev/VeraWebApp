@@ -18,6 +18,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from jobboard import views as jobboard_views
+from cv import views as cv_views
 
 basic = [
     path('', jobboard_views.index, name='index'),
@@ -31,11 +32,15 @@ basic = [
 ]
 
 candidate_urlpatterns = [
-    path('cv/new/', jobboard_views.new_cv, name='new_cv'),
     path('candidate/<int:candidate_id>/', jobboard_views.candidate, name='candidate'),
     path('candidate/approve/', jobboard_views.approve_candidate, name='approve_candidate'),
     path('candidate/revoke/', jobboard_views.revoke_candidate, name='revoke_candidate'),
     path('candidate/pay/<int:vacancy_id>/', jobboard_views.pay_to_candidate, name='pay_to_candidate'),
+]
+
+curriculum_vitae_urlpatterns = [
+    path('cv/new/', jobboard_views.new_cv, name='new_cv'),
+    path('cv/<int:cv_id>/', cv_views.cv, name='cv'),
     path('cv/status/change', jobboard_views.cnange_cv_status, name='change_cv_status'),
 ]
 
@@ -54,5 +59,9 @@ employer_urlpatterns = [
     path('employer/<int:employer_id>/about/', jobboard_views.employer_about, name='employer_about'),
 ]
 
-urlpatterns = basic + candidate_urlpatterns + vacancy_urlpatterns + employer_urlpatterns + static(settings.MEDIA_URL,
-                                                                                                  document_root=settings.MEDIA_ROOT)
+urlpatterns = basic + \
+              candidate_urlpatterns + \
+              vacancy_urlpatterns + \
+              curriculum_vitae_urlpatterns + \
+              employer_urlpatterns + \
+              static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -11,16 +11,15 @@
             </h4>
             <br><br><br><br><br><br>
         </div>
-
     {% else %}
         <div class="contrainer">
             <div class="row">
                 <div class="col s12 m6 l6 offset-m3 offset-l3">
-                    <h4 class="center">New Vacancy</h4>
+                    <h4 class="center">New Curriculum vitae</h4>
                     <form action="{% url 'new_cv' %}" method="post">
                         {% csrf_token %}
                         <div class="input-field">
-                            <label for="title">Curriculum vitae title</label>
+                            <label for="title">Title</label>
                             <input type="text" name="title" id="title" data-length="120" required>
                         </div>
                         <div class="input-field">

@@ -23,13 +23,6 @@ class AdminCandidate(admin.ModelAdmin):
         model = Candidate
 
 
-class AdminCurriculumVitae(admin.ModelAdmin):
-    list_display = [field.name for field in CurriculumVitae._meta.fields]
-
-    class Meta:
-        model = CurriculumVitae
-
-
 class AdminEmployer(admin.ModelAdmin):
     list_display = [field.name for field in Employer._meta.fields]
 
@@ -68,7 +61,6 @@ class AdminCandidateVacancyPassing(admin.ModelAdmin):
 admin.site.register(Specialisation, AdminSpecialisation)
 admin.site.register(Keyword, AdminKeywords)
 admin.site.register(Candidate, AdminCandidate)
-admin.site.register(CurriculumVitae, AdminCurriculumVitae)
 admin.site.register(Employer, AdminEmployer)
 admin.site.register(Vacancy, AdminVacancy)
 admin.site.register(Transaction, AdminTxn)

@@ -6,10 +6,11 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
+from cv.models import CurriculumVitae
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from .handlers.candidate import CandidateHandler
-from .models import Vacancy, Employer, Candidate, Specialisation, Keyword, CurriculumVitae, VacancyTest, \
+from .models import Vacancy, Employer, Candidate, Specialisation, Keyword, VacancyTest, \
     CandidateVacancyPassing, Transaction
 from .decorators import choose_role_required
 from .handlers.oracle import OracleHandler
@@ -28,7 +29,7 @@ def find_job(request):
     args = {}
     args['specializations'] = Specialisation.objects.all()
     args['keywords'] = Keyword.objects.all()
-    args['vacancies'] = Vacancy.objects.filter(enabled=True).exclude(contract_address=None)
+    args['vacancies'] = Vacancy.objects.filter(enabled=True, employer__enabled=True).exclude(contract_address=None)
     return render(request, 'jobboard/find_job.html', args)
 
 
@@ -89,14 +90,15 @@ def choose_role(request):
 
 @login_required
 @choose_role_required(redirect_url='/role/')
-def profile(request):
+def profile(request, active_cv=None):
     args = {}
     args['role'], args['obj'] = user_role(request.user.id)
     if args['role']:
         if args['role'] == 'employer':
             args['vacancies'] = Vacancy.objects.filter(employer=args['obj'])
         elif args['role'] == 'candidate':
-            args['cv'] = CurriculumVitae.objects.filter(candidate=args['obj']).first()
+            args['active'] = active_cv
+            args['cv'] = CurriculumVitae.objects.filter(user=request.user)
     return render(request, 'jobboard/profile.html', args)
 
 
@@ -175,6 +177,8 @@ def vacancy(request, vacancy_id):
 
 
 def subscrabe_to_vacancy(request):
+    print(request)
+    return HttpResponse('ok', status=200)
     if request.method == 'POST':
         vacancy_id = request.POST.get('vacancy')
         can_o = Candidate.objects.get(user_id=request.user.id)
@@ -248,34 +252,6 @@ def revoke_candidate(request):
     txn.vac_id = vacancy_id
     txn.save()
     return redirect(vacancy, vacancy_id=vacancy_id)
-
-
-def new_cv(request):
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        salary_from = request.POST.get('salary_from')
-        specialisations = request.POST.getlist('specialisation')
-        keywords = request.POST.getlist('keywords')
-        cv = CurriculumVitae()
-        cv.candidate = get_object_or_404(Candidate, user_id=request.user.id)
-        cv.title = title
-        cv.description = description
-        cv.salary_from = salary_from
-        cv.save()
-        cv.specializations.set(specialisations)
-        cv.keywords.set(keywords)
-        cv.save()
-        return redirect(profile)
-    else:
-        args = {}
-
-        if user_role(request.user.id)[0] == 'candidate':
-            args = {'specializations': Specialisation.objects.all(), 'keywords': Keyword.objects.all()}
-        else:
-            args['error'] = True
-
-        return render(request, 'jobboard/new_cv.html', args)
 
 
 def vacancy_tests(request, vacancy_id):
@@ -432,3 +408,17 @@ def change_vacancy_status(request, vacancy_id):
         txn.obj_id = vac_o.id
         txn.save()
     return redirect(profile)
+
+
+@require_POST
+def cnange_cv_status(request):
+    if request.method == 'POST':
+        cv_id = request.POST.get('cv_id')
+        # cv = get_object_or_404(CurriculumVitae, candidate__user=request.user, id=cv_id)
+        # cv.enabled = not cv.enabled
+        # cv.save()
+        return redirect(profile)
+
+
+def new_cv(request):
+    return HttpResponse('ok', status=200)

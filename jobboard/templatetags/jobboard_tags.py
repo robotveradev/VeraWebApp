@@ -3,12 +3,13 @@ import json
 import datetime
 from django import template
 from django.shortcuts import get_object_or_404
+from django.template.defaultfilters import stringfilter
 
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.handlers.coin import CoinHandler
-from jobboard.models import Vacancy, Candidate, Employer, CurriculumVitae, VacancyTest, CandidateVacancyPassing, \
+from jobboard.models import Vacancy, Candidate, Employer, VacancyTest, CandidateVacancyPassing, \
     Transaction
 from django.conf import settings
 
@@ -30,11 +31,11 @@ def user_role(user_id):
 
 @register.filter(name='has_cv')
 def has_cv(user_id):
-    try:
-        CurriculumVitae.objects.get(candidate__user_id=user_id)
-        return True
-    except CurriculumVitae.DoesNotExist:
-        return False
+    return False
+    # if len(CurriculumVitae.objects.filter(candidate__user_id=user_id)) > 0:
+    #     return True
+    # else:
+    #     return False
 
 
 @register.filter(name='allowance_rest')

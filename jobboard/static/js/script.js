@@ -16,4 +16,8 @@ $(document).ready(function () {
             time_block.text(0);
         }
     }, 1000);
+
+    $('.cv_switch').on('change', function () {
+        $(this).parents('form').submit();
+    });
 });
