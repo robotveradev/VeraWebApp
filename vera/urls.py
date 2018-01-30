@@ -13,6 +13,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from jobboard import views as jobboard_views
@@ -34,6 +36,7 @@ candidate_urlpatterns = [
     path('candidate/approve/', jobboard_views.approve_candidate, name='approve_candidate'),
     path('candidate/revoke/', jobboard_views.revoke_candidate, name='revoke_candidate'),
     path('candidate/pay/<int:vacancy_id>/', jobboard_views.pay_to_candidate, name='pay_to_candidate'),
+    path('cv/status/change', jobboard_views.cnange_cv_status, name='change_cv_status'),
 ]
 
 vacancy_urlpatterns = [
@@ -51,4 +54,5 @@ employer_urlpatterns = [
     path('employer/<int:employer_id>/about/', jobboard_views.employer_about, name='employer_about'),
 ]
 
-urlpatterns = basic + candidate_urlpatterns + vacancy_urlpatterns + employer_urlpatterns
+urlpatterns = basic + candidate_urlpatterns + vacancy_urlpatterns + employer_urlpatterns + static(settings.MEDIA_URL,
+                                                                                                  document_root=settings.MEDIA_ROOT)

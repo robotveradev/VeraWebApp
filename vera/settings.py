@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'jobboard',
+    'cv',
     'account',
 ]
 
@@ -128,6 +129,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = 'media/'
 
 DEFAULT_FROM_EMAIL = 'you@domain.com'
 
@@ -142,9 +146,5 @@ VERA_COIN_PRESALE_CONTRACT_ADDRESS = '0x9AF242B715F818eEb4E485CAe925e1FCF696c696
 VERA_ORACLE_CONTRACT_ADDRESS = '0x94D663449c74e91e133b70E4B18eE40c818C9F11'  # Rinkeby
 
 WEB_ETH_COINBASE = '0x8dc270b448958fed366e0edfb28b335bf84fca91'  # Rinkeby
-
-STATIC_ROOT = '/opt/vera_jobboard/static'
-
-MEDIA_ROOT = '/opt/vera_jobboard/media'
 
 NODE_URL = 'http://localhost:8545'
