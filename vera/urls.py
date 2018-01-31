@@ -39,7 +39,7 @@ candidate_urlpatterns = [
 ]
 
 curriculum_vitae_urlpatterns = [
-    path('cv/new/', jobboard_views.new_cv, name='new_cv'),
+    path('cv/new/', cv_views.new_cv, name='new_cv'),
     path('cv/<int:cv_id>/', cv_views.cv, name='cv'),
     path('cv/status/change', jobboard_views.cnange_cv_status, name='change_cv_status'),
 ]

@@ -1,12 +1,14 @@
+{% load cv_tags %}
 <div>
     <p class="flow-text">{{ experience.organization }},
         <small class="grey-text">{{ experience.position }}, {{ experience.city }}</small>
     </p>
-    {% if not experience.expire %}
-        From {{ experience.start_date|date:'E Y' }} to {{ experience.end_date|date:'E Y' }} (
-        {{ experience.start_date|timesince:experience.end_date }}).
+    {% if not experience.still %}
+        From {{ experience.start_month|month_name }} {{ experience.start_year}} to {{ experience.end_month|month_name }} {{ experience.end_year }} (
+        {{ experience.end_year|sub:experience.start_year }} year{{ experience.end_year|sub:experience.start_year|pluralize }}
+        ).
     {% else %}
-        From {{ experience.start_date|date:'E Y' }} until now.
+        From {{ experience.start_month|month_name }} {{ experience.start_year }} until now.
     {% endif %}
     {% if experience.description %}
         <blockquote>

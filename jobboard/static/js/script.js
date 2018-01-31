@@ -20,4 +20,15 @@ $(document).ready(function () {
     $('.cv_switch').on('change', function () {
         $(this).parents('form').submit();
     });
+    // $('.datepicker').pickadate({
+    //     selectMonths: true, // Creates a dropdown to control month
+    //     selectYears: 100, // Creates a dropdown of 60 years to control year,
+    //     today: 'Today',
+    //     clear: 'Clear',
+    //     close: 'Ok',
+    //     min: new Date(1950, 1, 1),
+    //     max: new Date(2002, 11, 31),
+    //     closeOnSelect: false, // Close upon selecting a date,
+    //     format: ''
+    // });
 });

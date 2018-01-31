@@ -55,8 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'account.middleware.LocaleMiddleware',
-    'account.middleware.TimezoneMiddleware',
+    # 'account.middleware.LocaleMiddleware',
+    # 'account.middleware.TimezoneMiddleware',
 ]
 
 ROOT_URLCONF = 'vera.urls'

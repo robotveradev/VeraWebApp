@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.timezone import now
+from django.utils.translation import ugettext_lazy as _
 
 SEX_CHOICES = (
     ('male', 'male'),
@@ -13,6 +15,39 @@ LANGUAGE_LEVEL_CHOICES = (
     ('Professional', 'Professional'),
     ('Bilingual', 'Bilingual'),
 )
+
+YEARS = [(i, i) for i in range(1950, 2002)][::-1]
+
+DAYS = [(i, i) for i in range(1, 32)]
+
+MONTHS = (
+    (1, _('january')),
+    (2, _('febuary')),
+    (3, _('march')),
+    (4, _('april')),
+    (5, _('may')),
+    (6, _('june')),
+    (7, _('july')),
+    (8, _('august')),
+    (9, _('september')),
+    (10, _('october')),
+    (11, _('november')),
+    (12, _('december')),
+)
+
+WEIGHTS = (
+    (0, _('Minor')),
+    (1, _('Medium')),
+    (2, _('Major')),
+)
+
+
+def current_year():
+    return now().year
+
+
+def current_month():
+    return now().month
 
 
 class Busyness(models.Model):
@@ -42,16 +77,16 @@ class CurriculumVitae(models.Model):
     first_name = models.CharField(max_length=50, null=False, blank=False)
     last_name = models.CharField(max_length=50, null=False, blank=False)
     middle_name = models.CharField(max_length=50, null=True, blank=True, default=None)
-    birth_date = models.DateTimeField(blank=True, null=True, default=None)
+    birth_date = models.DateField(blank=True, null=True, default=None)
     sex = models.CharField(max_length=20, choices=SEX_CHOICES)
     city = models.CharField(max_length=127, blank=False, null=False)
     relocation = models.NullBooleanField(default=None)
     official_journey = models.NullBooleanField(default=None)
-    experience = models.ManyToManyField('Experience')
+    experience = models.ManyToManyField('Experience', blank=True, null=True)
     position = models.ForeignKey('Position', on_delete=models.SET_NULL, null=True, blank=True, default=None)
-    skills = models.ManyToManyField('Skill')
-    education = models.ManyToManyField('Education')
-    languages = models.ManyToManyField('Languages')
+    skills = models.ManyToManyField('Skill', blank=True, null=True)
+    education = models.ManyToManyField('Education', blank=True, null=True)
+    languages = models.ManyToManyField('Languages', blank=True, null=True)
     level = models.ForeignKey('EducationLevel', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -73,9 +108,12 @@ class Position(models.Model):
 
 
 class Experience(models.Model):
-    start_date = models.DateField(blank=False, null=False)
-    end_date = models.DateField(blank=True, null=True)
-    expire = models.BooleanField(default=False)
+    start_year = models.IntegerField(choices=YEARS, default=current_year, verbose_name=_("start year"))
+    start_month = models.IntegerField(choices=MONTHS, default=current_month, verbose_name=_("start month"))
+    still = models.BooleanField(default=True, verbose_name=_("still in office"))
+    end_year = models.IntegerField(choices=YEARS, null=True, blank=True, verbose_name=_("end year"))
+    end_month = models.IntegerField(choices=MONTHS, null=True, blank=True, verbose_name=_("end month"))
+    weight = models.IntegerField(choices=WEIGHTS, default=1, verbose_name=_("weight"))
     organization = models.CharField(max_length=255, blank=False, null=False)
     city = models.CharField(max_length=127, blank=False, null=False)
     position = models.CharField(max_length=127)

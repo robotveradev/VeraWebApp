@@ -418,7 +418,3 @@ def cnange_cv_status(request):
         # cv.enabled = not cv.enabled
         # cv.save()
         return redirect(profile)
-
-
-def new_cv(request):
-    return HttpResponse('ok', status=200)
