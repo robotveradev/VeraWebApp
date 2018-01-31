@@ -1,0 +1,16 @@
+<div>
+    <p class="flow-text">{{ experience.organization }},
+        <small class="grey-text">{{ experience.position }}, {{ experience.city }}</small>
+    </p>
+    {% if not experience.expire %}
+        From {{ experience.start_date|date:'E Y' }} to {{ experience.end_date|date:'E Y' }} (
+        {{ experience.start_date|timesince:experience.end_date }}).
+    {% else %}
+        From {{ experience.start_date|date:'E Y' }} until now.
+    {% endif %}
+    {% if experience.description %}
+        <blockquote>
+            {{ experience.description }}
+        </blockquote>
+    {% endif %}
+</div>

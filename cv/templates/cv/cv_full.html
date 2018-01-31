@@ -1,0 +1,84 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}VeraOracle - Curriculum Vitae{% endblock %}
+
+{% block content %}
+    <h4 class="center">
+        CV Full Info
+    </h4>
+    <div class="container">
+        {% if cv %}
+            <div class="row">
+                <div class="col s2 m2 l2">
+                    {% if cv.image %}
+                        <img class="bordered" style="width: 100%" src="{{ cv.image.url }}"/>
+                    {% endif %}
+                </div>
+                <div class="col s10 m10 l10">
+                    <div>
+                        <h5>{{ cv.last_name }} {{ cv.first_name }}</h5>
+                    </div>
+                    <div>
+                        {{ cv.sex|title }}{% if cv.birth_date %}, {{ cv.birth_date|date:'d E Y' }} year of
+                            birth{% endif %}{% if cv.level %}, education level: {{ cv.level.title|lower }}{% endif %}
+                    </div>
+                    <div>
+                        {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}
+                        {% if cv.official_journey %}, ready for official journey{% endif %}
+                    </div>
+                    {% if cv.skills %}
+                        <br/>
+                        {% for skill in cv.skills.all %}
+                            <div class="chip blue white-text">{{ skill }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <hr/>
+                {% if cv.position %}
+                    <div class="col s12 l12 m12">
+                        <p class="flow-text">{{ cv.position.title }}</p>
+                        Salary from: {{ cv.position.salary_from }}$
+                        <ul class="browser-default">
+                            <li>{{ cv.position.busyness.all|join:', ' }}</li>
+                            <li>{{ cv.position.schedule.all|join:', ' }}</li>
+                        </ul>
+                        {% if cv.position.description %}
+                            <blockquote>
+                                {{ cv.position.description }}
+                            </blockquote>
+                        {% endif %}
+                        {% if cv.position.carier_start %}
+                            <div class="chip green white-text right">Carier start</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% if cv.experience %}
+                    <div class="col s12 l12 m12">
+                        <h5>Experience</h5>
+                        {% for experience in cv.experience.all %}
+                            {% include 'cv/include/experience.html' %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if cv.education %}
+                    <div class="col s12 m12 l12">
+                        <h5>Education</h5>
+                        {% for education in cv.education.all %}
+                            {% include 'cv/include/education.html' %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if cv.languages %}
+                    <div class="col s12 m12 l12">
+                        <h5>Languages</h5>
+                        {% for language in cv.languages.all %}
+                            {% include 'cv/include/languages.html' %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

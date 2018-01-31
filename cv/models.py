@@ -7,11 +7,11 @@ SEX_CHOICES = (
 )
 
 LANGUAGE_LEVEL_CHOICES = (
-    ('NOT', 'Notion'),
-    ('BAS', 'Basic'),
-    ('ADV', 'Advanced'),
-    ('PRO', 'Professional'),
-    ('BIL', 'Bilingual'),
+    ('Notion', 'Notion'),
+    ('Basic', 'Basic'),
+    ('Advanced', 'Advanced'),
+    ('Professional', 'Professional'),
+    ('Bilingual', 'Bilingual'),
 )
 
 
@@ -66,6 +66,7 @@ class Position(models.Model):
     schedule = models.ManyToManyField(Schedule)
     salary_from = models.PositiveIntegerField(default=0, blank=False, null=False)
     carier_start = models.BooleanField(default=False)
+    description = models.TextField()
 
     def __str__(self):
         return self.title
@@ -78,10 +79,10 @@ class Experience(models.Model):
     organization = models.CharField(max_length=255, blank=False, null=False)
     city = models.CharField(max_length=127, blank=False, null=False)
     position = models.CharField(max_length=127)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True, default=None)
 
     def __str__(self):
-        return 'Expirience {}'.format(self.position)
+        return 'Experience {}'.format(self.position)
 
 
 class EducationLevel(models.Model):
@@ -96,7 +97,7 @@ class Education(models.Model):
     institute = models.CharField(max_length=127, blank=True, null=True)
     faculty = models.CharField(max_length=127, blank=True, null=True)
     profession = models.CharField(max_length=127, blank=True, null=True)
-    education_form = models.DateField()
+    education_from = models.DateField()
     education_to = models.DateField()
 
     def __str__(self):
