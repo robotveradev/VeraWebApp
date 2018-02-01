@@ -1,5 +1,5 @@
 from __future__ import absolute_import, unicode_literals
-from celery.schedules import crontab
+from datetime import timedelta
 from celery.task import periodic_task
 from django.conf import settings
 from web3.utils.events import get_event_data
@@ -12,7 +12,7 @@ from web3 import Web3, HTTPProvider
 from solc import compile_source
 
 
-@periodic_task(run_every=crontab(minute='*/1'))
+@periodic_task(run_every=timedelta(seconds=15))
 def check_transactions():
     txns_set = Transaction.objects.all()
     if len(txns_set):
