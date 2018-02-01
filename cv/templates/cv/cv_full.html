@@ -1,5 +1,7 @@
 {% extends 'jobboard/base.html' %}
 
+{% load material_form %}
+
 {% block head_title %}VeraOracle - Curriculum Vitae{% endblock %}
 
 {% block content %}
@@ -23,8 +25,7 @@
                             birth{% endif %}{% if cv.level %}, education level: {{ cv.level.title|lower }}{% endif %}
                     </div>
                     <div>
-                        {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}
-                        {% if cv.official_journey %}, ready for official journey{% endif %}
+                        {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}{% if cv.official_journey %}, ready for official journey{% endif %}
                     </div>
                     {% if cv.skills %}
                         <br/>
@@ -36,7 +37,7 @@
             </div>
             <div class="row">
                 <hr/>
-                {% if cv.position %}
+                {% if cv.position != None %}
                     <div class="col s12 l12 m12">
                         <p class="flow-text">{{ cv.position.title }}</p>
                         Salary from: {{ cv.position.salary_from }}$
@@ -46,13 +47,24 @@
                         </ul>
                         {% if cv.position.description %}
                             <blockquote>
-                                {{ cv.position.description }}
+                                {{ cv.position.description|safe }}
                             </blockquote>
                         {% endif %}
                         {% if cv.position.carier_start %}
                             <div class="chip green white-text right">Carier start</div>
                         {% endif %}
                     </div>
+                {% else %}
+                    <div class="col s12 m12 l12">
+                        <blockquote>
+                            <p class="flow-text">Career objective information is not available </p>
+                        </blockquote>
+                    </div>
+                    <a href="{% url 'new_position' cv_id=cv.id %}"
+                       class="btn waves-light waves-effect green right modal-trigger">Add career
+                        objective</a>
+                    <div class="clearfix"></div>
+                    <br/>
                 {% endif %}
                 {% with cv.experience.all as experiences %}
                     {% if experiences %}
@@ -62,8 +74,15 @@
                                 {% include 'cv/include/experience.html' %}
                             {% endfor %}
                         </div>
+                    {% else %}
+                        <div class="col s12 m12 l12">
+                            <blockquote>
+                                <p class="flow-text">Experience information is not available </p>
+                            </blockquote>
+                        </div>
                     {% endif %}
-                    <a href="#" class="btn waves-light waves-effect green right">Add experience info</a>
+                    <a href="{% url 'new_experience' cv_id=cv.id %}" class="btn waves-light waves-effect green right">Add
+                        experience info</a>
                 {% endwith %}
                 <div class="clearfix"><br/></div>
                 {% with cv.education.all as educations %}
@@ -74,8 +93,15 @@
                                 {% include 'cv/include/education.html' %}
                             {% endfor %}
                         </div>
+                    {% else %}
+                        <div class="col s12 m12 l12">
+                            <blockquote>
+                                <p class="flow-text">Education information is not available </p>
+                            </blockquote>
+                        </div>
                     {% endif %}
-                    <a href="#" class="btn waves-light waves-effect green right">Add education info</a>
+                    <a href="{% url 'new_education' cv_id=cv.id %}" class="btn waves-light waves-effect green right">Add
+                        education info</a>
                 {% endwith %}
                 <div class="clearfix"><br/></div>
                 {% with cv.languages.all as languages %}

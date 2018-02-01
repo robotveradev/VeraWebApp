@@ -92,3 +92,7 @@ body {
 .underline {
     text-decoration: underline;
 }
+
+.error {
+    color: red;
+}

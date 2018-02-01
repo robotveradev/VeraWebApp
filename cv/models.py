@@ -16,7 +16,7 @@ LANGUAGE_LEVEL_CHOICES = (
     ('Bilingual', 'Bilingual'),
 )
 
-YEARS = [(i, i) for i in range(1950, 2002)][::-1]
+YEARS = [(i, i) for i in range(1950, now().year)][::-1]
 
 DAYS = [(i, i) for i in range(1, 32)]
 
@@ -90,9 +90,15 @@ class CurriculumVitae(models.Model):
     level = models.ForeignKey('EducationLevel', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    published = models.BooleanField(default=False)
 
     def __str__(self):
         return 'CurriculumVitae: {} {}'.format(self.first_name, self.last_name)
+
+    def publish(self):
+        if self.position is not None:
+            self.published = True
+            self.save()
 
 
 class Position(models.Model):
@@ -101,7 +107,7 @@ class Position(models.Model):
     schedule = models.ManyToManyField(Schedule)
     salary_from = models.PositiveIntegerField(default=0, blank=False, null=False)
     carier_start = models.BooleanField(default=False)
-    description = models.TextField()
+    description = models.TextField(blank=False, null=False)
 
     def __str__(self):
         return self.title
@@ -110,10 +116,9 @@ class Position(models.Model):
 class Experience(models.Model):
     start_year = models.IntegerField(choices=YEARS, default=current_year, verbose_name=_("start year"))
     start_month = models.IntegerField(choices=MONTHS, default=current_month, verbose_name=_("start month"))
-    still = models.BooleanField(default=True, verbose_name=_("still in office"))
+    still = models.BooleanField(default=False, verbose_name=_("still in office"))
     end_year = models.IntegerField(choices=YEARS, null=True, blank=True, verbose_name=_("end year"))
     end_month = models.IntegerField(choices=MONTHS, null=True, blank=True, verbose_name=_("end month"))
-    weight = models.IntegerField(choices=WEIGHTS, default=1, verbose_name=_("weight"))
     organization = models.CharField(max_length=255, blank=False, null=False)
     city = models.CharField(max_length=127, blank=False, null=False)
     position = models.CharField(max_length=127)
@@ -145,3 +150,12 @@ class Education(models.Model):
 class Languages(models.Model):
     name = models.CharField(max_length=250)
     level = models.CharField(max_length=20, choices=LANGUAGE_LEVEL_CHOICES)
+
+    def __str__(self):
+        return self.name
+
+
+class TestModel(models.Model):
+    title = models.CharField(max_length=123)
+    content = models.TextField()
+

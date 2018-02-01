@@ -22,6 +22,8 @@ from cv import views as cv_views
 
 basic = [
     path('', jobboard_views.index, name='index'),
+    path('summernote/', include('django_summernote.urls')),
+    path('test/', cv_views.test, name='test'),
     path('role/', jobboard_views.choose_role, name='choose_role'),
     path('admin/', admin.site.urls),
     path('account/', include("account.urls")),
@@ -41,7 +43,10 @@ candidate_urlpatterns = [
 curriculum_vitae_urlpatterns = [
     path('cv/new/', cv_views.new_cv, name='new_cv'),
     path('cv/<int:cv_id>/', cv_views.cv, name='cv'),
-    path('cv/status/change', jobboard_views.cnange_cv_status, name='change_cv_status'),
+    path('cv/<int:cv_id>/new/position/', cv_views.new_position, name='new_position'),
+    path('cv/<int:cv_id>/new/education/', cv_views.new_education, name='new_education'),
+    path('cv/<int:cv_id>/new/experience/', cv_views.new_experience, name='new_experience'),
+    path('cv/status/change/', jobboard_views.cnange_cv_status, name='change_cv_status'),
 ]
 
 vacancy_urlpatterns = [

@@ -12,7 +12,7 @@
     {% endif %}
     {% if experience.description %}
         <blockquote>
-            {{ experience.description }}
+            {{ experience.description|safe }}
         </blockquote>
     {% endif %}
 </div>

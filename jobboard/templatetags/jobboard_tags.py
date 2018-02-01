@@ -5,6 +5,7 @@ from django import template
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import stringfilter
 
+from cv.models import CurriculumVitae
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
@@ -31,11 +32,10 @@ def user_role(user_id):
 
 @register.filter(name='has_cv')
 def has_cv(user_id):
-    return False
-    # if len(CurriculumVitae.objects.filter(candidate__user_id=user_id)) > 0:
-    #     return True
-    # else:
-    #     return False
+    if CurriculumVitae.objects.filter(user_id=user_id).count() > 0:
+        return True
+    else:
+        return False
 
 
 @register.filter(name='allowance_rest')
