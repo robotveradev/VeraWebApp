@@ -1,21 +1,21 @@
 {% load jobboard_tags %}
-{% if candidates %}
+{% if cvs %}
     <h5 class="center">Job seekers who subscribe to a job offer:</h5>
     <table class="bordered highligth">
         <thead>
         <tr>
-            <th>Candiadate contract address</th>
+            <th>Curriculum vitae</th>
             <th class="center">Candidate state</th>
             <th class="right">Approve</th>
         </tr>
         </thead>
         <tbody>
-        {% for candidate in candidates %}
-            {% with candidate.state as st %}
+        {% for cv in cvs %}
+            {% with vacancy|candidate_state:cv.cv.candidate as st %}
                 <tr>
                     <td>
-                        <a href="{% url 'candidate' candidate_id=candidate.obj.id %}">{{ candidate.obj.contract_address }}
-                            ({{ candidate.obj.first_name }} {{ candidate.obj.last_name }})</a></td>
+                        <a href="{% url 'cv' cv_id=cv.cv.id %}">{{ cv.cv.candidate.first_name }} {{ cv.cv.candidate.last_name }} - {{ cv.cv.position.title }}</a>
+                    </td>
                     <td class="center
                             {% if st == 'wait' %}
                             amber-text
@@ -28,19 +28,19 @@
                     </td>
                     <td class="right">
                         {% if st == 'wait' %}
-                            {% if candidate.obj.id|employer_answered:vacancy.id %}
+                            {% if cv.cv.candidate.id|employer_answered:vacancy.id %}
                                 <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
                             {% else %}
                                 <form action="{% url 'approve_candidate' %}" method="post">
                                     {% csrf_token %}
-                                    <input type="hidden" name="candidate" value="{{ candidate.obj.id }}">
+                                    <input type="hidden" name="candidate" value="{{ cv.cv.candidate.id }}">
                                     <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
                                     <button type="submit" class="btn-flat btn-small waves-effect waves-light">
                                         <i class="material-icons green-text">done</i></button>
                                 </form>
                                 <form action="{% url 'revoke_candidate' %}" method="post">
                                     {% csrf_token %}
-                                    <input type="hidden" name="candidate" value="{{ candidate.obj.id }}">
+                                    <input type="hidden" name="candidate" value="{{ cv.cv.candidate.id }}">
                                     <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
                                     <button type="submit" class="btn-flat btn-small waves-effect waves-light">
                                         <i class="material-icons red-text">close</i></button>

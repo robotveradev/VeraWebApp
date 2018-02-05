@@ -1,15 +1,13 @@
 from django import forms
 from django.utils.timezone import now
-from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
-
-from .models import CurriculumVitae, Position, Education, Experience, TestModel
+from .models import CurriculumVitae, Position, Education, Experience
 from django.utils.translation import ugettext_lazy as _
 
 
 class CurriculumVitaeForm(forms.ModelForm):
     class Meta:
         exclude = (
-            'user', 'experience', 'position', 'education', 'created_at', 'updated_at', 'published',)
+            'candidate', 'experience', 'position', 'education', 'created_at', 'updated_at', 'published',)
         model = CurriculumVitae
         labels = {
             'level': 'Education level',
@@ -70,12 +68,3 @@ class ExperienceForm(forms.ModelForm):
             raise forms.ValidationError(_(
                 "You must specify an end year if experience is finished."))
         return data
-
-
-class TestModelForm(forms.ModelForm):
-    class Meta:
-        model = TestModel
-        fields = '__all__'
-        widgets = {
-            'content': SummernoteInplaceWidget()
-        }

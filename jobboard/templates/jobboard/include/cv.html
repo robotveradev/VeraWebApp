@@ -1,13 +1,20 @@
 {% if cv %}
-    <h5 class="center">My Curriculum vitae</h5>
     {% for item in cv %}
         <div class="row">
             <div class="col s2 m2 l2">
                 {% if item.image %}
                     <img style="width: 100%;" src="{{ item.image.url }}"/>
+                {% else %}
+                    <img style="width: 100%;" src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
+                         alt="">
                 {% endif %}
             </div>
             <div class="col s10 m10 l10">
+                {% if selectable and can_sub %}
+                    <a href="{% url 'subscribe_to_vacancy' vacancy_id=vacancy.id cv_id=item.id %}" class="btn-flat right">
+                        <i class="material-icons green-text">check</i>
+                    </a>
+                {% endif %}
                 <h5>
                     <a href="{% url 'cv' cv_id=item.id %}">
                         {% if item.position %}
@@ -19,8 +26,8 @@
                 </h5>
                 <table width="100%">
                     <colgroup>
-                        <col width="10%">
-                        <col width="90%">
+                        <col width="15%">
+                        <col width="85%">
                     </colgroup>
                     <tr>
                         <td>Salary from:</td>
@@ -36,9 +43,7 @@
                         <td>Busyness:</td>
                         <td>
                             {% if item.position %}
-                                {% for busyness in item.position.busyness.all %}
-                                    <div class="chip">{{ busyness }}</div>
-                                {% endfor %}
+                                {{ item.position.busyness.all|join:', ' }}
                             {% else %}
                                 -
                             {% endif %}
@@ -48,9 +53,7 @@
                         <td>Schedule:</td>
                         <td>
                             {% if item.position %}
-                                {% for schedule in item.position.schedule.all %}
-                                    <div class="chip">{{ schedule }}</div>
-                                {% endfor %}
+                                {{ item.position.schedule.all|join:', ' }}
                             {% else %}
                                 -
                             {% endif %}
@@ -67,5 +70,3 @@
         <hr/>
     {% endfor %}
 {% endif %}
-<a class="btn waves-effect waves-light right amber white-text" href="{% url 'new_cv' %}">Add new curriculum vitae.</a>
-<div class="clearfix"></div>

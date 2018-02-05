@@ -11,7 +11,7 @@ from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from .handlers.candidate import CandidateHandler
 from .models import Vacancy, Employer, Candidate, Specialisation, Keyword, VacancyTest, \
-    CandidateVacancyPassing, Transaction
+    CandidateVacancyPassing, Transaction, CVOnVacancy
 from .decorators import choose_role_required
 from .handlers.oracle import OracleHandler
 from .handlers.coin import CoinHandler
@@ -98,7 +98,7 @@ def profile(request, active_cv=None):
             args['vacancies'] = Vacancy.objects.filter(employer=args['obj'])
         elif args['role'] == 'candidate':
             args['active'] = active_cv
-            args['cv'] = CurriculumVitae.objects.filter(user=request.user)
+            args['cv'] = CurriculumVitae.objects.filter(candidate=args['obj'])
     return render(request, 'jobboard/profile.html', args)
 
 
@@ -170,32 +170,36 @@ def vacancy(request, vacancy_id):
     try:
         args['vacancy'] = Vacancy.objects.get(id=vacancy_id)
         args['role'], args['obj'] = user_role(request.user.id)
-
+        if args['role'] == 'candidate':
+            args['cv'] = CurriculumVitae.objects.filter(candidate=args['obj'], published=True)
         return render(request, 'jobboard/vacancy.html', args)
     except Vacancy.DoesNotExist:
         raise Http404
 
 
-def subscrabe_to_vacancy(request):
-    print(request)
-    return HttpResponse('ok', status=200)
-    if request.method == 'POST':
-        vacancy_id = request.POST.get('vacancy')
-        can_o = Candidate.objects.get(user_id=request.user.id)
-        vac_o = get_object_or_404(Vacancy, id=vacancy_id)
-        if not can_o.contract_address or not vac_o.contract_address:
-            raise Http404
-        oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
-        oracle.unlockAccount()
-        can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE, can_o.contract_address)
-        txn_hash = can_h.subscribe_to_interview(vac_o.contract_address)
-        txn = Transaction()
-        txn.txn_hash = txn_hash
-        txn.txn_type = 'Subscribe'
-        txn.obj_id = vac_o.id
-        txn.user = request.user
-        txn.save()
-        return redirect(vacancy, vacancy_id=vacancy_id)
+def subscribe_to_vacancy(request, vacancy_id, cv_id):
+    can_o = get_object_or_404(Candidate, user_id=request.user.id)
+    vac_o = get_object_or_404(Vacancy, id=vacancy_id)
+    cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate=can_o)
+
+    if not can_o.contract_address or not vac_o.contract_address:
+        raise Http404
+
+    oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+    oracle.unlockAccount()
+    can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE, can_o.contract_address)
+    txn_hash = can_h.subscribe_to_interview(vac_o.contract_address)
+    cvonvac = CVOnVacancy()
+    cvonvac.cv = cv_o
+    cvonvac.vacancy = vac_o
+    cvonvac.save()
+    txn = Transaction()
+    txn.txn_hash = txn_hash
+    txn.txn_type = 'Subscribe'
+    txn.obj_id = vac_o.id
+    txn.user = request.user
+    txn.save()
+    return redirect(vacancy, vacancy_id=vacancy_id)
 
 
 def candidate(request, candidate_id):
@@ -408,13 +412,3 @@ def change_vacancy_status(request, vacancy_id):
         txn.obj_id = vac_o.id
         txn.save()
     return redirect(profile)
-
-
-@require_POST
-def cnange_cv_status(request):
-    if request.method == 'POST':
-        cv_id = request.POST.get('cv_id')
-        # cv = get_object_or_404(CurriculumVitae, candidate__user=request.user, id=cv_id)
-        # cv.enabled = not cv.enabled
-        # cv.save()
-        return redirect(profile)

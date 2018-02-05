@@ -11,7 +11,7 @@ from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.handlers.coin import CoinHandler
 from jobboard.models import Vacancy, Candidate, Employer, VacancyTest, CandidateVacancyPassing, \
-    Transaction
+    Transaction, CVOnVacancy
 from django.conf import settings
 
 register = template.Library()
@@ -61,18 +61,17 @@ def get_coin_symbol(id):
 
 
 @register.inclusion_tag("jobboard/tags/candidates.html")
-def get_candidates(vacancy_id):
+def get_candidates(vacancy):
     args = {}
-    args['vacancy'] = Vacancy.objects.get(id=vacancy_id)
-    candidates = []
-    vacancy_handler = VacancyHandler(settings.WEB_ETH_COINBASE, args['vacancy'].contract_address)
-    c_candidates = vacancy_handler.candidates()
-    for candidate in c_candidates:
-        if vacancy_handler.get_candidate_state(candidate) != 'not exist':
-            candidates.append({'state': vacancy_handler.get_candidate_state(candidate),
-                               'obj': Candidate.objects.get(contract_address=candidate)})
-    args['candidates'] = candidates
+    args['vacancy'] = vacancy
+    args['cvs'] = CVOnVacancy.objects.filter(vacancy=vacancy)
     return args
+
+
+@register.filter(name='candidate_state')
+def candidate_state(vacancy, candidate):
+    vac_h = VacancyHandler(settings.WEB_ETH_COINBASE, vacancy.contract_address)
+    return vac_h.get_candidate_state(candidate.contract_address)
 
 
 @register.filter(name='vacancy_tests_count')

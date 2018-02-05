@@ -7,10 +7,12 @@
         {% if role == 'candidate' %}
             <h4 class="center">Candidate info</h4>
             {% if obj.enabled == True %}
-                <div class="chip green white-text right">Contract enabled <a class="white-text underline" href="{% url 'change_contract_status' %}">(disable)</a>.
+                <div class="chip green white-text right">Contract enabled <a class="white-text underline"
+                                                                             href="{% url 'change_contract_status' %}">(disable)</a>.
                 </div>
             {% elif obj.enabled is False %}
-                <div class="chip red white-text right">Contract disabled <a class="white-text underline" href="{% url 'change_contract_status' %}">(enable)</a>.
+                <div class="chip red white-text right">Contract disabled <a class="white-text underline"
+                                                                            href="{% url 'change_contract_status' %}">(enable)</a>.
                 </div>
             {% elif obj.enabled == None %}
                 <div class="chip amber white-text right">Renewal of contract status...<i
@@ -56,7 +58,11 @@
                 </tr>
             </table>
             {% if cv %}
+                <h5 class="center">My Curriculum vitae</h5>
                 {% include 'jobboard/include/cv.html' %}
+                <a class="btn waves-effect waves-light right amber white-text" href="{% url 'new_cv' %}">Add new
+                    curriculum vitae.</a>
+                <div class="clearfix"></div>
             {% endif %}
             {% if obj.contract_address %}
                 {% get_facts obj %}
@@ -66,10 +72,12 @@
             <h4 class="center">Employer info</h4>
 
             {% if obj.enabled == True %}
-                <div class="chip green white-text right">Contract enabled <a class="white-text underline" href="{% url 'change_contract_status' %}">(disable)</a>.
+                <div class="chip green white-text right">Contract enabled <a class="white-text underline"
+                                                                             href="{% url 'change_contract_status' %}">(disable)</a>.
                 </div>
             {% elif obj.enabled is False %}
-                <div class="chip red white-text right">Contract disabled <a class="white-text underline" href="{% url 'change_contract_status' %}">(enable)</a>.
+                <div class="chip red white-text right">Contract disabled <a class="white-text underline"
+                                                                            href="{% url 'change_contract_status' %}">(enable)</a>.
                 </div>
             {% elif obj.enabled == None %}
                 <div class="chip amber white-text right">Renewal of contract status...<i

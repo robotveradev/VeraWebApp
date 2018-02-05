@@ -16,3 +16,11 @@ def sub(a, b):
         return 0
     else:
         return a - b
+
+
+@register.filter(name='can_publish')
+def can_publish(cv):
+    if cv.position is not None:
+        return True
+    else:
+        return False

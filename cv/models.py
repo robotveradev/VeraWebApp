@@ -3,6 +3,8 @@ from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
+from jobboard.models import Candidate
+
 SEX_CHOICES = (
     ('male', 'male'),
     ('female', 'female'),
@@ -72,8 +74,8 @@ class Skill(models.Model):
 
 
 class CurriculumVitae(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.ImageField()
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    image = models.ImageField(blank=True, null=True)
     first_name = models.CharField(max_length=50, null=False, blank=False)
     last_name = models.CharField(max_length=50, null=False, blank=False)
     middle_name = models.CharField(max_length=50, null=True, blank=True, default=None)
@@ -94,11 +96,6 @@ class CurriculumVitae(models.Model):
 
     def __str__(self):
         return 'CurriculumVitae: {} {}'.format(self.first_name, self.last_name)
-
-    def publish(self):
-        if self.position is not None:
-            self.published = True
-            self.save()
 
 
 class Position(models.Model):
@@ -153,9 +150,3 @@ class Languages(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class TestModel(models.Model):
-    title = models.CharField(max_length=123)
-    content = models.TextField()
-

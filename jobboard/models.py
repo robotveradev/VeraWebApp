@@ -94,3 +94,9 @@ class CandidateVacancyPassing(models.Model):
 
     def __str__(self):
         return str(self.candidate) + " " + self.test.title + ': ' + str(self.attempts)
+
+
+class CVOnVacancy(models.Model):
+    cv = models.ForeignKey('cv.CurriculumVitae', on_delete=models.CASCADE)
+    vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)

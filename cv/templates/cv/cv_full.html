@@ -1,10 +1,13 @@
 {% extends 'jobboard/base.html' %}
 
-{% load material_form %}
+{% load cv_tags material_form %}
 
 {% block head_title %}VeraOracle - Curriculum Vitae{% endblock %}
 
 {% block content %}
+    {% if error %}
+        {{ error }}
+    {% endif %}
     <h4 class="center">
         CV Full Info
     </h4>
@@ -14,6 +17,10 @@
                 <div class="col s2 m2 l2">
                     {% if cv.image %}
                         <img class="bordered" style="width: 100%" src="{{ cv.image.url }}"/>
+                    {% else %}
+                        <img style="width: 100%;"
+                             src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
+                             alt="">
                     {% endif %}
                 </div>
                 <div class="col s10 m10 l10">
@@ -25,7 +32,8 @@
                             birth{% endif %}{% if cv.level %}, education level: {{ cv.level.title|lower }}{% endif %}
                     </div>
                     <div>
-                        {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}{% if cv.official_journey %}, ready for official journey{% endif %}
+                        {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}
+                        {% if cv.official_journey %}, ready for official journey{% endif %}
                     </div>
                     {% if cv.skills %}
                         <br/>
@@ -33,13 +41,16 @@
                             <div class="chip blue white-text">{{ skill }}</div>
                         {% endfor %}
                     {% endif %}
+                {% if request.user == cv.candidate.user %}
+                    <a {% if not cv|can_publish %}disabled {% endif %} href="{% url 'change_cv_status' cv_id=cv.id %}" class="btn waves-effect waves-light right">{{ cv.published|yesno:'Published, Unpablished' }}</a>
+                {% endif %}
                 </div>
             </div>
             <div class="row">
                 <hr/>
                 {% if cv.position != None %}
                     <div class="col s12 l12 m12">
-                        <p class="flow-text">{{ cv.position.title }}</p>
+                        <p class="flow-text">{{ cv.position.title|title }}</p>
                         Salary from: {{ cv.position.salary_from }}$
                         <ul class="browser-default">
                             <li>{{ cv.position.busyness.all|join:', ' }}</li>
@@ -51,7 +62,7 @@
                             </blockquote>
                         {% endif %}
                         {% if cv.position.carier_start %}
-                            <div class="chip green white-text right">Carier start</div>
+                            <div class="chip green white-text right">Career start</div>
                         {% endif %}
                     </div>
                 {% else %}
@@ -60,9 +71,11 @@
                             <p class="flow-text">Career objective information is not available </p>
                         </blockquote>
                     </div>
-                    <a href="{% url 'new_position' cv_id=cv.id %}"
-                       class="btn waves-light waves-effect green right modal-trigger">Add career
-                        objective</a>
+                    {% if request.user == cv.candidate.user %}
+                        <a href="{% url 'new_position' cv_id=cv.id %}"
+                           class="btn waves-light waves-effect green right modal-trigger">Add career
+                            objective</a>
+                    {% endif %}
                     <div class="clearfix"></div>
                     <br/>
                 {% endif %}
@@ -81,8 +94,11 @@
                             </blockquote>
                         </div>
                     {% endif %}
-                    <a href="{% url 'new_experience' cv_id=cv.id %}" class="btn waves-light waves-effect green right">Add
-                        experience info</a>
+                    {% if request.user == cv.candidate.user %}
+                        <a href="{% url 'new_experience' cv_id=cv.id %}"
+                           class="btn waves-light waves-effect green right">Add
+                            experience info</a>
+                    {% endif %}
                 {% endwith %}
                 <div class="clearfix"><br/></div>
                 {% with cv.education.all as educations %}
@@ -100,8 +116,11 @@
                             </blockquote>
                         </div>
                     {% endif %}
-                    <a href="{% url 'new_education' cv_id=cv.id %}" class="btn waves-light waves-effect green right">Add
-                        education info</a>
+                    {% if request.user == cv.candidate.user %}
+                        <a href="{% url 'new_education' cv_id=cv.id %}"
+                           class="btn waves-light waves-effect green right">Add
+                            education info</a>
+                    {% endif %}
                 {% endwith %}
                 <div class="clearfix"><br/></div>
                 {% with cv.languages.all as languages %}

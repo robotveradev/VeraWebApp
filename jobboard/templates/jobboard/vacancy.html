@@ -62,35 +62,34 @@
         <br>
         {% if vacancy.employer.user == request.user %}
             <div class="row">
-                <div class="col s12 l2 m2">
+                <div class="col s12 l12 m12">
                     <a href="{% url 'vacancy_tests' vacancy_id=vacancy.id %}"
-                       class="btn waves-light waves-effect blue">Tests</a>
+                       class="btn waves-light waves-effect blue right">Tests</a>
                 </div>
             </div>
             <div class="clearfix"></div>
             {% if vacancy.contract_address %}
-                {% get_candidates vacancy.id %}
+                {% get_candidates vacancy %}
             {% endif %}
         {% endif %}
         <br>
-        {% if role == 'candidate' and vacancy.contract_address %}
-            <a href="#subscribe" class="btn waves-light waves-effect blue right modal-trigger">I Want It!</a>
-
-            <div id="subscribe" class="modal modal-fixed-footer">
-                <form action="{% url 'subscrabe_to_vacancy' %}" method="post">
-                    {% csrf_token %}
+        {% if role == 'candidate' and vacancy.contract_address and cv %}
+            {% with obj|is_can_subscribe:vacancy as can_subscribe %}
+                <a href="#subscribe" {% if not can_subscribe %}disabled{% endif %}
+                   class="btn waves-light waves-effect blue right modal-trigger">Subscribe to
+                    interview</a>
+                <div id="subscribe" class="modal modal-fixed-footer">
                     <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
                     <div class="modal-content">
                         <h4>Choose cv for vacancy "{{ vacancy.title }}"</h4>
-
+                        {% include 'jobboard/include/cv.html' with selectable=True can_sub=can_subscribe %}
                     </div>
                     <div class="modal-footer">
-                        <button {% if not obj|is_can_subscribe:vacancy %}disabled{% endif %} type="submit"
-                                class="modal-action modal-close waves-effect waves-green btn-flat ">Continue
-                        </button>
+                        <a class="waves-effect waves-light btn-flat" href="{% url 'new_cv' %}">Add new
+                            curriculum vitae</a>
                     </div>
-                </form>
-            </div>
+                </div>
+            {% endwith %}
         {% endif %}
     </div>
 {% endblock %}

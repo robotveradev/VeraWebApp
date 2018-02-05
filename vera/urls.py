@@ -23,7 +23,6 @@ from cv import views as cv_views
 basic = [
     path('', jobboard_views.index, name='index'),
     path('summernote/', include('django_summernote.urls')),
-    path('test/', cv_views.test, name='test'),
     path('role/', jobboard_views.choose_role, name='choose_role'),
     path('admin/', admin.site.urls),
     path('account/', include("account.urls")),
@@ -46,12 +45,13 @@ curriculum_vitae_urlpatterns = [
     path('cv/<int:cv_id>/new/position/', cv_views.new_position, name='new_position'),
     path('cv/<int:cv_id>/new/education/', cv_views.new_education, name='new_education'),
     path('cv/<int:cv_id>/new/experience/', cv_views.new_experience, name='new_experience'),
-    path('cv/status/change/', jobboard_views.cnange_cv_status, name='change_cv_status'),
+    path('cv/<int:cv_id>/status/change/', cv_views.change_cv_status, name='change_cv_status'),
 ]
 
 vacancy_urlpatterns = [
     path('vacancy/new/', jobboard_views.new_vacancy, name='new_vacancy'),
-    path('vacancy/subscribe/', jobboard_views.subscrabe_to_vacancy, name='subscrabe_to_vacancy'),
+    path('vacancy/<int:vacancy_id>/subscribe/<int:cv_id>', jobboard_views.subscribe_to_vacancy,
+         name='subscribe_to_vacancy'),
     path('vacancy/<int:vacancy_id>/', jobboard_views.vacancy, name='vacancy'),
     path('vacancy/<int:vacancy_id>/test/', jobboard_views.candidate_testing, name='candidate_testing'),
     path('vacancy/<int:vacancy_id>/tests/', jobboard_views.vacancy_tests, name='vacancy_tests'),
