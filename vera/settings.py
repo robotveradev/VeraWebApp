@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'jobboard',
     'cv',
     'account',
-    'tinymce',
     'material',
     'material.frontend',
     'django_summernote',

@@ -32,7 +32,7 @@ def user_role(user_id):
 
 @register.filter(name='has_cv')
 def has_cv(user_id):
-    if CurriculumVitae.objects.filter(user_id=user_id).count() > 0:
+    if CurriculumVitae.objects.filter(candidate__user_id=user_id).count() > 0:
         return True
     else:
         return False

@@ -1,5 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 from datetime import timedelta
+
+from celery import shared_task
 from celery.task import periodic_task
 from django.conf import settings
 from web3.utils.events import get_event_data
@@ -7,7 +9,7 @@ from web3.utils.events import get_event_data
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
-from jobboard.models import Transaction, Employer, Candidate, Vacancy
+from jobboard.models import Transaction, Employer, Candidate, Vacancy, TransactionHistory
 from web3 import Web3, HTTPProvider
 from solc import compile_source
 
@@ -130,3 +132,13 @@ def get_contact_event_abi(compiled_contract, contract_name, event_name):
                     return item
     except KeyError:
         return False
+
+
+@shared_task
+def save_txn_to_history(user_id, txn_hash, action):
+    txn = TransactionHistory()
+    txn.user_id = user_id
+    txn.hash = txn_hash
+    txn.action = action
+    txn.save()
+    return True

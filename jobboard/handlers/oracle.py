@@ -62,7 +62,7 @@ class OracleHandler(object):
         validate_address(can_address)
         validate_address(vac_address)
         self.unlockAccount()
-        self.contract.transact({'from': self.account}).pay_to_candidate(emp_address, can_address, vac_address)
+        return self.contract.transact({'from': self.account}).pay_to_candidate(emp_address, can_address, vac_address)
 
     def withdraw(self, from_address, to_address, amount):
         self.unlockAccount()

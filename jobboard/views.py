@@ -9,9 +9,10 @@ from django.views.decorators.http import require_POST
 from cv.models import CurriculumVitae
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
+from jobboard.tasks import save_txn_to_history
 from .handlers.candidate import CandidateHandler
 from .models import Vacancy, Employer, Candidate, Specialisation, Keyword, VacancyTest, \
-    CandidateVacancyPassing, Transaction, CVOnVacancy
+    CandidateVacancyPassing, Transaction, CVOnVacancy, TransactionHistory
 from .decorators import choose_role_required
 from .handlers.oracle import OracleHandler
 from .handlers.coin import CoinHandler
@@ -40,12 +41,17 @@ def choose_role(request):
         next = request.POST.get('next')
         oracle = OracleHandler(django_settings.WEB_ETH_COINBASE,
                                django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+        tax_number = request.POST.get('tax_number')
         if role == 'employer':
             org = request.POST.get('organization')
-            tax_number = request.POST.get('tax_number')
             try:
                 txn_hash = oracle.new_employer(Web3.toBytes(hexstr=Web3.sha3(text=org + tax_number)),
                                                django_settings.VERA_COIN_CONTRACT_ADDRESS)
+            except ValueError:
+                args['error'] = 'Invalid token address'
+                return render(request, 'jobboard/choose_role.html', args)
+            else:
+                save_txn_to_history.delay(request.user.id, txn_hash, 'Creation of a new employer contract')
                 emp = Employer()
                 emp.user = request.user
                 emp.organization = request.POST.get('organization')
@@ -57,17 +63,14 @@ def choose_role(request):
                 txn.txn_type = 'NewEmployer'
                 txn.obj_id = emp.id
                 txn.save()
-            except ValueError:
-                args['error'] = 'Invalid token address'
-                return render(request, 'jobboard/choose_role.html', args)
         elif role == 'candidate':
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
             middle_name = request.POST.get('middle_name')
-            tax_number = request.POST.get('tax_number')
             txn_hash = oracle.new_candidate(
                 Web3.toBytes(hexstr=Web3.sha3(text=first_name + middle_name + last_name + tax_number)))
             if txn_hash:
+                save_txn_to_history.delay(request.user.id, txn_hash, 'Creation of a new candidate contract')
                 can_o = Candidate()
                 can_o.user = request.user
                 can_o.first_name = first_name
@@ -131,6 +134,7 @@ def new_vacancy(request):
                                               int(allowed_amount) * 10 ** decimals,
                                               int(interview_fee) * 10 ** decimals)
                 if txn_hash:
+                    save_txn_to_history.delay(request.user.id, txn_hash, 'Creation of a new vacancy: {}'.format(title))
                     vac_o = Vacancy()
                     vac_o.employer = emp_o
                     vac_o.title = title
@@ -177,6 +181,7 @@ def vacancy(request, vacancy_id):
         raise Http404
 
 
+@login_required
 def subscribe_to_vacancy(request, vacancy_id, cv_id):
     can_o = get_object_or_404(Candidate, user_id=request.user.id)
     vac_o = get_object_or_404(Vacancy, id=vacancy_id)
@@ -189,19 +194,24 @@ def subscribe_to_vacancy(request, vacancy_id, cv_id):
     oracle.unlockAccount()
     can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE, can_o.contract_address)
     txn_hash = can_h.subscribe_to_interview(vac_o.contract_address)
+
     cvonvac = CVOnVacancy()
     cvonvac.cv = cv_o
     cvonvac.vacancy = vac_o
     cvonvac.save()
+
     txn = Transaction()
     txn.txn_hash = txn_hash
     txn.txn_type = 'Subscribe'
     txn.obj_id = vac_o.id
     txn.user = request.user
     txn.save()
+
+    save_txn_to_history.delay(request.user.id, txn_hash, 'Subscribe to vacancy {}'.format(vac_o.title))
     return redirect(vacancy, vacancy_id=vacancy_id)
 
 
+@login_required
 def candidate(request, candidate_id):
     args = {'candidate': get_object_or_404(Candidate, id=candidate_id)}
     candidate_contract_address = args['candidate'].contract_address
@@ -235,6 +245,12 @@ def approve_candidate(request):
     txn.obj_id = candidate_id
     txn.vac_id = vacancy_id
     txn.save()
+    save_txn_to_history.delay(request.user.id, txn_hash,
+                              'Candidate {} approved to vacancy {}'.format(can_o.contract_address,
+                                                                           vac_o.contract_address))
+    save_txn_to_history.delay(can_o.user_id, txn_hash,
+                              'Employer {} approve your candidacy to vacancy {}'.format(vac_o.employer.contract_address,
+                                                                                        vac_o.contract_address))
     return redirect(vacancy, vacancy_id=vacancy_id)
 
 
@@ -255,6 +271,12 @@ def revoke_candidate(request):
     txn.obj_id = candidate_id
     txn.vac_id = vacancy_id
     txn.save()
+    save_txn_to_history.delay(request.user.id, txn_hash,
+                              'Candidate {} revoked to vacancy {}'.format(can_o.contract_address,
+                                                                          vac_o.contract_address))
+    save_txn_to_history.delay(can_o.user_id, txn_hash,
+                              'Employer {} revoke your candidacy to vacancy {}'.format(vac_o.employer.contract_address,
+                                                                                       vac_o.contract_address))
     return redirect(vacancy, vacancy_id=vacancy_id)
 
 
@@ -343,15 +365,21 @@ def pay_to_candidate(request, vacancy_id):
     else:
         oracle_h = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
 
-        oracle_h.pay_to_candidate(vac_o.employer.contract_address,
-                                  can_o.contract_address,
-                                  vac_o.contract_address)
+        txn_hash = oracle_h.pay_to_candidate(vac_o.employer.contract_address,
+                                             can_o.contract_address,
+                                             vac_o.contract_address)
+        save_txn_to_history.delay(vac_o.employer.user_id, txn_hash,
+                                  'Pay to candidate {} from vacancy {}'.format(can_o.contract_address,
+                                                                               vac_o.contract_address))
+        save_txn_to_history.delay(can_o.user_id, txn_hash,
+                                  'Pay interview fee from vacancy {}'.format(vac_o.contract_address))
         can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE,
                                  can_o.contract_address)
         fact = {'title': 'Test for vacancy "{}" passed.'.format(vac_o.title),
                 'date': time.time(),
                 'employer': vac_o.employer.organization}
-        can_h.new_fact(fact)
+        fact_txn_hash = can_h.new_fact(fact)
+        save_txn_to_history.delay(can_o.user_id, fact_txn_hash, 'New fact from {}'.format(vac_o.employer.organization))
         return redirect(profile)
 
 
@@ -387,6 +415,8 @@ def change_contract_status(request):
             txn.txn_type = role + 'Change'
             txn.obj_id = obj.id
             txn.save()
+            save_txn_to_history.delay(obj.user_id, txn_hash,
+                                      '{} change contract {} status'.format(role.capitalize(), obj.contract_address))
     return redirect(profile)
 
 
@@ -411,4 +441,5 @@ def change_vacancy_status(request, vacancy_id):
         txn.txn_type = 'vacancyChange'
         txn.obj_id = vac_o.id
         txn.save()
+        save_txn_to_history.delay(request.user.id, txn_hash, 'Change vacancy {} status'.format(vac_o.contract_address))
     return redirect(profile)

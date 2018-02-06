@@ -100,3 +100,13 @@ class CVOnVacancy(models.Model):
     cv = models.ForeignKey('cv.CurriculumVitae', on_delete=models.CASCADE)
     vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class TransactionHistory(models.Model):
+    hash = models.CharField(max_length=127)
+    action = models.CharField(max_length=512)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{}: {}'.format(self.user.username, self.hash)

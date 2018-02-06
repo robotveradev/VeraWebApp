@@ -10,7 +10,7 @@ class AdminSpecialisation(admin.ModelAdmin):
 
 
 class AdminKeywords(admin.ModelAdmin):
-    list_display = ('word', )
+    list_display = ('word',)
 
     class Meta:
         model = Keyword
@@ -58,6 +58,13 @@ class AdminCandidateVacancyPassing(admin.ModelAdmin):
         model = CandidateVacancyPassing
 
 
+class AdminTransactionHistory(admin.ModelAdmin):
+    list_display = [field.name for field in TransactionHistory._meta.fields]
+
+    class Meta:
+        model = TransactionHistory
+
+
 admin.site.register(Specialisation, AdminSpecialisation)
 admin.site.register(Keyword, AdminKeywords)
 admin.site.register(Candidate, AdminCandidate)
@@ -66,3 +73,4 @@ admin.site.register(Vacancy, AdminVacancy)
 admin.site.register(Transaction, AdminTxn)
 admin.site.register(VacancyTest, AdminTest)
 admin.site.register(CandidateVacancyPassing, AdminCandidateVacancyPassing)
+admin.site.register(TransactionHistory, AdminTransactionHistory)

@@ -18,7 +18,7 @@
                 <h5>
                     <a href="{% url 'cv' cv_id=item.id %}">
                         {% if item.position %}
-                            {{ item.position.title }}
+                            {{ item.position.title|title }}
                         {% else %}
                             <span class="grey-text">Unpublished CV</span>
                         {% endif %}
