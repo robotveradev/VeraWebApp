@@ -9,16 +9,16 @@ from django.views.decorators.http import require_POST
 from cv.models import CurriculumVitae
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
-from jobboard.tasks import save_txn_to_history
+from jobboard.tasks import save_txn_to_history, save_txn
 from .handlers.candidate import CandidateHandler
 from .models import Vacancy, Employer, Candidate, Specialisation, Keyword, VacancyTest, \
-    CandidateVacancyPassing, Transaction, CVOnVacancy, TransactionHistory
+    CandidateVacancyPassing, CVOnVacancy, TransactionHistory
 from .decorators import choose_role_required
 from .handlers.oracle import OracleHandler
 from .handlers.coin import CoinHandler
 from web3 import Web3
 from django.conf import settings as django_settings
-
+from django.db import transaction
 
 def index(request):
     return render(request, 'jobboard/index.html', {})
@@ -57,12 +57,8 @@ def choose_role(request):
                 emp.organization = request.POST.get('organization')
                 emp.tax_number = request.POST.get('tax_number')
                 emp.save()
-                txn = Transaction()
-                txn.user = request.user
-                txn.txn_hash = txn_hash
-                txn.txn_type = 'NewEmployer'
-                txn.obj_id = emp.id
-                txn.save()
+
+                save_txn.delay(txn_hash, 'NewEmployer', request.user.id, emp.id)
         elif role == 'candidate':
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
@@ -78,12 +74,8 @@ def choose_role(request):
                 can_o.middle_name = middle_name
                 can_o.tax_number = tax_number
                 can_o.save()
-                txn = Transaction()
-                txn.user = request.user
-                txn.txn_hash = txn_hash
-                txn.txn_type = 'NewCandidate'
-                txn.obj_id = can_o.id
-                txn.save()
+
+                save_txn.delay(txn_hash, 'NewCandidate', request.user.id, can_o.id)
         if next != '':
             return redirect(next)
         else:
@@ -134,25 +126,26 @@ def new_vacancy(request):
                                               int(allowed_amount) * 10 ** decimals,
                                               int(interview_fee) * 10 ** decimals)
                 if txn_hash:
-                    save_txn_to_history.delay(request.user.id, txn_hash, 'Creation of a new vacancy: {}'.format(title))
-                    vac_o = Vacancy()
-                    vac_o.employer = emp_o
-                    vac_o.title = title
-                    vac_o.interview_fee = int(interview_fee) * 10 ** decimals
-                    vac_o.allowed_amount = int(allowed_amount) * 10 ** decimals
-                    vac_o.salary_from = salary_from
-                    vac_o.salary_up_to = salary_to
-                    vac_o.save()
-                    vac_o.specializations.set(specialisations)
-                    vac_o.keywords.set(keywords)
-                    vac_o.save()
-                    txn = Transaction()
-                    txn.user = request.user
-                    txn.txn_hash = txn_hash
-                    txn.txn_type = 'NewVacancy'
-                    txn.obj_id = vac_o.id
-                    txn.save()
-                return redirect(profile)
+                    try:
+                        with transaction.atomic():
+                            vac_o = Vacancy()
+                            vac_o.employer = emp_o
+                            vac_o.title = title
+                            vac_o.interview_fee = int(interview_fee) * 10 ** decimals
+                            vac_o.allowed_amount = int(allowed_amount) * 10 ** decimals
+                            vac_o.salary_from = salary_from
+                            vac_o.salary_up_to = salary_to
+                            vac_o.save()
+                            vac_o.specializations.set(specialisations)
+                            vac_o.keywords.set(keywords)
+                            vac_o.save()
+                    except Exception:
+                        args['error'] = 'Error while creation new vacancy'
+                    else:
+                        save_txn_to_history.delay(request.user.id, txn_hash,
+                                                  'Creation of a new vacancy: {}'.format(title))
+                        save_txn.delay(txn_hash, 'NewVacancy', request.user.id, vac_o.id)
+                        return redirect(profile)
         args['specializations'] = Specialisation.objects.all()
         args['keywords'] = Keyword.objects.all()
         args['employer'] = Employer.objects.get(user_id=request.user.id)
@@ -200,12 +193,7 @@ def subscribe_to_vacancy(request, vacancy_id, cv_id):
     cvonvac.vacancy = vac_o
     cvonvac.save()
 
-    txn = Transaction()
-    txn.txn_hash = txn_hash
-    txn.txn_type = 'Subscribe'
-    txn.obj_id = vac_o.id
-    txn.user = request.user
-    txn.save()
+    save_txn.delay(txn_hash, 'Subscribe', request.user.id, vac_o.id)
 
     save_txn_to_history.delay(request.user.id, txn_hash, 'Subscribe to vacancy {}'.format(vac_o.title))
     return redirect(vacancy, vacancy_id=vacancy_id)
@@ -238,13 +226,9 @@ def approve_candidate(request):
     oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
     oracle.unlockAccount()
     txn_hash = employer_handler.grant_access_to_candidate(vac_o.contract_address, can_o.contract_address)
-    txn = Transaction()
-    txn.txn_hash = txn_hash
-    txn.user = request.user
-    txn.txn_type = 'EmpAnswer'
-    txn.obj_id = candidate_id
-    txn.vac_id = vacancy_id
-    txn.save()
+
+    save_txn.delay(txn_hash, 'EmpAnswer', request.user.id, candidate_id, vacancy_id)
+
     save_txn_to_history.delay(request.user.id, txn_hash,
                               'Candidate {} approved to vacancy {}'.format(can_o.contract_address,
                                                                            vac_o.contract_address))
@@ -264,13 +248,9 @@ def revoke_candidate(request):
     oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
     oracle.unlockAccount()
     txn_hash = employer_handler.revoke_access_to_candidate(vac_o.contract_address, can_o.contract_address)
-    txn = Transaction()
-    txn.txn_hash = txn_hash
-    txn.user = request.user
-    txn.txn_type = 'EmpAnswer'
-    txn.obj_id = candidate_id
-    txn.vac_id = vacancy_id
-    txn.save()
+
+    save_txn.delay(txn_hash, 'EmpAnswer', request.user.id, candidate_id, vacancy_id)
+
     save_txn_to_history.delay(request.user.id, txn_hash,
                               'Candidate {} revoked to vacancy {}'.format(can_o.contract_address,
                                                                           vac_o.contract_address))
@@ -409,12 +389,7 @@ def change_contract_status(request):
         if txn_hash:
             obj.enabled = None
             obj.save()
-            txn = Transaction()
-            txn.user = request.user
-            txn.txn_hash = txn_hash
-            txn.txn_type = role + 'Change'
-            txn.obj_id = obj.id
-            txn.save()
+            save_txn.delay(txn_hash, role + 'Change', request.user.id, obj.id)
             save_txn_to_history.delay(obj.user_id, txn_hash,
                                       '{} change contract {} status'.format(role.capitalize(), obj.contract_address))
     return redirect(profile)
@@ -435,11 +410,24 @@ def change_vacancy_status(request, vacancy_id):
     if txn_hash:
         vac_o.enabled = None
         vac_o.save()
-        txn = Transaction()
-        txn.txn_hash = txn_hash
-        txn.user = request.user
-        txn.txn_type = 'vacancyChange'
-        txn.obj_id = vac_o.id
-        txn.save()
+
+        save_txn.delay(txn_hash, 'vacancyChange', request.user.id, vacancy_id)
         save_txn_to_history.delay(request.user.id, txn_hash, 'Change vacancy {} status'.format(vac_o.contract_address))
     return redirect(profile)
+
+
+def transactions(request):
+    args = {'txns': TransactionHistory.objects.filter(user=request.user),
+            'net_url': django_settings.NET_URL}
+    return render(request, 'jobboard/transactions.html', args)
+
+#
+# @require_POST
+# def increase_vacancy_allowance(request):
+#     allowance = request.POST.get('allowance')
+#     vac_o = get_object_or_404(Vacancy, id=request.POST.get('vac_id'), employer__user=request.user)
+#     coin_h = CoinHandler(django_settings.VERA_COIN_CONTRACT_ADDRESS, vac_o.employer.contract_address)
+#     old_allowance = coin_h.allowance(vac_o.employer.contract_address, vac_o.contract_address)
+#     coin_h.approve(vac_o.contract_address, 0)
+#     txh_hash = coin_h.approve(vac_o.contract_address, int(allowance) + int(old_allowance))
+#     return HttpResponse(txh_hash, status=200)

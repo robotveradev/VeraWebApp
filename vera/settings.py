@@ -144,3 +144,5 @@ VERA_ORACLE_CONTRACT_ADDRESS = '0x94D663449c74e91e133b70E4B18eE40c818C9F11'  # R
 WEB_ETH_COINBASE = '0x8dc270b448958fed366e0edfb28b335bf84fca91'  # Rinkeby
 
 NODE_URL = 'http://localhost:8545'
+
+NET_URL = 'https://rinkeby.etherscan.io/'

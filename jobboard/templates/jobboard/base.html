@@ -38,10 +38,21 @@
     </div>
 </div>
 <nav class="white">
-    <div class="nav-wrapper container">
-        <a href="{% url 'index' %}" class="brand-logo black-text">Vera Oracle</a>
-        <ul id="nav-mobile" class="right hide-on-med-and-down">
-            {% with request.user.id|user_role as role %}
+    {% with request.user.id|user_role as role %}
+        <div class="nav-wrapper container">
+            <a href="{% url 'index' %}" class="brand-logo black-text">Vera Oracle</a>
+            {% if user.is_authenticated %}
+                <ul id="profile" class="dropdown-content">
+                    <li><a href="{% url 'profile' %}">PROFILE</a></li>
+                    {% if role == 'candidate' %}
+                        <li><a href="#">CURRICULUM VITAE</a></li>
+                    {% elif role == 'employer' %}
+                        <li><a href="#">VACANCIES</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'transactions' %}">TRANSACTIONS</a></li>
+                </ul>
+            {% endif %}
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
                 <li><a class="black-text" href="{% url 'index' %}">HOME</a></li>
                 <li><a class="black-text" href="{% url 'find_job' %}">JOB SEARCH</a></li>
                 {% if role == 'employer' %}
@@ -53,12 +64,13 @@
                     {% endif %}
                 {% endif %}
                 {% if user.is_authenticated %}
-                    <li><a class="black-text" href="{% url 'profile' %}">PROFILE</a></li>
+                    <li><a class="dropdown-button black-text" href="#!" data-activates="profile">USER PROFILE<i
+                            class="material-icons right">arrow_drop_down</i></a></li>
                 {% endif %}
                 <li><a class="black-text" href="{% url 'user_help' %}">HELP</a></li>
-            {% endwith %}
-        </ul>
-    </div>
+            </ul>
+        </div>
+    {% endwith %}
 </nav>
 {% block content %}{% endblock %}
 <div class="footer">

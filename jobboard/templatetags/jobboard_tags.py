@@ -115,7 +115,7 @@ def get_employers(vacancies, candidate_id):
 def is_allowed(candidate_id, employer_contract_address):
     candidate = get_object_or_404(Candidate, id=candidate_id)
     can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
-    return can_h.is_allowed(employer_contract_address)
+    return can_h.is_agent(employer_contract_address)
 
 
 @register.filter(name='is_enabled_vacancy')
@@ -208,3 +208,33 @@ def is_fact_verify(address, id):
     fact = can_h.get_fact(id)
     return fact[0].lower() == settings.WEB_ETH_COINBASE.lower() or fact[
         0].lower() == settings.VERA_ORACLE_CONTRACT_ADDRESS.lower()
+
+
+@register.filter(name='can_spend')
+def can_spend(vacancy):
+    coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
+    vac_h = VacancyHandler(settings.WEB_ETH_COINBASE, vacancy.contract_address)
+    interview_fee = vac_h.interview_fee()
+    employer_balance = coin_h.balanceOf(vacancy.employer.contract_address)
+    allowance = coin_h.allowance(vacancy.employer.contract_address, vacancy.contract_address)
+    return allowance >= interview_fee and employer_balance >= interview_fee
+
+
+@register.filter(name='get_wait_candidates_count')
+def get_candidates_count(vacancy_address):
+    vac_h = VacancyHandler(settings.WEB_ETH_COINBASE, vacancy_address)
+    wait_count = accepted_count = revoked_count = paid_count = 0
+    for item in vac_h.candidates():
+        state = vac_h.get_candidate_state(item)
+        if state == 'wait':
+            wait_count += 1
+        elif state == 'accepted':
+            accepted_count += 1
+        elif state == 'revoked':
+            revoked_count += 1
+        elif state == 'paid':
+            paid_count += 1
+    return {'wait': wait_count,
+            'accepted': accepted_count,
+            'revoked': revoked_count,
+            'paid': paid_count}

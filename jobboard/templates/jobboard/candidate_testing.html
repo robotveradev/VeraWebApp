@@ -39,23 +39,23 @@
                         </li>
                     {% endwith %}
                 {% endfor %}
-                {% with candidate.id|all_test_passed:vacancy.id as all_passed %}
-                    {% if not all_passed.0 %}
-                        <li class="collection-item">
-                            <button type="submit" class="btn waves-effect waves-light right blue">Ok</button>
-                            <div class="clearfix"></div>
-                        </li>
-                    {% elif all_passed.1 %}
-                        <li class="collection-item">
-                            <a href="{% url 'pay_to_candidate' vacancy_id=vacancy.id %}"
-                               class="btn waves-light waves-effect right blue"><i
-                                    class="material-icons left">attach_money</i>
-                                Give me my money! </a>
-                            <div class="clearfix"></div>
-                        </li>
-                    {% endif %}
-                {% endwith %}
             </ul>
+            {% with candidate.id|all_test_passed:vacancy.id as all_passed %}
+                {% if not all_passed.0 %}
+                    <button type="submit" class="btn waves-effect waves-light right blue">Ok</button>
+                    <div class="clearfix"></div>
+                {% elif all_passed.1 %}
+                    {% if vacancy|can_spend %}
+                        <a href="{% url 'pay_to_candidate' vacancy_id=vacancy.id %}"
+                           class="btn waves-light waves-effect right blue"><i
+                                class="material-icons left">attach_money</i>
+                            Get Reward! </a>
+                        <div class="clearfix"></div>
+                    {% else %}
+                        Employer can't pay interview fee.
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
         </form>
     </div>
 {% endblock %}

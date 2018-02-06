@@ -142,3 +142,16 @@ def save_txn_to_history(user_id, txn_hash, action):
     txn.action = action
     txn.save()
     return True
+
+
+@shared_task
+def save_txn(txn_hash, txn_type, user_id, obj_id, vac_id=None):
+    txn = Transaction()
+    txn.txn_hash = txn_hash
+    txn.txn_type = txn_type
+    txn.user_id = user_id
+    txn.obj_id = obj_id
+    txn.vac_id = vac_id
+    txn.save()
+    print('New transaction')
+    return True
