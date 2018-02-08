@@ -9,7 +9,8 @@ from web3.utils.events import get_event_data
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
-from jobboard.models import Transaction, Employer, Candidate, Vacancy, TransactionHistory
+from jobboard.models import Transaction, Employer, Candidate, TransactionHistory
+from vacancy.models import Vacancy
 from web3 import Web3, HTTPProvider
 from solc import compile_source
 

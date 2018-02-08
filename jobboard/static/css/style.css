@@ -96,3 +96,8 @@ body {
 .error {
     color: red;
 }
+
+.help-block {
+    color: grey;
+    font-size: 0.7rem;
+}

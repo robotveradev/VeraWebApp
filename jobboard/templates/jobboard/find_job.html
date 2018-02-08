@@ -34,7 +34,7 @@
                                                aria-hidden="true"></i>Organization: {{ vacancy.employer.organization }}
                                         </li>
                                         <li><i class="fa fa-briefcase" aria-hidden="true"></i>Interview
-                                            fee: {{ vacancy.interview_fee }} {{ vacancy.employer.id | get_coin_symbol }}
+                                            fee: {{ vacancy.id|get_interview_fee }} {{ vacancy.employer.id | get_coin_symbol }}
                                         </li>
                                         <li><i class="fa fa-money" aria-hidden="true"></i>Salary:
                                             {% if vacancy.salary_from %}

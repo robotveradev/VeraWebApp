@@ -4,7 +4,6 @@ from .models import *
 
 admin.site.register(CurriculumVitae)
 admin.site.register(Busyness)
-admin.site.register(Skill)
 admin.site.register(Schedule)
 admin.site.register(Position)
 admin.site.register(Experience)

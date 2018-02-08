@@ -1,8 +1,8 @@
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 
-from jobboard.models import CVOnVacancy
-from .models import *
+from vacancy.models import CVOnVacancy
+from jobboard.models import Candidate
 from .forms import *
 
 

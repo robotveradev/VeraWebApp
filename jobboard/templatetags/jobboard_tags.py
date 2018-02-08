@@ -1,17 +1,16 @@
 import json
-
 import datetime
+import re
 from django import template
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import stringfilter
-
 from cv.models import CurriculumVitae
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.handlers.coin import CoinHandler
-from jobboard.models import Vacancy, Candidate, Employer, VacancyTest, CandidateVacancyPassing, \
-    Transaction, CVOnVacancy
+from jobboard.models import Candidate, Employer, Transaction
+from vacancy.models import VacancyTest, Vacancy, CandidateVacancyPassing, CVOnVacancy
 from django.conf import settings
 
 register = template.Library()
@@ -137,36 +136,24 @@ def get_balance(address):
             can_o = Candidate.objects.get(contract_address=address)
             coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
             return {'balances': [{coin_h.symbol: coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals}, ]}
-            # can_h = CandidateHandler(settings.WEB_ETH_COINBASE, can_o.contract_address)
-            # can_vac_list = can_h.get_vacancies()
-            # balances = []
-            # tokens = []
-            # for item in can_vac_list:
-            #     state = can_h.get_vacancy_state(item)
-            #     if state == 'paid':
-            #         try:
-            #             vac_o = Vacancy.objects.get(contract_address=item)
-            #             token = EmployerHandler(settings.WEB_ETH_COINBASE, vac_o.employer.contract_address).token()
-            #             if token not in tokens:
-            #                 tokens.append(token)
-            #                 coin_h = CoinHandler(token)
-            #                 balances.append(
-            #                     {coin_h.symbol: coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals})
-            #         except Vacancy.DoesNotExist:
-            #             pass
-            # return {'balances': balances}
         except Candidate.DoesNotExist:
             return None
 
 
 @register.filter(name='is_can_subscribe')
 def is_can_subscribe(candidate, vacancy):
-    vac_h = VacancyHandler(settings.WEB_ETH_COINBASE, vacancy.contract_address)
-    txn = Transaction.objects.filter(user=candidate.user, txn_type='Subscribe', obj_id=vacancy.id)
-    if vac_h.get_candidate_state(candidate.contract_address) == 'not exist' and not txn:
-        return True
+    if candidate.enabled is False:
+        return False, 'You must enable your contract'
     else:
-        return False
+        vac_h = VacancyHandler(settings.WEB_ETH_COINBASE, vacancy.contract_address)
+        if vac_h.get_candidate_state(candidate.contract_address) != 'not exist':
+            return False, 'You have already subscribed to this vacancy'
+        else:
+            txn = Transaction.objects.filter(user=candidate.user, txn_type='Subscribe', obj_id=vacancy.id)
+            if txn:
+                return False, 'You have already send request'
+            else:
+                return True, ''
 
 
 @register.filter(name='employer_answered')
@@ -238,3 +225,11 @@ def get_candidates_count(vacancy_address):
             'accepted': accepted_count,
             'revoked': revoked_count,
             'paid': paid_count}
+
+
+@register.filter(name='parse_addresses')
+def parse_addresses(string):
+    regex = '\\b0x\w+'
+    url_template = '<a href="{}address/{}">{}</a>'
+    string = re.sub(regex, url_template.format(settings.NET_URL, '\g<0>', '\g<0>'), string)
+    return string

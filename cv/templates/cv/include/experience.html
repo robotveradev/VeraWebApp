@@ -1,6 +1,6 @@
 {% load cv_tags %}
 <div>
-    <p class="flow-text">{{ experience.organization }},
+    <p class="flow-text">{{ experience.organization|title }},
         <small class="grey-text">{{ experience.position }}, {{ experience.city }}</small>
     </p>
     {% if not experience.still %}

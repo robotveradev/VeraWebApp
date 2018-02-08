@@ -10,19 +10,19 @@
             Vacancy #{{ vacancy.id }}
         </h4>
         <table class="bordered highlight">
-            {% with vacancy.employer.id|get_coin_symbol as symbol %}
+            {% with 12|get_coin_symbol as symbol %}
                 <tr>
-                    <td>Employer:</td>
+                    <td>Employer</td>
                     <td>
                         <a href="{% url 'employer_about' employer_id=vacancy.employer.id %}">{{ vacancy.employer.organization }}</a>
                     </td>
                 </tr>
                 <tr>
-                    <td>Title:</td>
+                    <td>Title</td>
                     <td>{{ vacancy.title }}</td>
                 </tr>
                 <tr>
-                    <td>Contract address:</td>
+                    <td>Contract address</td>
                     <td>
                         {% if vacancy.contract_address is not None %}
                             <a target="_blank"
@@ -33,7 +33,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Interview fee:</td>
+                    <td>Interview fee</td>
                     <td>
                         {% if vacancy.contract_address %}
                             {{ vacancy.id|get_interview_fee }} {{ symbol }}
@@ -43,52 +43,35 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Salary:</td>
+                    <td>Salary</td>
                     <td>{{ vacancy.salary_from }}-{{ vacancy.salary_up_to }}$</td>
+                </tr>
+                <tr>
+                    <td>Busyness</td>
+                    <td>{{ vacancy.busyness.all|join:', '|title }}</td>
+                </tr>
+                <tr>
+                    <td>Schedule</td>
+                    <td>{{ vacancy.schedule.all|join:', '|title }}</td>
+                </tr>
+                <tr>
+                    <td>Vacancy description</td>
+                    <td>{{ vacancy.description|safe }}</td>
                 </tr>
                 {% if vacancy.employer.user == request.user and vacancy.contract_address %}
                     <tr>
                         <td>Allowance:</td>
-                        <td>{{ vacancy.id | allowance_rest }} {{ symbol }}
-{#                            <a href="#allowance" class="modal-trigger"><i#}
-{#                                class="fa fa-plus"#}
-{#                                area-hidden="true"></i></a>#}
-                        </td>
+                        <td>{{ vacancy.id | allowance_rest }} {{ symbol }}</td>
                     </tr>
                 {% endif %}
             {% endwith %}
         </table>
-{#        {% if vacancy.employer.user == request.user and vacancy.contract_address %}#}
-{#            <div id="allowance" class="modal">#}
-{#                <form action="{% url 'increase_vacancy_allowance' %}" method="post">#}
-{#                    {% csrf_token %}#}
-{#                    <input type="hidden" name="vac_id" value="{{ vacancy.id }}">#}
-{#                    <div class="modal-content">#}
-{#                        <h4>Increase vacancy allowance</h4>#}
-{#                        <ul class="collection">#}
-{#                            <li class="collection-item">Vacancy <span class="right">{{ vacancy.title }}</span></li>#}
-{#                            <li class="collection-item">Interview fee <span#}
-{#                                    class="right">{{ vacancy.id|get_interview_fee }} Vera</span></li>#}
-{#                            <li class="collection-item">Allowed <span#}
-{#                                    class="right">{{ vacancy.allowed_amount }} Vera</span></li>#}
-{#                            <li class="collection-item">New allowance, Vera (will be added to the current allowance)#}
-{#                                <span class="right"><input name="allowance" placeholder="Type here..." type="text" class="browser-default"></span>#}
-{#                            </li>#}
-{#                        </ul>#}
-{#                    </div>#}
-{#                    <div class="modal-footer">#}
-{#                        <button type="submit" class="modal-action modal-close waves-effect waves-green btn-flat">Agree#}
-{#                        </button>#}
-{#                    </div>#}
-{#                </form>#}
-{#            </div>#}
-{#        {% endif %}#}
         <br>
         {% for item in vacancy.specializations.all %}
-            <div class="chip blue white-text">{{ item }}</div>
+            <div class="chip blue white-text">{{ item|title }}</div>
         {% endfor %}
         {% for item in vacancy.keywords.all %}
-            <div class="chip amber white-text">{{ item }}</div>
+            <div class="chip amber white-text">{{ item|title }}</div>
         {% endfor %}
         <br>
         {% if vacancy.employer.user == request.user %}
@@ -124,3 +107,5 @@
         {% endif %}
     </div>
 {% endblock %}
+
+

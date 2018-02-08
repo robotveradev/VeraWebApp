@@ -3,8 +3,6 @@ from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
-from jobboard.models import Candidate
-
 SEX_CHOICES = (
     ('male', 'male'),
     ('female', 'female'),
@@ -66,15 +64,8 @@ class Schedule(models.Model):
         return self.title
 
 
-class Skill(models.Model):
-    title = models.CharField(max_length=31)
-
-    def __str__(self):
-        return self.title
-
-
 class CurriculumVitae(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    candidate = models.ForeignKey('jobboard.Candidate', on_delete=models.CASCADE)
     image = models.ImageField(blank=True, null=True)
     first_name = models.CharField(max_length=50, null=False, blank=False)
     last_name = models.CharField(max_length=50, null=False, blank=False)
@@ -84,11 +75,12 @@ class CurriculumVitae(models.Model):
     city = models.CharField(max_length=127, blank=False, null=False)
     relocation = models.NullBooleanField(default=None)
     official_journey = models.NullBooleanField(default=None)
-    experience = models.ManyToManyField('Experience', blank=True, null=True)
+    experience = models.ManyToManyField('Experience', blank=True)
     position = models.ForeignKey('Position', on_delete=models.SET_NULL, null=True, blank=True, default=None)
-    skills = models.ManyToManyField('Skill', blank=True, null=True)
-    education = models.ManyToManyField('Education', blank=True, null=True)
-    languages = models.ManyToManyField('Languages', blank=True, null=True)
+    specialisations = models.ManyToManyField('jobboard.Specialisation', blank=True)
+    keywords = models.ManyToManyField('jobboard.Keyword', blank=True)
+    education = models.ManyToManyField('Education', blank=True)
+    languages = models.ManyToManyField('Languages', blank=True)
     level = models.ForeignKey('EducationLevel', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

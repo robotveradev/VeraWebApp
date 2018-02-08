@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import *
+from .models import Specialisation, Keyword, Candidate, Employer, Transaction, TransactionHistory
 
 
 class AdminSpecialisation(admin.ModelAdmin):
@@ -30,32 +30,11 @@ class AdminEmployer(admin.ModelAdmin):
         model = Employer
 
 
-class AdminVacancy(admin.ModelAdmin):
-    list_display = [field.name for field in Vacancy._meta.fields]
-
-    class Meta:
-        model = Vacancy
-
-
 class AdminTxn(admin.ModelAdmin):
     list_display = [field.name for field in Transaction._meta.fields]
 
     class Meta:
         model = Transaction
-
-
-class AdminTest(admin.ModelAdmin):
-    list_display = [field.name for field in VacancyTest._meta.fields]
-
-    class Meta:
-        model = VacancyTest
-
-
-class AdminCandidateVacancyPassing(admin.ModelAdmin):
-    list_display = [field.name for field in CandidateVacancyPassing._meta.fields]
-
-    class Meta:
-        model = CandidateVacancyPassing
 
 
 class AdminTransactionHistory(admin.ModelAdmin):
@@ -69,8 +48,5 @@ admin.site.register(Specialisation, AdminSpecialisation)
 admin.site.register(Keyword, AdminKeywords)
 admin.site.register(Candidate, AdminCandidate)
 admin.site.register(Employer, AdminEmployer)
-admin.site.register(Vacancy, AdminVacancy)
 admin.site.register(Transaction, AdminTxn)
-admin.site.register(VacancyTest, AdminTest)
-admin.site.register(CandidateVacancyPassing, AdminCandidateVacancyPassing)
 admin.site.register(TransactionHistory, AdminTransactionHistory)

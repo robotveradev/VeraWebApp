@@ -19,10 +19,10 @@ from django.contrib import admin
 from django.urls import path, include
 from jobboard import views as jobboard_views
 from cv import views as cv_views
+from vacancy import views as vacancy_views
 
 basic = [
     path('', jobboard_views.index, name='index'),
-    path('summernote/', include('django_summernote.urls')),
     path('role/', jobboard_views.choose_role, name='choose_role'),
     path('admin/', admin.site.urls),
     path('account/', include("account.urls")),
@@ -50,15 +50,15 @@ curriculum_vitae_urlpatterns = [
 ]
 
 vacancy_urlpatterns = [
-    path('vacancy/new/', jobboard_views.new_vacancy, name='new_vacancy'),
-    path('vacancy/<int:vacancy_id>/subscribe/<int:cv_id>', jobboard_views.subscribe_to_vacancy,
+    path('vacancy/new/', vacancy_views.new_vacancy, name='new_vacancy'),
+    path('vacancy/<int:vacancy_id>/subscribe/<int:cv_id>', vacancy_views.subscribe_to_vacancy,
          name='subscribe_to_vacancy'),
-    path('vacancy/<int:vacancy_id>/', jobboard_views.vacancy, name='vacancy'),
+    path('vacancy/<int:vacancy_id>/', vacancy_views.vacancy, name='vacancy'),
     path('vacancy/<int:vacancy_id>/test/', jobboard_views.candidate_testing, name='candidate_testing'),
-    path('vacancy/<int:vacancy_id>/tests/', jobboard_views.vacancy_tests, name='vacancy_tests'),
-    path('vacancy/<int:vacancy_id>/tests/new/', jobboard_views.vacancy_test_new, name='vacancy_test_new'),
-    path('vacancy/<int:vacancy_id>/status/change/', jobboard_views.change_vacancy_status, name='change_vacancy_status'),
-    path('vacancy/tests/add/', jobboard_views.new_test, name='new_test'),
+    path('vacancy/<int:vacancy_id>/tests/', vacancy_views.vacancy_tests, name='vacancy_tests'),
+    path('vacancy/<int:vacancy_id>/tests/new/', vacancy_views.vacancy_test_new, name='vacancy_test_new'),
+    path('vacancy/<int:vacancy_id>/status/change/', vacancy_views.change_vacancy_status, name='change_vacancy_status'),
+    path('vacancy/tests/add/', vacancy_views.new_test, name='new_test'),
     # path('vacancy/increase/allowance', jobboard_views.increase_vacancy_allowance, name='increase_vacancy_allowance'),
 ]
 

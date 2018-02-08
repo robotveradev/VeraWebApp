@@ -60,9 +60,6 @@ class CandidateHandler(object):
         validate_address(address)
         return self.contract.transact({'from': self.account}).subscribe_to_interview(address)
 
-    def paused(self):
-        return self.contract.call().paused()
-
     def pause(self):
         return self.contract.transact({'from': self.account}).pause()
 

@@ -20,6 +20,7 @@ $(document).ready(function () {
     $('.cv_switch').on('change', function () {
         $(this).parents('form').submit();
     });
+    $('.tooltipped').tooltip({delay: 50});
     // $('.datepicker').pickadate({
     //     selectMonths: true, // Creates a dropdown to control month
     //     selectYears: 100, // Creates a dropdown of 60 years to control year,

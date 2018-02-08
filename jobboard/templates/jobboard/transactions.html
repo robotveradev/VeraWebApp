@@ -1,5 +1,7 @@
 {% extends 'jobboard/base.html' %}
 
+{% load jobboard_tags %}
+
 {% block head_title %}Vera Oracle - User transactions{% endblock %}
 
 {% block content %}
@@ -18,7 +20,7 @@
                 <tr>
                     <td><a target="_blank" href="{{ net_url }}tx/{{ txn.hash }}">{{ txn.hash|truncatechars:30 }}</a>
                     </td>
-                    <td>{{ txn.action }}</td>
+                    <td>{{ txn.action|parse_addresses|safe }}</td>
                     <td class="right">{{ txn.created_at|date:'d E Y, H:i:s, e' }}</td>
                 </tr>
             {% empty %}

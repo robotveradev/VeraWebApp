@@ -38,10 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'jobboard',
     'cv',
+    'vacancy',
     'account',
     'material',
     'material.frontend',
-    'django_summernote',
 ]
 
 SITE_ID = 1
@@ -120,10 +120,13 @@ USE_L10N = True
 
 USE_TZ = True
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = '/opt/vera_jobboard/static/'
 
 MEDIA_URL = '/media/'
 
