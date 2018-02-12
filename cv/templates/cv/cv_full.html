@@ -1,6 +1,6 @@
 {% extends 'jobboard/base.html' %}
 
-{% load cv_tags material_form %}
+{% load cv_tags material_form jobboard_tags %}
 
 {% block head_title %}VeraOracle - Curriculum Vitae{% endblock %}
 
@@ -8,132 +8,163 @@
     {% if error %}
         {{ error }}
     {% endif %}
-    <h4 class="center">
-        CV Full Info
-    </h4>
-    <div class="container">
-        {% if cv %}
-            <div class="row">
-                <div class="col s2 m2 l2">
-                    {% if cv.image %}
-                        <img class="bordered" style="width: 100%" src="{{ cv.image.url }}"/>
-                    {% else %}
-                        <img style="width: 100%;"
-                             src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
-                             alt="">
-                    {% endif %}
-                </div>
-                <div class="col s10 m10 l10">
-                    <div>
-                        <h5>{{ cv.last_name }} {{ cv.first_name }}</h5>
+    <div class="row">
+        <div class="col s12 m10 l10 push-l1 push-m1">
+            <h4 class="center">
+                CV Full Info
+            </h4>
+            {% if cv %}
+                {% with cv.candidate.user|is_owner:request.user as owner %}
+                    <div class="row">
+                        <div class="col s2 m2 l2">
+                            {% if cv.image %}
+                                <img class="bordered" style="width: 100%" src="{{ cv.image.url }}"/>
+                            {% else %}
+                                <img style="width: 100%;"
+                                     src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
+                                     alt="">
+                            {% endif %}
+                        </div>
+                        <div class="col s10 m10 l10">
+                            <div>
+                                <h5>{{ cv.last_name }} {{ cv.first_name }}
+                                    {% if owner %}
+                                        <a href="{% url 'cv_edit' cv_id=cv.id %}"><i class="fa fa-pencil-square-o grey-text" aria-hidden="true"></i></a>
+                                    {% endif %}
+                                </h5>
+                            </div>
+                            <div>
+                                {{ cv.sex|title }}{% if cv.birth_date %}, {{ cv.birth_date|date:'d E Y' }} year of
+                                    birth{% endif %}{% if cv.level %}, education level:
+                                    {{ cv.level.title|lower }}{% endif %}
+                            </div>
+                            <div>
+                                {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}
+                                {% if cv.official_journey %}, ready for official journey{% endif %}
+                            </div>
+                            {% if cv.skills %}
+                                <br/>
+                                {% for skill in cv.skills.all %}
+                                    <div class="chip blue white-text">{{ skill }}</div>
+                                {% endfor %}
+                            {% endif %}
+                            {% if owner %}
+                                {% if cv|can_publish %}
+                                    {% with cv.published as en %}
+                                        <div class="chip white-text right {% if en == True %}red{% elif en == False %}green{% else %}amber{% endif %}">
+                                            <a class="white-text underline"
+                                               href="{% url 'change_cv_status' cv_id=cv.id %}">
+                                                {% if en == True %}
+                                                    Disable CV
+                                                {% else %}
+                                                    Enable CV
+                                                {% endif %}
+                                            </a>
+                                        </div>
+                                    {% endwith %}
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
-                    <div>
-                        {{ cv.sex|title }}{% if cv.birth_date %}, {{ cv.birth_date|date:'d E Y' }} year of
-                            birth{% endif %}{% if cv.level %}, education level: {{ cv.level.title|lower }}{% endif %}
-                    </div>
-                    <div>
-                        {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}
-                        {% if cv.official_journey %}, ready for official journey{% endif %}
-                    </div>
-                    {% if cv.skills %}
-                        <br/>
-                        {% for skill in cv.skills.all %}
-                            <div class="chip blue white-text">{{ skill }}</div>
+                    <div class="row">
+                        <hr/>
+                        {% if cv.position != None %}
+                            <div class="col s12 l12 m12">
+                                <p class="flow-text">{{ cv.position.title|title }}
+                                    {% if owner %}
+                                        <a href="{% url 'position_edit' position_id=cv.position.id %}">
+                                            <i class="fa fa-pencil-square-o grey-text" aria-hidden="true"></i>
+                                        </a>
+                                    {% endif %}
+                                </p>
+                                Salary from: {{ cv.position.salary_from }}$
+                                <ul class="browser-default">
+                                    <li>{{ cv.position.busyness.all|join:', ' }}</li>
+                                    <li>{{ cv.position.schedule.all|join:', ' }}</li>
+                                </ul>
+                                {% if cv.position.description %}
+                                    <blockquote>
+                                        {{ cv.position.description|safe }}
+                                    </blockquote>
+                                {% endif %}
+                                {% if cv.position.carier_start %}
+                                    <div class="chip green white-text right">Career start</div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="col s12 m12 l12">
+                                <blockquote>
+                                    <p class="flow-text">Career objective information is not available </p>
+                                </blockquote>
+                            </div>
+                            {% if owner %}
+                                <a href="{% url 'new_position' cv_id=cv.id %}"
+                                   class="btn waves-light waves-effect green right modal-trigger">Add career
+                                    objective</a>
+                            {% endif %}
+                            <div class="clearfix"></div>
+                            <br/>
+                        {% endif %}
+                        {% with cv.experience.all as experiences %}
+                            {% if experiences %}
+                                <div class="col s12 l12 m12">
+                                    <h5>Experience</h5>
+                                    {% for experience in experiences %}
+                                        {% include 'cv/include/experience.html' %}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="col s12 m12 l12">
+                                    <blockquote>
+                                        <p class="flow-text">Experience information is not available </p>
+                                    </blockquote>
+                                </div>
+                            {% endif %}
+                            {% if owner %}
+                                <a href="{% url 'new_experience' cv_id=cv.id %}"
+                                   class="btn waves-light waves-effect green right">Add
+                                    experience info</a>
+                            {% endif %}
+                        {% endwith %}
+                        <div class="clearfix"><br/></div>
+                        {% with cv.education.all as educations %}
+                            {% if educations %}
+                                <div class="col s12 m12 l12">
+                                    <h5>Education</h5>
+                                    {% for education in educations %}
+                                        {% include 'cv/include/education.html' %}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="col s12 m12 l12">
+                                    <blockquote>
+                                        <p class="flow-text">Education information is not available </p>
+                                    </blockquote>
+                                </div>
+                            {% endif %}
+                            {% if owner %}
+                                <a href="{% url 'new_education' cv_id=cv.id %}"
+                                   class="btn waves-light waves-effect green right">Add
+                                    education info</a>
+                            {% endif %}
+                        {% endwith %}
+                        <div class="clearfix"><br/></div>
+                        {% with cv.languages.all as languages %}
+                            {% if languages %}
+                                <div class="col s12 m12 l12">
+                                    <h5>Languages</h5>
+                                    {% for language in languages %}
+                                        {% include 'cv/include/languages.html' %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                        {% for item in cv.specialisations.all %}
+                            <div class="chip">{{ item }}</div>
                         {% endfor %}
-                    {% endif %}
-                {% if request.user == cv.candidate.user %}
-                    <a {% if not cv|can_publish %}disabled {% endif %} href="{% url 'change_cv_status' cv_id=cv.id %}" class="btn waves-effect waves-light right">{{ cv.published|yesno:'Published, Unpablished' }}</a>
-                {% endif %}
-                </div>
-            </div>
-            <div class="row">
-                <hr/>
-                {% if cv.position != None %}
-                    <div class="col s12 l12 m12">
-                        <p class="flow-text">{{ cv.position.title|title }}</p>
-                        Salary from: {{ cv.position.salary_from }}$
-                        <ul class="browser-default">
-                            <li>{{ cv.position.busyness.all|join:', ' }}</li>
-                            <li>{{ cv.position.schedule.all|join:', ' }}</li>
-                        </ul>
-                        {% if cv.position.description %}
-                            <blockquote>
-                                {{ cv.position.description|safe }}
-                            </blockquote>
-                        {% endif %}
-                        {% if cv.position.carier_start %}
-                            <div class="chip green white-text right">Career start</div>
-                        {% endif %}
                     </div>
-                {% else %}
-                    <div class="col s12 m12 l12">
-                        <blockquote>
-                            <p class="flow-text">Career objective information is not available </p>
-                        </blockquote>
-                    </div>
-                    {% if request.user == cv.candidate.user %}
-                        <a href="{% url 'new_position' cv_id=cv.id %}"
-                           class="btn waves-light waves-effect green right modal-trigger">Add career
-                            objective</a>
-                    {% endif %}
-                    <div class="clearfix"></div>
-                    <br/>
-                {% endif %}
-                {% with cv.experience.all as experiences %}
-                    {% if experiences %}
-                        <div class="col s12 l12 m12">
-                            <h5>Experience</h5>
-                            {% for experience in experiences %}
-                                {% include 'cv/include/experience.html' %}
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="col s12 m12 l12">
-                            <blockquote>
-                                <p class="flow-text">Experience information is not available </p>
-                            </blockquote>
-                        </div>
-                    {% endif %}
-                    {% if request.user == cv.candidate.user %}
-                        <a href="{% url 'new_experience' cv_id=cv.id %}"
-                           class="btn waves-light waves-effect green right">Add
-                            experience info</a>
-                    {% endif %}
                 {% endwith %}
-                <div class="clearfix"><br/></div>
-                {% with cv.education.all as educations %}
-                    {% if educations %}
-                        <div class="col s12 m12 l12">
-                            <h5>Education</h5>
-                            {% for education in educations %}
-                                {% include 'cv/include/education.html' %}
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="col s12 m12 l12">
-                            <blockquote>
-                                <p class="flow-text">Education information is not available </p>
-                            </blockquote>
-                        </div>
-                    {% endif %}
-                    {% if request.user == cv.candidate.user %}
-                        <a href="{% url 'new_education' cv_id=cv.id %}"
-                           class="btn waves-light waves-effect green right">Add
-                            education info</a>
-                    {% endif %}
-                {% endwith %}
-                <div class="clearfix"><br/></div>
-                {% with cv.languages.all as languages %}
-                    {% if languages %}
-                        <div class="col s12 m12 l12">
-                            <h5>Languages</h5>
-                            {% for language in languages %}
-                                {% include 'cv/include/languages.html' %}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                {% endwith %}
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

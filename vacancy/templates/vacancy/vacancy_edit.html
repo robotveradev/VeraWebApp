@@ -1,8 +1,8 @@
 {% extends 'jobboard/base.html' %}
 
-{% load jobboard_tags material_form %}
+{% block head_title %}Vera Oracle - {{ vac_o.title|title }} edit{% endblock %}
 
-{% block head_title %} VeraOracle - New Vacancy {% endblock %}
+{% load material_form %}
 
 {% block content %}
     <div class="row">
@@ -14,12 +14,12 @@
                 </h4>
                 <br><br><br><br>
             {% else %}
-                {% if obj.contract_address %}
-                    <h4 class="center">New Vacancy</h4>
+                {% if vac_o.contract_address %}
+                    <h4 class="center">Edit vacancy "{{ vac_o.title|title }}"</h4>
                     {% if error %}
                         <span class="center red-text">{{ error }}</span>
                     {% endif %}
-                    <form action="{% url 'new_vacancy' %}" method="post">
+                    <form action="{% url 'vacancy_edit' vacancy_id=vac_o.id %}" method="post">
                         {% csrf_token %}
                         {% form form=form %}{% endform %}
                         <button class="btn waves-effect waves-light blue right">Continue</button>

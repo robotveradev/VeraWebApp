@@ -6,8 +6,6 @@ class Vacancy(models.Model):
     employer = models.ForeignKey('jobboard.Employer', blank=False, null=False, on_delete=models.CASCADE)
     contract_address = models.CharField(max_length=255, blank=True, null=True)
     title = models.CharField(max_length=255)
-    interview_fee = models.CharField(max_length=31, blank=False, null=False, default=0)
-    allowed_amount = models.CharField(max_length=31, blank=False, null=False, default=0)
     specializations = models.ManyToManyField('jobboard.Specialisation', blank=True)
     keywords = models.ManyToManyField('jobboard.Keyword', blank=True)
     experience = models.CharField(max_length=10, null=True, blank=True)
@@ -19,6 +17,8 @@ class Vacancy(models.Model):
     busyness = models.ManyToManyField(Busyness, blank=True)
     schedule = models.ManyToManyField(Schedule, blank=True)
     enabled = models.NullBooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return str(self.employer) + ' ' + self.title

@@ -1,0 +1,30 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}Vera Oracle - Position {{ position_o.title|title }} edit{% endblock %}
+
+{% load material_form %}
+
+{% block content %}
+    <div class="row">
+        <div class="col s12 m10 l10 push-m1 push-l1">
+            {% if error %}
+                <br><br><br><br>
+                <h4 class="center">
+                    {{ error }}
+                </h4>
+                <br><br><br><br>
+            {% else %}
+                <h4 class="center">Edit CV position "{{ position_o.title|title }}"</h4>
+                {% if error %}
+                    <span class="center red-text">{{ error }}</span>
+                {% endif %}
+                <form action="{% url 'position_edit' position_id=position_o.id %}" method="post">
+                    {% csrf_token %}
+                    {% form form=form %}{% endform %}
+                    <button class="btn waves-effect waves-light blue right">Continue</button>
+                    <div class="clearfix"></div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

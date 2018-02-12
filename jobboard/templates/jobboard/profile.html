@@ -3,181 +3,122 @@
 {% block head_title %}VeraOracle - Profile {% endblock %}
 
 {% block content %}
-    <div class="container">
-        {% if role == 'candidate' %}
-            <h4 class="center">Candidate info</h4>
-            {% if obj.enabled == True %}
-                <div class="chip green white-text right">Contract enabled <a class="white-text underline"
-                                                                             href="{% url 'change_contract_status' %}">(disable)</a>.
+    <div class="row">
+        <div class="col s12 m10 l10 push-l1 push-m1">
+            <h4 class="center">{{ role|title }} info</h4>
+            {% with obj.enabled as en %}
+                <div class="chip white-text right {% if en == True %}red{% elif en == False %}green{% else %}amber{% endif %}">
+                    {% if en != None %}
+                        <a class="white-text underline" href="{% url 'change_contract_status' %}">
+                            {% if en == True %}
+                                Disable contract
+                            {% else %}
+                                Enable contract
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        Renewal of contract status...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                    {% endif %}
                 </div>
-            {% elif obj.enabled is False %}
-                <div class="chip red white-text right">Contract disabled <a class="white-text underline"
-                                                                            href="{% url 'change_contract_status' %}">(enable)</a>.
-                </div>
-            {% elif obj.enabled == None %}
-                <div class="chip amber white-text right">Renewal of contract status...<i
-                        class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i></div>
-            {% endif %}
-            <table class="bordered highlight" width="100%">
-                <colgroup>
-                    <col width="20%">
-                    <col width="80%">
-                </colgroup>
-                <tr>
-                    <td>Name:</td>
-                    <td>{{ obj.first_name }}</td>
-                </tr>
-                <tr>
-                    <td>Last name:</td>
-                    <td>{{ obj.last_name }}</td>
-                </tr>
-                <tr>
-                    <td>Middle name:</td>
-                    <td>{{ obj.middle_name|default:'-' }}</td>
-                </tr>
-                <tr>
-                    <td>Tax number:</td>
-                    <td>{{ obj.tax_number }}</td>
-                </tr>
-                <tr>
-                    <td>Contract address:</td>
-                    <td>
-                        {% if obj.contract_address is not None %}
-                            <a target="_blank"
-                               href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
-                        {% else %}
-                            Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Balance:</td>
-                    <td>
-                        {% get_balance obj.contract_address %}
-                    </td>
-                </tr>
-            </table>
-            {% if cv %}
-                <h5 class="center">My Curriculum vitae</h5>
-                {% include 'jobboard/include/cv.html' %}
-                <a class="btn waves-effect waves-light right amber white-text" href="{% url 'new_cv' %}">Add new
-                    curriculum vitae.</a>
-                <div class="clearfix"></div>
-            {% endif %}
-            {% if obj.contract_address %}
-                {% get_facts obj %}
-                {% get_candidate_vacancies obj %}
-            {% endif %}
-        {% elif role == 'employer' %}
-            <h4 class="center">Employer info</h4>
-
-            {% if obj.enabled == True %}
-                <div class="chip green white-text right">Contract enabled <a class="white-text underline"
-                                                                             href="{% url 'change_contract_status' %}">(disable)</a>.
-                </div>
-            {% elif obj.enabled is False %}
-                <div class="chip red white-text right">Contract disabled <a class="white-text underline"
-                                                                            href="{% url 'change_contract_status' %}">(enable)</a>.
-                </div>
-            {% elif obj.enabled == None %}
-                <div class="chip amber white-text right">Renewal of contract status...<i
-                        class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i></div>
-            {% endif %}
-
-            <table class="bordered highlight" width="100%">
-                <colgroup>
-                    <col width="20%">
-                    <col width="80%">
-                </colgroup>
-                <tr>
-                    <td>Organization:</td>
-                    <td>{{ obj.organization }}</td>
-                </tr>
-                <tr>
-                    <td>Tax number:</td>
-                    <td>{{ obj.tax_number }}</td>
-                </tr>
-                <tr>
-                    <td>Contract address:</td>
-                    <td>
-                        {% if obj.contract_address is not None %}
-                            <a target="_blank"
-                               href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
-                        {% else %}
-                            Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Balance:</td>
-                    <td>
-                        {% get_balance obj.contract_address %}
-                    </td>
-                </tr>
-            </table>
-            {% if vacancies %}
-                <h5>Your vacancies</h5>
-                <table class="bordered highligth">
-                    <thead>
+            {% endwith %}
+            {% if role == 'candidate' %}
+                <table class="bordered highlight" width="100%">
+                    <colgroup>
+                        <col width="20%">
+                        <col width="80%">
+                    </colgroup>
                     <tr>
-                        <th>Vacancy title</th>
-                        <th>Contract address</th>
-                        <th class="right">Enabled</th>
+                        <td>Name:</td>
+                        <td>{{ obj.first_name }}</td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for vacancy in vacancies %}
-                        <tr>
-                            <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.title }}</a></td>
-                            <td>
-                                {% if vacancy.contract_address is not None %}
-                                    <a target="_blank"
-                                       href="https://rinkeby.etherscan.io/address/{{ vacancy.contract_address }}">{{ vacancy.contract_address }}</a>
-                                    {% with vacancy.contract_address|get_wait_candidates_count as count %}
-                                        {% if count.paid > 0 %}
-                                            <span data-badge-caption="paid" class="new badge">{{ count.paid }}</span>
-                                        {% endif %}
-                                        {% if count.revoked > 0 %}
-                                            <span data-badge-caption="revoked" class="new badge red">{{ count.revoked }}</span>
-                                        {% endif %}
-                                        {% if count.accepted > 0 %}
-                                            <span data-badge-caption="accepted" class="new badge green">{{ count.accepted }}</span>
-                                        {% endif %}
-                                        {% if count.wait > 0 %}
-                                            <span class="new badge amber darken-2">{{ count.wait }}</span>
-                                        {% endif %}
-                                    {% endwith %}
-                                {% else %}
-                                    Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                                {% endif %}
-                            </td>
-                            <td class="right">
-                                {% if vacancy.contract_address is not None %}
-                                    {% if vacancy.enabled is True %}
-                                        <a href="{% url 'change_vacancy_status' vacancy_id=vacancy.id %}">
-                                            <i class="material-icons green-text">check</i>
-                                        </a>
-                                    {% elif vacancy.enabled is False %}
-                                        <a href="{% url 'change_vacancy_status' vacancy_id=vacancy.id %}">
-                                            <i class="material-icons red-text">close</i>
-                                        </a>
-                                    {% else %}
-                                        <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                                    {% endif %}
-                                {% else %}
-                                    <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-
+                    <tr>
+                        <td>Last name:</td>
+                        <td>{{ obj.last_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Middle name:</td>
+                        <td>{{ obj.middle_name|default:'-' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tax number:</td>
+                        <td>{{ obj.tax_number }}</td>
+                    </tr>
+                    <tr>
+                        <td>Contract address:</td>
+                        <td>
+                            {% if obj.contract_address is not None %}
+                                <a target="_blank"
+                                   href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
+                            {% else %}
+                                Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Balance:</td>
+                        <td>
+                            {% get_balance obj.contract_address %}
+                        </td>
+                    </tr>
                 </table>
-            {% else %}
-                {% if obj.contract_address %}
-                    <p>Create a <a href="{% url 'new_vacancy' %}">new vacancy.</a></p>
+                {% if cv %}
+                    <h5>My Curriculum vitae</h5>
+                    {% include 'cv/include/cv.html' %}
+                    <a class="btn waves-effect waves-light right amber white-text" href="{% url 'new_cv' %}">Add new
+                        curriculum vitae</a>
+                    <div class="clearfix"></div>
                 {% endif %}
+                {% if obj.contract_address %}
+                    {% get_facts obj %}
+                    {% get_candidate_vacancies obj request %}
+                {% endif %}
+            {% elif role == 'employer' %}
+                <table class="bordered highlight" width="100%">
+                    <colgroup>
+                        <col width="20%">
+                        <col width="80%">
+                    </colgroup>
+                    <tr>
+                        <td>Organization:</td>
+                        <td>{{ obj.organization }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tax number:</td>
+                        <td>{{ obj.tax_number }}</td>
+                    </tr>
+                    <tr>
+                        <td>Contract address:</td>
+                        <td>
+                            {% if obj.contract_address is not None %}
+                                <a target="_blank"
+                                   href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
+                            {% else %}
+                                Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Balance:</td>
+                        <td>
+                            {% get_balance obj.contract_address %}
+                        </td>
+                    </tr>
+                </table>
+                {% if vacancies %}
+                    <h5>Your vacancies</h5>
+                    {% for vacancy in vacancies %}
+                        {% include 'vacancy/vacancy_short.html' with item=vacancy %}
+                    {% endfor %}
+                {% endif %}
+                <div class="right">
+                    {% if vacancies_count > 3 %}
+                        <a class="btn waves-effect blue" href="{% url 'vacancy_all' %}">All vacancies</a>
+                    {% endif %}
+                    {% if obj.contract_address %}
+                        <a class="btn waves-effect amber" href="{% url 'new_vacancy' %}">Create new vacancy</a>
+                    {% endif %}
+                </div>
             {% endif %}
-        {% endif %}
+        </div>
     </div>
 {% endblock %}

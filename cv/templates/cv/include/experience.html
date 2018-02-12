@@ -1,10 +1,15 @@
 {% load cv_tags %}
 <div>
     <p class="flow-text">{{ experience.organization|title }},
-        <small class="grey-text">{{ experience.position }}, {{ experience.city }}</small>
+        <small class="grey-text">{{ experience.position }}, {{ experience.city }}
+            {% if owner %}
+                <a href="{% url 'experience_edit' experience_id=experience.id %}"><i class="fa fa-pencil-square-o grey-text" aria-hidden="true"></i></a>
+            {% endif %}
+        </small>
     </p>
     {% if not experience.still %}
-        From {{ experience.start_month|month_name }} {{ experience.start_year}} to {{ experience.end_month|month_name }} {{ experience.end_year }} (
+        From {{ experience.start_month|month_name }} {{ experience.start_year }} to
+        {{ experience.end_month|month_name }} {{ experience.end_year }} (
         {{ experience.end_year|sub:experience.start_year }} year{{ experience.end_year|sub:experience.start_year|pluralize }}
         ).
     {% else %}

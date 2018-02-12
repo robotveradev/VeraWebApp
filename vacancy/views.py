@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from cv.models import CurriculumVitae
@@ -13,7 +13,7 @@ from jobboard.models import Employer, Specialisation, Keyword, Candidate
 from jobboard.views import user_role
 from django.conf import settings as django_settings
 
-from vacancy.forms import VacancyForm
+from vacancy.forms import VacancyForm, EditVacancyForm
 from vacancy.models import Vacancy, CVOnVacancy, VacancyTest
 from jobboard.tasks import save_txn_to_history, save_txn
 
@@ -54,6 +54,22 @@ def new_vacancy(request):
     if args['role'] == 'candidate':
         args['error'] = 'Candidate cannot place a vacancy'
     return render(request, 'vacancy/new_vacancy.html', args)
+
+
+@login_required
+@choose_role_required(redirect_url='/role/')
+def vacancy_edit(request, vacancy_id):
+    args = {}
+    args['vac_o'] = get_object_or_404(Vacancy, employer__user=request.user, pk=vacancy_id)
+    if request.method == 'POST':
+        form = EditVacancyForm(request.POST, instance=args['vac_o'])
+        if form.is_valid():
+            form.save()
+            return redirect(vacancy, vacancy_id=vacancy_id)
+    else:
+        form = EditVacancyForm(instance=args['vac_o'])
+    args['form'] = form
+    return render(request, 'vacancy/vacancy_edit.html', args)
 
 
 def vacancy(request, vacancy_id):
@@ -146,3 +162,16 @@ def change_vacancy_status(request, vacancy_id):
         save_txn.delay(txn_hash, 'vacancyChange', request.user.id, vacancy_id)
         save_txn_to_history.delay(request.user.id, txn_hash, 'Change vacancy {} status'.format(vac_o.contract_address))
     return redirect('profile')
+
+
+@login_required
+@choose_role_required(redirect_url='/role/')
+def vacancy_all(request):
+    args = {}
+    args['role'], args['obj'] = user_role(request.user.id)
+    if args['role'] == 'candidate':
+        return redirect('profile')
+    elif args['role'] == 'employer':
+        args['vacancies'] = Vacancy.objects.filter(employer=args['obj']).order_by('-created_at')
+        return render(request, 'vacancy/vacancies_all.html', args)
+    raise Http404

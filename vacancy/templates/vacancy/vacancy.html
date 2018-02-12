@@ -5,106 +5,108 @@
 {% block head_title %}VeraOracle - Vacancy{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h4 class="center">
-            Vacancy #{{ vacancy.id }}
-        </h4>
-        <table class="bordered highlight">
-            {% with 12|get_coin_symbol as symbol %}
-                <tr>
-                    <td>Employer</td>
-                    <td>
-                        <a href="{% url 'employer_about' employer_id=vacancy.employer.id %}">{{ vacancy.employer.organization }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Title</td>
-                    <td>{{ vacancy.title }}</td>
-                </tr>
-                <tr>
-                    <td>Contract address</td>
-                    <td>
-                        {% if vacancy.contract_address is not None %}
-                            <a target="_blank"
-                               href="https://rinkeby.etherscan.io/address/{{ vacancy.contract_address }}">{{ vacancy.contract_address }}</a>
-                        {% else %}
-                            Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Interview fee</td>
-                    <td>
-                        {% if vacancy.contract_address %}
-                            {{ vacancy.id|get_interview_fee }} {{ symbol }}
-                        {% else %}
-                            <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <td>Salary</td>
-                    <td>{{ vacancy.salary_from }}-{{ vacancy.salary_up_to }}$</td>
-                </tr>
-                <tr>
-                    <td>Busyness</td>
-                    <td>{{ vacancy.busyness.all|join:', '|title }}</td>
-                </tr>
-                <tr>
-                    <td>Schedule</td>
-                    <td>{{ vacancy.schedule.all|join:', '|title }}</td>
-                </tr>
-                <tr>
-                    <td>Vacancy description</td>
-                    <td>{{ vacancy.description|safe }}</td>
-                </tr>
-                {% if vacancy.employer.user == request.user and vacancy.contract_address %}
+    <div class="row">
+        <div class="col s12 m10 l10 push-l1 push-m1">
+            <h4 class="center">
+                Vacancy #{{ vacancy.id }}
+            </h4>
+            <table class="bordered highlight">
+                {% with 12|get_coin_symbol as symbol %}
                     <tr>
-                        <td>Allowance:</td>
-                        <td>{{ vacancy.id | allowance_rest }} {{ symbol }}</td>
+                        <td>Employer</td>
+                        <td>
+                            <a href="{% url 'employer_about' employer_id=vacancy.employer.id %}">{{ vacancy.employer.organization }}</a>
+                        </td>
                     </tr>
+                    <tr>
+                        <td>Title</td>
+                        <td>{{ vacancy.title }}</td>
+                    </tr>
+                    <tr>
+                        <td>Contract address</td>
+                        <td>
+                            {% if vacancy.contract_address is not None %}
+                                <a target="_blank"
+                                   href="https://rinkeby.etherscan.io/address/{{ vacancy.contract_address }}">{{ vacancy.contract_address }}</a>
+                            {% else %}
+                                Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Interview fee</td>
+                        <td>
+                            {% if vacancy.contract_address %}
+                                {{ vacancy.id|get_interview_fee }} {{ symbol }}
+                            {% else %}
+                                <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Salary</td>
+                        <td>{{ vacancy.salary_from }}-{{ vacancy.salary_up_to }}$</td>
+                    </tr>
+                    <tr>
+                        <td>Busyness</td>
+                        <td>{{ vacancy.busyness.all|join:', '|title }}</td>
+                    </tr>
+                    <tr>
+                        <td>Schedule</td>
+                        <td>{{ vacancy.schedule.all|join:', '|title }}</td>
+                    </tr>
+                    <tr>
+                        <td>Vacancy description</td>
+                        <td>{{ vacancy.description|safe }}</td>
+                    </tr>
+                    {% if vacancy.employer.user == request.user and vacancy.contract_address %}
+                        <tr>
+                            <td>Allowance:</td>
+                            <td>{{ vacancy.id | allowance_rest }} {{ symbol }}</td>
+                        </tr>
+                    {% endif %}
+                {% endwith %}
+            </table>
+            <br>
+            {% for item in vacancy.specializations.all %}
+                <div class="chip blue white-text">{{ item|title }}</div>
+            {% endfor %}
+            {% for item in vacancy.keywords.all %}
+                <div class="chip amber white-text">{{ item|title }}</div>
+            {% endfor %}
+            <br>
+            {% if vacancy.employer.user == request.user %}
+                <div class="row">
+                    <div class="col s12 l12 m12">
+                        <a href="{% url 'vacancy_tests' vacancy_id=vacancy.id %}"
+                           class="btn waves-light waves-effect blue right">Tests</a>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                {% if vacancy.contract_address %}
+                    {% get_candidates vacancy %}
                 {% endif %}
-            {% endwith %}
-        </table>
-        <br>
-        {% for item in vacancy.specializations.all %}
-            <div class="chip blue white-text">{{ item|title }}</div>
-        {% endfor %}
-        {% for item in vacancy.keywords.all %}
-            <div class="chip amber white-text">{{ item|title }}</div>
-        {% endfor %}
-        <br>
-        {% if vacancy.employer.user == request.user %}
-            <div class="row">
-                <div class="col s12 l12 m12">
-                    <a href="{% url 'vacancy_tests' vacancy_id=vacancy.id %}"
-                       class="btn waves-light waves-effect blue right">Tests</a>
-                </div>
-            </div>
-            <div class="clearfix"></div>
-            {% if vacancy.contract_address %}
-                {% get_candidates vacancy %}
             {% endif %}
-        {% endif %}
-        <br>
-        {% if role == 'candidate' and vacancy.contract_address and cv %}
-            {% with obj|is_can_subscribe:vacancy as can_subscribe %}
-                <a href="#subscribe" {% if not can_subscribe %}disabled{% endif %}
-                   class="btn waves-light waves-effect blue right modal-trigger">Subscribe to
-                    interview</a>
-                <div id="subscribe" class="modal modal-fixed-footer">
-                    <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                    <div class="modal-content">
-                        <h4>Choose cv for vacancy "{{ vacancy.title }}"</h4>
-                        {% include 'jobboard/include/cv.html' with selectable=True can_sub=can_subscribe %}
+            <br>
+            {% if role == 'candidate' and vacancy.contract_address and cv %}
+                {% with obj|is_can_subscribe:vacancy as can_subscribe %}
+                    <a href="#subscribe" {% if not can_subscribe %}disabled{% endif %}
+                       class="btn waves-light waves-effect blue right modal-trigger">Subscribe to
+                        interview</a>
+                    <div id="subscribe" class="modal modal-fixed-footer">
+                        <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
+                        <div class="modal-content">
+                            <h4>Choose cv for vacancy "{{ vacancy.title }}"</h4>
+                            {% include 'jobboard/include/../../../cv/templates/cv/cv.html' with selectable=True can_sub=can_subscribe %}
+                        </div>
+                        <div class="modal-footer">
+                            <a class="waves-effect waves-light btn-flat" href="{% url 'new_cv' %}">Add new
+                                curriculum vitae</a>
+                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <a class="waves-effect waves-light btn-flat" href="{% url 'new_cv' %}">Add new
-                            curriculum vitae</a>
-                    </div>
-                </div>
-            {% endwith %}
-        {% endif %}
+                {% endwith %}
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
 

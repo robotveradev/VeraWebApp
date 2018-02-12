@@ -5,54 +5,55 @@
 {% block head_title %}VeraOracle - Candidate{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h4 class="center">About candidate</h4>
-        <table class="bordered highlight">
-            <tr>
-                <td>Name:</td>
-                <td>{{ candidate.first_name }}</td>
-            </tr>
-            <tr>
-                <td>Last name:</td>
-                <td>{{ candidate.last_name }}</td>
-            </tr>
-            <tr>
-                <td>Middle name:</td>
-                <td>{{ candidate.middle_name }}</td>
-            </tr>
-            <tr>
-                <td>Tax number:</td>
-                <td>{{ candidate.tax_number }}</td>
-            </tr>
-            <tr>
-                <td>Contract address:</td>
-                <td>
-                    {% if candidate.contract_address is not None %}
-                        <a target="_blank"
-                           href="https://rinkeby.etherscan.io/address/{{ candidate.contract_address }}">{{ candidate.contract_address }}</a>
-                    {% else %}
-                        Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                    {% endif %}
-                </td>
-            </tr>
-        </table>
-        {% if candidate.contract_address %}
-            {% get_facts candidate %}
-        {% endif %}
-        {% if vacancies %}
-            <br><br><br>
-            <table class="bordered highligth">
-                <thead>
+    <div class="row">
+        <div class="col s12 m10 l10 push-l1 push-m1">
+            <h4 class="center">About candidate</h4>
+            <table class="bordered highlight">
                 <tr>
-                    <th>Your vacancies, candidate subscribed to</th>
-                    <th class="center">State</th>
+                    <td>Name:</td>
+                    <td>{{ candidate.first_name }}</td>
                 </tr>
-                </thead>
-                <tbody>
-                {% for vacancy in vacancies %}
+                <tr>
+                    <td>Last name:</td>
+                    <td>{{ candidate.last_name }}</td>
+                </tr>
+                <tr>
+                    <td>Middle name:</td>
+                    <td>{{ candidate.middle_name }}</td>
+                </tr>
+                <tr>
+                    <td>Tax number:</td>
+                    <td>{{ candidate.tax_number }}</td>
+                </tr>
+                <tr>
+                    <td>Contract address:</td>
+                    <td>
+                        {% if candidate.contract_address is not None %}
+                            <a target="_blank"
+                               href="https://rinkeby.etherscan.io/address/{{ candidate.contract_address }}">{{ candidate.contract_address }}</a>
+                        {% else %}
+                            Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+            {% if candidate.contract_address %}
+                {% get_facts candidate %}
+            {% endif %}
+            {% if vacancies %}
+                <br><br><br>
+                <table class="bordered highligth">
+                    <thead>
                     <tr>
-                        <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.address }}</a></td>
-                        <td class="center
+                        <th>Your vacancies, candidate subscribed to</th>
+                        <th class="center">State</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for vacancy in vacancies %}
+                        <tr>
+                            <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.address }}</a></td>
+                            <td class="center
                             {% if vacancy.state == 'wait' %}
                             amber-text
                             {% elif vacancy.state == 'accepted' %}
@@ -60,12 +61,13 @@
                             {% elif vacancy.state == 'revoked' %}
                             red-text
                             {% endif %}">
-                            {{ vacancy.state | capfirst }}
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
+                                {{ vacancy.state | capfirst }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

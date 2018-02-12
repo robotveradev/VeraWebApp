@@ -42,10 +42,15 @@ candidate_urlpatterns = [
 
 curriculum_vitae_urlpatterns = [
     path('cv/new/', cv_views.new_cv, name='new_cv'),
+    path('cv/all/', cv_views.cv_all, name='cv_all'),
     path('cv/<int:cv_id>/', cv_views.cv, name='cv'),
+    path('cv/<int:cv_id>/edit', cv_views.cv_edit, name='cv_edit'),
     path('cv/<int:cv_id>/new/position/', cv_views.new_position, name='new_position'),
+    path('cv/<int:position_id>/edit/position/', cv_views.position_edit, name='position_edit'),
     path('cv/<int:cv_id>/new/education/', cv_views.new_education, name='new_education'),
+    path('cv/<int:education_id>/edit/education/', cv_views.education_edit, name='education_edit'),
     path('cv/<int:cv_id>/new/experience/', cv_views.new_experience, name='new_experience'),
+    path('cv/<int:experience_id>/edit/experience/', cv_views.experience_edit, name='experience_edit'),
     path('cv/<int:cv_id>/status/change/', cv_views.change_cv_status, name='change_cv_status'),
 ]
 
@@ -55,11 +60,13 @@ vacancy_urlpatterns = [
          name='subscribe_to_vacancy'),
     path('vacancy/<int:vacancy_id>/', vacancy_views.vacancy, name='vacancy'),
     path('vacancy/<int:vacancy_id>/test/', jobboard_views.candidate_testing, name='candidate_testing'),
+    path('vacancy/<int:vacancy_id>/edit/', vacancy_views.vacancy_edit, name='vacancy_edit'),
     path('vacancy/<int:vacancy_id>/tests/', vacancy_views.vacancy_tests, name='vacancy_tests'),
     path('vacancy/<int:vacancy_id>/tests/new/', vacancy_views.vacancy_test_new, name='vacancy_test_new'),
     path('vacancy/<int:vacancy_id>/status/change/', vacancy_views.change_vacancy_status, name='change_vacancy_status'),
     path('vacancy/tests/add/', vacancy_views.new_test, name='new_test'),
     # path('vacancy/increase/allowance', jobboard_views.increase_vacancy_allowance, name='increase_vacancy_allowance'),
+    path('vacancy/all/', vacancy_views.vacancy_all, name='vacancy_all'),
 ]
 
 employer_urlpatterns = [

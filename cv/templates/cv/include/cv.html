@@ -5,13 +5,15 @@
                 {% if item.image %}
                     <img style="width: 100%;" src="{{ item.image.url }}"/>
                 {% else %}
-                    <img style="width: 100%;" src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
+                    <img style="width: 100%;"
+                         src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
                          alt="">
                 {% endif %}
             </div>
             <div class="col s10 m10 l10">
                 {% if selectable and can_sub %}
-                    <a href="{% url 'subscribe_to_vacancy' vacancy_id=vacancy.id cv_id=item.id %}" class="btn-flat right">
+                    <a href="{% url 'subscribe_to_vacancy' vacancy_id=vacancy.id cv_id=item.id %}"
+                       class="btn-flat right">
                         <i class="material-icons green-text">check</i>
                     </a>
                 {% endif %}

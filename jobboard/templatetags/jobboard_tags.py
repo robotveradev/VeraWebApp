@@ -166,14 +166,14 @@ def employer_answered(candidate_id, vacancy_id):
 
 
 @register.inclusion_tag('jobboard/tags/vacancies.html')
-def get_candidate_vacancies(candidate):
+def get_candidate_vacancies(candidate, request):
     vacancies = []
     can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
     for item in can_h.get_vacancies():
-        vacancies.append({'address': item,
-                          'state': can_h.get_vacancy_state(item),
-                          'id': Vacancy.objects.values('id').get(contract_address=item)['id']})
-    return {'vacancies': vacancies}
+        vacancies.append(Vacancy.objects.get(contract_address=item))
+    return {'vacancies': vacancies,
+            'request': request,
+            'candidate': candidate}
 
 
 @register.inclusion_tag('jobboard/tags/facts.html')
@@ -230,6 +230,36 @@ def get_candidates_count(vacancy_address):
 @register.filter(name='parse_addresses')
 def parse_addresses(string):
     regex = '\\b0x\w+'
-    url_template = '<a href="{}address/{}">{}</a>'
+    url_template = '<a target="_blank" href="{}address/{}">{}</a>'
     string = re.sub(regex, url_template.format(settings.NET_URL, '\g<0>', '\g<0>'), string)
     return string
+
+
+@register.filter(name='paginator_pages')
+def paginator_pages(current_page, max_page):
+    if max_page < 8:
+        return range(2, max_page)
+    else:
+        if current_page <= 4:
+            return range(2, min(7, max_page))
+        elif current_page >= max_page - 4:
+            return range(max_page - 5, max_page)
+        else:
+            return range(current_page - 2, current_page + 3)
+
+
+@register.filter(name='need_dots')
+def need_dots(first, next_o):
+    # print('first: {}, next: {}'.format(first, next_o))
+    # return False
+    if next_o - first > 1:
+        return True
+    return False
+
+
+@register.filter(name='is_owner')
+def is_owner(user, curent_user):
+    if user == curent_user:
+        return True
+    else:
+        return False

@@ -1,36 +1,7 @@
 {% load jobboard_tags %}
 {% if vacancies %}
-    <h5 class="center">Vacancies, you subscribed to:</h5>
-    <table class="bordered highlight">
-        <thead>
-        <tr>
-            <th>Vacancy address</th>
-            <th class="right">State</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for vacancy in vacancies %}
-            <tr>
-                {% with vacancy.state as st %}
-                    <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.address }}</a></td>
-                    <td class="right
-                                {% if st == 'wait' %}
-                                amber-text
-                                {% elif st == 'accepted' %}
-                                green-text
-                                {% elif st == 'revoked' %}
-                                red-text
-                                {% endif %}">{{ st | capfirst }}
-                        {% if st == 'accepted' %}
-                            {% if vacancy.id|vacancy_tests_count > 0 %}
-                                <a href="{% url 'candidate_testing' vacancy_id=vacancy.id %}"><i
-                                        class="fa fa-puzzle-piece fa-1x" aria-hidden="true"></i></a>
-                            {% endif %}
-                        {% endif %}
-                    </td>
-                {% endwith %}
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <h5>Vacancies, you subscribed to:</h5>
+    {% for vacancy in vacancies %}
+        {% include 'vacancy/vacancy_short.html' with item=vacancy candidate=candidate %}
+    {% endfor %}
 {% endif %}

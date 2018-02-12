@@ -2,6 +2,7 @@ import re
 
 import time
 from account.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -91,7 +92,9 @@ def profile(request):
     args['role'], args['obj'] = user_role(request.user.id)
     if args['role']:
         if args['role'] == 'employer':
-            args['vacancies'] = Vacancy.objects.filter(employer=args['obj'])
+            vacancies = Vacancy.objects.filter(employer=args['obj'])
+            args['vacancies'] = vacancies.order_by('-created_at')[:3]
+            args['vacancies_count'] = vacancies.count()
         if args['role'] == 'candidate':
             args['cv'] = CurriculumVitae.objects.filter(candidate=args['obj'])
     return render(request, 'jobboard/profile.html', args)
@@ -271,8 +274,11 @@ def change_contract_status(request):
 
 
 def transactions(request):
-    args = {'txns': TransactionHistory.objects.filter(user=request.user),
-            'net_url': django_settings.NET_URL}
+    args = {'net_url': django_settings.NET_URL}
+    all_txns = TransactionHistory.objects.filter(user=request.user).order_by('-created_at')
+    paginator = Paginator(all_txns, request.GET.get('list') or 20)
+    page = request.GET.get('page')
+    args['txns'] = paginator.get_page(page)
     return render(request, 'jobboard/transactions.html', args)
 
 #

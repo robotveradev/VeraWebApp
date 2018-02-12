@@ -1,0 +1,15 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}Vera Oracle - CVs{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col s12 m10 l10 push-l1 push-m1">
+            <h5 class="center">
+                All your CVs
+            </h5>
+            {% include 'cv/include/cv.html' %}
+            <a class="btn waves-effect waves-light amber right" href="{% url 'new_cv' %}">Add new curriculum vitae</a>
+        </div>
+    </div>
+{% endblock %}

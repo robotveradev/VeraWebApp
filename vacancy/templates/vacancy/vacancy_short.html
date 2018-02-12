@@ -1,0 +1,98 @@
+{% load jobboard_tags %}
+
+<div class="row">
+    {% with item.employer.user|is_owner:request.user as owner %}
+        <div class="col s9 l9 m9">
+            <a href="{% url 'vacancy' vacancy_id=item.id %}">{{ item.title }}</a>, <span
+                class="grey-text">created {{ item.created_at|date }}{% if item.created_at != item.updated_at %}, updated
+            {{ item.updated_at|timesince }} ago{% endif %}{% if owner %}, <a href="{% url 'vacancy_edit' vacancy_id=item.id %}">
+        <i class="fa fa-pencil-square-o grey-text" aria-hidden="true"></i>
+        </a>{% endif %}</span>
+            <div>
+                <small class="grey-text">
+                    {% if item.city %}
+                        {{ item.city|title }},
+                    {% endif %}
+                    {% if item.contract_address %}
+                        {% if owner %}
+                            {{ item.id|allowance_rest }} Vera,
+                        {% else %}
+                            {{ item.id|get_interview_fee }} Vera
+                        {% endif %}
+                    {% else %}
+                        <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                    {% endif %}
+                    {% if owner %}
+                        {% if item.contract_address is not None %}
+                            {% if item.enabled is True %}
+                                <a class="red-text underline"
+                                   href="{% url 'change_vacancy_status' vacancy_id=item.id %}">
+                                    disable
+                                </a>
+                            {% elif item.enabled is False %}
+                                <a class="green-text underline"
+                                   href="{% url 'change_vacancy_status' vacancy_id=item.id %}">
+                                    enable
+                                </a>
+                            {% else %}
+                                Renewal contract status
+                            {% endif %}
+                        {% else %}
+                            <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                        {% endif %}
+                    {% endif %}
+                </small>
+            {% if desc %}
+                <div class="grey-text">{{ item.description|safe|truncatewords:30 }}</div>
+            {% endif %}
+            </div>
+        </div>
+        {% if owner %}
+            <div class="col s3 l3 m3">
+                {% with item.contract_address|get_wait_candidates_count as count %}
+                    {% if count.paid > 0 %}
+                        <span data-badge-caption="paid" class="new badge">{{ count.paid }}</span>
+                    {% endif %}
+                    {% if count.revoked > 0 %}
+                        <span data-badge-caption="revoked"
+                              class="new badge red">{{ count.revoked }}</span>
+                    {% endif %}
+                    {% if count.accepted > 0 %}
+                        <span data-badge-caption="accepted"
+                              class="new badge green">{{ count.accepted }}</span>
+                    {% endif %}
+                    {% if count.wait > 0 %}
+                        <span class="new badge amber darken-2">{{ count.wait }}</span>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        {% elif candidate %}
+            <div class="col s3 l3 m3">
+                {% with item|candidate_state:candidate as st %}
+                    <span class="right
+                                {% if st == 'wait' %}
+                                amber-text
+                                {% elif st == 'accepted' %}
+                                green-text
+                                {% elif st == 'revoked' %}
+                                red-text
+                                {% endif %}">
+                    {{ st | capfirst }}
+                </span>
+                    <br>
+                    {% if st == 'accepted' %}
+                        {% if item.id|vacancy_tests_count > 0 %}
+                            <span class="right">
+                                <small class="grey-text">
+                                    Now you can
+                                    <a class="underline grey-text" href="{% url 'candidate_testing' vacancy_id=vacancy.id %}">pass the tests</a>
+                                </small>
+                            </span>
+                        {% endif %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</div>
+<hr/>
