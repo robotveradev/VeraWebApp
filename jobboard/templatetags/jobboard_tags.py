@@ -40,6 +40,8 @@ def has_cv(user_id):
 @register.filter(name='allowance_rest')
 def allowance_rest(vacancy_id):
     vac = Vacancy.objects.values('employer__contract_address', 'contract_address').get(id=vacancy_id)
+    if vac['employer__contract_address'] is None or vac['contract_address'] is None:
+        return 0
     coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
     return coin_h.allowance(vac['employer__contract_address'],
                             vac['contract_address']) / 10 ** coin_h.decimals
@@ -142,6 +144,8 @@ def get_balance(address):
 
 @register.filter(name='is_can_subscribe')
 def is_can_subscribe(candidate, vacancy):
+    if candidate.contract_address is None:
+        return False, 'Your contract doesn\'t ready yet'
     if candidate.enabled is False:
         return False, 'You must enable your contract'
     else:
@@ -170,7 +174,10 @@ def get_candidate_vacancies(candidate, request):
     vacancies = []
     can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
     for item in can_h.get_vacancies():
-        vacancies.append(Vacancy.objects.get(contract_address=item))
+        try:
+            vacancies.append(Vacancy.objects.get(contract_address=item))
+        except Vacancy.DoesNotExist:
+            pass
     return {'vacancies': vacancies,
             'request': request,
             'candidate': candidate}

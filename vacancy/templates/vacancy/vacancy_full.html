@@ -11,22 +11,24 @@
                 {{ vacancy.title|title }}, <span class="grey-text"><small>{{ vacancy.employer.organization|title }}</small></span>
             </h4>
             {% if request.user == vacancy.employer.user %}
-                {% with vacancy.enabled as en %}
-                    <div class="chip white-text right {% if en == True %}red{% elif en == False %}green{% else %}amber{% endif %}">
-                        {% if en != None %}
-                            <a class="white-text underline"
-                               href="{% url 'change_vacancy_status' vacancy_id=vacancy.id %}">
-                                {% if en == True %}
-                                    Disable vacancy
-                                {% else %}
-                                    Enable vacancy
-                                {% endif %}
-                            </a>
-                        {% else %}
-                            Renewal of contract status...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                        {% endif %}
-                    </div>
-                {% endwith %}
+                {% if vacancy.contract_address is not None %}
+                    {% with vacancy.enabled as en %}
+                        <div class="chip white-text right {% if en == True %}red{% elif en == False %}green{% else %}amber{% endif %}">
+                            {% if en != None %}
+                                <a class="white-text underline"
+                                   href="{% url 'change_vacancy_status' vacancy_id=vacancy.id %}">
+                                    {% if en == True %}
+                                        Disable vacancy
+                                    {% else %}
+                                        Enable vacancy
+                                    {% endif %}
+                                </a>
+                            {% else %}
+                                Renewal of contract status...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                {% endif %}
             {% endif %}
             <p class="flow-text">Contract info</p>
             <blockquote>

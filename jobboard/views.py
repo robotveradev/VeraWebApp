@@ -244,7 +244,9 @@ def pay_to_candidate(request, vacancy_id):
 def employer_about(request, employer_id):
     args = {}
     args['employer'] = get_object_or_404(Employer, id=employer_id)
-    args['vacancies'] = Vacancy.objects.filter(employer_id=employer_id)
+    if args['employer'].user == request.user:
+        return redirect(profile)
+    args['vacancies'] = Vacancy.objects.filter(employer_id=employer_id, enabled=True)
     return render(request, 'jobboard/employer_about.html', args)
 
 
@@ -276,7 +278,7 @@ def change_contract_status(request):
 def transactions(request):
     args = {'net_url': django_settings.NET_URL}
     all_txns = TransactionHistory.objects.filter(user=request.user).order_by('-created_at')
-    paginator = Paginator(all_txns, request.GET.get('list') or 20)
+    paginator = Paginator(all_txns, request.GET.get('list') or 25)
     page = request.GET.get('page')
     args['txns'] = paginator.get_page(page)
     return render(request, 'jobboard/transactions.html', args)

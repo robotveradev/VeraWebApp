@@ -14,19 +14,23 @@
                 </h4>
                 <br><br><br><br>
             {% else %}
-                {% if obj.contract_address %}
-                    <h4 class="center">New Vacancy</h4>
-                    {% if error %}
-                        <span class="center red-text">{{ error }}</span>
+                {% if obj.enabled == True %}
+                    {% if obj.contract_address %}
+                        <h4 class="center">New Vacancy</h4>
+                        {% if error %}
+                            <span class="center red-text">{{ error }}</span>
+                        {% endif %}
+                        <form action="{% url 'new_vacancy' %}" method="post">
+                            {% csrf_token %}
+                            {% form form=form %}{% endform %}
+                            <button class="btn waves-effect waves-light blue right">Continue</button>
+                            <div class="clearfix"></div>
+                        </form>
+                    {% else %}
+                        {% include 'jobboard/include/message.html' with message="Your contract doesn't ready yet" %}
                     {% endif %}
-                    <form action="{% url 'new_vacancy' %}" method="post">
-                        {% csrf_token %}
-                        {% form form=form %}{% endform %}
-                        <button class="btn waves-effect waves-light blue right">Continue</button>
-                        <div class="clearfix"></div>
-                    </form>
                 {% else %}
-                    {% include 'jobboard/include/contract_not_ready_yet.html' %}
+                    {% include 'jobboard/include/message.html' with message="You must enable your main contract for create new vacancy" %}
                 {% endif %}
             {% endif %}
         </div>

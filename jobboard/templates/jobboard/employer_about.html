@@ -5,54 +5,37 @@
 {% block head_title %}VeraOracle - {{ employer.organization }}{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h4 class="center">Employer info</h4>
-        <table class="bordered highlight">
-            <tr>
-                <td>Organization:</td>
-                <td>{{ employer.organization }}</td>
-            </tr>
-            <tr>
-                <td>Tax number:</td>
-                <td>{{ employer.tax_number }}</td>
-            </tr>
-            <tr>
-                <td>Contract address:</td>
-                <td>
-                    {% if employer.contract_address is not None %}
-                        <a target="_blank"
-                           href="https://rinkeby.etherscan.io/address/{{ employer.contract_address }}">{{ employer.contract_address }}</a>
-                    {% else %}
-                        Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                    {% endif %}
-                </td>
-            </tr>
-        </table>
-        {% if vacancies %}
-            <h5>Employer vacancies</h5>
+    <div class="row">
+        <div class="col s12 m10 l10 push-l1 push-m1">
+            <h4 class="center">Employer info</h4>
             <table class="bordered highlight">
-                <thead>
                 <tr>
-                    <th>Vacancy title</th>
-                    <th>Contract address</th>
+                    <td>Organization:</td>
+                    <td>{{ employer.organization }}</td>
                 </tr>
-                </thead>
-                <tbody>
-                {% for vacancy in vacancies %}
-                    {% with vacancy.id|is_enabled_vacancy as is_enabled %}
-                        <tr>
-                            <td><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.title }}</a></td>
-                            <td>{{ vacancy.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}
-                                {% if not is_enabled %}
-                                    <span class="badge">disabled</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endwith %}
-                {% endfor %}
-                </tbody>
-
+                <tr>
+                    <td>Tax number:</td>
+                    <td>{{ employer.tax_number }}</td>
+                </tr>
+                <tr>
+                    <td>Contract address:</td>
+                    <td>
+                        {% if employer.contract_address is not None %}
+                            <a target="_blank"
+                               href="https://rinkeby.etherscan.io/address/{{ employer.contract_address }}">{{ employer.contract_address }}</a>
+                        {% else %}
+                            Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
-        {% endif %}
+            {% if vacancies %}
+                <br/>
+                <h5>Employer vacancies</h5>
+                {% for item in vacancies %}
+                    {% include 'vacancy/vacancy_short.html' %}
+                {% endfor %}
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

@@ -35,7 +35,7 @@
                                     enable
                                 </a>
                             {% else %}
-                                Renewal contract status
+                                Renewal contract status <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
                             {% endif %}
                         {% else %}
                             <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
@@ -47,7 +47,7 @@
             {% endif %}
             </div>
         </div>
-        {% if owner %}
+        {% if owner and item.contract_address %}
             <div class="col s3 l3 m3">
                 {% with item.contract_address|get_wait_candidates_count as count %}
                     {% if count.paid > 0 %}
