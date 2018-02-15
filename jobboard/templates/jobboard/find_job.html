@@ -1,67 +1,223 @@
 {% extends 'jobboard/base.html' %}
 {% block head_title %}VeraOracle - Find a job{% endblock %}
-{% load jobboard_tags %}
+{% load jobboard_tags vacancy_tags %}
 {% block content %}
-    {% if vacancies %}
-        <h4 class="center">Find a dream job!</h4>
-    {% endif %}
-    <div class="container">
-        <div class="row">
-            <div class="col s12 m12 l12">
-                {% for vacancy in vacancies %}
-                    <div class="col s6 m4 l4">
-                        <div class="card">
-                            <div class="card-image waves-effect waves-block waves-light">
-                                <img style="margin: 17px;" class="activator"
-                                     src="https://remote-job.ru/assets/global/icons/logo.svg">
+    <h4 class="center">Find a dream job!</h4>
+    <div class="row">
+        <div class="col s12 m12 l10 push-l1">
+            <div class="row">
+                <div class="col s2 m2 l2">
+                    <ul class="collapsible" data-collapsible="expandable">
+                        <li>
+                            <div class="collapsible-header active">Industry</div>
+                            <div class="collapsible-body">
+                                <div id="industry">
+                                    {% if selected_spec %}
+                                        <div class="selected">{{ selected_spec }}<span class="right"><a
+                                                href="{{ request.GET|get_clear_url:selected_spec }}"><i
+                                                class="fa fa-close"
+                                                area-hidden="true"></i></a></span>
+                                        </div>
+                                    {% else %}
+                                        <ul>
+                                            {% for item in specializations %}
+                                                <li class="spec-item active"><a class="grey-text text-darken-1"
+                                                                                href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'spec' vacancies %}</span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
                             </div>
-                            <div class="card-content">
-                        <span class="card-title activator grey-text text-darken-4">{{ vacancy.title | truncatechars:'13' }}<i
-                                class="material-icons right">more_vert</i></span>
-                                <p><a href="{% url 'vacancy' vacancy_id=vacancy.id %}">More...</a></p>
-                            </div>
-                            <div class="card-reveal blue white-text">
-                        <span class="card-title"><i
-                                class="material-icons right">close</i></span>
-                                <div>
-                                    <div class="chip blue lighten-2">
-                                        Full time
+                        </li>
+                        {% if selected_spec and specializations %}
+                            <li>
+                                <div class="collapsible-header active">Specialisation</div>
+                                <div class="collapsible-body">
+                                    <div id="specialisation">
+                                        <ul>
+                                            {% for item in specializations %}
+                                                <li class="spec-item active"><a class="grey-text text-darken-1"
+                                                                                href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'spec' vacancies %}</span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
                                     </div>
-                                    <h5>{{ vacancy.title }}</h5>
-                                    <h6>Dig File</h6>
-                                    <ul class="tr-list job-meta">
-                                        <li><i class="fa fa-map-signs"
-                                               aria-hidden="true"></i>Organization: {{ vacancy.employer.organization }}
-                                        </li>
-                                        <li><i class="fa fa-briefcase" aria-hidden="true"></i>Interview
-                                            fee: {{ vacancy.id|get_interview_fee }} {{ vacancy.employer.id | get_coin_symbol }}
-                                        </li>
-                                        <li><i class="fa fa-money" aria-hidden="true"></i>Salary:
-                                            {% if vacancy.salary_from %}
-                                                {{ vacancy.salary_from }}${% endif %}
-                                            {% if vacancy.salary_up_to %} - {{ vacancy.salary_up_to }}
-                                                ${% endif %}
-                                            {% if not vacancy.salary_from and not vacancy.salary_up_to %}
-                                                salary by agreement
-                                            {% endif %}
-                                        </li>
+                                </div>
+                            </li>
+                        {% endif %}
+
+                        <li>
+                            <div class="collapsible-header active">Keywords</div>
+                            <div class="collapsible-body">
+                                <div id="keyword">
+                                    {% if selected_keyword %}
+                                        <div class="selected">{{ selected_keyword }}
+                                            <span class="right">
+                                    <a href="{{ request.GET|get_clear_url:selected_keyword }}"><i class="fa fa-close"
+                                                                                                  area-hidden="true"></i></a></span>
+                                        </div>
+                                    {% endif %}
+                                    <ul>
+                                        {% for item in keywords %}
+                                            <li class="spec-item active"><a class="grey-text text-darken-1"
+                                                                            href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                                <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'keyword' vacancies %}</span>
+                                            </li>
+                                        {% endfor %}
                                     </ul>
                                 </div>
                             </div>
-                            <div class="card-action"><a class="btn waves-effect waves-light deep-purple"
-                                                        href="#">Freelance</a>
-                                <span class="grey-text right">5 minutes ago</span></div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header active">Salary</div>
+                            <div class="collapsible-body">
+                                <div id="salary">
+                                    {% if selected_salary %}
+                                        <div class="selected">{{ selected_salary }} $
+                                            <span class="right">
+                                    <a href="{{ request.GET|get_clear_url:'salary' }}"><i class="fa fa-close"
+                                                                                          area-hidden="true"></i></a></span>
+                                        </div>
+                                    {% else %}
+                                        <ul>
+                                            {% for item in salary_range %}
+                                                <li class="spec-item active"><a class="grey-text text-darken-1"
+                                                                                href="{{ request.GET|get_salary_url:item }}">{{ item }}
+                                                    $</a>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item 'salary' vacancies %}</span>
+                                                </li>
+                                            {% endfor %}
+                                            <li class="spec-item active"><a class="grey-text text-darken-1"
+                                                                            href="{{ request.GET|get_salary_url:8000 }}">from
+                                                8000 $</a>
+                                                <span class="right grey-text text-darken-1">{% get_jobs_with 8000 'salary' vacancies %}</span>
+                                            </li>
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header{% if selected_busyness %} active{% endif %}">Busyness
+                            </div>
+                            <div class="collapsible-body">
+                                <div id="busyness">
+                                    {% if selected_busyness %}
+                                        <div class="selected">{{ selected_busyness }}
+                                            <span class="right">
+                                    <a href="{{ request.GET|get_clear_url:'busyness' }}"><i class="fa fa-close"
+                                                                                            area-hidden="true"></i></a></span>
+                                        </div>
+                                    {% else %}
+                                        <ul>
+                                            {% for item in busyness %}
+                                                <li class="spec-item active"><a class="grey-text text-darken-1"
+                                                                                href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'busyness' vacancies %}</span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header{% if selected_schedule %} active{% endif %}">Schedule
+                            </div>
+                            <div class="collapsible-body">
+                                <div id="schedule">
+                                    {% if selected_schedule %}
+                                        <div class="selected">{{ selected_schedule }}
+                                            <span class="right">
+                                    <a href="{{ request.GET|get_clear_url:'schedule' }}"><i class="fa fa-close"
+                                                                                            area-hidden="true"></i></a></span>
+                                        </div>
+                                    {% else %}
+                                        <ul>
+                                            {% for item in schedule %}
+                                                <li class="spec-item active"><a class="grey-text text-darken-1"
+                                                                                href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item 'schedule' vacancies %}</span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col s10 l10 m10">
+                    <div class="row">
+                        <div class="col s12 m12 l12 z-depth-1" style="padding: 5px">
+                            <a class='dropdown-button btn' href='#'
+                               data-activates='period_select'>{{ selected_period.title }}</a>
+
+                            <ul id='period_select' class='dropdown-content'>
+                                {% for item in periods %}
+                                    <li><a href="{{ request.GET|get_custom_url:item }}">{{ item.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+
+                            <a href="#" class="dropdown-button btn"
+                               data-activates="sort_select">{{ selected_sort.title }}</a>
+
+                            <ul id="sort_select" class="dropdown-content">
+                                {% for item in sorts %}
+                                    <li><a href="{{ request.GET|get_custom_url:item }}">{{ item.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+                            <a href="{% url 'find_job' %}"><i class="material-icons right">close</i></a>
                         </div>
                     </div>
-                {% empty %}
-                    <h4 class="center">No vacancy is yet.</h4>
-                    {% if request.user.id|user_role == 'employer' %}
-                        <h6 class="center">
-                            <a href="{% url 'new_vacancy' %}">Place your first vacancy right now.</a>
-                        </h6>
-                    {% endif %}
-                {% endfor %}
+                    {% for vacancy in vacancies %}
+                        <div>
+                            <h5>
+                                <a href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.title }}</a>
+                                <span class="right">
+                                    {% if vacancy.salary_from %}
+                                        {% if vacancy.salary_up_to %}
+                                            {{ vacancy.salary_from }}-{{ vacancy.salary_up_to }} $
+                                        {% else %}
+                                            from {{ vacancy.salary_from }} $
+                                        {% endif %}
+                                    {% else %}
+                                        By agreement
+                                    {% endif %}
+                                </span>
+                            </h5>
+                        </div>
+                        <div>
+                            <span class="grey-text">
+                                {% if vacancy.city %}
+                                    {{ vacancy.city|title }},
+                                {% endif %}
+                                {% if vacancy.contract_address %}
+                                    {{ vacancy.id|get_interview_fee }} Vera
+                                {% else %}
+                                    <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="grey-text">{{ vacancy.description|safe|truncatewords:30 }}</div>
+                        <div>
+                            <a href="{% url 'vacancy' vacancy_id=vacancy.id %}">Learn more</a>
+                            <div class="grey-text right">{{ vacancy.created_at|date:'d M Y' }}</div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <hr/>
+                    {% empty %}
+                        <h6 class="center">Vacancies by conditions not found</h6>
+                    {% endfor %}
+
+                </div>
             </div>
         </div>
     </div>
 {% endblock %}
+
+

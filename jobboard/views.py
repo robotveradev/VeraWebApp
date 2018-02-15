@@ -1,25 +1,22 @@
 import re
-
 import time
+from django.utils import timezone
 from account.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
-
-from cv.models import CurriculumVitae
+from cv.models import CurriculumVitae, Busyness, Schedule
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.tasks import save_txn_to_history, save_txn
 from .handlers.candidate import CandidateHandler
 from .models import Employer, Candidate, Specialisation, Keyword, TransactionHistory
-from vacancy.models import Vacancy, VacancyTest, CVOnVacancy, CandidateVacancyPassing
+from vacancy.models import Vacancy, VacancyTest, CandidateVacancyPassing
 from .decorators import choose_role_required
 from .handlers.oracle import OracleHandler
-from .handlers.coin import CoinHandler
 from web3 import Web3
 from django.conf import settings as django_settings
-from django.db import transaction
 
 
 def index(request):
@@ -29,10 +26,64 @@ def index(request):
 @login_required
 @choose_role_required(redirect_url='/role/')
 def find_job(request):
-    args = {}
-    args['specializations'] = Specialisation.objects.all()
-    args['keywords'] = Keyword.objects.all()
-    args['vacancies'] = Vacancy.objects.filter(enabled=True, employer__enabled=True).exclude(contract_address=None)
+    periods = [{'id': 1, 'days': 30, 'title': 'for month', 'type': 'period'},
+               {'id': 2, 'days': 7, 'title': 'for week', 'type': 'period'},
+               {'id': 3, 'days': 3, 'title': 'for three days', 'type': 'period'},
+               {'id': 4, 'days': 1, 'title': 'for day', 'type': 'period'}]
+    sorts = [{'id': 1, 'order': '-salary_from', 'title': 'by salary descending', 'type': 'sort'},
+             {'id': 2, 'order': 'salary_from', 'title': 'by salary ascending', 'type': 'sort'},
+             {'id': 3, 'order': '-created_at', 'title': 'by date', 'type': 'sort'}]
+    vacancies = Vacancy.objects.filter(enabled=True, employer__enabled=True).exclude(contract_address=None)
+    if 'period' in request.GET:
+        period = get_item(periods, int(request.GET.get('period')))
+        if not period:
+            period = periods[0]
+    else:
+        period = periods[0]
+    vacancies = vacancies.filter(created_at__gte=timezone.now() - timezone.timedelta(days=period['days']))
+
+    if 'sort' in request.GET:
+        sort_by = get_item(sorts, int(request.GET.get('sort')))
+        if not sort_by:
+            sort_by = sorts[2]
+    else:
+        sort_by = sorts[2]
+    vacancies = vacancies.order_by(sort_by['order'])
+
+    specializations = Specialisation.objects.all()
+    keywords = Keyword.objects.all()
+    busyness = Busyness.objects.all()
+    schedule = Schedule.objects.all()
+    args = {'salary_range': [1000, 2000, 3000, 4000, 5000, 6000, 7000, ]}
+    if 'specialisation' in request.GET:
+        args['selected_spec'] = Specialisation.objects.filter(pk=request.GET.get('specialisation')).first()
+        vacancies = vacancies.filter(specializations__in=[request.GET.get('specialisation'), ])
+        specializations = Specialisation.objects.filter(parent_specialisation=request.GET.get('specialisation'))
+    if 'keyword' in request.GET:
+        args['selected_keyword'] = Keyword.objects.filter(pk=request.GET.get('keyword')).first()
+        vacancies = vacancies.filter(keywords__in=[request.GET.get('keyword'), ])
+        keywords = keywords.exclude(id=request.GET['keyword'])
+    if 'salary' in request.GET:
+        args['selected_salary'] = request.GET.get('salary')
+        vacancies = vacancies.filter(salary_from__gte=args["selected_salary"])
+        args['salary_range'] = []
+    if 'busyness' in request.GET:
+        args['selected_busyness'] = Busyness.objects.filter(pk=request.GET.get('busyness')).first()
+        vacancies = vacancies.filter(busyness__in=[request.GET.get('busyness'), ])
+        busyness = busyness.exclude(id=request.GET.get('busyness'))
+    if 'schedule' in request.GET:
+        args['selected_schedule'] = Schedule.objects.filter(pk=request.GET.get('schedule')).first()
+        vacancies = vacancies.filter(schedule__in=[request.GET.get('schedule'), ])
+        schedule = schedule.exclude(id=request.GET.get('schedule'))
+    args['specializations'] = specializations
+    args['keywords'] = keywords
+    args['vacancies'] = vacancies
+    args['busyness'] = busyness
+    args['schedule'] = schedule
+    args['periods'] = periods
+    args['selected_period'] = period
+    args['sorts'] = sorts
+    args['selected_sort'] = sort_by
     return render(request, 'jobboard/find_job.html', args)
 
 
@@ -283,6 +334,7 @@ def transactions(request):
     args['txns'] = paginator.get_page(page)
     return render(request, 'jobboard/transactions.html', args)
 
+
 #
 # @require_POST
 # def increase_vacancy_allowance(request):
@@ -293,3 +345,9 @@ def transactions(request):
 #     coin_h.approve(vac_o.contract_address, 0)
 #     txh_hash = coin_h.approve(vac_o.contract_address, int(allowance) + int(old_allowance))
 #     return HttpResponse(txh_hash, status=200)
+
+def get_item(periods, f_id):
+    for item in periods:
+        if item['id'] == f_id:
+            return item
+    return False

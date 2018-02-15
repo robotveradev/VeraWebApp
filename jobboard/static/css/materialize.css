@@ -5608,7 +5608,7 @@ button.btn-floating {
     border-top: 1px solid #ddd;
     border-right: 1px solid #ddd;
     border-left: 1px solid #ddd;
-    margin: .5rem 0 1rem 0
+    margin: 0 0 1rem 0
 }
 
 .collapsible-header {
@@ -5619,7 +5619,7 @@ button.btn-floating {
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     line-height: 1.5;
-    padding: 1rem;
+    padding: 4px;
     background-color: #fff;
     border-bottom: 1px solid #ddd
 }
@@ -5637,7 +5637,8 @@ button.btn-floating {
     border-bottom: 1px solid #ddd;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    padding: 2rem
+    /*padding: 2rem*/
+    padding: 5px;
 }
 
 .side-nav .collapsible, .side-nav.fixed .collapsible {
