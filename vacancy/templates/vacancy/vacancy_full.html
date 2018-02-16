@@ -122,6 +122,12 @@
                     {{ vacancy.requirement|safe }}
                 </blockquote>
             {% endif %}
+        {% for item in vacancy.specializations.all %}
+            <div class="chip grey lighten-1">{{ item }}</div>
+        {% endfor %}
+        {% for item in vacancy.keywords.all %}
+            <div class="chip grey lighten-3">{{ item }}</div>
+        {% endfor %}
 
             {% if role == 'candidate' and vacancy.contract_address and cv %}
                 {% with obj|is_can_subscribe:vacancy as can_subscribe %}

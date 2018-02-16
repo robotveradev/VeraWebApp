@@ -32,6 +32,7 @@ def new_cv(request):
             cv_saved_obj = args['form'].save(commit=False)
             cv_saved_obj.candidate = can_o
             cv_saved_obj.save()
+            args['form'].save_m2m()
             return redirect(cv, cv_id=cv_saved_obj.id)
     return render(request, 'cv/cv_new.html', args)
 

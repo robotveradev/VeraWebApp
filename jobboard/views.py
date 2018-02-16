@@ -17,6 +17,7 @@ from .decorators import choose_role_required
 from .handlers.oracle import OracleHandler
 from web3 import Web3
 from django.conf import settings as django_settings
+from django.db.models import Q
 
 
 def index(request):
@@ -33,7 +34,11 @@ def find_job(request):
     sorts = [{'id': 1, 'order': '-salary_from', 'title': 'by salary descending', 'type': 'sort'},
              {'id': 2, 'order': 'salary_from', 'title': 'by salary ascending', 'type': 'sort'},
              {'id': 3, 'order': '-created_at', 'title': 'by date', 'type': 'sort'}]
-    vacancies = Vacancy.objects.filter(enabled=True, employer__enabled=True).exclude(contract_address=None)
+    if 'filter' in request.GET:
+        vacancies = Vacancy.objects.filter(enabled=True, employer__enabled=True).exclude(contract_address=None)
+    else:
+        vacancies = get_relevant(request.user)
+
     if 'period' in request.GET:
         period = get_item(periods, int(request.GET.get('period')))
         if not period:
@@ -351,3 +356,21 @@ def get_item(periods, f_id):
         if item['id'] == f_id:
             return item
     return False
+
+
+def get_relevant(user):
+    role, obj = user_role(user.id)
+    if role == 'employer':
+        return Vacancy.objects.filter(employer=obj)
+    elif role == 'candidate':
+        cvs = CurriculumVitae.objects.filter(candidate=obj, published=True)
+        specs_list = list(set([item['specialisations__id'] for item in cvs.values('specialisations__id') if
+                               item['specialisations__id'] is not None]))
+        keywords_list = list(
+            set([item['keywords__id'] for item in cvs.values('keywords__id') if item['keywords__id'] is not None]))
+        vacs = Vacancy.objects.filter(Q(enabled=True),
+                                      Q(employer__enabled=True),
+                                      Q(specializations__in=specs_list) |
+                                      Q(keywords__in=keywords_list)).exclude(
+            contract_address=None).distinct()
+        return vacs

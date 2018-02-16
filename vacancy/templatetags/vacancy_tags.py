@@ -15,6 +15,8 @@ def get_jobs_with(item, type_s, vacancies_list):
         count = vacancies_list.filter(busyness__in=[item, ]).count()
     elif type_s == 'schedule':
         count = vacancies_list.filter(schedule__in=[item, ]).count()
+    else:
+        count = 0
     return {'count': count}
 
 
@@ -28,6 +30,7 @@ def get_filter_url(get_dict, item):
             pass
         else:
             query_list.append('{}={}'.format(key, value))
+    add_filter_param(query_list)
     query_str += '&'.join(query_list)
     return query_str
 
@@ -41,6 +44,7 @@ def get_salary_url(get_dict, salary):
             pass
         else:
             query_list.append('{}={}'.format(key, value))
+    add_filter_param(query_list)
     query_str += '&'.join(query_list)
     return query_str
 
@@ -65,18 +69,25 @@ def get_clear_url(get_dict, item):
         query_list = []
         if not isinstance(item, str):
             need_key = item.__class__.__name__.lower()
-            for key, value in get_dict.items():
-                if key == need_key:
-                    pass
-                else:
-                    query_list.append('{}={}'.format(key, value))
         else:
-            for key, value in get_dict.items():
-                if key == item:
-                    pass
-                else:
-                    query_list.append('{}={}'.format(key, value))
+            need_key = item
+
+        for key, value in get_dict.items():
+            if key == need_key:
+                pass
+            else:
+                query_list.append('{}={}'.format(key, value))
+        arr = list(set(get_dict.keys()) - {'sort', 'period'})
+        arr.remove(need_key)
+        if len(arr) == 1 and arr[0] == 'filter':
+            query_list.remove('filter=true')
         query_str += '&'.join(query_list)
         return query_str
     else:
         return ''
+
+
+def add_filter_param(query_list):
+    if 'filter=true' not in query_list:
+        return query_list.append('filter=true')
+    return query_list
