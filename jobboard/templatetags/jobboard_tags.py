@@ -126,18 +126,18 @@ def is_enabled_vacancy(vacancy_id):
 
 
 @register.inclusion_tag('jobboard/tags/balances.html')
-def get_balance(address):
+def get_balance(user, address):
     if address is None:
-        return {'balances': None}
+        return {'balance': None, 'user': user}
     try:
         emp_o = Employer.objects.get(contract_address=address)
         coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-        return {'balances': [{coin_h.symbol: coin_h.balanceOf(emp_o.contract_address) / 10 ** coin_h.decimals}, ]}
+        return {'balance': coin_h.balanceOf(emp_o.contract_address) / 10 ** coin_h.decimals, 'user': user}
     except Employer.DoesNotExist:
         try:
             can_o = Candidate.objects.get(contract_address=address)
             coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-            return {'balances': [{coin_h.symbol: coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals}, ]}
+            return {'balance':  coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals, 'user': user}
         except Candidate.DoesNotExist:
             return None
 
@@ -270,3 +270,8 @@ def is_owner(user, curent_user):
         return True
     else:
         return False
+
+
+@register.filter(name='can_withdraw')
+def can_withdraw(user):
+    return not bool(Transaction.objects.values('id').filter(user=user).count())

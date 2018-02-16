@@ -66,10 +66,10 @@ class OracleHandler(object):
 
     def withdraw(self, from_address, to_address, amount):
         self.unlockAccount()
-        self.contract.transact({'from': self.account}).withdraw(settings.VERA_COIN_CONTRACT_ADDRESS,
-                                                                from_address,
-                                                                to_address,
-                                                                amount)
+        return self.contract.transact({'from': self.account}).withdraw(settings.VERA_COIN_CONTRACT_ADDRESS,
+                                                                       from_address,
+                                                                       to_address,
+                                                                       amount)
 
     def pause_contract(self, address):
         validate_address(address)

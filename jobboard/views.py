@@ -6,7 +6,10 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from web3.utils.validation import validate_address
+
 from cv.models import CurriculumVitae, Busyness, Schedule
+from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.tasks import save_txn_to_history, save_txn
@@ -289,7 +292,9 @@ def pay_to_candidate(request, vacancy_id):
                                   'Pay interview fee from vacancy {}'.format(vac_o.contract_address))
         can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE,
                                  can_o.contract_address)
-        fact = {'title': 'Test for vacancy "{}" passed.'.format(vac_o.title),
+        fact = {'from': django_settings.VERA_ORACLE_CONTRACT_ADDRESS,
+                'type': 'vac_pass',
+                'title': 'Test for vacancy "{}" passed.'.format(vac_o.title),
                 'date': time.time(),
                 'employer': vac_o.employer.organization}
         fact_txn_hash = can_h.new_fact(fact)
@@ -374,3 +379,32 @@ def get_relevant(user):
                                       Q(keywords__in=keywords_list)).exclude(
             contract_address=None).distinct()
         return vacs
+
+
+@login_required
+@choose_role_required(redirect_url='/role/')
+def withdraw(request):
+    if request.method == 'POST':
+        address = request.POST.get('address')
+        amount = request.POST.get('amount')
+        _, obj = user_role(request.user)
+        if obj.contract_address is None:
+            return redirect(profile)
+        try:
+            validate_address(address)
+        except ValueError:
+            return HttpResponse('Invalid address')
+        else:
+            oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+            coin_h = CoinHandler(django_settings.VERA_COIN_CONTRACT_ADDRESS)
+            user_balance = coin_h.balanceOf(obj.contract_address)
+            if int(float(amount) * 10 ** 18) > user_balance:
+                return HttpResponse('You do not have so many coins', status=200)
+            else:
+                txn_hash = oracle.withdraw(obj.contract_address, address, int(float(amount) * 10 ** 18))
+                save_txn_to_history.delay(obj.user_id, txn_hash,
+                                          'Withdraw {} Vera token from {} to {}'.format(amount,
+                                                                                        obj.contract_address,
+                                                                                        address))
+                save_txn.delay(txn_hash, 'Withdraw', request.user.id, obj.id)
+    return redirect(profile)

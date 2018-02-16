@@ -31,6 +31,7 @@ basic = [
     path('help/', jobboard_views.user_help, name='user_help'),
     path('contract/status/change/', jobboard_views.change_contract_status, name='change_contract_status'),
     path('transactions/', jobboard_views.transactions, name='transactions'),
+    path('withdraw/', jobboard_views.withdraw, name='withdraw'),
 ]
 
 candidate_urlpatterns = [

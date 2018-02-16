@@ -85,6 +85,9 @@ def check_transactions():
                 elif txn.txn_type == 'EmpAnswer':
                     txn.delete()
                     return True
+                elif txn.txn_type == 'Withdraw':
+                    txn.delete()
+                    return True
                 elif txn.txn_type == 'employerChange':
                     try:
                         emp_o = Employer.objects.get(pk=txn.obj_id)

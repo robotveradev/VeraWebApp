@@ -1,9 +1,43 @@
-{% if balances %}
-    {% for item in balances %}
-        {% for key, value in item.items %}
-            <div class="chip white-text grey">{{ value }} {{ key | title }}</div>
-        {% endfor %}
-    {% endfor %}
+{% load jobboard_tags %}
+{% if balance is not None %}
+    {% with user|can_withdraw as can_withdraw %}
+        <div class="chip white-text grey">{{ balance }} Vera
+            {% if can_withdraw %}
+                {% if balance > 0 %}
+                    <a class="modal-trigger amber-text" href="#withdraw-modal"><i class="fa fa-arrow-right"></i></a>
+                {% endif %}
+            {% else %}
+                <span class="amber-text">[Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>]</span>
+            {% endif %}
+        </div>
+        {% if balance > 0 and can_withdraw %}
+            <div id="withdraw-modal" class="modal">
+                <form action="{% url 'withdraw' %}" method="post">
+                    {% csrf_token %}
+                    <div class="modal-content">
+                        <h4>Token withdraw</h4>
+                        <p class="flow-text">
+                            Please indicate the eth wallet address and the number of coins for withdrawal
+                        </p>
+                        <div class="input-field">
+                            <label for="address">ETH Wallet address</label>
+                            <input type="text" name="address" id="address" required autocomplete="off">
+                        </div>
+                        <div class="input-field">
+                            <label for="amount">Amount (max: {{ balance }} Vera)</label>
+                            <input type="number" step="0.001" max="{{ balance }}" name="amount" id="amount" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="modal-action waves-effect waves-green btn-flat">Agree</button>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+    {% endwith %}
 {% else %}
-    <div class="chip white-text grey">0,0 Vera</div>
+    <div class="chip white-text grey"><i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i></div>
 {% endif %}
+
+
+

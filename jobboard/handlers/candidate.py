@@ -37,9 +37,9 @@ class CandidateHandler(object):
         vac_h = VacancyHandler('', address)
         return vac_h.get_candidate_state(self.contract_address)
 
-    def get_fact(self, id):
-        if id in self.get_facts():
-            return self.contract.call().get_fact(id)
+    def get_fact(self, fact_id):
+        if fact_id in self.get_facts():
+            return self.contract.call().get_fact(fact_id)
         else:
             raise TypeError('Invalid FactId')
 
