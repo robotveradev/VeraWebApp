@@ -4,6 +4,7 @@ import re
 from django import template
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import stringfilter
+from urllib.parse import urlencode
 from cv.models import CurriculumVitae
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.employer import EmployerHandler
@@ -275,3 +276,14 @@ def is_owner(user, curent_user):
 @register.filter(name='can_withdraw')
 def can_withdraw(user):
     return not bool(Transaction.objects.values('id').filter(user=user).count())
+
+
+@register.filter(name='get_url_without')
+def get_url_without(get_list, item=None):
+    url_dict = {}
+    for key, value in get_list.items():
+        if key == item:
+            pass
+        else:
+            url_dict.update({key: value})
+    return urlencode(url_dict)

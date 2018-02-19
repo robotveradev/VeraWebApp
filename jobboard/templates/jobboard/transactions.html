@@ -34,42 +34,7 @@
                 </tbody>
             </table>
             {% if txns.has_other_pages %}
-                <ul class="pagination center">
-                    <li class="waves-effect {% if not txns.has_previous %}disabled{% endif %}">
-                        <a {% if txns.has_previous %}href="?page={{ txns.previous_page_number }}"{% endif %}><i
-                                class="material-icons">chevron_left</i></a>
-                    </li>
-                    <li{% if txns.number == 1 %} class="active"{% endif %}><a href="?page=1">1</a></li>
-
-                    {% with txns.number|paginator_pages:txns.paginator.num_pages as pg %}
-                        {% with pg|first as first %}
-                            {% if first %}
-                                {% if 1|need_dots:first %}
-                                    <li><a>...</a></li>
-                                {% endif %}
-                            {% endif %}
-                        {% endwith %}
-                        {% for i in pg %}
-                            <li{% if txns.number == i %} class="active"{% endif %}><a href="?page={{ i }}">{{ i }}</a>
-                            </li>
-                        {% endfor %}
-                        {% with pg|last as last %}
-                            {% if last %}
-                                {% if last|need_dots:txns.paginator.num_pages %}
-                                    <li><a>...</a></li>
-                                {% endif %}
-                            {% endif %}
-                        {% endwith %}
-                    {% endwith %}
-
-                    <li{% if txns.number == txns.paginator.num_pages %} class="active"{% endif %}><a
-                            href="?page={{ txns.paginator.num_pages }}">{{ txns.paginator.num_pages }}</a></li>
-                    <li class="waves-effect {% if not txns.has_next %}disabled{% endif %}"><a
-                            {% if txns.has_next %}href="?page={{ txns.next_page_number }}"{% endif %}><i
-                            class="material-icons">chevron_right</i>
-                    </a>
-                    </li>
-                </ul>
+                {% include 'jobboard/include/paginator.html' with paginate=txns %}
             {% endif %}
         </div>
     </div>

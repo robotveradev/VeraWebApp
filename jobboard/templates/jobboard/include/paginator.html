@@ -1,0 +1,37 @@
+{% load jobboard_tags %}
+<ul class="pagination center">
+    <li class="waves-effect {% if not paginate.has_previous %}disabled{% endif %}">
+        <a {% if paginate.has_previous %}href="?{% if get_list %}{{ get_list|get_url_without:'page' }}&{% endif %}page={{ paginate.previous_page_number }}"{% endif %}><i
+                class="material-icons">chevron_left</i></a>
+    </li>
+    <li{% if paginate.number == 1 %} class="active"{% endif %}><a href="?{% if get_list %}{{ get_list|get_url_without:'page' }}&{% endif %}page=1">1</a></li>
+
+    {% with paginate.number|paginator_pages:paginate.paginator.num_pages as pg %}
+        {% with pg|first as first %}
+            {% if first %}
+                {% if 1|need_dots:first %}
+                    <li><a>...</a></li>
+                {% endif %}
+            {% endif %}
+        {% endwith %}
+        {% for i in pg %}
+            <li{% if paginate.number == i %} class="active"{% endif %}><a href="?{% if get_list %}{{ get_list|get_url_without:'page' }}&{% endif %}page={{ i }}">{{ i }}</a>
+            </li>
+        {% endfor %}
+        {% with pg|last as last %}
+            {% if last %}
+                {% if last|need_dots:paginate.paginator.num_pages %}
+                    <li><a>...</a></li>
+                {% endif %}
+            {% endif %}
+        {% endwith %}
+    {% endwith %}
+
+    <li{% if paginate.number == paginate.paginator.num_pages %} class="active"{% endif %}><a
+            href="?{% if get_list %}{{ get_list|get_url_without:'page' }}&{% endif %}page={{ paginate.paginator.num_pages }}">{{ paginate.paginator.num_pages }}</a></li>
+    <li class="waves-effect {% if not paginate.has_next %}disabled{% endif %}"><a
+            {% if paginate.has_next %}href="?{% if get_list %}{{ get_list|get_url_without:'page' }}&{% endif %}page={{ paginate.next_page_number }}"{% endif %}><i
+            class="material-icons">chevron_right</i>
+    </a>
+    </li>
+</ul>

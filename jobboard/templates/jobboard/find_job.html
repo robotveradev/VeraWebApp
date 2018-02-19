@@ -22,8 +22,8 @@
                                         <ul>
                                             {% for item in specializations %}
                                                 <li class="spec-item active"><a class="grey-text text-darken-1"
-                                                                                href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
-                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'spec' vacancies %}</span>
+                                                                                href="?{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'spec' vacancies_all %}</span>
                                                 </li>
                                             {% endfor %}
                                         </ul>
@@ -40,7 +40,7 @@
                                             {% for item in specializations %}
                                                 <li class="spec-item active"><a class="grey-text text-darken-1"
                                                                                 href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
-                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'spec' vacancies %}</span>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'spec' vacancies_all %}</span>
                                                 </li>
                                             {% endfor %}
                                         </ul>
@@ -64,7 +64,7 @@
                                         {% for item in keywords %}
                                             <li class="spec-item active"><a class="grey-text text-darken-1"
                                                                             href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
-                                                <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'keyword' vacancies %}</span>
+                                                <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'keyword' vacancies_all %}</span>
                                             </li>
                                         {% endfor %}
                                     </ul>
@@ -85,15 +85,15 @@
                                         <ul>
                                             {% for item in salary_range %}
                                                 <li class="spec-item active"><a class="grey-text text-darken-1"
-                                                                                href="{{ request.GET|get_salary_url:item }}">{{ item }}
+                                                                                href="{{ request.GET|get_salary_url:item }}">from {{ item }}
                                                     $</a>
-                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item 'salary' vacancies %}</span>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item 'salary' vacancies_all %}</span>
                                                 </li>
                                             {% endfor %}
                                             <li class="spec-item active"><a class="grey-text text-darken-1"
                                                                             href="{{ request.GET|get_salary_url:8000 }}">from
                                                 8000 $</a>
-                                                <span class="right grey-text text-darken-1">{% get_jobs_with 8000 'salary' vacancies %}</span>
+                                                <span class="right grey-text text-darken-1">{% get_jobs_with 8000 'salary' vacancies_all %}</span>
                                             </li>
                                         </ul>
                                     {% endif %}
@@ -116,7 +116,7 @@
                                             {% for item in busyness %}
                                                 <li class="spec-item active"><a class="grey-text text-darken-1"
                                                                                 href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
-                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'busyness' vacancies %}</span>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'busyness' vacancies_all %}</span>
                                                 </li>
                                             {% endfor %}
                                         </ul>
@@ -140,7 +140,7 @@
                                             {% for item in schedule %}
                                                 <li class="spec-item active"><a class="grey-text text-darken-1"
                                                                                 href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
-                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item 'schedule' vacancies %}</span>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item 'schedule' vacancies_all %}</span>
                                                 </li>
                                             {% endfor %}
                                         </ul>
@@ -210,10 +210,13 @@
 
                         <div class="clearfix"></div>
                         <hr/>
+
                     {% empty %}
                         <h6 class="center">Vacancies by conditions not found</h6>
                     {% endfor %}
-
+                    {% if vacancies.has_other_pages %}
+                        {% include 'jobboard/include/paginator.html' with paginate=vacancies get_list=request.GET %}
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -83,9 +83,12 @@ def find_job(request):
         args['selected_schedule'] = Schedule.objects.filter(pk=request.GET.get('schedule')).first()
         vacancies = vacancies.filter(schedule__in=[request.GET.get('schedule'), ])
         schedule = schedule.exclude(id=request.GET.get('schedule'))
+    paginator = Paginator(vacancies, request.GET.get('list') or 2)
+    page = request.GET.get('page')
     args['specializations'] = specializations
     args['keywords'] = keywords
-    args['vacancies'] = vacancies
+    args['vacancies'] = paginator.get_page(page)
+    args['vacancies_all'] = vacancies
     args['busyness'] = busyness
     args['schedule'] = schedule
     args['periods'] = periods

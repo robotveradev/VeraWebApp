@@ -77,7 +77,7 @@ def get_clear_url(get_dict, item):
                 pass
             else:
                 query_list.append('{}={}'.format(key, value))
-        arr = list(set(get_dict.keys()) - {'sort', 'period'})
+        arr = list(set(get_dict.keys()) - {'sort', 'period', 'page'})
         arr.remove(need_key)
         if len(arr) == 1 and arr[0] == 'filter':
             query_list.remove('filter=true')
