@@ -83,6 +83,18 @@ class OracleHandler(object):
         handler = EmployerHandler(self.account, address)
         return handler.unpause()
 
+    def grant_agent(self, address, granted_address):
+        validate_address(address)
+        self.unlockAccount()
+        handler = EmployerHandler(self.account, address)
+        return handler.grant_access_to_contract(granted_address)
+
+    def revoke_agent(self, address, revoked_address):
+        validate_address(address)
+        self.unlockAccount()
+        handler = EmployerHandler(self.account, address)
+        return handler.revoke_access_to_contract(revoked_address)
+
     def check_token_is_ERC20(self, address):
         coin_handler = CoinHandler(address)
         try:

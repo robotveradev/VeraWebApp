@@ -411,3 +411,45 @@ def withdraw(request):
                                                                                         address))
                 save_txn.delay(txn_hash, 'Withdraw', request.user.id, obj.id)
     return redirect(profile)
+
+
+@login_required
+@choose_role_required(redirect_url='/role/')
+def check_agent(request):
+    if request.is_ajax():
+        if request.method == 'POST':
+            agent_address = request.POST.get('agent_address')
+            try:
+                validate_address(agent_address)
+            except ValueError:
+                return HttpResponse('Invalid address', status=400)
+            else:
+                role, obj = user_role(request.user.id)
+                emp_h = EmployerHandler(django_settings.WEB_ETH_COINBASE, obj.contract_address)
+                return HttpResponse(emp_h.is_agent(agent_address), status=200)
+        else:
+            return HttpResponse('You must use Post request', status=400)
+
+
+@login_required
+@choose_role_required(redirect_url='/role/')
+def grant_agent(request):
+    _, obj = user_role(request.user.id)
+    agent_address = request.GET.get('address')
+    if agent_address is not None:
+        oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+        txn_hash = oracle.grant_agent(obj.contract_address, agent_address)
+        save_txn_to_history.delay(request.user.id, txn_hash, 'Grant access for agent {}'.format(agent_address))
+    return redirect(profile)
+
+
+@login_required
+@choose_role_required(redirect_url='/role/')
+def revoke_agent(request):
+    _, obj = user_role(request.user.id)
+    revoke_address = request.GET.get('address')
+    if revoke_address is not None:
+        oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+        txn_hash = oracle.revoke_agent(obj.contract_address, revoke_address)
+        save_txn_to_history.delay(request.user.id, txn_hash, 'Revoke access for agent {}'.format(revoke_address))
+    return redirect(profile)

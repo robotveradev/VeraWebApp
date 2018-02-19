@@ -7,21 +7,43 @@
         <div class="col s12 m10 l10 push-l1 push-m1">
             <h4 class="center">{{ role|title }} info</h4>
             {% if obj.contract_address %}
-                {% with obj.enabled as en %}
-                    <div class="chip white-text right {% if en == True %}red{% elif en == False %}green{% else %}amber{% endif %}">
-                        {% if en != None %}
-                            <a disabled class="white-text underline" href="{% url 'change_contract_status' %}">
-                                {% if en == True %}
-                                    Disable contract
-                                {% else %}
-                                    Enable contract
-                                {% endif %}
-                            </a>
-                        {% else %}
-                            Renewal of contract status...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                        {% endif %}
+                <div class="right">
+                    <div class="chip white-text blue">
+                        <a class="modal-trigger white-text underline" href="#agent-modal">Agents</a>
                     </div>
-                {% endwith %}
+                    <div id="agent-modal" class="modal">
+                        <div class="modal-content">
+                            <h4>Check agents and add new</h4>
+                            <p class="flow-text">
+                                Please enter the address of the agent contract
+                            </p>
+                            <div class="input-field">
+                                <input class="validate" type="text" name="agent_address" id="agent_address" autofocus/>
+                                <label data-error="Invalid address" for="agent_address">Agent address</label>
+                            </div>
+                            <span id="agent_status"></span>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="check_agent" class="modal-action waves-effect waves-green btn-flat">Check
+                            </button>
+                        </div>
+                    </div>
+                    {% with obj.enabled as en %}
+                        <div class="chip white-text {% if en == True %}red{% elif en == False %}green{% else %}amber{% endif %}">
+                            {% if en != None %}
+                                <a disabled class="white-text underline" href="{% url 'change_contract_status' %}">
+                                    {% if en == True %}
+                                        Disable contract
+                                    {% else %}
+                                        Enable contract
+                                    {% endif %}
+                                </a>
+                            {% else %}
+                                Renewal of contract status...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+                </div>
             {% endif %}
             {% if role == 'candidate' %}
                 <table class="bordered highlight" width="100%">

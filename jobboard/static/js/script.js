@@ -69,5 +69,33 @@ $(document).ready(function () {
         hide_more($(this).parents('div')[0].id);
     });
 
-
+    $('#check_agent').on('click', function () {
+        var address_input = $('#agent_address');
+        var agent_address = address_input.val();
+        if (agent_address === '') {
+            address_input.focus();
+            address_input.addClass('invalid');
+        } else {
+            $.ajax({
+                url: '/check_agent/',
+                type: 'post',
+                data: {
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                    agent_address: agent_address
+                },
+                complete: function (x, q) {
+                    if (x.status === 400) {
+                        address_input.focus();
+                        address_input.removeClass('valid').addClass('invalid');
+                    }
+                },
+                success: function (data) {
+                    var elem = data === 'False' ?
+                        'Address ' + agent_address + ' not is agent. You can <a href="/grant_agent/?address=' + agent_address + '">grant</a> it.' :
+                        'Address ' + agent_address + ' is agent. You can <a href="/revoke_agent/?address=' + agent_address + '">revoke</a> it.';
+                    $('#agent_status').html(elem);
+                }
+            })
+        }
+    });
 });

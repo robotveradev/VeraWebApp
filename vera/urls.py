@@ -32,12 +32,13 @@ basic = [
     path('contract/status/change/', jobboard_views.change_contract_status, name='change_contract_status'),
     path('transactions/', jobboard_views.transactions, name='transactions'),
     path('withdraw/', jobboard_views.withdraw, name='withdraw'),
+    path('check_agent/', jobboard_views.check_agent, name='check_agent'),
+    path('grant_agent/', jobboard_views.grant_agent, name='grant_agent'),
+    path('revoke_agent/', jobboard_views.revoke_agent, name='revoke_agent'),
 ]
 
 candidate_urlpatterns = [
     path('candidate/<int:candidate_id>/', jobboard_views.candidate, name='candidate'),
-    path('candidate/approve/', jobboard_views.approve_candidate, name='approve_candidate'),
-    path('candidate/revoke/', jobboard_views.revoke_candidate, name='revoke_candidate'),
     path('candidate/pay/<int:vacancy_id>/', jobboard_views.pay_to_candidate, name='pay_to_candidate'),
 ]
 
@@ -72,6 +73,8 @@ vacancy_urlpatterns = [
 
 employer_urlpatterns = [
     path('employer/<int:employer_id>/about/', jobboard_views.employer_about, name='employer_about'),
+    path('candidate/approve/', jobboard_views.approve_candidate, name='approve_candidate'),
+    path('candidate/revoke/', jobboard_views.revoke_candidate, name='revoke_candidate'),
 ]
 
 urlpatterns = basic + \

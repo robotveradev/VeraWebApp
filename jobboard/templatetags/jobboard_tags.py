@@ -275,7 +275,7 @@ def is_owner(user, curent_user):
 
 @register.filter(name='can_withdraw')
 def can_withdraw(user):
-    return not bool(Transaction.objects.values('id').filter(user=user).count())
+    return not bool(Transaction.objects.values('id').filter(user=user, txn_type='Withdraw').count())
 
 
 @register.filter(name='get_url_without')
