@@ -1,3 +1,4 @@
+import json
 import re
 import time
 from django.utils import timezone
@@ -7,8 +8,8 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from web3.utils.validation import validate_address
-
 from cv.models import CurriculumVitae, Busyness, Schedule
+from jobboard.forms import LearningForm, WorkedForm, CertificateForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
@@ -21,6 +22,7 @@ from .handlers.oracle import OracleHandler
 from web3 import Web3
 from django.conf import settings as django_settings
 from django.db.models import Q
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 def index(request):
@@ -158,6 +160,9 @@ def profile(request):
             args['vacancies'] = vacancies.order_by('-created_at')[:3]
             args['vacancies_count'] = vacancies.count()
         if args['role'] == 'candidate':
+            args['learning_form'] = LearningForm()
+            args['worked_form'] = WorkedForm()
+            args['certificate_form'] = CertificateForm()
             args['cv'] = CurriculumVitae.objects.filter(candidate=args['obj'])
     return render(request, 'jobboard/profile.html', args)
 
@@ -435,11 +440,13 @@ def check_agent(request):
 @choose_role_required(redirect_url='/role/')
 def grant_agent(request):
     _, obj = user_role(request.user.id)
-    agent_address = request.GET.get('address')
-    if agent_address is not None:
+    grant_address = request.GET.get('address')
+    if grant_address == django_settings.WEB_ETH_COINBASE:
+        return redirect(profile)
+    if grant_address is not None:
         oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
-        txn_hash = oracle.grant_agent(obj.contract_address, agent_address)
-        save_txn_to_history.delay(request.user.id, txn_hash, 'Grant access for agent {}'.format(agent_address))
+        txn_hash = oracle.grant_agent(obj.contract_address, grant_address)
+        save_txn_to_history.delay(request.user.id, txn_hash, 'Grant access for agent {}'.format(grant_address))
     return redirect(profile)
 
 
@@ -448,8 +455,33 @@ def grant_agent(request):
 def revoke_agent(request):
     _, obj = user_role(request.user.id)
     revoke_address = request.GET.get('address')
+    if revoke_address == django_settings.WEB_ETH_COINBASE:
+        return redirect(profile)
     if revoke_address is not None:
         oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
         txn_hash = oracle.revoke_agent(obj.contract_address, revoke_address)
         save_txn_to_history.delay(request.user.id, txn_hash, 'Revoke access for agent {}'.format(revoke_address))
+    return redirect(profile)
+
+
+@login_required
+@choose_role_required(redirect_url='/role/')
+def new_fact(request):
+    if request.method == 'POST':
+        f_type = request.POST.get('f_type')
+        _, obj = user_role(request.user.id)
+        if f_type == 'learning':
+            form = LearningForm(request.POST)
+        elif f_type == 'worked':
+            form = WorkedForm(request.POST)
+        elif f_type == 'certification':
+            form = CertificateForm(request.POST)
+        if form and form.is_valid():
+            fact = form.cleaned_data
+            fact.update({'type': f_type, 'from': obj.contract_address})
+            can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE, obj.contract_address)
+            oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+            oracle.unlockAccount()
+            txn_hash = can_h.new_fact(fact)
+            save_txn_to_history.delay(obj.user_id, txn_hash, 'New "{}" fact added'.format(f_type))
     return redirect(profile)

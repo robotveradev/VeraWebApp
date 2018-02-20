@@ -162,6 +162,9 @@
                         {% for item in cv.specialisations.all %}
                             <div class="chip">{{ item }}</div>
                         {% endfor %}
+                    <div class="col s12 m12 l12">
+                        {% get_facts cv.candidate %}
+                    </div>
                     </div>
                 {% endwith %}
             {% endif %}

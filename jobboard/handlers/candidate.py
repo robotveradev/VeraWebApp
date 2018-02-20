@@ -1,7 +1,9 @@
+from django.core.serializers.json import DjangoJSONEncoder
 from web3 import Web3, RPCProvider
 import json
 from web3.utils.validation import validate_address
 from jobboard.handlers.vacancy import VacancyHandler
+from eth_utils import force_bytes, force_text
 
 
 class CandidateHandler(object):
@@ -27,7 +29,10 @@ class CandidateHandler(object):
         return self.contract.call().paused()
 
     def get_facts(self):
-        return self.contract.call().keys_of_facts()
+        fact_keys = []
+        for item in self.contract.call().keys_of_facts():
+            fact_keys.append(Web3.toHex(force_bytes(item)))
+        return fact_keys
 
     def get_vacancies(self):
         return self.contract.call().get_vacancies()
@@ -39,14 +44,14 @@ class CandidateHandler(object):
 
     def get_fact(self, fact_id):
         if fact_id in self.get_facts():
-            return self.contract.call().get_fact(fact_id)
+            return self.contract.call().get_fact(force_text(Web3.toBytes(hexstr=fact_id)))
         else:
             raise TypeError('Invalid FactId')
 
     def new_fact(self, fact):
         if not isinstance(fact, dict):
             raise TypeError('Fact must be dict')
-        return self.contract.transact({'from': self.account}).new_fact(json.dumps(fact))
+        return self.contract.transact({'from': self.account}).new_fact(json.dumps(fact, cls=DjangoJSONEncoder))
 
     def grant_access_to_contract(self, address):
         validate_address(address)

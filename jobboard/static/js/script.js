@@ -5,6 +5,7 @@ $(document).ready(function () {
     $('.collapsible').collapsible();
     $('select').material_select();
     $('.modal').modal();
+    $('ul.tabs').tabs();
 
     $('.dropdown-button').dropdown({
             inDuration: 300,

@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import stringfilter
 from urllib.parse import urlencode
 from cv.models import CurriculumVitae
+from jobboard.forms import LearningForm, WorkedForm, CertificateForm
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
@@ -138,7 +139,7 @@ def get_balance(user, address):
         try:
             can_o = Candidate.objects.get(contract_address=address)
             coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-            return {'balance':  coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals, 'user': user}
+            return {'balance': coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals, 'user': user}
         except Candidate.DoesNotExist:
             return None
 
@@ -188,21 +189,31 @@ def get_candidate_vacancies(candidate, request):
 def get_facts(candidate):
     can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
     fact_keys = can_h.get_facts()
+    args = {}
     facts = []
     for item in fact_keys:
         fact = can_h.get_fact(item)
-        facts.append({'from': fact[0],
+        facts.append({'id': item,
+                      'from': fact[0],
                       'date': datetime.datetime.fromtimestamp(int(fact[1])),
-                      'fact': json.loads(fact[2]),
-                      'verify': is_fact_verify(candidate.contract_address, item)})
-    return {'facts': facts}
+                      'fact': json.loads(fact[2])})
+    args['facts'] = facts
+    args['candidate'] = candidate
+    return args
 
 
-def is_fact_verify(address, id):
+def check_fact(f_id):
+    return False
+
+
+@register.filter(name='is_fact_verify')
+def is_fact_verify(address, f_id):
     can_h = CandidateHandler(settings.WEB_ETH_COINBASE, address)
-    fact = can_h.get_fact(id)
-    return fact[0].lower() == settings.WEB_ETH_COINBASE.lower() or fact[
-        0].lower() == settings.VERA_ORACLE_CONTRACT_ADDRESS.lower()
+    fact = can_h.get_fact(f_id)
+    fact_from = fact[0]
+    fact_object = json.loads(fact[2])
+    return fact_from.casefold() == settings.WEB_ETH_COINBASE.casefold() and fact_object[
+        'from'].casefold() == settings.VERA_ORACLE_CONTRACT_ADDRESS.casefold() or check_fact(f_id)
 
 
 @register.filter(name='can_spend')
@@ -287,3 +298,11 @@ def get_url_without(get_list, item=None):
         else:
             url_dict.update({key: value})
     return urlencode(url_dict)
+
+
+@register.filter(name='is_oracle_agent')
+def is_oracle_agent(candidate):
+    if not candidate.contract_address:
+        return False
+    can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
+    return can_h.is_agent(settings.WEB_ETH_COINBASE)

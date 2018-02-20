@@ -1,0 +1,42 @@
+{% load jobboard_tags material_form %}
+
+<a class="waves-effect waves-light btn modal-trigger right" href="#modal1">Add fact</a>
+
+<div id="modal1" class="modal modal-fixed-footer">
+    <div class="modal-content" style="height: 100%;">
+        <h4>Add fact</h4>
+        <div class="row">
+            <div class="col s12">
+                <ul class="tabs">
+                    <li class="tab col s4 m4 l4"><a href="#learning">Learning</a></li>
+                    <li class="tab col s4 m4 l4"><a href="#worked">Have worked</a></li>
+                    <li class="tab col s4 m4 l4"><a href="#certificate">Certificate</a></li>
+                </ul>
+            </div>
+            <div id="certificate" class="col s12">
+                <form action="{% url 'new_fact' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="f_type" value="certification">
+                    {% form form=certificate_form %}{% endform %}
+                    <button type="submit" class="btn waves-effect waves-light blue right">Agree</button>
+                </form>
+            </div>
+            <div id="learning" class="col s12">
+                <form action="{% url 'new_fact' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="f_type" value="learning">
+                    {% form form=learning_form %}{% endform %}
+                    <button type="submit" class="btn waves-effect waves-light blue right">Agree</button>
+                </form>
+            </div>
+            <div id="worked" class="col s12">
+                <form action="{% url 'new_fact' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="f_type" value="worked">
+                    {% form form=worked_form %}{% endform %}
+                    <button type="submit" class="btn waves-effect waves-light blue right">Agree</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

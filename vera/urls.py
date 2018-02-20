@@ -35,6 +35,7 @@ basic = [
     path('check_agent/', jobboard_views.check_agent, name='check_agent'),
     path('grant_agent/', jobboard_views.grant_agent, name='grant_agent'),
     path('revoke_agent/', jobboard_views.revoke_agent, name='revoke_agent'),
+    path('new_fact/', jobboard_views.new_fact, name='new_fact'),
 ]
 
 candidate_urlpatterns = [

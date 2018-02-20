@@ -1,23 +1,34 @@
+{% load jobboard_tags %}
 {% if facts %}
-    <h5 class="center">Achievements</h5>
-    <ul class="collapsible" data-collapsible="accordion">
-        {% for fact in facts %}
-            <li>
-                <div class="collapsible-header">
-                    {% if fact.verify %}
-                        <i class="material-icons green-text">done</i>
-                    {% else %}
-                        <i class="material-icons">help_outline</i>
-                    {% endif %}
-                    {{ fact.fact.title }}
-                </div>
-                <div class="collapsible-body">
-                    <ul>
-                        <li>Company: {{ fact.fact.employer }}</li>
-                        <li>Date: {{ fact.date|date }}</li>
-                    </ul>
-                </div>
-            </li>
+    <h5>Candidate facts</h5>
+    <ul class="collection">
+        {% for fact_object in facts %}
+            {% with fact_object.fact as fact %}
+                {% with candidate.contract_address|is_fact_verify:fact_object.id as fact_verify %}
+                    <li class="collection-item avatar">
+                        <i class="material-icons circle{% if fact_verify %} green{% endif %}">{% if fact_verify %}
+                            check{% else %}help_outline{% endif %}</i>
+
+                        {% if fact.type == 'learning' %}
+                            Studied at {{ fact.place }}, from {{ fact.date_from }} to {{ fact.date_up_to }},
+                            specialty {{ fact.specialisation }}.<br/>
+                            Diploma number {{ fact.diploma_number }}. <br/>
+                        {% elif fact.type == 'worked' %}
+                            Have worked at {{ fact.place }}, from {{ fact.date_from }} to {{ fact.date_up_to }},
+                            at position {{ fact.position }}. <br/>
+                        {% elif fact.type == 'certification' %}
+                            Received certificate from {{ fact.institution }}, at course {{ fact.course }}.
+                            Date of receiving {{ fact.date_of_receiving }}. <br/>
+                        {% elif fact.type == 'vac_pass' %}
+                            {{ fact.title|capfirst }} {{ fact.employer }}.
+                            <br/>
+                        {% endif %}
+                        <span class="grey-text">Fact created at: {{ fact_object.date|date }}</span>
+                        {% if fact_verify %}
+                            <span class="secondary-content"><i class="material-icons">grade</i></span>{% endif %}
+                    </li>
+                {% endwith %}
+            {% endwith %}
         {% endfor %}
     </ul>
 {% endif %}
