@@ -14,6 +14,7 @@ from jobboard.handlers.coin import CoinHandler
 from jobboard.models import Candidate, Employer, Transaction
 from vacancy.models import VacancyTest, Vacancy, CandidateVacancyPassing, CVOnVacancy
 from django.conf import settings
+from jobboard.views import  get_relevant
 
 register = template.Library()
 
@@ -52,6 +53,8 @@ def allowance_rest(vacancy_id):
 @register.filter(name='get_interview_fee')
 def get_interview_fee(vacancy_id):
     vac = Vacancy.objects.values('employer__contract_address', 'contract_address').get(id=vacancy_id)
+    if not vac['contract_address']:
+        return 0
     coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
     vac_h = VacancyHandler(vac['employer__contract_address'], vac['contract_address'])
     return vac_h.interview_fee() / 10 ** coin_h.decimals
@@ -306,3 +309,9 @@ def is_oracle_agent(candidate):
         return False
     can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
     return can_h.is_agent(settings.WEB_ETH_COINBASE)
+
+
+@register.inclusion_tag('jobboard/include/candidate_relevant.html')
+def get_candidate_relevant(candidate):
+    vacancies = get_relevant(candidate.user, 3)
+    return {'vacancies': vacancies}

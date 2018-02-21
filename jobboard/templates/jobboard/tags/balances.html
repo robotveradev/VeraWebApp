@@ -1,15 +1,14 @@
 {% load jobboard_tags %}
 {% if balance is not None %}
     {% with user|can_withdraw as can_withdraw %}
-        <div class="chip white-text grey">{{ balance }} Vera
+        <div class="chip white-text grey">{{ balance }} Vera</div>
             {% if can_withdraw %}
                 {% if balance > 0 %}
-                    <a class="modal-trigger amber-text" href="#withdraw-modal"><i class="fa fa-arrow-right"></i></a>
+                    <div class="chip blue"><a class="modal-trigger white-text underline" href="#withdraw-modal">Withdraw</a></div>
                 {% endif %}
             {% else %}
                 <span class="amber-text">[Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>]</span>
             {% endif %}
-        </div>
         {% if balance > 0 and can_withdraw %}
             <div id="withdraw-modal" class="modal">
                 <form action="{% url 'withdraw' %}" method="post">

@@ -22,7 +22,7 @@
                                         <ul>
                                             {% for item in specializations %}
                                                 <li class="spec-item active"><a class="grey-text text-darken-1"
-                                                                                href="?{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                                                                href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
                                                     <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'spec' vacancies_all %}</span>
                                                 </li>
                                             {% endfor %}
@@ -59,15 +59,16 @@
                                     <a href="{{ request.GET|get_clear_url:selected_keyword }}"><i class="fa fa-close"
                                                                                                   area-hidden="true"></i></a></span>
                                         </div>
+                                    {% else %}
+                                        <ul>
+                                            {% for item in keywords %}
+                                                <li class="spec-item active"><a class="grey-text text-darken-1"
+                                                                                href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                                    <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'keyword' vacancies_all %}</span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
                                     {% endif %}
-                                    <ul>
-                                        {% for item in keywords %}
-                                            <li class="spec-item active"><a class="grey-text text-darken-1"
-                                                                            href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
-                                                <span class="right grey-text text-darken-1">{% get_jobs_with item.id 'keyword' vacancies_all %}</span>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
                                 </div>
                             </div>
                         </li>

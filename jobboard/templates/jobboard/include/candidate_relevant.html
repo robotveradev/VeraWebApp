@@ -1,0 +1,23 @@
+{% load jobboard_tags %}
+{% if vacancies %}
+    <div class="row">
+        <h5>Vacancies that are suitable for you</h5>
+        {% for vacancy in vacancies %}
+            <div class="col s12 m4 l4">
+                <div class="card blue-grey darken-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">{{ vacancy.title|truncatechars:27 }}</span>
+                        <p>{{ vacancy.description|truncatewords:30 }}</p>
+                        <br/>
+                        <p class="grey-text">{{ vacancy.employer.organization }}, {{ vacancy.id|get_interview_fee }}
+                            Vera</p>
+                    </div>
+                    <div class="card-action">
+                        <a href="{% url 'find_job' %}">All vacancies</a>
+                        <a href="{% url 'vacancy' vacancy_id=vacancy.id %}">Learn more</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

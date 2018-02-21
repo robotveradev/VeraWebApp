@@ -84,7 +84,7 @@ def find_job(request):
         args['selected_schedule'] = Schedule.objects.filter(pk=request.GET.get('schedule')).first()
         vacancies = vacancies.filter(schedule__in=[request.GET.get('schedule'), ])
         schedule = schedule.exclude(id=request.GET.get('schedule'))
-    paginator = Paginator(vacancies, request.GET.get('list') or 2)
+    paginator = Paginator(vacancies, request.GET.get('list') or 25)
     page = request.GET.get('page')
     args['specializations'] = specializations
     args['keywords'] = keywords
@@ -370,7 +370,7 @@ def get_item(periods, f_id):
     return False
 
 
-def get_relevant(user):
+def get_relevant(user, limit=None):
     role, obj = user_role(user.id)
     if role == 'employer':
         return Vacancy.objects.filter(employer=obj)
@@ -385,7 +385,7 @@ def get_relevant(user):
                                       Q(specializations__in=specs_list) |
                                       Q(keywords__in=keywords_list)).exclude(
             contract_address=None).distinct()
-        return vacs
+        return vacs[:limit] if limit else vacs
 
 
 @login_required
@@ -430,7 +430,7 @@ def check_agent(request):
             else:
                 role, obj = user_role(request.user.id)
                 emp_h = EmployerHandler(django_settings.WEB_ETH_COINBASE, obj.contract_address)
-                if agent_address == django_settings.WEB_ETH_COINBASE:
+                if agent_address.casefold() == django_settings.WEB_ETH_COINBASE.casefold():
                     return HttpResponse('oracle', status=200)
                 return HttpResponse(emp_h.is_agent(agent_address), status=200)
         else:

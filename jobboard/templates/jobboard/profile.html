@@ -90,22 +90,30 @@
                         </td>
                     </tr>
                 </table>
-                <br>
+                {% if obj.contract_address %}
+                    <section>
+                        {% get_candidate_vacancies obj request %}
+                    </section>
+                {% endif %}
                 {% if cv %}
-                    <h5>My Curriculum vitae</h5>
-                    {% include 'cv/include/cv.html' %}
-                    <a class="btn waves-effect waves-light right blue white-text" href="{% url 'new_cv' %}">Add new
-                        curriculum vitae</a>
-                    <div class="clearfix"></div>
+                    <section>
+                        <h5>Curriculum vitae</h5>
+                        {% include 'cv/include/cv.html' %}
+                        <a class="btn waves-effect waves-light right blue white-text" href="{% url 'new_cv' %}">Add new
+                            curriculum vitae</a>
+                    </section>
                 {% endif %}
                 <br/>
                 {% if obj.contract_address %}
-                    {% get_facts obj %}
-                    {% if obj|is_oracle_agent %}
-                        {% include 'jobboard/include/add_fact.html' %}
-                    {% endif %}
-                    <br/>
-                    {% get_candidate_vacancies obj request %}
+                    <section>
+                        {% get_facts obj %}
+                        {% if obj|is_oracle_agent %}
+                            {% include 'jobboard/include/add_fact.html' %}
+                        {% endif %}
+                    </section>
+                    <section>
+                        {% get_candidate_relevant obj %}
+                    </section>
                 {% endif %}
             {% elif role == 'employer' %}
                 <table class="bordered highlight" width="100%">
