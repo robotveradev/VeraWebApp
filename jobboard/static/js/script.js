@@ -91,9 +91,14 @@ $(document).ready(function () {
                     }
                 },
                 success: function (data) {
-                    var elem = data === 'False' ?
-                        'Address ' + agent_address + ' not is agent. You can <a href="/grant_agent/?address=' + agent_address + '">grant</a> it.' :
-                        'Address ' + agent_address + ' is agent. You can <a href="/revoke_agent/?address=' + agent_address + '">revoke</a> it.';
+                    var elem = '';
+                    if (data === 'False') {
+                        elem = 'Address ' + agent_address + ' not is agent. You can <a href="/grant_agent/?address=' + agent_address + '">grant</a> it.';
+                    } else if (data === 'True') {
+                        elem = 'Address ' + agent_address + ' is agent. You can <a href="/revoke_agent/?address=' + agent_address + '">revoke</a> it.';
+                    } else {
+                        elem = 'The address ' + agent_address + ' is agent and cannot be revoked from oracle system.';
+                    }
                     $('#agent_status').html(elem);
                 }
             })

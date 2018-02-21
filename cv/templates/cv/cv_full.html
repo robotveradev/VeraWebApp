@@ -29,7 +29,8 @@
                             <div>
                                 <h5>{{ cv.last_name }} {{ cv.first_name }}
                                     {% if owner %}
-                                        <a href="{% url 'cv_edit' cv_id=cv.id %}"><i class="fa fa-pencil-square-o grey-text" aria-hidden="true"></i></a>
+                                        <a href="{% url 'cv_edit' cv_id=cv.id %}"><i
+                                                class="fa fa-pencil-square-o grey-text" aria-hidden="true"></i></a>
                                     {% endif %}
                                 </h5>
                             </div>
@@ -159,12 +160,12 @@
                                 </div>
                             {% endif %}
                         {% endwith %}
+                        <div class="col s12 m12 l12">
+                            {% get_facts cv.candidate %}
+                        </div>
                         {% for item in cv.specialisations.all %}
                             <div class="chip">{{ item }}</div>
                         {% endfor %}
-                    <div class="col s12 m12 l12">
-                        {% get_facts cv.candidate %}
-                    </div>
                     </div>
                 {% endwith %}
             {% endif %}

@@ -9,27 +9,30 @@
             {% csrf_token %}
             {% if obj.contract_address %}
                 <div class="right">
-                    <div class="chip white-text blue">
-                        <a class="modal-trigger white-text underline" href="#agent-modal">Agents</a>
-                    </div>
-                    <div id="agent-modal" class="modal">
-                        <div class="modal-content">
-                            <h4>Check agents and add new</h4>
-                            <p class="flow-text">
-                                Please enter the address of the agent contract
-                            </p>
-                            <div class="input-field">
-                                <input pattern="^0x[A-Za-z0-9]{40}" class="validate" type="text" name="agent_address"
-                                       id="agent_address" autofocus/>
-                                <label data-error="Invalid address" for="agent_address">Agent address</label>
+                    {% if  obj|is_oracle_agent %}
+                        <div class="chip white-text blue">
+                            <a class="modal-trigger white-text underline" href="#agent-modal">Agents</a>
+                        </div>
+                        <div id="agent-modal" class="modal">
+                            <div class="modal-content">
+                                <h4>Check agents and add new</h4>
+                                <p class="flow-text">
+                                    Please enter the address of the agent contract
+                                </p>
+                                <div class="input-field">
+                                    <input pattern="^0x[A-Za-z0-9]{40}" class="validate" type="text"
+                                           name="agent_address"
+                                           id="agent_address" autofocus/>
+                                    <label data-error="Invalid address" for="agent_address">Agent address</label>
+                                </div>
+                                <span id="agent_status"></span>
                             </div>
-                            <span id="agent_status"></span>
+                            <div class="modal-footer">
+                                <button id="check_agent" class="modal-action waves-effect waves-green btn-flat">Check
+                                </button>
+                            </div>
                         </div>
-                        <div class="modal-footer">
-                            <button id="check_agent" class="modal-action waves-effect waves-green btn-flat">Check
-                            </button>
-                        </div>
-                    </div>
+                    {% endif %}
                     {% with obj.enabled as en %}
                         <div class="chip white-text {% if en == True %}red{% elif en == False %}green{% else %}amber{% endif %}">
                             {% if en != None %}
@@ -91,15 +94,16 @@
                 {% if cv %}
                     <h5>My Curriculum vitae</h5>
                     {% include 'cv/include/cv.html' %}
-                    <a class="btn waves-effect waves-light right amber white-text" href="{% url 'new_cv' %}">Add new
+                    <a class="btn waves-effect waves-light right blue white-text" href="{% url 'new_cv' %}">Add new
                         curriculum vitae</a>
                     <div class="clearfix"></div>
                 {% endif %}
+                <br/>
                 {% if obj.contract_address %}
                     {% get_facts obj %}
-                    {% with obj|is_oracle_agent as can_add_fact %}
+                    {% if obj|is_oracle_agent %}
                         {% include 'jobboard/include/add_fact.html' %}
-                    {% endwith %}
+                    {% endif %}
                     <br/>
                     {% get_candidate_vacancies obj request %}
                 {% endif %}

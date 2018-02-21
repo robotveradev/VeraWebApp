@@ -22,7 +22,6 @@ from .handlers.oracle import OracleHandler
 from web3 import Web3
 from django.conf import settings as django_settings
 from django.db.models import Q
-from django.core.serializers.json import DjangoJSONEncoder
 
 
 def index(request):
@@ -431,6 +430,8 @@ def check_agent(request):
             else:
                 role, obj = user_role(request.user.id)
                 emp_h = EmployerHandler(django_settings.WEB_ETH_COINBASE, obj.contract_address)
+                if agent_address == django_settings.WEB_ETH_COINBASE:
+                    return HttpResponse('oracle', status=200)
                 return HttpResponse(emp_h.is_agent(agent_address), status=200)
         else:
             return HttpResponse('You must use Post request', status=400)
