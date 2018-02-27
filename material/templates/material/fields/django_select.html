@@ -1,0 +1,45 @@
+{% load l10n material_form material_form_internal %}
+{% part bound_field.field %}
+    <div{% attrs bound_field 'group' %}
+        class="uk-margin"
+    {% endattrs %}>
+        {% part field prefix %}{% endpart %}
+
+        {% part field control %}
+            <div class="uk-form-controls">
+                <select{% attrs bound_field 'widget' default field.widget.attrs %}
+                    name="{{ bound_field.html_name }}"
+                    {% if field.required %} required{% endif %}
+                    class="uk-select{% if bound_field.errors %} uk-form-danger{% endif %}"
+                {% endattrs %}>
+                    <option disabled selected>{{ bound_field.label }}</option>
+                    {% part field options %}
+                        {% for group, items in bound_field|select_options %}
+                            {% if group %}
+                                <optgroup label="{{ group }}">
+                            {% endif %}
+                        {% for choice, value, selected in items %}
+                            <option {% if value == None or value == '' %}value{% else %}value="{{ value|unlocalize }}"{% endif %}
+                                    {% if selected %} selected="selected"{% endif %}>
+                                {% if value == None or value == '' %}
+                                    {{ form_select_empty_label|default:choice }}{% else %}
+                                    {{ choice }}
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                        {% if group %}
+                            </optgroup>
+                        {% endif %}
+                        {% endfor %}
+                    {% endpart %}
+                </select>
+            </div>
+        {% endpart %}
+        {% part field help_text %}{% if field.help_text %}
+            <div class="help-block">{{ bound_field.help_text|safe }}</div>
+        {% endif %}{% endpart %}{% part field errors %}
+            {% if bound_field.errors %}
+                {% include  'material/field_errors.html' %}
+            {% endif %}{% endpart %}{{ hidden_initial }}
+    </div>
+{% endpart %}

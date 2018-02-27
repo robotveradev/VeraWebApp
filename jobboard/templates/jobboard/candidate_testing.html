@@ -1,61 +1,58 @@
 {% extends 'jobboard/base.html' %}
 
-{% load jobboard_tags %}
+{% load jobboard_tags i18n %}
 
 {% block head_title %}VeraOracle - testing...{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h4 class="center">Test for vacancy "{{ vacancy.title }}"</h4>
+    <div class="uk-container uk-align-center">
+        <h4>{% trans 'Test for vacancy' %} {{ vacancy.title }}</h4>
         <form method="post">
             {% csrf_token %}
-            <ul class="collection">
+            <ul uk-accordion>
                 {% for test in tests %}
                     {% with candidate.id|is_test_passed:test.id as is_pass %}
-                        <li class="collection-item avatar {% if is_pass is True %} green lighten-5 {% elif is_pass is False %} red lighten-5 {% endif %}">
-                            <i class="material-icons circle green">insert_chart</i>
-                            <span class="title">{{ test.title }}</span>
-                            {% if is_pass is None %}
-                                <p>
-                                    {{ test.question | safe }}
-                                </p>
-                                <div class="input-field">
-                                    <input type="text" id="answer_{{ test.id }}" name="answer_{{ test.id }}" required>
-                                    <label for="answer_{{ test.id }}">Your answer</label>
-                                </div>
-                            {% elif is_pass is True %}
-                                <h5>Congratulations! Your answer is right!
-                                    <i class="fa fa-glass" aria-hidden="true"></i>
-                                    <i class="fa fa-glass" aria-hidden="true"></i>
-                                    <i class="fa fa-glass" aria-hidden="true"></i>
-                                </h5>
-                            {% elif is_pass is False %}
-                                <h5>Happy new year!
-                                    <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
-                                    <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
-                                    <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
-                                </h5>
-                            {% endif %}
+                        <li class="uk-open uk-padding-small {% if is_pass is True %}green lighten-5{% elif is_pass is False %}red lighten-5{% endif %}">
+                            <a class="uk-accordion-title">{{ test.title }}</a>
+                            <div class="uk-accordion-content">
+                                {% if is_pass is None %}
+                                    <p>
+                                        {{ test.question }}
+                                    </p>
+                                    <div class="uk-inline uk-display-block">
+                                        <input class="uk-input" type="text" id="answer_{{ test.id }}" name="answer_{{ test.id }}"
+                                               required placeholder="Your answer">
+                                    </div>
+                                {% elif is_pass is True %}
+                                    <p>
+                                    {% trans 'Congratulations! You gave the right answer!' %}
+                                    </p>
+                                {% elif is_pass is False %}
+                                    <p>
+                                        {% trans 'You incorrectly answered the question. Unfortunately, there are no more attempts.' %}
+                                    </p>
+                                {% endif %}
+                            </div>
                         </li>
                     {% endwith %}
                 {% endfor %}
-            </ul>
-            {% with candidate.id|all_test_passed:vacancy.id as all_passed %}
-                {% if not all_passed.0 %}
-                    <button type="submit" class="btn waves-effect waves-light right blue">Ok</button>
-                    <div class="clearfix"></div>
-                {% elif all_passed.1 %}
-                    {% if vacancy|can_spend %}
-                        <a href="{% url 'pay_to_candidate' vacancy_id=vacancy.id %}"
-                           class="btn waves-light waves-effect right blue"><i
-                                class="material-icons left">attach_money</i>
-                            Get Reward! </a>
-                        <div class="clearfix"></div>
-                    {% else %}
-                        Employer can't pay interview fee.
+
+
+                {% with candidate.id|all_test_passed:vacancy.id as all_passed %}
+                    {% if not all_passed.0 %}
+                        <li class="collection-item">
+                            <button type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right">Ok</button>
+                            <div class="clearfix"></div>
+                        </li>
+                    {% elif all_passed.1 %}
+                        <li class="collection-item">
+                            <a href="{% url 'pay_to_candidate' vacancy_id=vacancy.id %}"
+                               class="uk-button uk-button-primary uk-button-small uk-align-right">Get reward!</a>
+                            <div class="clearfix"></div>
+                        </li>
                     {% endif %}
-                {% endif %}
-            {% endwith %}
+                {% endwith %}
+            </ul>
         </form>
     </div>
 {% endblock %}

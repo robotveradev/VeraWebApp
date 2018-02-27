@@ -5,19 +5,16 @@
 {% block head_title %}Vera Oracle - Employer all vacancies{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col s12 m10 l10 push-l1 push-m1">
-            <h5 class="center">
-                All your vacancies
-            </h5>
-            {% for vacancy in vacancies %}
-                {% include 'vacancy/vacancy_short.html' with item=vacancy desc=True %}
-            {% endfor %}
-            <div class="right">
-                {% if obj.contract_address %}
-                    <a class="btn waves-effect amber" href="{% url 'new_vacancy' %}">Create new vacancy</a>
-                {% endif %}
-            </div>
-        </div>
+    <div class="uk-container uk-align-center">
+        <h4>All vacancies</h4>
+        {% for vacancy in vacancies %}
+            {% include 'vacancy/vacancy_short.html' with item=vacancy desc=True %}
+        {% endfor %}
+        <hr/>
+        {% if obj.contract_address %}
+            <a class="uk-button uk-button-primary uk-align-right uk-button-small" href="{% url 'new_vacancy' %}">Create
+                new vacancy</a>
+        {% endif %}
+        <div class="uk-clearfix"></div>
     </div>
 {% endblock %}

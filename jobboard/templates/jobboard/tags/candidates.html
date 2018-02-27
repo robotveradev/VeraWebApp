@@ -1,12 +1,12 @@
 {% load jobboard_tags %}
 {% if cvs %}
-    <h5 class="center">Job seekers who subscribe to a job offer:</h5>
-    <table class="bordered highligth">
+    <h5>Job seekers who subscribe to a job offer</h5>
+    <table class="uk-table uk-table-divider uk-table-small">
         <thead>
         <tr>
             <th>Curriculum vitae</th>
-            <th class="center">Candidate state</th>
-            <th class="right">Approve</th>
+            <th class="uk-text-center">Candidate state</th>
+            <th class="uk-text-right">Approve</th>
         </tr>
         </thead>
         <tbody>
@@ -16,7 +16,7 @@
                     <td>
                         <a href="{% url 'cv' cv_id=cv.cv.id %}">{{ cv.cv.candidate.first_name }} {{ cv.cv.candidate.last_name }} - {{ cv.cv.position.title }}</a>
                     </td>
-                    <td class="center
+                    <td class="uk-text-center
                             {% if st == 'wait' %}
                             amber-text
                             {% elif st == 'accepted' %}
@@ -26,30 +26,32 @@
                             {% endif %}">
                         {{ st | capfirst }}
                     </td>
-                    <td class="right">
+                    <td class="uk-text-right">
                         {% if st == 'wait' %}
                             {% if cv.cv.candidate.id|employer_answered:vacancy.id %}
-                                <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                               <div uk-spinner="ratio: 0.7"></div>
                             {% else %}
-                                <form action="{% url 'approve_candidate' %}" method="post">
+                                <form class="uk-inline" action="{% url 'approve_candidate' %}" method="post">
                                     {% csrf_token %}
                                     <input type="hidden" name="candidate" value="{{ cv.cv.candidate.id }}">
                                     <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                                    <button type="submit" class="btn-flat btn-small waves-effect waves-light">
-                                        <i class="material-icons green-text">done</i></button>
+                                    <button type="submit" class="uk-button green uk-button-small white-text">
+                                        approve
+                                    </button>
                                 </form>
-                                <form action="{% url 'revoke_candidate' %}" method="post">
+                                <form class="uk-inline" action="{% url 'revoke_candidate' %}" method="post">
                                     {% csrf_token %}
                                     <input type="hidden" name="candidate" value="{{ cv.cv.candidate.id }}">
                                     <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                                    <button type="submit" class="btn-flat btn-small waves-effect waves-light">
-                                        <i class="material-icons red-text">close</i></button>
+                                    <button type="submit" class="uk-button red uk-button-small white-text">
+                                        revoke
+                                    </button>
                                 </form>
                             {% endif %}
                         {% elif st == 'accepted' or st == 'paid' %}
-                            <i class="material-icons green-text">done</i>
+                            Approved
                         {% elif st == 'revoked' %}
-                            <i class="material-icons red-text">close</i>
+                            Revoked
                         {% endif %}
                     </td>
                 </tr>

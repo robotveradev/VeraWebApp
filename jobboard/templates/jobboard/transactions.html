@@ -5,37 +5,35 @@
 {% block head_title %}Vera Oracle - User transactions{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col s12 m10 l10 push-l1 push-m1">
-            <h4 class="center">Your transactions</h4>
-            <table class="table bordered highlight">
-                <thead>
+    <div class="uk-container uk-align-center">
+        <h4>Your transactions</h4>
+        <table class="uk-table uk-table-divider uk-table-small">
+            <thead>
+            <tr>
+                <th>Tx hash</th>
+                <th>Action</th>
+                <th class="right">Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for txn in txns %}
                 <tr>
-                    <th>Tx hash</th>
-                    <th>Action</th>
-                    <th class="right">Date</th>
+                    <td><a class="uk-button uk-button-text" target="_blank" href="{{ net_url }}tx/{{ txn.hash }}">{{ txn.hash|truncatechars:30 }}</a>
+                    </td>
+                    <td>{{ txn.action|parse_addresses|safe }}</td>
+                    <td class="right">{{ txn.created_at|date:'d E Y, H:i:s, e' }}</td>
                 </tr>
-                </thead>
-                <tbody>
-                {% for txn in txns %}
-                    <tr>
-                        <td><a target="_blank" href="{{ net_url }}tx/{{ txn.hash }}">{{ txn.hash|truncatechars:30 }}</a>
-                        </td>
-                        <td>{{ txn.action|parse_addresses|safe }}</td>
-                        <td class="right">{{ txn.created_at|date:'d E Y, H:i:s, e' }}</td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="3">
-                            There is no transactions yet.
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% if txns.has_other_pages %}
-                {% include 'jobboard/include/paginator.html' with paginate=txns %}
-            {% endif %}
-        </div>
+            {% empty %}
+                <tr>
+                    <td colspan="3">
+                        There is no transactions yet.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if txns.has_other_pages %}
+            {% include 'jobboard/include/paginator.html' with paginate=txns %}
+        {% endif %}
     </div>
 {% endblock %}

@@ -5,30 +5,26 @@
 {% load material_form %}
 
 {% block content %}
-    <div class="row">
-        <div class="col s12 m10 l10 push-m1 push-l1">
-            {% if error %}
-                <br><br><br><br>
-                <h4 class="center">
-                    {{ error }}
-                </h4>
-                <br><br><br><br>
-            {% else %}
-                {% if vac_o.contract_address %}
-                    <h4 class="center">Edit vacancy "{{ vac_o.title|title }}"</h4>
-                    {% if error %}
-                        <span class="center red-text">{{ error }}</span>
-                    {% endif %}
-                    <form action="{% url 'vacancy_edit' vacancy_id=vac_o.id %}" method="post">
-                        {% csrf_token %}
-                        {% form form=form %}{% endform %}
-                        <button class="btn waves-effect waves-light blue right">Continue</button>
-                        <div class="clearfix"></div>
-                    </form>
-                {% else %}
-                    {% include 'jobboard/include/message.html' %}
+    <div class="uk-container uk-align-center">
+
+        {% if error %}
+            <h4 class="uk-danger">
+                {{ error }}
+            </h4>
+        {% else %}
+            {% if vac_o.contract_address %}
+                <h4>Edit vacancy "{{ vac_o.title|title }}"</h4>
+                {% if error %}
+                    <span class="red-text">{{ error }}</span>
                 {% endif %}
+                <form action="{% url 'vacancy_edit' vacancy_id=vac_o.id %}" method="post">
+                    {% csrf_token %}
+                    {% form form=form %}{% endform %}
+                    <button class="uk-button uk-button-primary uk-align-right uk-button-small">Save</button>
+                </form>
+            {% else %}
+                {% include 'jobboard/include/message.html' %}
             {% endif %}
-        </div>
+        {% endif %}
     </div>
 {% endblock %}

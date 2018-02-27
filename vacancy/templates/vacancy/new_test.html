@@ -1,33 +1,48 @@
 {% extends 'jobboard/base.html' %}
 
-{% load jobboard_tags %}
+{% load jobboard_tags i18n %}
 
 {% block head_title %}VeraOracle - New test{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h4 class="center">New test for vacancy #{{ vacancy.id }}</h4>
+    <div class="uk-container uk-align-center">
+        <h4 class="center">{% trans 'New test for vacancy' %} {{ vacancy.title }}</h4>
         <form method="post" action="{% url 'new_test' %}">
             {% csrf_token %}
             <input type="hidden" value="{{ vacancy.id }}" name="vacancy">
-            <div class="input-field">
-                <input id="title" name="title" type="text" required>
-                <label for="title">Title</label>
+
+            <div class="uk-margin">
+                <div class="uk-inline uk-display-block">
+                    <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                    <input class="uk-input" type="text" name="title" required
+                           id="title"
+                           placeholder="Title">
+                </div>
             </div>
-            <div class="input-field">
-                <textarea id="question" class="materialize-textarea" name="question" required></textarea>
-                <label for="question">Question</label>
+            <div class="uk-margin">
+                <div class="uk-inline uk-display-block">
+                    <textarea class="uk-textarea" name="question" required
+                           id="title" placeholder="Question" rows="5"></textarea>
+                </div>
             </div>
-            <div class="input-field">
-                <input id="answer" name="answer" type="text" required>
-                <label for="answer">Answer</label>
+            <div class="uk-margin">
+                <div class="uk-inline uk-display-block">
+                    <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                    <input class="uk-input" type="text" name="answer" required
+                           id="answer"
+                           placeholder="Answer">
+                </div>
             </div>
-            <div class="input-field">
-                <input id="max_attempts" name="max_attempts" type="text" value="3">
-                <label for="max_attempts">Max attempts</label>
+            <div class="uk-margin">
+                <div class="uk-inline uk-display-block">
+                    <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                    <input class="uk-input" type="text" name="max_attempts" required
+                           id="max_attempts"
+                           placeholder="Max attempts" value="3">
+                </div>
             </div>
-            <button type="submit" class="btn waves-effect waves-light right blue">Continue</button>
-            <div class="clearfix"></div>
+
+            <button type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right">Continue</button>
         </form>
     </div>
 {% endblock %}

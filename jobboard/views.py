@@ -257,6 +257,7 @@ def candidate_testing(request, vacancy_id):
                     if not created:
                         cvp.attempts += 1
                     if cvp.attempts >= test_obj.max_attempts:
+                        # todo: revoke candidate когда завалил тесты
                         cvp.passed = False
                 cvp.save()
     vacancy_handler = VacancyHandler(django_settings.WEB_ETH_COINBASE, vacancy_obj.contract_address)

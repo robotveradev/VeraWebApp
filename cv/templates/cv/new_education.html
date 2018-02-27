@@ -1,18 +1,20 @@
 {% extends 'jobboard/base.html' %}
 
-{% load material_form %}
+{% load material_form i18n %}
 
 {% block head_title %}CurriculumVitae - New education{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h4 class="center">New Education for CV</h4>
+    <div class="uk-container uk-align-center">
         <form action="{% url 'new_education' cv_id=cv %}" method="post">
-            {% csrf_token %}
-            {% form form=form %}{% endform %}
-            <button type="submit"
-                    class="btn waves-effect waves-green right blue">Agree
-            </button>
+            <fieldset class="uk-fieldset">
+                <legend class="uk-legend">
+                    {% trans 'New Education for CV' %}
+                </legend>
+                {% csrf_token %}
+                {% form form=form %}{% endform %}
+                <button class="uk-button uk-button-primary uk-align-right">Save</button>
+            </fieldset>
         </form>
     </div>
 {% endblock %}

@@ -7,7 +7,7 @@
                 <div class="card blue-grey darken-1">
                     <div class="card-content white-text">
                         <span class="card-title">{{ vacancy.title|truncatechars:27 }}</span>
-                        <p>{{ vacancy.description|truncatewords:30 }}</p>
+                        <p>{{ vacancy.description|safe|truncatewords:30 }}</p>
                         <br/>
                         <p class="grey-text">{{ vacancy.employer.organization }}, {{ vacancy.id|get_interview_fee }}
                             Vera</p>

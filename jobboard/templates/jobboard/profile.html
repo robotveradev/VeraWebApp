@@ -3,165 +3,164 @@
 {% block head_title %}VeraOracle - Profile {% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col s12 m10 l10 push-l1 push-m1">
-            <h4 class="center">{{ role|title }} info</h4>
-            {% csrf_token %}
-            {% if obj.contract_address %}
-                <div class="right">
-                    {% if  obj|is_oracle_agent %}
-                        <div class="chip white-text blue">
-                            <a class="modal-trigger white-text underline" href="#agent-modal">Agents</a>
-                        </div>
-                        <div id="agent-modal" class="modal">
-                            <div class="modal-content">
-                                <h4>Check agents and add new</h4>
-                                <p class="flow-text">
-                                    Please enter the address of the agent contract
-                                </p>
-                                <div class="input-field">
-                                    <input pattern="^0x[A-Za-z0-9]{40}" class="validate" type="text"
-                                           name="agent_address"
-                                           id="agent_address" autofocus/>
-                                    <label data-error="Invalid address" for="agent_address">Agent address</label>
+    <div class="uk-container uk-align-center">
+        <h2>{{ role|title }} profile</h2>
+        {% with obj.enabled as en %}
+            <div class="uk-align-right">
+                {% if en != None %}
+                    {% if obj|is_oracle_agent %}
+                        <a class="uk-button-text uk-button uk-text-capitalize" href="#agent-modal" uk-toggle>Agents,</a>
+
+                        <div id="agent-modal" uk-modal>
+                            <div class="uk-modal-dialog">
+                                <button class="uk-modal-close-default" type="button" uk-close></button>
+                                <div class="uk-modal-header">
+                                    <h2 class="uk-modal-title">Check agents</h2>
                                 </div>
-                                <span id="agent_status"></span>
-                            </div>
-                            <div class="modal-footer">
-                                <button id="check_agent" class="modal-action waves-effect waves-green btn-flat">Check
-                                </button>
+                                <div class="uk-modal-body">
+                                    <p>
+                                    <div class="uk-margin">
+                                        <div class="uk-inline" style="display: block;">
+                                            <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                            <input type="text" class="uk-input" name="agent_address" id="agent_address"
+                                                   required autofocus
+                                                   placeholder="Agent address">
+                                        </div>
+                                    </div>
+                                    </p>
+                                </div>
+                                <div class="uk-modal-footer uk-text-right">
+                                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel
+                                    </button>
+                                    <button id="check_agent"  class="uk-button uk-button-primary">Check agent</button>
+                                </div>
                             </div>
                         </div>
+
+                        <div id="grant_revoke_agent" uk-modal>
+                            <div class="uk-modal-dialog">
+                                <button class="uk-modal-close-default" type="button" uk-close></button>
+                                <div class="uk-modal-header">
+                                    <h2 id="grant_revoke_title" class="uk-modal-title uk-text-capitalize"></h2>
+                                </div>
+                                <div class="uk-modal-body">
+                                    <p id="agent_status"></p>
+                                </div>
+                                <div class="uk-modal-footer uk-text-right">
+                                    <a href="#agent-modal" class="uk-button uk-button-default" type="button" uk-toggle>Previous
+                                    </a>
+                                    <a id="grant_revoke_link" href="" class="uk-button uk-button-primary"></a>
+                                </div>
+                            </div>
+                        </div>
+
                     {% endif %}
-                    {% with obj.enabled as en %}
-                        <div class="chip white-text {% if en == True %}red{% elif en == False %}green{% else %}amber{% endif %}">
-                            {% if en != None %}
-                                <a disabled class="white-text underline" href="{% url 'change_contract_status' %}">
-                                    {% if en == True %}
-                                        Disable contract
-                                    {% else %}
-                                        Enable contract
-                                    {% endif %}
-                                </a>
-                            {% else %}
-                                Renewal of contract status...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                            {% endif %}
-                        </div>
-                    {% endwith %}
-                </div>
-            {% endif %}
-            {% if role == 'candidate' %}
-                <table class="bordered highlight" width="100%">
-                    <colgroup>
-                        <col width="20%">
-                        <col width="80%">
-                    </colgroup>
-                    <tr>
-                        <td>Name:</td>
-                        <td>{{ obj.first_name }}</td>
-                    </tr>
-                    <tr>
-                        <td>Last name:</td>
-                        <td>{{ obj.last_name }}</td>
-                    </tr>
-                    <tr>
-                        <td>Middle name:</td>
-                        <td>{{ obj.middle_name|default:'-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Tax number:</td>
-                        <td>{{ obj.tax_number }}</td>
-                    </tr>
-                    <tr>
-                        <td>Contract address:</td>
-                        <td>
-                            {% if obj.contract_address is not None %}
-                                <a target="_blank"
-                                   href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
-                            {% else %}
-                                Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Balance:</td>
-                        <td>
-                            {% get_balance obj.user obj.contract_address %}
-                        </td>
-                    </tr>
-                </table>
-                {% if obj.contract_address %}
-                    <section>
-                        {% get_candidate_vacancies obj request %}
-                    </section>
-                {% endif %}
-                {% if cv %}
-                    <section>
-                        <h5>Curriculum vitae</h5>
-                        {% include 'cv/include/cv.html' %}
-                        <a class="btn waves-effect waves-light right blue white-text" href="{% url 'new_cv' %}">Add new
-                            curriculum vitae</a>
-                    </section>
-                {% endif %}
-                <br/>
-                {% if obj.contract_address %}
-                    <section>
-                        {% get_facts obj %}
-                        {% if obj|is_oracle_agent %}
-                            {% include 'jobboard/include/add_fact.html' %}
+                    <a class="uk-button-text uk-button uk-text-capitalize"
+                       href="{% url 'change_contract_status' %}">
+                        {% if en is True %}
+                            Disable contract
+                        {% elif en is False %}
+                            Enable contract
                         {% endif %}
-                    </section>
-                    <section>
-                        {% get_candidate_relevant obj %}
-                    </section>
+                    </a>
+                {% else %}
+                    <div uk-spinner="ratio: 0.7"></div>
                 {% endif %}
-            {% elif role == 'employer' %}
-                <table class="bordered highlight" width="100%">
-                    <colgroup>
-                        <col width="20%">
-                        <col width="80%">
-                    </colgroup>
-                    <tr>
-                        <td>Organization:</td>
-                        <td>{{ obj.organization }}</td>
-                    </tr>
-                    <tr>
-                        <td>Tax number:</td>
-                        <td>{{ obj.tax_number }}</td>
-                    </tr>
-                    <tr>
-                        <td>Contract address:</td>
-                        <td>
-                            {% if obj.contract_address is not None %}
-                                <a target="_blank"
-                                   href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
-                            {% else %}
-                                Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Balance:</td>
-                        <td>
-                            {% get_balance obj.user obj.contract_address %}
-                        </td>
-                    </tr>
-                </table>
-                {% if vacancies %}
-                    <h5>Your vacancies</h5>
-                    {% for vacancy in vacancies %}
-                        {% include 'vacancy/vacancy_short.html' with item=vacancy %}
-                    {% endfor %}
-                {% endif %}
-                <div class="right">
-                    {% if vacancies_count > 3 %}
-                        <a class="btn waves-effect blue" href="{% url 'vacancy_all' %}">All vacancies</a>
-                    {% endif %}
-                    {% if obj.contract_address and obj.enabled == True %}
-                        <a class="btn waves-effect amber" href="{% url 'new_vacancy' %}">Create new vacancy</a>
-                    {% endif %}
-                </div>
+            </div>
+        {% endwith %}
+        {% if role == 'candidate' %}
+            <table class="uk-table uk-table-divider uk-table-small" width="100%">
+                <colgroup>
+                    <col width="20%">
+                    <col width="80%">
+                </colgroup>
+                <tr>
+                    <td>Name:</td>
+                    <td>{{ obj.first_name }}</td>
+                </tr>
+                <tr>
+                    <td>Last name:</td>
+                    <td>{{ obj.last_name }}</td>
+                </tr>
+                <tr>
+                    <td>Middle name:</td>
+                    <td>{{ obj.middle_name|default:'-' }}</td>
+                </tr>
+                <tr>
+                    <td>Tax number:</td>
+                    <td>{{ obj.tax_number }}</td>
+                </tr>
+                <tr>
+                    <td>Contract address:</td>
+                    <td>
+                        {% if obj.contract_address is not None %}
+                            <img style="width: 16px; height: 16px;" src="{{ obj.contract_address|get_blockies_png }}" alt="">
+                            <a class="uk-link-reset" target="_blank"
+                               href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
+                        {% else %}
+                            <div uk-spinner="ratio: 0.7"></div>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Balance:</td>
+                    <td>
+                        {% get_balance obj.user obj.contract_address %}
+                    </td>
+                </tr>
+            </table>
+            {% if cv %}
+                <h5>My Curriculum vitae</h5>
+                {% include 'cv/include/cv.html' %}
+                <a class="uk-button uk-button-primary uk-button-small uk-align-right" href="{% url 'new_cv' %}">Add new
+                    CV</a>
             {% endif %}
-        </div>
+            {% if obj.contract_address %}
+                {% get_facts obj %}
+                {% if obj|is_oracle_agent %}
+                    {% include 'jobboard/include/add_fact.html' %}
+                {% endif %}
+                {% get_candidate_vacancies obj request %}
+            {% endif %}
+        {% elif role == 'employer' %}
+            <table class="uk-table uk-table-divider uk-table-small" width="100%">
+                <colgroup>
+                    <col width="20%">
+                    <col width="80%">
+                </colgroup>
+                <tr>
+                    <td>Organization:</td>
+                    <td>{{ obj.organization }}</td>
+                </tr>
+                <tr>
+                    <td>Tax number:</td>
+                    <td>{{ obj.tax_number }}</td>
+                </tr>
+                <tr>
+                    <td>Contract address:</td>
+                    <td>
+                        {% if obj.contract_address is not None %}
+                            <img style="width: 16px; height: 16px;" src="{{ obj.contract_address|get_blockies_png }}" alt="">
+                            <a class="uk-link-reset" target="_blank"
+                               href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
+                        {% else %}
+                            <div uk-spinner="ratio: 0.7"></div>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Balance:</td>
+                    <td>
+                        {% get_balance obj.user obj.contract_address %}
+                    </td>
+                </tr>
+            </table>
+            {% if vacancies %}
+                <h5>Your vacancies</h5>
+                {% for vacancy in vacancies %}
+                    {% include 'vacancy/vacancy_short.html' with item=vacancy %}
+                {% endfor %}
+            {% endif %}
+        {% endif %}
     </div>
 {% endblock %}
