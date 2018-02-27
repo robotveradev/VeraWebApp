@@ -1,42 +1,54 @@
 {% load jobboard_tags %}
 {% if balance is not None %}
     {% with user|can_withdraw as can_withdraw %}
-        <div class="chip white-text grey">{{ balance }} Vera</div>
-            {% if can_withdraw %}
-                {% if balance > 0 %}
-                    <div class="chip blue"><a class="modal-trigger white-text underline" href="#withdraw-modal">Withdraw</a></div>
-                {% endif %}
-            {% else %}
-                <span class="amber-text">[Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>]</span>
+        {{ balance }} Vera
+        {% if can_withdraw %}
+            {% if balance > 0 %}
+                <a class="uk-link-muted" href="#withdraw-modal" uk-toggle>Withdraw</a>
             {% endif %}
+        {% else %}
+            <span class="amber-text">Pending...<div uk-spinner="ratio:0.7"></div></span>
+        {% endif %}
         {% if balance > 0 and can_withdraw %}
-            <div id="withdraw-modal" class="modal">
-                <form action="{% url 'withdraw' %}" method="post">
-                    {% csrf_token %}
-                    <div class="modal-content">
-                        <h4>Token withdraw</h4>
-                        <p class="flow-text">
-                            Please indicate the eth wallet address and the number of coins for withdrawal
-                        </p>
-                        <div class="input-field">
-                            <label for="address">ETH Wallet address</label>
-                            <input type="text" name="address" id="address" required autocomplete="off">
+            <div id="withdraw-modal" uk-modal>
+                <div class="uk-modal-dialog">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <form action="{% url 'withdraw' %}" method="post">
+                        {% csrf_token %}
+                        <div class="uk-modal-header">
+                            <h2 class="uk-modal-title">Token withdraw</h2>
                         </div>
-                        <div class="input-field">
-                            <label for="amount">Amount (max: {{ balance }} Vera)</label>
-                            <input type="number" step="0.001" max="{{ balance }}" name="amount" id="amount" required autocomplete="off">
+                        <div class="uk-modal-body">
+                            <p>Please indicate the eth wallet address and the number of coins for withdrawal</p>
+                            <div class="uk-margin">
+                                <div class="uk-inline uk-display-block">
+                                    <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                    <input class="uk-input" type="text" name="address" required
+                                           id="address"
+                                           placeholder="ETH Wallet address"
+                                           autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="uk-margin">
+                                <div class="uk-inline uk-display-block">
+                                    <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                    <input class="uk-input" type="number" step="0.001" name="amount" maxlength="30" required
+                                           id="amount"
+                                           max="{{ balance }}"
+                                           placeholder="Amount (max: {{ balance }} Vera)"
+                                           autocomplete="off">
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="modal-action waves-effect waves-green btn-flat">Agree</button>
-                    </div>
-                </form>
+                        <div class="uk-modal-footer uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                            <button class="uk-button uk-button-primary" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         {% endif %}
     {% endwith %}
 {% else %}
-    <div class="chip white-text grey"><i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i></div>
+    <div uk-spinned="ratio: 0.7"></div>
 {% endif %}
-
-
-

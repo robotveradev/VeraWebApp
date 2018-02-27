@@ -1,0 +1,13 @@
+{% extends 'jobboard/base.html' %}
+
+{% load material_form %}
+
+{% block content %}
+
+    <div class="uk-container uk-align-center">
+        <form class="uk-form-horizontal uk-margin-large">
+            {% form form=form %}{% endform %}
+        </form>
+    </div>
+
+{% endblock %}

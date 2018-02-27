@@ -1,7 +1,7 @@
-<p class="flow-text">{{ education.institute }}{% if education.faculty %},
-    <small class="grey-text">{{ education.faculty }}</small>{% endif %}
-    {% if owner %}
-        <a href="{% url 'education_edit' education_id=education.id %}"><i class="fa fa-pencil-square-o grey-text" aria-hidden="true"></i></a>
+<p class="uk-text-lead">{{ education.institute }}{% if education.faculty %},
+    <small class="uk-text-muted">{{ education.faculty }}</small>{% endif %}
+    {% if request.user == cv.candidate.user %}
+        <a href="{% url 'education_edit' education_id=education.id %}" uk-icon="icon: file-edit"></a>
     {% endif %}
 </p>
 {% if education.education_from %}

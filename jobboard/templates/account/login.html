@@ -1,38 +1,59 @@
 {% extends "jobboard/base.html" %}
 
-{% load account_tags material_form %}
+{% load account_tags %}
 {% load i18n %}
 
 {% block head_title %}{% trans "Log in" %}{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col s12 m6 l6 offset-m3 offset-l3">
-            <form method="POST" action="{% url "account_login" %}" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
-                <h4>{% trans "Log in to an existing account" %}</h4>
+    <div class="uk-container uk-align-center">
+        <div class="uk-text-danger">{{ form.non_field_errors }}</div>
+        <form method="POST" action="{% url "account_login" %}"
+              {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+            <fieldset class="uk-fieldset">
+                <legend class="uk-legend">{% trans "Log in to an existing account" %}</legend>
                 {% csrf_token %}
-                {% form form=form %}{% endform %}
+
+                <div class="uk-margin">
+                    <div class="uk-inline uk-display-block">
+                        <span class="uk-form-icon" uk-icon="icon: user"></span>
+                        <input class="uk-input" type="text" name="username" maxlength="30" required id="id_username"
+                               placeholder="Username">
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    <div class="uk-inline uk-display-block">
+                        <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                        <input class="uk-input" type="password" name="password" required id="id_password"
+                               placeholder="Password">
+                    </div>
+                </div>
+                <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                    <label><input class="uk-checkbox" type="checkbox" name="remember" id="id_remember"> Remember
+                        me</label>
+                </div>
+
                 {% if redirect_field_value %}
-                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                 {% endif %}
-                <button type="submit" class="btn waves-effect waves-light blue">{% trans "Log in" %}</button>
-                <a href="{% url "account_password_reset" %}" class="btn waves-effect waves-light ">{% trans "Forgot your password?" %}</a>
-            </form>
-            {% if ACCOUNT_OPEN_SIGNUP %}
-                <p class="login-signup">
-                    <small>
-                        {% trans "Don't have an account?" %}  <strong><a href="{% urlnext 'account_signup' %}">{% trans "Sign up" %}</a></strong>
-                    </small>
-                </p>
-            {% endif %}
-        </div>
+                <button type="submit" class="uk-button uk-button-primary uk-align-right">{% trans "Log in" %}</button>
+            </fieldset>
+        </form>
+        <a href="{% url "account_password_reset" %}"
+           class="uk-button uk-button-text">{% trans "Forgot your password?" %}</a>
+        {% if ACCOUNT_OPEN_SIGNUP %}
+            <p class="login-signup">
+                {% trans "Don't have an account?" %} <a class="uk-button uk-button-text"
+                                                        href="{% urlnext 'account_signup' %}">{% trans "Sign up" %}</a>
+            </p>
+        {% endif %}
     </div>
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript">
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#id_username').focus();
         });
     </script>

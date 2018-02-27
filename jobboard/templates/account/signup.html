@@ -2,35 +2,85 @@
 
 {% load account_tags %}
 {% load i18n %}
-{% load material_form %}
 
 {% block head_title %}{% trans "Sign up" %}{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col s12 m6 l6 offset-m3 offset-l3">
-            <form id="signup_form" method="post" action="{% url "account_signup" %}" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
-                <h4>{% trans "Sign up" %}</h4>
-                {% csrf_token %}
-                {% form form=form %}{% endform %}
+    <div class="uk-container uk-align-center">
+        <span class="uk-text-danger">{{ form.non_field_errors }}</span>
+        <form id="signup_form" method="post" action="{% url 'account_signup' %}" {% if form.is_multipart %}
+              enctype="multipart/form-data"{% endif %}>
+            {% csrf_token %}
+            <fieldset class="uk-fieldset">
+                <legend class="uk-legend">
+                    {% trans "Sign up" %}
+                </legend>
+                <div class="uk-margin">
+                    <div class="uk-inline" style="display:block;">
+                        <span class="uk-form-icon" uk-icon="icon: user"></span>
+                        <input class="uk-input" type="text" name="username" maxlength="30" required id="id_username"
+                               placeholder="Username">
+                    </div>
+                </div>
+                {% for error in form.username.errors %}
+                    <span class="uk-text-danger uk-margin">
+                            {{ error }}
+                    </span>
+                {% endfor %}
+                <div class="uk-margin">
+                    <div class="uk-inline" style="display:block;">
+                        <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                        <input class="uk-input" type="password" name="password" required id="id_password"
+                               placeholder="Password">
+                    </div>
+                </div>
+                {% for error in form.password.errors %}
+                    <span class="uk-text-danger uk-margin">
+                            {{ error }}
+                    </span>
+                {% endfor %}
+                <div class="uk-margin">
+                    <div class="uk-inline" style="display:block;">
+                        <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                        <input class="uk-input" type="password" name="password_confirm" required
+                               id="id_password_confirm"
+                               placeholder="Password (again)">
+                    </div>
+                </div>
+                {% for error in form.password_confirm.errors %}
+                    <span class="uk-text-danger uk-margin">
+                            {{ error }}
+                    </span>
+                {% endfor %}
+                <div class="uk-margin">
+                    <div class="uk-inline" style="display:block;">
+                        <span class="uk-form-icon" uk-icon="icon: mail"></span>
+                        <input class="uk-input" type="text" name="email" required id="id_email" placeholder="Email">
+                    </div>
+                </div>
+                {% for error in form.email.errors %}
+                    <span class="uk-text-danger uk-margin">
+                            {{ error }}
+                    </span>
+                {% endfor %}
                 {% if redirect_field_value %}
-                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                 {% endif %}
-                <button type="submit" class="btn waves-light waves-effect blue">{% trans "Sign up" %}</button>
-            </form>
-            <p class="login-signup">
-                <small>
-                    {% trans "Already have an account?" %}  <strong><a href="{% urlnext 'account_login' %}">{% trans "Log in" %}</a></strong>
-                </small>
-            </p>
-        </div>
+                <p class="login-signup uk-text">
+                    {% trans "Already have an account?" %} <a class="uk-button uk-button-text"
+                                                              href="{% urlnext 'account_login' %}">{% trans "Log in" %}</a>
+                </p>
+                <button type="submit" class="uk-button uk-button-primary uk-align-right">{% trans "Sign up" %}</button>
+            </fieldset>
+        </form>
     </div>
+
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript">
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#id_username').focus();
         });
     </script>

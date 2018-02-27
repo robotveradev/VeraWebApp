@@ -1,70 +1,109 @@
 {% extends 'jobboard/base.html' %}
 
+{% load i18n %}
+
 {% block head_title %}Choose role{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h4 class="center">Choose your role</h4>
-        {% if error %}
-            <span class="red-text">{{ error }}</span>
-        {% endif %}
-        <ul class="collapsible" data-collapsible="accordion">
-            <li>
-                <div class="collapsible-header active"><i class="material-icons">face</i>Employer</div>
-                <div class="collapsible-body">
-                    <form action="{% url 'choose_role' %}" method="post">
-                        {% csrf_token %}
+    <div class="uk-container uk-align-center">
+
+            <fieldset class="uk-fieldset">
+                <legend class="uk-legend">
+                    {% trans "Choose your role" %}
+                </legend>
+
+                <ul class="uk-child-width-expand" uk-tab="{connect: '#choose_role_contrainer'}">
+                    <li class="uk-active"><a href="#">Employer</a></li>
+                    <li><a href="#">Candidate</a></li>
+                </ul>
+                <ul id="choose_role_contrainer" class="uk-switcher">
+                    <li class="uk-animation-slide-left-small">
+                     <form action="{% url 'choose_role' %}" method="post">
+                     {% csrf_token %}
                         <input type="hidden" name="role" value="employer">
                         <input type="hidden" name="next" value="{{ request.GET.next }}">
-                        <div class="input-field">
-                            <label for="organization">Organization</label>
-                            <input type="text" name="organization" id="organization" required>
+
+                        <div class="uk-margin">
+                            <div class="uk-inline" style="display: block;">
+                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                <input type="text" class="uk-input" name="organization" id="organization" required
+                                       placeholder="Organization">
+                            </div>
                         </div>
-                        <div class="input-field">
-                            <label for="tax_number">Tax number</label>
-                            <input type="text" name="tax_number" id="tax_number" required>
+                        <div class="uk-margin">
+                            <div class="uk-inline" style="display: block;">
+                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                <input type="text" class="uk-input" name="tax_number" id="tax_number" required
+                                       placeholder="Tax number">
+                            </div>
                         </div>
-                        <p>
-                            <input type="checkbox" id="personal_data_employer" required/>
-                            <label for="personal_data_employer">I agree with processing of my personal data.</label>
-                        </p>
-                        <button type="submit" class="btn waves-effect waves-light blue right">Send</button>
-                        <div class="clearfix"></div>
-                    </form>
-                </div>
-            </li>
-            <li>
-                <div class="collapsible-header"><i class="material-icons">child_care</i>Candidate</div>
-                <div class="collapsible-body">
-                    <form action="{% url 'choose_role' %}" method="post">
-                        {% csrf_token %}
+                        <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                            <label>
+                                <input class="uk-checkbox" type="checkbox" id="personal_data_employer" required/>
+                                I agree with processing of my personal data
+                            </label>
+                        </div>
+                        {% if redirect_field_value %}
+                            <input type="hidden" name="{{ redirect_field_name }}"
+                                   value="{{ redirect_field_value }}"/>
+                        {% endif %}
+                        <button type="submit" class="uk-button uk-button-primary uk-align-right">Send</button>
+                     </form>
+                    </li>
+                    <li class="uk-animation-slide-right-small">
+                     <form action="{% url 'choose_role' %}" method="post">
+                     {% csrf_token %}
                         <input type="hidden" name="role" value="candidate">
                         <input type="hidden" name="next" value="{{ request.GET.next }}">
-                        <div class="input-field">
-                            <label for="first_name">First name</label>
-                            <input type="text" name="first_name" id="first_name" required>
+
+                        <div class="uk-margin">
+                            <div class="uk-inline" style="display: block;">
+                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                <input type="text" class="uk-input" name="first_name" id="first_name" required
+                                       placeholder="First name">
+                            </div>
                         </div>
-                        <div class="input-field">
-                            <label for="last_name">Last name</label>
-                            <input type="text" name="last_name" id="last_name" required>
+                        <div class="uk-margin">
+                            <div class="uk-inline" style="display: block;">
+                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                <input type="text" class="uk-input" name="last_name" id="last_name" required
+                                       placeholder="Last name">
+                            </div>
                         </div>
-                        <div class="input-field">
-                            <label for="middle_name">Middle name</label>
-                            <input type="text" name="middle_name" id="middle_name">
+                        <div class="uk-margin">
+                            <div class="uk-inline" style="display: block;">
+                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                <input type="text" class="uk-input" name="middle_name" id="middle_name"
+                                       placeholder="Middle name">
+                            </div>
                         </div>
-                        <div class="input-field">
-                            <label for="tax_number">Tax number</label>
-                            <input type="text" name="tax_number" id="tax_number">
+                        <div class="uk-margin">
+                            <div class="uk-inline" style="display: block;">
+                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                <input type="text" class="uk-input" name="tax_number" id="tax_number" required
+                                       placeholder="Tax number">
+                            </div>
                         </div>
-                        <p>
-                            <input type="checkbox" id="personal_data_candidate" required/>
-                            <label for="personal_data_candidate">I agree with processing of my personal data.</label>
-                        </p>
-                        <button type="submit" class="btn waves-effect waves-light blue right">Send</button>
-                        <div class="clearfix"></div>
-                    </form>
-                </div>
-            </li>
-        </ul>
+
+                        <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                            <label>
+                                <input class="uk-checkbox" type="checkbox" id="personal_data_employer" required/>
+                                I agree with processing of my personal data
+                            </label>
+                        </div>
+                        {% if redirect_field_value %}
+                            <input type="hidden" name="{{ redirect_field_name }}"
+                                   value="{{ redirect_field_value }}"/>
+                        {% endif %}
+                        <button type="submit" class="uk-button uk-button-primary uk-align-right">Send</button>
+                     </form>
+                    </li>
+                </ul>
+
+            </fieldset>
+            <div class="uk-text-danger">{{ form.non_field_errors }}</div>
+            {% if error %}
+                <div class="uk-text-danger">{{ error }}</div>{% endif %}
+
     </div>
 {% endblock %}

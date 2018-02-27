@@ -5,39 +5,26 @@
 {% load material_form %}
 
 {% block content %}
-    <div class="row">
-        <div class="col s12 m10 l10 push-m1 push-l1">
+    <div class="uk-container uk-align-center">
             {% if error %}
-                <br><br><br><br>
-                <h4 class="center">
+                <h4>
                     {{ error }}
                 </h4>
-                <br><br><br><br>
             {% else %}
-                <h4 class="center">Edit CV Education "{{ edu_o.profession|title }}"</h4>
                 {% if error %}
                     <span class="center red-text">{{ error }}</span>
                 {% endif %}
                 <form action="{% url 'education_edit' education_id=edu_o.id %}" method="post">
+                <fieldset class="uk-fieldset">
+                    <legend class="uk-legend">
+                        Edit CV Education "{{ edu_o.profession|title }}"
+                    </legend>
                     {% csrf_token %}
                     {% form form=form %}{% endform %}
-                    <button class="btn waves-effect waves-light blue right">Continue</button>
-                    <div class="clearfix"></div>
+                    <button class="uk-button uk-button-primary uk-align-right uk-button-small">Save</button>
+                </fieldset>
+
                 </form>
             {% endif %}
-        </div>
     </div>
 {% endblock %}
-
-
-VERA_COIN_CONTRACT_ADDRESS = '0xCAe393A1892DC3aaF4c19a0F76Ccbd8Ae5BBe482'  # Rinkeby
-
-VERA_COIN_PRESALE_CONTRACT_ADDRESS = '0x9AF242B715F818eEb4E485CAe925e1FCF696c696'  # Rinkeby
-
-VERA_ORACLE_CONTRACT_ADDRESS = '0x9F7d2FE1b0aFCd80d042e3667294B972FD225CDc'  # Rinkeby
-
-WEB_ETH_COINBASE = '0xdb02B25181337b6E9fb1572A2D7A2A1FF61a463B'  # Rinkeby
-
-NODE_URL = 'http://localhost:8545'
-
-NET_URL = 'https://rinkeby.etherscan.io/'

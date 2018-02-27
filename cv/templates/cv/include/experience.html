@@ -1,23 +1,20 @@
 {% load cv_tags %}
 <div>
-    <p class="flow-text">{{ experience.organization|title }},
-        <small class="grey-text">{{ experience.position }}, {{ experience.city }}
-            {% if owner %}
-                <a href="{% url 'experience_edit' experience_id=experience.id %}"><i class="fa fa-pencil-square-o grey-text" aria-hidden="true"></i></a>
-            {% endif %}
-        </small>
+    <p class="uk-text-lead">{{ experience.organization }},
+        <small class="uk-text-muted">{{ experience.position }}, {{ experience.city }}</small>
+        {% if request.user == cv.candidate.user %}
+            <a href="{% url 'experience_edit' experience_id=experience.id %}" uk-icon="icon: file-edit"></a>
+        {% endif %}
     </p>
     {% if not experience.still %}
         From {{ experience.start_month|month_name }} {{ experience.start_year }} to
-        {{ experience.end_month|month_name }} {{ experience.end_year }} (
-        {{ experience.end_year|sub:experience.start_year }} year{{ experience.end_year|sub:experience.start_year|pluralize }}
-        ).
+        {{ experience.end_month|month_name }} {{ experience.end_year }}
+        ({{ experience.end_year|sub:experience.start_year }} year
+        {{ experience.end_year|sub:experience.start_year|pluralize }}).
     {% else %}
         From {{ experience.start_month|month_name }} {{ experience.start_year }} until now.
     {% endif %}
     {% if experience.description %}
-        <blockquote>
-            {{ experience.description|safe }}
-        </blockquote>
+        {{ experience.description|safe }}
     {% endif %}
 </div>

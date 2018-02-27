@@ -3,12 +3,10 @@ import datetime
 import re
 from django import template
 from django.shortcuts import get_object_or_404
-from django.template.defaultfilters import stringfilter
 from urllib.parse import urlencode
 from cv.models import CurriculumVitae
-from jobboard.forms import LearningForm, WorkedForm, CertificateForm
+from jobboard import blockies
 from jobboard.handlers.candidate import CandidateHandler
-from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.handlers.coin import CoinHandler
 from jobboard.models import Candidate, Employer, Transaction
@@ -134,17 +132,8 @@ def is_enabled_vacancy(vacancy_id):
 def get_balance(user, address):
     if address is None:
         return {'balance': None, 'user': user}
-    try:
-        emp_o = Employer.objects.get(contract_address=address)
-        coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-        return {'balance': coin_h.balanceOf(emp_o.contract_address) / 10 ** coin_h.decimals, 'user': user}
-    except Employer.DoesNotExist:
-        try:
-            can_o = Candidate.objects.get(contract_address=address)
-            coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-            return {'balance': coin_h.balanceOf(can_o.contract_address) / 10 ** coin_h.decimals, 'user': user}
-        except Candidate.DoesNotExist:
-            return None
+    coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
+    return {'balance': coin_h.balanceOf(address) / 10 ** coin_h.decimals, 'user': user}
 
 
 @register.filter(name='is_can_subscribe')
@@ -252,7 +241,7 @@ def get_candidates_count(vacancy_address):
 @register.filter(name='parse_addresses')
 def parse_addresses(string):
     regex = '\\b0x\w+'
-    url_template = '<a target="_blank" href="{}address/{}">{}</a>'
+    url_template = '<a target="_blank" class="uk-button uk-button-text" href="{}address/{}">{}</a>'
     string = re.sub(regex, url_template.format(settings.NET_URL, '\g<0>', '\g<0>'), string)
     return string
 
@@ -315,3 +304,9 @@ def is_oracle_agent(candidate):
 def get_candidate_relevant(candidate):
     vacancies = get_relevant(candidate.user, 3)
     return {'vacancies': vacancies}
+
+
+@register.filter(name='get_blockies_png')
+def get_blockies_png(address):
+    data = blockies.create(address.lower(), size=8, scale=16)
+    return blockies.png_to_data_uri(data)

@@ -5,168 +5,179 @@
 {% block head_title %}Vera Oracle - Vacancy {{ vacancy.title }}{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col s12 m10 l10 push-l1 push-m1">
-            <h4 class="center">
-                {{ vacancy.title|title }}, <span class="grey-text"><small>{{ vacancy.employer.organization|title }}</small></span>
-            </h4>
-            {% if request.user == vacancy.employer.user %}
-                {% if vacancy.contract_address is not None %}
-                    {% with vacancy.enabled as en %}
-                        <div class="chip white-text right {% if en == True %}red{% elif en == False %}green{% else %}amber{% endif %}">
-                            {% if en != None %}
-                                <a class="white-text underline"
-                                   href="{% url 'change_vacancy_status' vacancy_id=vacancy.id %}">
-                                    {% if en == True %}
-                                        Disable vacancy
-                                    {% else %}
-                                        Enable vacancy
-                                    {% endif %}
-                                </a>
-                            {% else %}
-                                Renewal of contract status...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                            {% endif %}
-                        </div>
-                    {% endwith %}
-                {% endif %}
-            {% endif %}
-            <p class="flow-text">Contract info</p>
-            <blockquote>
-                <div>
-                    {% with vacancy.contract_address as address %}
-                        Vacancy contract address:
-                        {% if vacancy.contract_address is not None %}
-                            <a target="_blank"
-                               href="{{ net_url }}/address/{{ address }}">{{ address }}</a>
+    <div class="uk-container uk-align-center">
+        <h4>{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.employer.organization|title }}</small></span>
+        </h4>
+        {% if request.user == vacancy.employer.user %}
+            {% if vacancy.contract_address is not None %}
+                {% with vacancy.enabled as en %}
+                    <div class="uk-align-right">
+                        {% if en != None %}
+                            <a class="uk-button-text uk-button uk-text-capitalize"
+                               href="{% url 'change_vacancy_status' vacancy_id=vacancy.id %}">
+                                {% if en is True %}
+                                    Disable contract
+                                {% elif en is False %}
+                                    Enable contract
+                                {% endif %}
+                            </a>
                         {% else %}
-                            Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                            <div uk-spinner="ratio: 0.7"></div>
                         {% endif %}
-                    {% endwith %}
-                </div>
+                    </div>
+                {% endwith %}
+            {% endif %}
+        {% endif %}
+        <section>
+            <span class="uk-text-lead">Contract info</span>
+            <div>
+                {% with vacancy.contract_address as address %}
+                    Vacancy contract address:
+                    {% if vacancy.contract_address is not None %}
+                        <img style="width: 16px; height: 16px;" src="{{ address|get_blockies_png }}"
+                             alt="">
+                        <a class="uk-button uk-button-text" target="_blank"
+                           href="{{ net_url }}/address/{{ address }}">{{ address }}</a>
+                    {% else %}
+                        <div uk-spinner="ratio: 0.7"></div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div>
+                Interview fee:
+                {% if vacancy.contract_address %}
+                    {{ vacancy.id|get_interview_fee }} Vera
+                {% else %}
+                    <div uk-spinner="ratio: 0.7"></div>
+                {% endif %}
+            </div>
+            {% if vacancy.employer.user == request.user %}
                 <div>
-                    Interview fee:
+                    Allowance:
                     {% if vacancy.contract_address %}
-                        {{ vacancy.id|get_interview_fee }} Vera
+                        {{ vacancy.id|allowance_rest }} Vera
                     {% else %}
-                        <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                        <div uk-spinner="ratio: 0.7"></div>
                     {% endif %}
                 </div>
-                {% if vacancy.employer.user == request.user %}
+            {% endif %}
+        </section>
+        <hr class="uk-divider-icon">
+        <section>
+            <span class="uk-text-lead">General vacancy info</span>
+            <div>
+                Organization:
+                <a class="uk-button uk-button-text"
+                   href="{% url 'employer_about' employer_id=vacancy.employer.id %}">{{ vacancy.employer.organization }}</a>
+            </div>
+            <div>
+                City: {{ vacancy.city|title }}
+            </div>
+            {% if vacancy.experience %}
+                <div>
+                    Required experience: {{ vacancy.experience }} years.
+                </div>
+            {% endif %}
+        </section>
+        <hr class="uk-divider-icon">
+        <section>
+            <span class="uk-text-lead">Working conditions</span>
+            {% with vacancy.schedule.all as schedules %}
+                {% if schedules %}
                     <div>
-                        Allowance:
-                        {% if vacancy.contract_address %}
-                            {{ vacancy.id|allowance_rest }} Vera
-                        {% else %}
-                            <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
-                        {% endif %}
+                        Schedule: {{ schedules|join:', ' }}.
                     </div>
                 {% endif %}
-            </blockquote>
-            <p class="flow-text">
-                General vacancy info
-            </p>
-            <blockquote>
-                <div>
-                    Organization:
-                    <a href="{% url 'employer_about' employer_id=vacancy.employer.id %}">{{ vacancy.employer.organization }}</a>
-                </div>
-                <div>
-                    City: {{ vacancy.city|title }}
-                </div>
-                {% if vacancy.experience %}
+            {% endwith %}
+            {% with vacancy.busyness.all as busyness %}
+                {% if busyness %}
                     <div>
-                        Required experience: {{ vacancy.experience }} years.
+                        Busyness: {{ busyness|join:', ' }}.
                     </div>
                 {% endif %}
-            </blockquote>
-            <p class="flow-text">
-                Working conditions
-            </p>
-            <blockquote>
-                {% with vacancy.schedule.all as schedules %}
-                    {% if schedules %}
-                        <div>
-                            Schedule: {{ schedules|join:', ' }}.
-                        </div>
-                    {% endif %}
-                {% endwith %}
-                {% with vacancy.busyness.all as busyness %}
-                    {% if busyness %}
-                        <div>
-                            Busyness: {{ busyness|join:', ' }}.
-                        </div>
-                    {% endif %}
-                {% endwith %}
-                <div>
-                    Salary:
-                    {% if vacancy.salary_from %}
-                        {% if vacancy.salary_up_to %}
-                            {{ vacancy.salary_from }} - {{ vacancy.salary_up_to }} $$
-                        {% else %}
-                            from {{ vacancy.salary_from }} $
-                        {% endif %}
+            {% endwith %}
+            <div>
+                Salary:
+                {% if vacancy.salary_from %}
+                    {% if vacancy.salary_up_to %}
+                        {{ vacancy.salary_from }} - {{ vacancy.salary_up_to }} $$
                     {% else %}
-                        by agreement
+                        from {{ vacancy.salary_from }} $
                     {% endif %}
-                </div>
-            </blockquote>
-            {% if vacancy.description %}
-                <p class="flow-text">Vacancy description</p>
-                <blockquote>
-                    {{ vacancy.description|safe }}
-                </blockquote>
-            {% endif %}
-            {% if vacancy.requirement %}
-                <p class="flow-text">Vacancy requirement</p>
-                <blockquote>
-                    {{ vacancy.requirement|safe }}
-                </blockquote>
-            {% endif %}
-        {% for item in vacancy.specializations.all %}
-            <div class="chip grey lighten-1">{{ item }}</div>
-        {% endfor %}
-        {% for item in vacancy.keywords.all %}
-            <div class="chip grey lighten-3">{{ item }}</div>
-        {% endfor %}
+                {% else %}
+                    by agreement
+                {% endif %}
+            </div>
+        </section>
+        <hr class="uk-divider-icon">
+        <section>
+            <div>
+                {% if vacancy.description %}
+                    <span class="uk-text-lead">Vacancy description</span>
+                    <div>
+                        {{ vacancy.description }}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {% if vacancy.requirement %}
+                    <span class="uk-text-lead">Vacancy requirement</span>
+                    <div>
+                        {{ vacancy.requirement }}
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+        <hr/>
+        <section>
+            {% for item in vacancy.specializations.all %}
+                <div class="chip">{{ item }}</div>
+            {% endfor %}
+            {% for item in vacancy.keywords.all %}
+                <div class="chip grey lighten-3">{{ item }}</div>
+            {% endfor %}
+        </section>
+        {% if role == 'candidate' and vacancy.contract_address and cv %}
+            {% with obj|is_can_subscribe:vacancy as can_subscribe %}
+                <a {% if not can_subscribe.0 %}uk-tooltip="{{ can_subscribe.1 }}"{% endif %}
+                   {% if can_subscribe.0 %}href="#subscribe" uk-toggle{% endif %}
+                   class="uk-toggle uk-button uk-button-primary uk-button-small uk-align-right">
+                    Subscribe to interview
+                </a>
 
-            {% if role == 'candidate' and vacancy.contract_address and cv %}
-                {% with obj|is_can_subscribe:vacancy as can_subscribe %}
-                    <a data-tooltip="{{ can_subscribe.1 }}"
-                       {% if can_subscribe.0 %}href="#subscribe"{% endif %}
-                       class="btn waves-light waves-effect blue right modal-trigger{% if not can_subscribe.0 %} tooltipped{% endif %}">
-                        Subscribe to interview
-                    </a>
-                    <div id="subscribe" class="modal modal-fixed-footer">
-                        <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                        <div class="modal-content">
-                            <h4>Choose cv for vacancy "{{ vacancy.title }}"</h4>
+                <div id="subscribe" uk-modal>
+                    <div class="uk-modal-dialog" uk-overflow-auto>
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
+                        <div class="uk-modal-header">
+                            <h2 class="uk-modal-title">{{ vacancy.title }}</h2>
+                        </div>
+                        <div class="">
                             {% include 'cv/include/cv.html' with selectable=True can_sub=can_subscribe %}
                         </div>
-                        <div class="modal-footer">
-                            <a class="waves-effect waves-light btn-flat" href="{% url 'new_cv' %}">Add new
-                                curriculum vitae</a>
-                        </div>
-                    </div>
-                {% endwith %}
-            {% endif %}
-
-            {% if vacancy.employer.user == request.user %}
-                <div class="row">
-                    <div class="col s12 l12 m12">
-                        <div class="right">
-                            <a href="{% url 'vacancy_edit' vacancy_id=vacancy.id %}"
-                               class="btn waves-light waves-effect green">Edit</a>
-                            <a href="{% url 'vacancy_tests' vacancy_id=vacancy.id %}"
-                               class="btn waves-light waves-effect blue">Tests</a>
+                        <div class="uk-modal-footer uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close uk-button-smal" type="button">
+                                Cancel
+                            </button>
+                            <a href="{% url 'new_cv' %}" class="uk-button uk-button-primary uk-button-smal"
+                               type="button">Add new CV</a>
                         </div>
                     </div>
                 </div>
-                <div class="clearfix"></div>
-                {% if vacancy.contract_address %}
-                    {% get_candidates vacancy %}
-                {% endif %}
+            {% endwith %}
+        {% endif %}
+
+        {% if vacancy.employer.user == request.user %}
+            <div class="uk-align-right">
+                <a href="{% url 'vacancy_edit' vacancy_id=vacancy.id %}"
+                   class="uk-button uk-button-default uk-button-small">Edit</a>
+                <a href="{% url 'vacancy_tests' vacancy_id=vacancy.id %}"
+                   class="uk-button uk-button-primary uk-button-small">Tests</a>
+            </div>
+            <div class="uk-clearfix"></div>
+            {% if vacancy.contract_address %}
+                {% get_candidates vacancy %}
             {% endif %}
-        </div>
+        {% endif %}
 
         {#        {% for item in vacancy.specializations.all %}#}
         {#            <div class="chip blue white-text">{{ item|title }}</div>#}

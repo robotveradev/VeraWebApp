@@ -1,18 +1,30 @@
 {% extends 'jobboard/base.html' %}
 
-{% load i18n material_form %}
+{% load material_form i18n static %}
 
 {% block head_title %}CurriculumVitae - New position{% endblock %}
 
+{% block extra_css %}
+
+{% endblock %}
+
 {% block content %}
-    <div class="container">
-        <h4 class="center">New Position for CV</h4>
+    <div class="uk-container uk-align-center">
         <form action="{% url 'new_position' cv_id=cv %}" method="post">
-            {% csrf_token %}
-            {% form form=form %}{% endform %}
+            <fieldset class="uk-fieldset">
+                <legend class="uk-legend">
+                    {% trans 'New Position for CV' %}
+                </legend>
+                {% csrf_token %}
+                {% form form=form %}{% endform %}
+            </fieldset>
             <button type="submit"
-                    class="btn waves-effect waves-green right blue">Agree
+                    class="uk-button uk-button-primary uk-align-right">Agree
             </button>
         </form>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+
 {% endblock %}

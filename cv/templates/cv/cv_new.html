@@ -1,16 +1,26 @@
 {% extends 'jobboard/base.html' %}
 
-{% load material_form %}
+{% load material_form static %}
 
 {% block head_title %}Candidate - New CV{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/wisywyg.css' %}">
+    <link rel="stylesheet" href="{% static 'css/wisywyg-colors.css' %}">
+{% endblock %}
+
 {% block content %}
-    <div class="container">
+    <div class="uk-container uk-align-center">
         <h4 class="center">New Candidate Cv</h4>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {% form form=form %}{% endform %}
-            <button type="submit" class="btn waves-effect waves-light blue right">Save</button>
+            <button type="submit" class="uk-button uk-button-primary uk-align-right">Save</button>
         </form>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/wisywyg5.js' %}"></script>
+    <script src="{% static 'js/wisywig-uikit.js' %}"></script>
 {% endblock %}
