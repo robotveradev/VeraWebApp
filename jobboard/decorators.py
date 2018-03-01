@@ -16,17 +16,12 @@ def choose_role_required(func=None, redirect_field_name=REDIRECT_FIELD_NAME, red
     def decorator(view_func):
         @functools.wraps(view_func, assigned=available_attrs(view_func))
         def _wrapped_view(request, *args, **kwargs):
-            try:
-                Employer.objects.get(user=request.user)
-            except Employer.DoesNotExist:
-                try:
-                    Candidate.objects.get(user=request.user)
-                except Candidate.DoesNotExist:
-                    return handle_redirect_to_login(
-                        request,
-                        redirect_field_name=redirect_field_name,
-                        login_url=redirect_url
-                    )
+            if request.role is None:
+                return handle_redirect_to_login(
+                    request,
+                    redirect_field_name=redirect_field_name,
+                    login_url=redirect_url
+                )
             if is_authenticated(request.user):
                 return view_func(request, *args, **kwargs)
         return _wrapped_view

@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cv', '0016_delete_testmodel'),
+        ('cv', '0014_auto_20180131_1443'),
     ]
 
     operations = [

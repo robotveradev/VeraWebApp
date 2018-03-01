@@ -9,8 +9,6 @@ Django==2.0.2
 django-appconf==1.0.2
 django-material==1.2.2
 django-model-utils==3.1.1
-django-summernote==0.8.8.5
-django-tinymce==2.7.0
 django-user-accounts==2.0.3
 eth-abi==0.5.0
 eth-keyfile==0.4.1

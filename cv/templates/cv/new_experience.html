@@ -6,7 +6,7 @@
 
 {% block content %}
     <div class="uk-container uk-align-center">
-        <form action="{% url 'new_experience' cv_id=cv %}" method="post">
+        <form class="uk-form-horizontal" action="{% url 'new_experience' cv_id=cv %}" method="post">
             <fieldset class="uk-fieldset">
                 <legend class="uk-legend">
                     {% trans 'Add Experience for CV' %}

@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -52,6 +51,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'jobboard.v_middleware.RoleMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # 'account.middleware.LocaleMiddleware',
@@ -140,7 +140,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 VERA_COIN_CONTRACT_ADDRESS = '0xCAe393A1892DC3aaF4c19a0F76Ccbd8Ae5BBe482'  # Rinkeby
 
-VERA_COIN_PRESALE_CONTRACT_ADDRESS = '0x9AF242B715F818eEb4E485CAe925e1FCF696c696'  # Rinkeby
+VERA_COIN_PRESALE_CONTRACT_ADDRESS = '0x7a118923a73050C07691666282b7153E5a6183eA'  # Rinkeby
 
 VERA_ORACLE_CONTRACT_ADDRESS = '0x94D663449c74e91e133b70E4B18eE40c818C9F11'  # Rinkeby
 

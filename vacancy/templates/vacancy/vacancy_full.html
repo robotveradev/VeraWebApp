@@ -115,7 +115,7 @@
                 {% if vacancy.description %}
                     <span class="uk-text-lead">Vacancy description</span>
                     <div>
-                        {{ vacancy.description }}
+                        {{ vacancy.description|safe }}
                     </div>
                 {% endif %}
             </div>
@@ -123,7 +123,7 @@
                 {% if vacancy.requirement %}
                     <span class="uk-text-lead">Vacancy requirement</span>
                     <div>
-                        {{ vacancy.requirement }}
+                        {{ vacancy.requirement|safe }}
                     </div>
                 {% endif %}
             </div>
@@ -178,15 +178,5 @@
                 {% get_candidates vacancy %}
             {% endif %}
         {% endif %}
-
-        {#        {% for item in vacancy.specializations.all %}#}
-        {#            <div class="chip blue white-text">{{ item|title }}</div>#}
-        {#        {% endfor %}#}
-        {#        {% for item in vacancy.keywords.all %}#}
-        {#            <div class="chip amber white-text">{{ item|title }}</div>#}
-        {#        {% endfor %}#}
-        {#        <br>#}
-
-        {#        <br>#}
     </div>
 {% endblock %}

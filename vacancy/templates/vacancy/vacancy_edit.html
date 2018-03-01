@@ -17,7 +17,7 @@
                 {% if error %}
                     <span class="red-text">{{ error }}</span>
                 {% endif %}
-                <form action="{% url 'vacancy_edit' vacancy_id=vac_o.id %}" method="post">
+                <form class="uk-form-horizontal" action="{% url 'vacancy_edit' vacancy_id=vac_o.id %}" method="post">
                     {% csrf_token %}
                     {% form form=form %}{% endform %}
                     <button class="uk-button uk-button-primary uk-align-right uk-button-small">Save</button>

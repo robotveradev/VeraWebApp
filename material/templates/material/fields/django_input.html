@@ -4,6 +4,7 @@
 {% else %}
     {% part bound_field.field %}
         <div class="uk-margin">
+            <label class="uk-form-label" for="id_{{ bound_field.html_name }}">{{ bound_field.label }}</label>
             <div{% attrs bound_field 'group' %}
                 class="uk-form-controls"
             {% endattrs %}>

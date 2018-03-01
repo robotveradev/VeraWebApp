@@ -7,7 +7,7 @@ class VacancyForm(forms.ModelForm):
     interview_fee = forms.CharField(widget=forms.NumberInput)
 
     class Meta:
-        exclude = ('employer', 'contract_address', 'enabled',)
+        exclude = ('employer', 'contract_address', 'enabled', )
         model = Vacancy
 
         labels = {
@@ -19,7 +19,7 @@ class VacancyForm(forms.ModelForm):
 
 class EditVacancyForm(forms.ModelForm):
     class Meta:
-        exclude = ('employer', 'contract_address',)
+        exclude = ('employer', 'contract_address', )
         model = Vacancy
 
         labels = {
