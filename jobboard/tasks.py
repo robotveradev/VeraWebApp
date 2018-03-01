@@ -36,6 +36,7 @@ def check_transactions():
                         tx_logs = [item for item in log_entry['logs'] if item['transactionHash'] == txn.txn_hash]
                         logs = get_event_data(abi, tx_logs[1])
                         emp_o.contract_address = logs['args']['employer_address']
+                        emp_o.enabled = True
                         emp_o.save()
                         txn.delete()
                         print("NewEmployerContract: " + emp_o.organization + ' ' + logs['args']['employer_address'])
@@ -54,6 +55,7 @@ def check_transactions():
                         tx_logs = [item for item in log_entry['logs'] if item['transactionHash'] == txn.txn_hash]
                         logs = get_event_data(abi, tx_logs[1])
                         can_o.contract_address = logs['args']['candidate_address']
+                        can_o.enabled = True
                         can_o.save()
                         txn.delete()
                         print("NewCandidateContract: " + can_o.first_name + ' ' + logs['args']['candidate_address'])
@@ -72,6 +74,7 @@ def check_transactions():
                         tx_logs = [item for item in log_entry['logs'] if item['transactionHash'] == txn.txn_hash]
                         logs = get_event_data(abi, tx_logs[2])
                         vac_o.contract_address = logs['args']['vacancy_address']
+                        vac_o.enabled = True
                         vac_o.save()
                         txn.delete()
                         print("NewVacancyContract: " + vac_o.title + ' ' + logs['args']['vacancy_address'])

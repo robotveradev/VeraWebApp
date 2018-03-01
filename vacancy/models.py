@@ -16,7 +16,7 @@ class Vacancy(models.Model):
     salary_up_to = models.PositiveIntegerField(blank=True, null=True)
     busyness = models.ManyToManyField(Busyness, blank=True)
     schedule = models.ManyToManyField(Schedule, blank=True)
-    enabled = models.NullBooleanField(default=True)
+    enabled = models.NullBooleanField(default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
