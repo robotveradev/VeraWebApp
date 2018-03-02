@@ -92,11 +92,21 @@ $(document).ready(function () {
                         link_item.hide();
                     }
                     $('#grant_revoke_title').text(action + ' agent');
-                    link_item.attr('href', link+agent_address).text(action);
+                    link_item.attr('href', link + agent_address).text(action);
                     $('#agent_status').html(elem);
                     UIkit.modal('#grant_revoke_agent').show();
                 }
             })
         }
     });
+
+    $('textarea').htmlarea({
+        toolbar: ["bold", "italic", "underline", "|", "p", "h1", "h2", "h3", "h4", "h5", "h6", "|", "indent", "outdent", "|", "orderedList", "unorderedList", "horizontalrule", "|", "justifyLeft", "justifyCenter", "justifyRight"]
+    });
+    $('.jHtmlArea').parent('div').addClass('jHtml-textarea');
 });
+
+
+
+
+

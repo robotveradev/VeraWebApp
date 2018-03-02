@@ -14,7 +14,7 @@
             {% if error %}
                 <span class="center red-text">{{ error }}</span>
             {% endif %}
-            <form action="{% url 'cv_edit' cv_id=cv_o.id %}" enctype="multipart/form-data" method="post">
+            <form class="uk-form-horizontal" action="{% url 'cv_edit' cv_id=cv_o.id %}" enctype="multipart/form-data" method="post">
                 <fieldset class="uk-fieldset">
                     <legend class="uk-legend">
                         Edit CV

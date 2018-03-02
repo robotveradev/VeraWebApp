@@ -47,7 +47,7 @@ def new_vacancy(request):
                     save_txn_to_history.delay(request.user.id, txn_hash,
                                               'Creation of a new vacancy: {}'.format(form.cleaned_data['title']))
                     save_txn.delay(txn_hash, 'NewVacancy', request.user.id, new_vac.id)
-                    return redirect('profile')
+                    return redirect(vacancy, vacancy_id=new_vac.id)
                 else:
                     args['error'] = 'Error while creation new vacancy'
     args['form'] = form

@@ -14,7 +14,7 @@
             {% if error %}
                 <span class="center red-text">{{ error }}</span>
             {% endif %}
-            <form action="{% url 'position_edit' position_id=position_o.id %}" method="post">
+            <form class="uk-form-horizontal" action="{% url 'position_edit' position_id=position_o.id %}" method="post">
                 <fieldset class="uk-fieldset">
                     <legend class="uk-legend">
                         Edit CV position "{{ position_o.title|title }}"

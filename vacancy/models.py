@@ -9,7 +9,7 @@ class Vacancy(models.Model):
     specializations = models.ManyToManyField('jobboard.Specialisation', blank=True)
     keywords = models.ManyToManyField('jobboard.Keyword', blank=True)
     experience = models.CharField(max_length=10, null=True, blank=True)
-    description = models.TextField(blank=False, null=False)
+    description = models.TextField(blank=True, null=True)
     requirement = models.TextField(blank=True, null=True)
     city = models.CharField(max_length=255)
     salary_from = models.PositiveIntegerField(default=0, blank=True, null=True)

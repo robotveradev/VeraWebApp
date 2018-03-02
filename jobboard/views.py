@@ -28,7 +28,6 @@ def index(request):
     return render(request, 'jobboard/index.html', {})
 
 
-@login_required
 @choose_role_required(redirect_url='/role/')
 def find_job(request):
     periods = [{'id': 1, 'days': 30, 'title': 'for month', 'type': 'period'},

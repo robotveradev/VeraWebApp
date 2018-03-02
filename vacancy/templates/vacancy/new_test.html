@@ -7,7 +7,7 @@
 {% block content %}
     <div class="uk-container uk-align-center">
         <h4 class="center">{% trans 'New test for vacancy' %} {{ vacancy.title }}</h4>
-        <form method="post" action="{% url 'new_test' %}">
+        <form  method="post" action="{% url 'new_test' %}">
             {% csrf_token %}
             <input type="hidden" value="{{ vacancy.id }}" name="vacancy">
 
