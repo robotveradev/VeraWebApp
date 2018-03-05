@@ -7,7 +7,9 @@
 {% block content %}
     <div class="uk-container uk-align-center">
         <h4>All your CVs</h4>
-        {% include 'cv/include/cv.html' %}
+        {% for cv in cvs %}
+            {% include 'cv/include/cv.html' %}
+        {% endfor %}
         <a class="uk-button uk-button-primary uk-button-small uk-align-right"
            href="{% url 'new_cv' %}">{% trans 'Add new curriculum vitae' %}</a>
     </div>

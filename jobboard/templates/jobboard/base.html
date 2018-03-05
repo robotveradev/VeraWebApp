@@ -22,9 +22,12 @@
                     <a href="{% url 'index' %}">Home</a>
                 </li>
                 <li>
-                    <a href="{% url 'find_job' %}">Jobs</a>
+                    <a href="{% url 'find_job' %}">Vacancies</a>
                 </li>
                 {% if role == 'employer' %}
+                    <li>
+                        <a href="{% url 'find_cv' %}">CVs</a>
+                    </li>
                     <li>
                         <a href="{% url 'new_vacancy' %}">Post a job</a>
                     </li>

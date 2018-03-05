@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'account',
     'material',
     'material.frontend',
+    'django_filters',
+    'django_extensions',
 ]
 
 SITE_ID = 1

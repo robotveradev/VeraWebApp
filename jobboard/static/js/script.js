@@ -79,11 +79,11 @@ $(document).ready(function () {
                     var action = '';
                     link_item.show();
                     if (data === 'False') {
-                        link = '/grant_agent/?address=';
+                        link = '/agent/grant/?address=';
                         elem = 'Address ' + agent_address + ' not is agent.';
                         action = 'grant';
                     } else if (data === 'True') {
-                        link = '/revoke_agent/?address=';
+                        link = '/agent/revoke/?address=';
                         elem = 'Address ' + agent_address + ' is agent.';
                         action = 'revoke';
                     } else {

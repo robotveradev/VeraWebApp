@@ -1,6 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from django.http import Http404, HttpResponse
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from cv.models import CurriculumVitae
@@ -9,8 +8,7 @@ from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.oracle import OracleHandler
-from jobboard.models import Employer, Specialisation, Keyword, Candidate
-from jobboard.views import user_role
+from jobboard.models import Candidate
 from django.conf import settings as django_settings
 
 from vacancy.forms import VacancyForm, EditVacancyForm
@@ -23,7 +21,7 @@ from jobboard.tasks import save_txn_to_history, save_txn
 def new_vacancy(request):
     args = {}
     form = VacancyForm()
-    args['role'], args['obj'] = user_role(request.user.id)
+    args['role'], args['obj'] = request.role, request.role_object
     if request.method == 'POST' and args['role'] == 'employer':
         coin_h = CoinHandler(django_settings.VERA_COIN_CONTRACT_ADDRESS)
         oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
@@ -76,10 +74,10 @@ def vacancy(request, vacancy_id):
     args = {}
     try:
         args['vacancy'] = Vacancy.objects.get(id=vacancy_id)
-        args['role'], args['obj'] = user_role(request.user.id)
+        args['role'], args['obj'] = request.role, request.role_object
         args['net_url'] = django_settings.NET_URL
         if args['role'] == 'candidate':
-            args['cv'] = CurriculumVitae.objects.filter(candidate=args['obj'], published=True)
+            args['cvs'] = CurriculumVitae.objects.filter(candidate=args['obj'], published=True)
         return render(request, 'vacancy/vacancy_full.html', args)
     except Vacancy.DoesNotExist:
         raise Http404
@@ -168,7 +166,7 @@ def change_vacancy_status(request, vacancy_id):
 @choose_role_required(redirect_url='/role/')
 def vacancy_all(request):
     args = {}
-    args['role'], args['obj'] = user_role(request.user.id)
+    args['role'], args['obj'] = request.role, request.role_object
     if args['role'] == 'candidate':
         return redirect('profile')
     elif args['role'] == 'employer':

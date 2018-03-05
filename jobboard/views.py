@@ -1,239 +1,275 @@
 import json
 import re
 import time
-from django.utils import timezone
 from account.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_POST
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.generic import TemplateView
 from web3.utils.validation import validate_address
-from cv.models import CurriculumVitae, Busyness, Schedule
-from jobboard.forms import LearningForm, WorkedForm, CertificateForm
+from cv.models import CurriculumVitae
+from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.tasks import save_txn_to_history, save_txn
 from .handlers.candidate import CandidateHandler
-from .models import Employer, Candidate, Specialisation, Keyword, TransactionHistory
+from .models import Employer, Candidate, TransactionHistory
 from vacancy.models import Vacancy, VacancyTest, CandidateVacancyPassing
 from .decorators import choose_role_required
 from .handlers.oracle import OracleHandler
-from web3 import Web3
 from django.conf import settings as django_settings
 from django.db.models import Q
+from .filters import VacancyFilter, CVFilter
+
+_EMPLOYER, _CANDIDATE = 'employer', 'candidate'
+
+SORTS = [{'id': 1, 'order': '-salary_from', 'title': 'by salary descending', 'type': 'sort'},
+         {'id': 2, 'order': 'salary_from', 'title': 'by salary ascending', 'type': 'sort'},
+         {'id': 3, 'order': '-updated_at', 'title': 'by date', 'type': 'sort'}]
+
+CVS_SORTS = [{'id': 1, 'order': '-position__salary_from', 'title': 'by salary descending', 'type': 'sort'},
+             {'id': 2, 'order': 'position__salary_from', 'title': 'by salary ascending', 'type': 'sort'},
+             {'id': 3, 'order': '-updated_at', 'title': 'by date', 'type': 'sort'}]
 
 
 def index(request):
     return render(request, 'jobboard/index.html', {})
 
 
-@choose_role_required(redirect_url='/role/')
-def find_job(request):
-    periods = [{'id': 1, 'days': 30, 'title': 'for month', 'type': 'period'},
-               {'id': 2, 'days': 7, 'title': 'for week', 'type': 'period'},
-               {'id': 3, 'days': 3, 'title': 'for three days', 'type': 'period'},
-               {'id': 4, 'days': 1, 'title': 'for day', 'type': 'period'}]
-    sorts = [{'id': 1, 'order': '-salary_from', 'title': 'by salary descending', 'type': 'sort'},
-             {'id': 2, 'order': 'salary_from', 'title': 'by salary ascending', 'type': 'sort'},
-             {'id': 3, 'order': '-created_at', 'title': 'by date', 'type': 'sort'}]
-    if 'filter' in request.GET:
-        vacancies = Vacancy.objects.filter(enabled=True, employer__enabled=True).exclude(contract_address=None)
-    else:
-        vacancies = get_relevant(request.user)
+class FindJobView(TemplateView):
+    template_name = 'jobboard/find_job.html'
 
-    if 'period' in request.GET:
-        period = get_item(periods, int(request.GET.get('period')))
-        if not period:
-            period = periods[0]
-    else:
-        period = periods[0]
-    vacancies = vacancies.filter(created_at__gte=timezone.now() - timezone.timedelta(days=period['days']))
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+        self.vacancies = Vacancy.objects.filter(enabled=True, employer__enabled=True).exclude(contract_address=None)
+        self.vacancies_filter = None
+        self.cvs = CurriculumVitae.objects
+        self.context = {}
 
-    if 'sort' in request.GET:
-        sort_by = get_item(sorts, int(request.GET.get('sort')))
-        if not sort_by:
-            sort_by = sorts[2]
-    else:
-        sort_by = sorts[2]
-    vacancies = vacancies.order_by(sort_by['order'])
+    def dispatch(self, request, *args, **kwargs):
+        self.request = request
+        return super().dispatch(request, *args, **kwargs)
 
-    specializations = Specialisation.objects.all()
-    keywords = Keyword.objects.all()
-    busyness = Busyness.objects.all()
-    schedule = Schedule.objects.all()
-    args = {'salary_range': [1000, 2000, 3000, 4000, 5000, 6000, 7000, ]}
-    if 'specialisation' in request.GET:
-        args['selected_spec'] = Specialisation.objects.filter(pk=request.GET.get('specialisation')).first()
-        vacancies = vacancies.filter(specializations__in=[request.GET.get('specialisation'), ])
-        specializations = Specialisation.objects.filter(parent_specialisation=request.GET.get('specialisation'))
-    if 'keyword' in request.GET:
-        args['selected_keyword'] = Keyword.objects.filter(pk=request.GET.get('keyword')).first()
-        vacancies = vacancies.filter(keywords__in=[request.GET.get('keyword'), ])
-        keywords = keywords.exclude(id=request.GET['keyword'])
-    if 'salary' in request.GET:
-        args['selected_salary'] = request.GET.get('salary')
-        vacancies = vacancies.filter(salary_from__gte=args["selected_salary"])
-        args['salary_range'] = []
-    if 'busyness' in request.GET:
-        args['selected_busyness'] = Busyness.objects.filter(pk=request.GET.get('busyness')).first()
-        vacancies = vacancies.filter(busyness__in=[request.GET.get('busyness'), ])
-        busyness = busyness.exclude(id=request.GET.get('busyness'))
-    if 'schedule' in request.GET:
-        args['selected_schedule'] = Schedule.objects.filter(pk=request.GET.get('schedule')).first()
-        vacancies = vacancies.filter(schedule__in=[request.GET.get('schedule'), ])
-        schedule = schedule.exclude(id=request.GET.get('schedule'))
-    paginator = Paginator(vacancies, request.GET.get('list') or 25)
-    page = request.GET.get('page')
-    args['specializations'] = specializations
-    args['keywords'] = keywords
-    args['vacancies'] = paginator.get_page(page)
-    args['vacancies_all'] = vacancies
-    args['busyness'] = busyness
-    args['schedule'] = schedule
-    args['periods'] = periods
-    args['selected_period'] = period
-    args['sorts'] = sorts
-    args['selected_sort'] = sort_by
-    return render(request, 'jobboard/find_job.html', args)
+    def get_context_data(self, **kwargs):
+        self.context = super().get_context_data(**kwargs)
 
+    def get(self, request, *args, **kwargs):
+        self.get_context_data(**kwargs)
+        self.set_vacancies_filter()
+        self.sort_vacancies_filter()
+        paginator = Paginator(self.vacancies_filter, 15)
+        self.context.update({'vacancies': paginator.get_page(request.GET.get('page')),
+                             'sorts': SORTS})
+        return self.render_to_response(self.context)
 
-def choose_role(request):
-    args = {}
-    if request.method == 'POST':
-        role = request.POST.get('role')
-        next = request.POST.get('next')
-        oracle = OracleHandler(django_settings.WEB_ETH_COINBASE,
-                               django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
-        tax_number = request.POST.get('tax_number')
-        if role == 'employer':
-            org = request.POST.get('organization')
-            try:
-                txn_hash = oracle.new_employer(Web3.toBytes(hexstr=Web3.sha3(text=org + tax_number)),
-                                               django_settings.VERA_COIN_CONTRACT_ADDRESS)
-            except ValueError:
-                args['error'] = 'Invalid token address'
-                return render(request, 'jobboard/choose_role.html', args)
-            else:
-                save_txn_to_history.delay(request.user.id, txn_hash, 'Creation of a new employer contract')
-                emp = Employer()
-                emp.user = request.user
-                emp.organization = request.POST.get('organization')
-                emp.tax_number = request.POST.get('tax_number')
-                emp.save()
-
-                save_txn.delay(txn_hash, 'NewEmployer', request.user.id, emp.id)
-        elif role == 'candidate':
-            first_name = request.POST.get('first_name')
-            last_name = request.POST.get('last_name')
-            middle_name = request.POST.get('middle_name')
-            txn_hash = oracle.new_candidate(
-                Web3.toBytes(hexstr=Web3.sha3(text=first_name + middle_name + last_name + tax_number)))
-            if txn_hash:
-                save_txn_to_history.delay(request.user.id, txn_hash, 'Creation of a new candidate contract')
-                can_o = Candidate()
-                can_o.user = request.user
-                can_o.first_name = first_name
-                can_o.last_name = last_name
-                can_o.middle_name = middle_name
-                can_o.tax_number = tax_number
-                can_o.save()
-
-                save_txn.delay(txn_hash, 'NewCandidate', request.user.id, can_o.id)
-        if next != '':
-            return redirect(next)
+    def set_vacancies_filter(self):
+        if 'filter' not in self.request.GET:
+            self.set_filter_for_relevant_vacancies()
         else:
-            return redirect(profile)
-    return render(request, 'jobboard/choose_role.html', args)
+            self.set_filter_by_parameters()
+
+    def set_filter_for_relevant_vacancies(self):
+        if self.request.role == _CANDIDATE:
+            cvs = self.cvs.filter(candidate=self.request.role_object, published=True)
+            specs_list = list(set([item['specialisations__id'] for item in cvs.values('specialisations__id') if
+                                   item['specialisations__id'] is not None]))
+            keywords_list = list(
+                set([item['keywords__id'] for item in cvs.values('keywords__id') if item['keywords__id'] is not None]))
+            vacs = self.vacancies.filter(Q(specializations__in=specs_list) |
+                                         Q(keywords__in=keywords_list)).distinct()
+            self.vacancies_filter = vacs
+        else:
+            self.vacancies_filter = self.vacancies
+        self.context.update({'all': self.vacancies})
+
+    def set_filter_by_parameters(self):
+        self.vacancies_filter = VacancyFilter(self.request.GET, self.vacancies).qs
+        self.context.update({'all': self.vacancies_filter})
+
+    def sort_vacancies_filter(self):
+        if 'sort' in self.request.GET:
+            sort_by = get_item(SORTS, int(self.request.GET.get('sort')))
+            if not sort_by:
+                sort_by = SORTS[2]
+        else:
+            sort_by = SORTS[2]
+        self.context.update({'selected_sort': sort_by})
+        self.vacancies_filter = self.vacancies_filter.order_by(sort_by['order'])
 
 
-@login_required
-@choose_role_required(redirect_url='/role/')
-def profile(request):
-    args = {}
-    args['role'], args['obj'] = user_role(request.user.id)
-    if args['role']:
-        if args['role'] == 'employer':
-            vacancies = Vacancy.objects.filter(employer=args['obj'])
-            args['vacancies'] = vacancies.order_by('-created_at')[:3]
-            args['vacancies_count'] = vacancies.count()
-        if args['role'] == 'candidate':
-            args['learning_form'] = LearningForm()
-            args['worked_form'] = WorkedForm()
-            args['certificate_form'] = CertificateForm()
-            args['cv'] = CurriculumVitae.objects.filter(candidate=args['obj'])
-    return render(request, 'jobboard/profile.html', args)
+class FindCVView(TemplateView):
+    template_name = 'jobboard/find_cv.html'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+        self.cvs = CurriculumVitae.objects.filter(published=True, candidate__enabled=True)
+        self.cvs_filter = None
+        self.vacs = Vacancy.objects.filter(enabled=True)
+        self.context = {}
+
+    def dispatch(self, request, *args, **kwargs):
+        self.request = request
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        self.context = super().get_context_data(**kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.get_context_data(**kwargs)
+        self.set_cvs_filter()
+        self.sort_cvs_filter()
+        paginator = Paginator(self.cvs_filter, 15)
+        self.context.update({'cvs': paginator.get_page(request.GET.get('page')),
+                             'sorts': CVS_SORTS})
+        return self.render_to_response(self.context)
+
+    def set_cvs_filter(self):
+        if 'filter' not in self.request.GET:
+            self.set_filter_for_relevant_cvs()
+        else:
+            self.set_filter_by_parameters()
+
+    def set_filter_for_relevant_cvs(self):
+        if self.request.role == _EMPLOYER:
+            vacs = self.vacs.filter(employer=self.request.role_object, enabled=True)
+            specs_list = list(set([item['specializations__id'] for item in vacs.values('specializations__id') if
+                                   item['specializations__id'] is not None]))
+            keywords_list = list(
+                set([item['keywords__id'] for item in vacs.values('keywords__id') if item['keywords__id'] is not None]))
+            cvs = self.cvs.filter(Q(specializations__in=specs_list) |
+                                  Q(keywords__in=keywords_list)).exclude(
+                candidate__contract_address=None).distinct()
+            self.cvs_filter = cvs
+        else:
+            self.cvs_filter = self.cvs
+        self.context.update({'all': self.cvs})
+
+    def set_filter_by_parameters(self):
+        self.cvs_filter = CVFilter(self.request.GET, self.cvs).qs
+        self.context.update({'all': self.cvs_filter})
+
+    def sort_cvs_filter(self):
+        if 'sort' in self.request.GET:
+            sort_by = get_item(CVS_SORTS, int(self.request.GET.get('sort')))
+            if not sort_by:
+                sort_by = CVS_SORTS[2]
+        else:
+            sort_by = CVS_SORTS[2]
+        self.context.update({'selected_sort': sort_by})
+        self.cvs_filter = self.cvs_filter.order_by(sort_by['order'])
 
 
-def user_role(user_id):
-    try:
-        return 'employer', Employer.objects.get(user_id=user_id)
-    except Employer.DoesNotExist:
-        try:
-            return 'candidate', Candidate.objects.get(user_id=user_id)
-        except Candidate.DoesNotExist:
-            return False, None
+class ChooseRoleView(TemplateView):
+    template_name = 'jobboard/choose_role.html'
+
+    def post(self, request, *args, **kwargs):
+        role = request.POST.get('role')
+        if role == _EMPLOYER:
+            _form = EmployerForm(request.POST)
+        elif role == 'candidate':
+            _form = CandidateForm(request.POST)
+        else:
+            return redirect('choose_role')
+
+        if _form.is_valid():
+            role_o = _form.save(commit=False)
+            role_o.user = request.user
+            role_o.save()
+            if hasattr(request.GET, 'next'):
+                return HttpResponseRedirect(request.GET['next'])
+            return redirect('profile')
+        else:
+            context = self.get_context_data(**kwargs)
+            context['errors'] = _form.errors
+            return self.render_to_response(context)
+
+    def get(self, request, *args, **kwargs):
+        if request.role is not None:
+            return redirect('profile')
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
 
 
-@login_required
-def candidate(request, candidate_id):
-    args = {'candidate': get_object_or_404(Candidate, id=candidate_id)}
-    candidate_contract_address = args['candidate'].contract_address
-    args['employer'] = get_object_or_404(Employer, user_id=request.user.id)
-    employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE, args['employer'].contract_address)
-    args['vacancies'] = []
-    for vacancy in employer_handler.get_vacancies():
-        vacancy_handler = VacancyHandler(django_settings.WEB_ETH_COINBASE, vacancy)
-        if candidate_contract_address in vacancy_handler.candidates() and vacancy_handler.get_candidate_state(
-                candidate_contract_address) != 'not exist':
-            args['vacancies'].append({'address': vacancy,
-                                      'state': vacancy_handler.get_candidate_state(candidate_contract_address),
-                                      'id': Vacancy.objects.values('id').get(contract_address=vacancy)['id']})
-    return render(request, 'jobboard/candidate.html', args)
+class ProfileView(TemplateView):
+    template_name = 'jobboard/profile.html'
+
+    @method_decorator(login_required)
+    @method_decorator(choose_role_required(redirect_url='/role/'))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if request.role is not None:
+            context.update(self.get_current_object_data(request))
+        return self.render_to_response(context)
+
+    @staticmethod
+    def get_current_object_data(request):
+        data = {}
+        if request.role == _EMPLOYER:
+            vacancies = Vacancy.objects.filter(employer=request.role_object)
+            data['vacancies'] = vacancies.order_by('-created_at')[:3]
+            data['vacancies_count'] = vacancies.count()
+        elif request.role == 'candidate':
+            data['learning_form'] = LearningForm()
+            data['worked_form'] = WorkedForm()
+            data['certificate_form'] = CertificateForm()
+            data['cvs'] = CurriculumVitae.objects.filter(candidate=request.role_object)
+        return data
 
 
-@require_POST
-def approve_candidate(request):
-    vacancy_id = request.POST.get('vacancy')
-    candidate_id = request.POST.get('candidate')
-    vac_o = get_object_or_404(Vacancy, id=vacancy_id, employer__user=request.user)
-    can_o = get_object_or_404(Candidate, id=candidate_id)
-    employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE, vac_o.employer.contract_address)
-    oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
-    oracle.unlockAccount()
-    txn_hash = employer_handler.grant_access_to_candidate(vac_o.contract_address, can_o.contract_address)
+class GrantRevokeCandidate(View):
 
-    save_txn.delay(txn_hash, 'EmpAnswer', request.user.id, candidate_id, vacancy_id)
+    @method_decorator(login_required)
+    @method_decorator(choose_role_required(redirect_url='/role/'))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
-    save_txn_to_history.delay(request.user.id, txn_hash,
-                              'Candidate {} approved to vacancy {}'.format(can_o.contract_address,
-                                                                           vac_o.contract_address))
-    save_txn_to_history.delay(can_o.user_id, txn_hash,
-                              'Employer {} approve your candidacy to vacancy {}'.format(vac_o.employer.contract_address,
-                                                                                        vac_o.contract_address))
-    return redirect('vacancy', vacancy_id=vacancy_id)
+    def post(self, request, *args, **kwargs):
+        if request.role != _EMPLOYER:
+            return redirect('profile')
+        else:
+            action = request.POST.get('action')
+            if action not in ['revoke', 'grant']:
+                return redirect('profile')
+            else:
+                vac_o = get_object_or_404(Vacancy, id=request.POST.get('vacancy'), employer=request.role_object)
+                can_o = get_object_or_404(Candidate, id=request.POST.get('candidate'))
+                employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE,
+                                                   request.role_object.contract_address)
+                oracle = OracleHandler()
+                oracle.unlockAccount()
+                if action == 'revoke':
+                    txn_hash = employer_handler.revoke_access_to_candidate(vac_o.contract_address,
+                                                                           can_o.contract_address)
+                else:
+                    txn_hash = employer_handler.grant_access_to_candidate(vac_o.contract_address,
+                                                                          can_o.contract_address)
 
+                self.save_txn(vac=vac_o, can=can_o, txn_hash=txn_hash, action=action)
+                return redirect('vacancy', vacancy_id=vac_o.id)
 
-@require_POST
-def revoke_candidate(request):
-    vacancy_id = request.POST.get('vacancy')
-    candidate_id = request.POST.get('candidate')
-    vac_o = get_object_or_404(Vacancy, id=vacancy_id, employer__user=request.user)
-    can_o = get_object_or_404(Candidate, id=candidate_id)
-    employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE, vac_o.employer.contract_address)
-    oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
-    oracle.unlockAccount()
-    txn_hash = employer_handler.revoke_access_to_candidate(vac_o.contract_address, can_o.contract_address)
-
-    save_txn.delay(txn_hash, 'EmpAnswer', request.user.id, candidate_id, vacancy_id)
-
-    save_txn_to_history.delay(request.user.id, txn_hash,
-                              'Candidate {} revoked to vacancy {}'.format(can_o.contract_address,
-                                                                          vac_o.contract_address))
-    save_txn_to_history.delay(can_o.user_id, txn_hash,
-                              'Employer {} revoke your candidacy to vacancy {}'.format(vac_o.employer.contract_address,
-                                                                                       vac_o.contract_address))
-    return redirect('vacancy', vacancy_id=vacancy_id)
+    @staticmethod
+    def save_txn(**kwargs):
+        user_id = kwargs['vac'].employer.user.id
+        save_txn.delay(kwargs['txn_hash'], 'EmpAnswer', user_id, kwargs['can'].id,
+                       kwargs['vac'].id)
+        save_txn_to_history.delay(user_id, kwargs['txn_hash'],
+                                  'Candidate {} {}{} to vacancy {}'.format(kwargs['can'].contract_address,
+                                                                           kwargs['action'],
+                                                                           'ed' if kwargs['action'] == 'grant' else 'd',
+                                                                           kwargs['vac'].contract_address))
+        save_txn_to_history.delay(kwargs['can'].user_id, 'txn_hash',
+                                  'Employer {} {} your candidacy to vacancy {}'.format(
+                                      kwargs['vac'].employer.contract_address,
+                                      kwargs['action'],
+                                      kwargs['vac'].contract_address))
 
 
 def candidate_testing(request, vacancy_id):
@@ -287,7 +323,7 @@ def pay_to_candidate(request, vacancy_id):
     if state != 'accepted' or not passed:
         return HttpResponse('I see the cheater here', status=404)
     else:
-        oracle_h = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+        oracle_h = OracleHandler()
 
         txn_hash = oracle_h.pay_to_candidate(vac_o.employer.contract_address,
                                              can_o.contract_address,
@@ -306,14 +342,14 @@ def pay_to_candidate(request, vacancy_id):
                 'employer': vac_o.employer.organization}
         fact_txn_hash = can_h.new_fact(fact)
         save_txn_to_history.delay(can_o.user_id, fact_txn_hash, 'New fact from {}'.format(vac_o.employer.organization))
-        return redirect(profile)
+        return redirect('profile')
 
 
 def employer_about(request, employer_id):
     args = {}
     args['employer'] = get_object_or_404(Employer, id=employer_id)
     if args['employer'].user == request.user:
-        return redirect(profile)
+        return redirect('profile')
     args['vacancies'] = Vacancy.objects.filter(employer_id=employer_id, enabled=True)
     return render(request, 'jobboard/employer_about.html', args)
 
@@ -323,24 +359,24 @@ def user_help(request):
 
 
 def change_contract_status(request):
-    role, obj = user_role(request.user.id)
-    if role:
-        oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+    if request.role:
+        oracle = OracleHandler()
 
-        if obj.enabled:
-            txn_hash = oracle.pause_contract(obj.contract_address)
-        elif obj.enabled is False:
-            txn_hash = oracle.unpause_contract(obj.contract_address)
+        if request.role_object.enabled:
+            txn_hash = oracle.pause_contract(request.role_object.contract_address)
+        elif request.role_object.enabled is False:
+            txn_hash = oracle.unpause_contract(request.role_object.contract_address)
         else:
             txn_hash = False
 
         if txn_hash:
-            obj.enabled = None
-            obj.save()
-            save_txn.delay(txn_hash, role + 'Change', request.user.id, obj.id)
-            save_txn_to_history.delay(obj.user_id, txn_hash,
-                                      '{} change contract {} status'.format(role.capitalize(), obj.contract_address))
-    return redirect(profile)
+            request.role_object.enabled = None
+            request.role_object.save()
+            save_txn.delay(txn_hash, request.role + 'Change', request.user.id, request.role_object.id)
+            save_txn_to_history.delay(request.role_object.user_id, txn_hash,
+                                      '{} change contract {} status'.format(request.role.capitalize(),
+                                                                            request.role_object.contract_address))
+    return redirect('profile')
 
 
 def transactions(request):
@@ -352,17 +388,6 @@ def transactions(request):
     return render(request, 'jobboard/transactions.html', args)
 
 
-#
-# @require_POST
-# def increase_vacancy_allowance(request):
-#     allowance = request.POST.get('allowance')
-#     vac_o = get_object_or_404(Vacancy, id=request.POST.get('vac_id'), employer__user=request.user)
-#     coin_h = CoinHandler(django_settings.VERA_COIN_CONTRACT_ADDRESS, vac_o.employer.contract_address)
-#     old_allowance = coin_h.allowance(vac_o.employer.contract_address, vac_o.contract_address)
-#     coin_h.approve(vac_o.contract_address, 0)
-#     txh_hash = coin_h.approve(vac_o.contract_address, int(allowance) + int(old_allowance))
-#     return HttpResponse(txh_hash, status=200)
-
 def get_item(periods, f_id):
     for item in periods:
         if item['id'] == f_id:
@@ -370,12 +395,11 @@ def get_item(periods, f_id):
     return False
 
 
-def get_relevant(user, limit=None):
-    role, obj = user_role(user.id)
-    if role == 'employer':
-        return Vacancy.objects.filter(employer=obj)
-    elif role == 'candidate':
-        cvs = CurriculumVitae.objects.filter(candidate=obj, published=True)
+def get_relevant(request, limit=None):
+    if request.role == _EMPLOYER:
+        return Vacancy.objects.filter(employer=request.role_object)
+    elif request.role == _CANDIDATE:
+        cvs = CurriculumVitae.objects.filter(candidate=request.role_object, published=True)
         specs_list = list(set([item['specialisations__id'] for item in cvs.values('specialisations__id') if
                                item['specialisations__id'] is not None]))
         keywords_list = list(
@@ -394,27 +418,26 @@ def withdraw(request):
     if request.method == 'POST':
         address = request.POST.get('address')
         amount = request.POST.get('amount')
-        _, obj = user_role(request.user)
-        if obj.contract_address is None:
-            return redirect(profile)
+        if request.role_object.contract_address is None:
+            return redirect('profile')
         try:
             validate_address(address)
         except ValueError:
             return HttpResponse('Invalid address')
         else:
-            oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+            oracle = OracleHandler()
             coin_h = CoinHandler(django_settings.VERA_COIN_CONTRACT_ADDRESS)
-            user_balance = coin_h.balanceOf(obj.contract_address)
+            user_balance = coin_h.balanceOf(request.role_object.contract_address)
             if int(float(amount) * 10 ** 18) > user_balance:
                 return HttpResponse('You do not have so many coins', status=200)
             else:
-                txn_hash = oracle.withdraw(obj.contract_address, address, int(float(amount) * 10 ** 18))
-                save_txn_to_history.delay(obj.user_id, txn_hash,
+                txn_hash = oracle.withdraw(request.role_object.contract_address, address, int(float(amount) * 10 ** 18))
+                save_txn_to_history.delay(request.role_object.user_id, txn_hash,
                                           'Withdraw {} Vera token from {} to {}'.format(amount,
-                                                                                        obj.contract_address,
+                                                                                        request.role_object.contract_address,
                                                                                         address))
-                save_txn.delay(txn_hash, 'Withdraw', request.user.id, obj.id)
-    return redirect(profile)
+                save_txn.delay(txn_hash, 'Withdraw', request.user.id, request.role_object.id)
+    return redirect('profile')
 
 
 @login_required
@@ -428,8 +451,7 @@ def check_agent(request):
             except ValueError:
                 return HttpResponse('Invalid address', status=400)
             else:
-                role, obj = user_role(request.user.id)
-                emp_h = EmployerHandler(django_settings.WEB_ETH_COINBASE, obj.contract_address)
+                emp_h = EmployerHandler(django_settings.WEB_ETH_COINBASE, request.role_object.contract_address)
                 if agent_address.casefold() == django_settings.WEB_ETH_COINBASE.casefold():
                     return HttpResponse('oracle', status=200)
                 return HttpResponse(emp_h.is_agent(agent_address), status=200)
@@ -437,52 +459,63 @@ def check_agent(request):
             return HttpResponse('You must use Post request', status=400)
 
 
-@login_required
-@choose_role_required(redirect_url='/role/')
-def grant_agent(request):
-    _, obj = user_role(request.user.id)
-    grant_address = request.GET.get('address')
-    if grant_address == django_settings.WEB_ETH_COINBASE:
-        return redirect(profile)
-    if grant_address is not None:
-        oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
-        txn_hash = oracle.grant_agent(obj.contract_address, grant_address)
-        save_txn_to_history.delay(request.user.id, txn_hash, 'Grant access for agent {}'.format(grant_address))
-    return redirect(profile)
+class GrantRevokeAgentView(View):
+
+    @method_decorator(login_required)
+    @method_decorator(choose_role_required(redirect_url='/role/'))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        action = kwargs['action']
+        if action not in ['revoke', 'grant']:
+            pass
+        else:
+            address = request.GET.get('address')
+            if address == django_settings.WEB_ETH_COINBASE:
+                pass
+            else:
+                try:
+                    validate_address(address)
+                except ValueError:
+                    pass
+                else:
+                    oracle = OracleHandler()
+                    if action == 'revoke':
+                        txn_hash = oracle.revoke_agent(request.role_object.contract_address, address)
+                    else:
+                        txn_hash = oracle.grant_agent(request.role_object.contract_address, address)
+                    save_txn_to_history.delay(request.user.id, txn_hash,
+                                              'Revoke access for agent {}'.format(address))
+        return redirect('profile')
 
 
-@login_required
-@choose_role_required(redirect_url='/role/')
-def revoke_agent(request):
-    _, obj = user_role(request.user.id)
-    revoke_address = request.GET.get('address')
-    if revoke_address == django_settings.WEB_ETH_COINBASE:
-        return redirect(profile)
-    if revoke_address is not None:
-        oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
-        txn_hash = oracle.revoke_agent(obj.contract_address, revoke_address)
-        save_txn_to_history.delay(request.user.id, txn_hash, 'Revoke access for agent {}'.format(revoke_address))
-    return redirect(profile)
+class NewFactView(View):
 
+    @method_decorator(login_required)
+    @method_decorator(choose_role_required(redirect_url='/role/'))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
-@login_required
-@choose_role_required(redirect_url='/role/')
-def new_fact(request):
-    if request.method == 'POST':
+    def post(self, request, *args, **kwargs):
+        if request.role != _CANDIDATE or request.role_object is None:
+            return redirect('profile')
         f_type = request.POST.get('f_type')
-        _, obj = user_role(request.user.id)
-        if f_type == 'learning':
-            form = LearningForm(request.POST)
-        elif f_type == 'worked':
-            form = WorkedForm(request.POST)
-        elif f_type == 'certification':
-            form = CertificateForm(request.POST)
-        if form and form.is_valid():
-            fact = form.cleaned_data
-            fact.update({'type': f_type, 'from': obj.contract_address})
-            can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE, obj.contract_address)
-            oracle = OracleHandler(django_settings.WEB_ETH_COINBASE, django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
-            oracle.unlockAccount()
-            txn_hash = can_h.new_fact(fact)
-            save_txn_to_history.delay(obj.user_id, txn_hash, 'New "{}" fact added'.format(f_type))
-    return redirect(profile)
+        if f_type not in ['learning', 'worked', 'certification']:
+            return redirect('profile')
+        else:
+            if f_type == 'learning':
+                form = LearningForm(request.POST)
+            elif f_type == 'worked':
+                form = WorkedForm(request.POST)
+            else:
+                form = CertificateForm(request.POST)
+            if form.is_valid():
+                fact = form.cleaned_data
+                fact.update({'type': f_type, 'from': request.role_object.contract_address})
+                can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE, request.role_object.contract_address)
+                oracle = OracleHandler()
+                oracle.unlockAccount()
+                txn_hash = can_h.new_fact(fact)
+                save_txn_to_history.delay(request.role_object.user_id, txn_hash, 'New "{}" fact added'.format(f_type))
+        return redirect('profile')

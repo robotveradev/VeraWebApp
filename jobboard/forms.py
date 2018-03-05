@@ -1,7 +1,20 @@
 from django import forms
 from django.utils import timezone
+from jobboard.models import Candidate, Employer
 
 YEARS = [i for i in range(1950, timezone.now().year + 1)][::-1]
+
+
+class CandidateForm(forms.ModelForm):
+    class Meta:
+        model = Candidate
+        exclude = ['contract_address', 'enabled', 'user', ]
+
+
+class EmployerForm(forms.ModelForm):
+    class Meta:
+        model = Employer
+        exclude = ['contract_address', 'enabled', 'user', ]
 
 
 class LearningForm(forms.Form):

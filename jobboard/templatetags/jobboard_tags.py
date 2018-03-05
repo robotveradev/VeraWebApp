@@ -310,3 +310,9 @@ def get_candidate_relevant(candidate):
 def get_blockies_png(address):
     data = blockies.create(address.lower(), size=8, scale=16)
     return blockies.png_to_data_uri(data)
+
+
+@register.filter(name='show_me')
+def show_me(a):
+    print(a.data)
+    return ''

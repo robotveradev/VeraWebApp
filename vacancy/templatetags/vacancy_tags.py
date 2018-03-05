@@ -1,28 +1,45 @@
 from django import template
 
+from cv.models import Schedule, Busyness, CurriculumVitae
+from jobboard.models import Specialisation, Keyword
+
 register = template.Library()
+
+CHANGE_FILTERS = {'specialisation': 'specializations', 'keyword': 'keywords', 'salary': 'salary_from'}
 
 
 @register.inclusion_tag('vacancy/tags/job_with_count.html')
-def get_jobs_with(item, type_s, vacancies_list):
-    if type_s == 'spec':
-        count = vacancies_list.filter(specializations__in=[item, ]).count()
-    elif type_s == 'keyword':
-        count = vacancies_list.filter(keywords__in=[item, ]).count()
-    elif type_s == 'salary':
-        count = vacancies_list.filter(salary_from__gte=item).count()
-    elif type_s == 'busyness':
-        count = vacancies_list.filter(busyness__in=[item, ]).count()
-    elif type_s == 'schedule':
-        count = vacancies_list.filter(schedule__in=[item, ]).count()
-    else:
+def get_jobs_with(item, type_s, _list):
+    if _list is '' or not _list:
         count = 0
+    else:
+        if type_s == 'spec':
+            count = _list.filter(specializations__in=[item, ]).count()
+        elif type_s == 'keyword':
+            count = _list.filter(keywords__in=[item, ]).count()
+        elif type_s == 'salary':
+            if isinstance(_list[0], CurriculumVitae):
+                count = _list.filter(position__salary_from__gte=item).count()
+            else:
+                count = _list.filter(salary_from__gte=item).count()
+        elif type_s == 'busyness':
+            if isinstance(_list[0], CurriculumVitae):
+                count = _list.filter(position__busyness__in=[item, ]).count()
+            else:
+                count = _list.filter(busyness__in=[item, ]).count()
+        elif type_s == 'schedule':
+            if isinstance(_list[0], CurriculumVitae):
+                count = _list.filter(position__schedule__in=[item, ]).count()
+            else:
+                count = _list.filter(schedule__in=[item, ]).count()
+        else:
+            count = 0
     return {'count': count}
 
 
 @register.filter(name='get_filter_url')
 def get_filter_url(get_dict, item):
-    need_key = item.__class__.__name__.lower()
+    need_key = get_real_filter_name(item.__class__.__name__.lower())
     query_str = '?'
     query_list = ['{}={}'.format(need_key, item.pk)]
     for key, value in get_dict.items():
@@ -38,9 +55,9 @@ def get_filter_url(get_dict, item):
 @register.filter(name='get_salary_url')
 def get_salary_url(get_dict, salary):
     query_str = '?'
-    query_list = ['salary={}'.format(salary)]
+    query_list = ['salary_from={}'.format(salary)]
     for key, value in get_dict.items():
-        if key == 'salary':
+        if key == 'salary_from':
             pass
         else:
             query_list.append('{}={}'.format(key, value))
@@ -68,7 +85,7 @@ def get_clear_url(get_dict, item):
         query_str = '?'
         query_list = []
         if not isinstance(item, str):
-            need_key = item.__class__.__name__.lower()
+            need_key = get_real_filter_name(item.__class__.__name__.lower())
         else:
             need_key = item
 
@@ -87,7 +104,48 @@ def get_clear_url(get_dict, item):
         return ''
 
 
+@register.inclusion_tag('vacancy/tags/filter.html', takes_context=True)
+def get_filter(context):
+    request = context.request
+    filt = {}
+    for item in context:
+        if 'all' in item:
+            filt['all'] = item['all']
+    filt['salary_range'] = [i*1000 for i in range(1, 9)]
+    specializations = Specialisation.objects.all()
+    keywords = Keyword.objects.all()
+    busyness = Busyness.objects.all()
+    schedule = Schedule.objects.all()
+    if 'specializations' in request.GET:
+        filt['selected_spec'] = specializations.filter(pk=request.GET.get('specializations')).first()
+        filt['specializations'] = specializations.filter(parent_specialisation=filt['selected_spec'])
+    else:
+        filt['specializations'] = specializations
+    if 'keywords' in request.GET:
+        filt['selected_keyword'] = keywords.filter(pk=request.GET.get('keywords')).first()
+    else:
+        filt['keywords'] = keywords
+    if 'salary_from' in request.GET:
+        filt['selected_salary'] = request.GET.get('salary_from')
+    if 'busyness' in request.GET:
+        filt['selected_busyness'] = busyness.filter(pk=request.GET.get('busyness')).first()
+    else:
+        filt['busyness'] = busyness
+    if 'schedule' in request.GET:
+        filt['selected_schedule'] = schedule.filter(pk=request.GET.get('schedule')).first()
+    else:
+        filt['schedule'] = schedule
+    filt.update({'request': request})
+    return filt
+
+
 def add_filter_param(query_list):
     if 'filter=true' not in query_list:
         return query_list.append('filter=true')
     return query_list
+
+
+def get_real_filter_name(need_key):
+    if need_key in CHANGE_FILTERS:
+        return CHANGE_FILTERS[need_key]
+    return need_key
