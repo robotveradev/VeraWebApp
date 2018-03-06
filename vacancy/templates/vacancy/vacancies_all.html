@@ -8,7 +8,7 @@
     <div class="uk-container uk-align-center">
         <h4>All vacancies</h4>
         {% for vacancy in vacancies %}
-            {% include 'vacancy/vacancy_short.html' with item=vacancy desc=True %}
+            {% include 'vacancy/vacancy_short.html' with item=vacancy desc=True show_info=True editable=True %}
         {% endfor %}
         <hr/>
         {% if obj.contract_address %}

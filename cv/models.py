@@ -77,7 +77,7 @@ class CurriculumVitae(models.Model):
     official_journey = models.NullBooleanField(default=None)
     experience = models.ManyToManyField('Experience', blank=True)
     position = models.ForeignKey('Position', on_delete=models.SET_NULL, null=True, blank=True, default=None)
-    specializations = models.ManyToManyField('jobboard.Specialisation', blank=True)
+    specialisations = models.ManyToManyField('jobboard.Specialisation', blank=True)
     keywords = models.ManyToManyField('jobboard.Keyword', blank=True)
     education = models.ManyToManyField('Education', blank=True)
     languages = models.ManyToManyField('Languages', blank=True)

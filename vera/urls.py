@@ -17,6 +17,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView
+
 from jobboard import views as jobboard_views
 from cv import views as cv_views
 from vacancy import views as vacancy_views
@@ -29,13 +31,13 @@ basic = [
     path('job/find/', jobboard_views.FindJobView.as_view(), name='find_job'),
     path('cv/find/', jobboard_views.FindCVView.as_view(), name='find_cv'),
     path('profile/', jobboard_views.ProfileView.as_view(), name='profile'),
-    path('help/', jobboard_views.user_help, name='user_help'),
+    path('help/', TemplateView.as_view(template_name='jobboard/user_help.html'), name='user_help'),
     path('contract/status/change/', jobboard_views.change_contract_status, name='change_contract_status'),
     path('transactions/', jobboard_views.transactions, name='transactions'),
     path('withdraw/', jobboard_views.withdraw, name='withdraw'),
     path('check_agent/', jobboard_views.check_agent, name='check_agent'),
     path('agent/<slug:action>/', jobboard_views.GrantRevokeAgentView.as_view(), name='grant_agent'),
-    path('new_fact/', jobboard_views.NewFactView.as_view(), name='new_fact'),
+    path('fact/new/', jobboard_views.NewFactView.as_view(), name='new_fact'),
 ]
 
 candidate_urlpatterns = [
@@ -46,7 +48,7 @@ curriculum_vitae_urlpatterns = [
     path('cv/new/', cv_views.new_cv, name='new_cv'),
     path('cv/all/', cv_views.cv_all, name='cv_all'),
     path('cv/<int:cv_id>/', cv_views.cv, name='cv'),
-    path('cv/<int:cv_id>/edit', cv_views.cv_edit, name='cv_edit'),
+    path('cv/<int:cv_id>/edit/', cv_views.cv_edit, name='cv_edit'),
     path('cv/<int:cv_id>/new/position/', cv_views.new_position, name='new_position'),
     path('cv/<int:position_id>/edit/position/', cv_views.position_edit, name='position_edit'),
     path('cv/<int:cv_id>/new/education/', cv_views.new_education, name='new_education'),
@@ -54,11 +56,15 @@ curriculum_vitae_urlpatterns = [
     path('cv/<int:cv_id>/new/experience/', cv_views.new_experience, name='new_experience'),
     path('cv/<int:experience_id>/edit/experience/', cv_views.experience_edit, name='experience_edit'),
     path('cv/<int:cv_id>/status/change/', cv_views.change_cv_status, name='change_cv_status'),
+    path('cv/offer/', cv_views.VacancyOfferView.as_view(), name='offers'),
+    path('hide/offer/<int:offer_id>', cv_views.HideOfferView.as_view(), name='hide_offer'),
 ]
 
 vacancy_urlpatterns = [
     path('vacancy/new/', vacancy_views.new_vacancy, name='new_vacancy'),
-    path('vacancy/<int:vacancy_id>/subscribe/<int:cv_id>', vacancy_views.subscribe_to_vacancy,
+    path('vacancy/<int:vacancy_id>/offer/<int:cv_id>/', vacancy_views.OfferVacancyView.as_view(),
+         name='offer_vacancy'),
+    path('vacancy/<int:vacancy_id>/subscribe/<int:cv_id>/', vacancy_views.subscribe_to_vacancy,
          name='subscribe_to_vacancy'),
     path('vacancy/<int:vacancy_id>/', vacancy_views.vacancy, name='vacancy'),
     path('vacancy/<int:vacancy_id>/test/', jobboard_views.candidate_testing, name='candidate_testing'),

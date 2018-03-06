@@ -1,7 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
 from django.views.decorators.http import require_POST
+from django.views.generic import ListView, RedirectView
+
 from cv.models import CurriculumVitae
 from jobboard.decorators import choose_role_required
 from jobboard.handlers.candidate import CandidateHandler
@@ -12,8 +15,10 @@ from jobboard.models import Candidate
 from django.conf import settings as django_settings
 
 from vacancy.forms import VacancyForm, EditVacancyForm
-from vacancy.models import Vacancy, CVOnVacancy, VacancyTest
+from vacancy.models import Vacancy, CVOnVacancy, VacancyTest, VacancyOffer
 from jobboard.tasks import save_txn_to_history, save_txn
+
+_EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
 
 @login_required
@@ -173,3 +178,16 @@ def vacancy_all(request):
         args['vacancies'] = Vacancy.objects.filter(employer=args['obj']).order_by('-created_at')
         return render(request, 'vacancy/vacancies_all.html', args)
     raise Http404
+
+
+class OfferVacancyView(RedirectView):
+
+    pattern_name = 'cv'
+
+    def get_redirect_url(self, *args, **kwargs):
+        if self.request.role != _EMPLOYER:
+            return redirect('cv', cv_id=kwargs['cv_id'])
+        vac_o = get_object_or_404(Vacancy, id=kwargs['vacancy_id'], employer=self.request.role_object)
+        cv_o = get_object_or_404(CurriculumVitae, id=kwargs['cv_id'])
+        VacancyOffer.objects.get_or_create(vacancy=vac_o, cv=cv_o)
+        return super().get_redirect_url(cv_id=kwargs['cv_id'])

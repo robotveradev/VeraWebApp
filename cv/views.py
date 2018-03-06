@@ -1,12 +1,30 @@
 from account.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import TemplateView, RedirectView
 from jobboard.decorators import choose_role_required
 from jobboard.models import Candidate
+from vacancy.models import Vacancy, VacancyOffer
 from .forms import *
+
+_CANDIDATE, _EMPLOYER = 'candidate', 'employer'
+
+
+class VacancyOfferView(TemplateView):
+    template_name = 'cv/vacancy_offer.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.role != 'candidate':
+            return redirect('profile')
+        context = self.get_context_data(**kwargs)
+        context['vac_offers'] = VacancyOffer.objects.filter(cv__candidate=request.role_object, is_active=True).order_by(
+            '-created_at')
+        return self.render_to_response(context)
 
 
 def cv(request, cv_id):
     args = {'cv': get_object_or_404(CurriculumVitae, id=cv_id)}
+    if request.role == 'employer':
+        args['vacs'] = Vacancy.objects.filter(employer=request.role_object, enabled=True)
     return render(request, 'cv/cv_full.html', args)
 
 
@@ -155,3 +173,15 @@ def education_edit(request, education_id):
         form = EducationForm(instance=args['edu_o'])
     args['form'] = form
     return render(request, 'cv/education_edit.html', args)
+
+
+class HideOfferView(RedirectView):
+    pattern_name = 'offers'
+
+    def get_redirect_url(self, *args, **kwargs):
+        if self.request.role != _CANDIDATE:
+            pass
+        else:
+            offer_o = get_object_or_404(VacancyOffer, id=kwargs['offer_id'], cv__candidate=self.request.role_object)
+            offer_o.refuse()
+        return super().get_redirect_url()

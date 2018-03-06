@@ -34,7 +34,7 @@
                 {% for vacancy in vacancies %}
                     <div class="uk-box-shadow-small uk-padding-small uk-margin-top">
                         <p class="text-lead">
-                            <a class="uk-button uk-button-text"
+                            <a class="uk-button uk-button-text uk-text-uppercase uk-text-bold"
                                href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.title }}</a>
                             <span class="grey-text uk-align-right">
                             {% if vacancy.salary_from %}

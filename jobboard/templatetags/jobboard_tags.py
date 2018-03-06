@@ -241,7 +241,7 @@ def get_candidates_count(vacancy_address):
 @register.filter(name='parse_addresses')
 def parse_addresses(string):
     regex = '\\b0x\w+'
-    url_template = '<a target="_blank" class="uk-button uk-button-text" href="{}address/{}">{}</a>'
+    url_template = '<a target="_blank" class="uk-link-muted" href="{}address/{}">{}</a>'
     string = re.sub(regex, url_template.format(settings.NET_URL, '\g<0>', '\g<0>'), string)
     return string
 

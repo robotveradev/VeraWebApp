@@ -38,6 +38,9 @@
                             <a href="{% url 'new_cv' %}">Post a CV</a>
                         </li>
                     {% endif %}
+                    <li>
+                        <a href="{% url 'offers' %}">Feedback</a>
+                    </li>
                 {% endif %}
                 {% if user.is_authenticated %}
                     <li>
