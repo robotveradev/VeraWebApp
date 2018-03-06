@@ -154,7 +154,7 @@
             {% if vacancies %}
                 <h5>Your vacancies</h5>
                 {% for vacancy in vacancies %}
-                    {% include 'vacancy/vacancy_short.html' with item=vacancy %}
+                    {% include 'vacancy/vacancy_short.html' with item=vacancy editable=True show_info=True %}
                 {% endfor %}
             {% endif %}
         {% endif %}

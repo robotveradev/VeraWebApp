@@ -79,7 +79,7 @@ class FindJobView(TemplateView):
                                    item['specialisations__id'] is not None]))
             keywords_list = list(
                 set([item['keywords__id'] for item in cvs.values('keywords__id') if item['keywords__id'] is not None]))
-            vacs = self.vacancies.filter(Q(specializations__in=specs_list) |
+            vacs = self.vacancies.filter(Q(specialisations__in=specs_list) |
                                          Q(keywords__in=keywords_list)).distinct()
             self.vacancies_filter = vacs
         else:
@@ -137,11 +137,11 @@ class FindCVView(TemplateView):
     def set_filter_for_relevant_cvs(self):
         if self.request.role == _EMPLOYER:
             vacs = self.vacs.filter(employer=self.request.role_object, enabled=True)
-            specs_list = list(set([item['specializations__id'] for item in vacs.values('specializations__id') if
-                                   item['specializations__id'] is not None]))
+            specs_list = list(set([item['specialisations__id'] for item in vacs.values('specialisations__id') if
+                                   item['specialisations__id'] is not None]))
             keywords_list = list(
                 set([item['keywords__id'] for item in vacs.values('keywords__id') if item['keywords__id'] is not None]))
-            cvs = self.cvs.filter(Q(specializations__in=specs_list) |
+            cvs = self.cvs.filter(Q(specialisations__in=specs_list) |
                                   Q(keywords__in=keywords_list)).exclude(
                 candidate__contract_address=None).distinct()
             self.cvs_filter = cvs
@@ -265,7 +265,7 @@ class GrantRevokeCandidate(View):
                                                                            kwargs['action'],
                                                                            'ed' if kwargs['action'] == 'grant' else 'd',
                                                                            kwargs['vac'].contract_address))
-        save_txn_to_history.delay(kwargs['can'].user_id, 'txn_hash',
+        save_txn_to_history.delay(kwargs['can'].user_id, kwargs['txn_hash'],
                                   'Employer {} {} your candidacy to vacancy {}'.format(
                                       kwargs['vac'].employer.contract_address,
                                       kwargs['action'],
@@ -352,10 +352,6 @@ def employer_about(request, employer_id):
         return redirect('profile')
     args['vacancies'] = Vacancy.objects.filter(employer_id=employer_id, enabled=True)
     return render(request, 'jobboard/employer_about.html', args)
-
-
-def user_help(request):
-    return render(request, 'jobboard/user_help.html', {})
 
 
 def change_contract_status(request):

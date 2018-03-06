@@ -2,10 +2,11 @@ from django import template
 
 from cv.models import Schedule, Busyness, CurriculumVitae
 from jobboard.models import Specialisation, Keyword
+from vacancy.models import VacancyOffer
 
 register = template.Library()
 
-CHANGE_FILTERS = {'specialisation': 'specializations', 'keyword': 'keywords', 'salary': 'salary_from'}
+CHANGE_FILTERS = {'specialisation': 'specialisations', 'keyword': 'keywords', 'salary': 'salary_from'}
 
 
 @register.inclusion_tag('vacancy/tags/job_with_count.html')
@@ -14,7 +15,7 @@ def get_jobs_with(item, type_s, _list):
         count = 0
     else:
         if type_s == 'spec':
-            count = _list.filter(specializations__in=[item, ]).count()
+            count = _list.filter(specialisations__in=[item, ]).count()
         elif type_s == 'keyword':
             count = _list.filter(keywords__in=[item, ]).count()
         elif type_s == 'salary':
@@ -111,16 +112,16 @@ def get_filter(context):
     for item in context:
         if 'all' in item:
             filt['all'] = item['all']
-    filt['salary_range'] = [i*1000 for i in range(1, 9)]
-    specializations = Specialisation.objects.all()
+    filt['salary_range'] = [i * 1000 for i in range(1, 9)]
+    specialisations = Specialisation.objects.all()
     keywords = Keyword.objects.all()
     busyness = Busyness.objects.all()
     schedule = Schedule.objects.all()
-    if 'specializations' in request.GET:
-        filt['selected_spec'] = specializations.filter(pk=request.GET.get('specializations')).first()
-        filt['specializations'] = specializations.filter(parent_specialisation=filt['selected_spec'])
+    if 'specialisations' in request.GET:
+        filt['selected_spec'] = specialisations.filter(pk=request.GET.get('specialisations')).first()
+        filt['specialisations'] = specialisations.filter(parent_specialisation=filt['selected_spec'])
     else:
-        filt['specializations'] = specializations
+        filt['specialisations'] = specialisations.filter(parent_specialisation=None)
     if 'keywords' in request.GET:
         filt['selected_keyword'] = keywords.filter(pk=request.GET.get('keywords')).first()
     else:
@@ -149,3 +150,8 @@ def get_real_filter_name(need_key):
     if need_key in CHANGE_FILTERS:
         return CHANGE_FILTERS[need_key]
     return need_key
+
+
+@register.filter(name='is_already_offer')
+def is_already_offer(vacancy_id, cv_id):
+    return VacancyOffer.objects.filter(vacancy_id=vacancy_id, cv_id=cv_id).exists()

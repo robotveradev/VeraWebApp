@@ -17,7 +17,7 @@ class VacancyFilter(django_filters.FilterSet):
 
     class Meta:
         model = Vacancy
-        fields = ["specializations", "keywords", "salary_from", "busyness", "schedule", ]
+        fields = ["specialisations", "keywords", "salary_from", "busyness", "schedule", ]
 
 
 class CVFilter(django_filters.FilterSet):
@@ -36,4 +36,4 @@ class CVFilter(django_filters.FilterSet):
 
     class Meta:
         model = CurriculumVitae
-        fields = ["specializations", "keywords", "position__salary_from", "position__busyness", "position__schedule", ]
+        fields = ["specialisations", "keywords", "position__salary_from", "position__busyness", "position__schedule", ]

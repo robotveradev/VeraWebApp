@@ -11,7 +11,7 @@
                     </div>
                 {% else %}
                     <ul class="uk-list">
-                        {% for item in specializations %}
+                        {% for item in specialisations %}
                             <li class="uk-grid-small" uk-grid>
                                 <a class="grey-text text-darken-1 uk-width-expand" uk-leader
                                    href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
@@ -23,13 +23,13 @@
             </div>
         </div>
     </li>
-    {% if selected_spec and specializations %}
+    {% if selected_spec and specialisations %}
         <li class="uk-open">
             <a class="uk-accordion-title">Specialisation</a>
             <div class="uk-accordion-content">
                 <div id="specialisation">
                     <ul class="uk-list">
-                        {% for item in specializations %}
+                        {% for item in specialisations %}
                             <li class="uk-grid-small" uk-grid>
                                 <a class="grey-text text-darken-1 uk-width-expand" uk-leader
                                    href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
