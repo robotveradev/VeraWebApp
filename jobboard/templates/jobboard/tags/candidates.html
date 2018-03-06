@@ -14,7 +14,8 @@
             {% with vacancy|candidate_state:cv.cv.candidate as st %}
                 <tr>
                     <td>
-                        <a href="{% url 'cv' cv_id=cv.cv.id %}">{{ cv.cv.candidate.first_name }} {{ cv.cv.candidate.last_name }} - {{ cv.cv.position.title }}</a>
+                        <a href="{% url 'cv' cv_id=cv.cv.id %}">{{ cv.cv.candidate.first_name }} {{ cv.cv.candidate.last_name }}
+                            - {{ cv.cv.position.title }}</a>
                     </td>
                     <td class="uk-text-center
                             {% if st == 'wait' %}
@@ -29,18 +30,20 @@
                     <td class="uk-text-right">
                         {% if st == 'wait' %}
                             {% if cv.cv.candidate.id|employer_answered:vacancy.id %}
-                               <div uk-spinner="ratio: 0.7"></div>
+                                <div uk-spinner="ratio: 0.7"></div>
                             {% else %}
-                                <form class="uk-inline" action="{% url 'approve_candidate' %}" method="post">
+                                <form class="uk-inline" action="{% url 'access_candidate' %}" method="post">
                                     {% csrf_token %}
+                                    <input type="hidden" name="action" value="grant">
                                     <input type="hidden" name="candidate" value="{{ cv.cv.candidate.id }}">
                                     <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
                                     <button type="submit" class="uk-button green uk-button-small white-text">
                                         approve
                                     </button>
                                 </form>
-                                <form class="uk-inline" action="{% url 'revoke_candidate' %}" method="post">
+                                <form class="uk-inline" action="{% url 'access_candidate' %}" method="post">
                                     {% csrf_token %}
+                                    <input type="hidden" name="action" value="revoke">
                                     <input type="hidden" name="candidate" value="{{ cv.cv.candidate.id }}">
                                     <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
                                     <button type="submit" class="uk-button red uk-button-small white-text">

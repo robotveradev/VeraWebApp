@@ -1,0 +1,143 @@
+{% load vacancy_tags %}
+<ul uk-accordion="multiple: true">
+    <li class="uk-open">
+        <a class="uk-accordion-title uk-text-left" href="#">Industry</a>
+        <div class="uk-accordion-content">
+            <div id="industry">
+                {% if selected_spec %}
+                    <div>{{ selected_spec }}
+                        <a class="uk-align-right"
+                           href="{{ request.GET|get_clear_url:selected_spec }}" uk-close></a>
+                    </div>
+                {% else %}
+                    <ul class="uk-list">
+                        {% for item in specializations %}
+                            <li class="uk-grid-small" uk-grid>
+                                <a class="grey-text text-darken-1 uk-width-expand" uk-leader
+                                   href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                <span class="grey-text text-darken-1">{% get_jobs_with item.id 'spec' all %}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+    {% if selected_spec and specializations %}
+        <li class="uk-open">
+            <a class="uk-accordion-title">Specialisation</a>
+            <div class="uk-accordion-content">
+                <div id="specialisation">
+                    <ul class="uk-list">
+                        {% for item in specializations %}
+                            <li class="uk-grid-small" uk-grid>
+                                <a class="grey-text text-darken-1 uk-width-expand" uk-leader
+                                   href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                <span class="grey-text text-darken-1">{% get_jobs_with item.id 'spec' all %}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </li>
+    {% endif %}
+
+    <li class="uk-open">
+        <a class="uk-accordion-title">Keywords</a>
+        <div class="uk-accordion-content">
+            <div id="keyword">
+                {% if selected_keyword %}
+                    <div class="selected">{{ selected_keyword }}
+                        <span class="right">
+                                    <a class="uk-align-right" href="{{ request.GET|get_clear_url:selected_keyword }}"
+                                       uk-close></a></span>
+                    </div>
+                {% else %}
+                    <ul class="uk-list">
+                        {% for item in keywords %}
+                            <li class="uk-grid-small" uk-grid>
+                                <a class="grey-text text-darken-1 uk-width-expand" uk-leader
+                                   href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                <span class="grey-text text-darken-1">{% get_jobs_with item.id 'keyword' all %}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+    <li class="uk-open">
+        <a class="uk-accordion-title">Salary</a>
+        <div class="uk-accordion-content">
+            <div id="salary">
+                {% if selected_salary %}
+                    <div class="selected">{{ selected_salary }} $
+                        <span class="right">
+                                    <a href="{{ request.GET|get_clear_url:'salary_from' }}" class="uk-align-right"
+                                       uk-close></a></span>
+                    </div>
+                {% else %}
+                    <ul class="uk-list">
+                        {% for item in salary_range %}
+                            <li class="uk-grid-small" uk-grid>
+                                <a class="grey-text text-darken-1 uk-width-expand" uk-leader
+                                   href="{{ request.GET|get_salary_url:item }}">from {{ item }}$</a>
+                                <span class="grey-text text-darken-1">{% get_jobs_with item 'salary' all %}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+    <li{% if selected_busyness %} class="uk-open"{% endif %}>
+        <a class="uk-accordion-title">Busyness
+        </a>
+        <div class="uk-accordion-content">
+            <div id="busyness">
+                {% if selected_busyness %}
+                    <div class="selected">{{ selected_busyness }}
+                        <span class="right">
+                                    <a href="{{ request.GET|get_clear_url:'busyness' }}" uk-close
+                                       class="uk-float-right"></a></span>
+                    </div>
+                {% else %}
+                    <ul class="uk-list">
+                        {% for item in busyness %}
+                            <li class="uk-grid-small" uk-grid>
+                                <a class="grey-text text-darken-1 uk-width-expand" uk-leader
+                                   href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                <span class="grey-text text-darken-1">{% get_jobs_with item.id 'busyness' all %}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+    <li{% if selected_schedule %} class="uk-open" {% endif %}>
+        <a class="uk-accordion-title">Schedule
+        </a>
+        <div class="uk-accordion-content">
+            <div id="schedule">
+                {% if selected_schedule %}
+                    <div class="selected">{{ selected_schedule }}
+                        <span class="right">
+                                    <a href="{{ request.GET|get_clear_url:'schedule' }}" uk-close
+                                       class="uk-float-right"></a></span>
+                    </div>
+                {% else %}
+                    <ul class="uk-list">
+                        {% for item in schedule %}
+                            <li class="uk-grid-small" uk-grid>
+                                <a class="grey-text text-darken-1 uk-width-expand" uk-leader
+                                   href="{{ request.GET|get_filter_url:item }}">{{ item }}</a>
+                                <span class="grey-text text-darken-1">{% get_jobs_with item 'schedule' all %}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+</ul>

@@ -1,55 +1,55 @@
 {% if cv %}
-    {% for item in cv %}
-        <div class="uk-box-shadow-small uk-padding-small uk-margin-small uk-box-shadow-hover-medium">
-            <article class="uk-comment">
-                <header class="uk-comment-header uk-flex-middle" uk-grid>
-                    <div class="uk-width-auto">
-                        {% if item.image %}
-                            <img class="uk-comment-avatar" src="{{ item.image.url }}" width="80" height="80" alt="">
-                        {% else %}
-                            <img width="80" height="80" class="uk-comment-avatar"
-                                 src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
-                                 alt="">
-                        {% endif %}
-                    </div>
-                    <div class="uk-width-expand">
-                        <h4 class="uk-comment-title uk-margin-remove">
-                            <a class="uk-button uk-button-text"
-                               href="{% if selectable %}{% url 'subscribe_to_vacancy' vacancy_id=vacancy.id cv_id=item.id %}{% else %}{% url 'cv' cv_id=item.id %}{% endif %}">
-                                {% if item.position %}
-                                    {{ item.position.title }}
-                                {% else %}
-                                    Unpublished CV
-                                {% endif %}
-                            </a>
-                        </h4>
-                        <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
-                            <li>{{ item.updated_at|timesince }} ago</li>
-                            <li>{% if item.position %}
-                                {{ item.position.salary_from }}$
-                            {% else %}
-                                Salary not available
-                            {% endif %}</li>
-                            {% if selectable %}
-                                {% if can_sub %}
-                                    <li><a class="uk-button uk-button-text"
-                                           href="{% url 'cv' cv_id=item.id %}">edit</a></li>
-                                {% endif %}
+    <div class="uk-box-shadow-small uk-padding-small uk-margin-small uk-box-shadow-hover-medium">
+        <article class="uk-comment">
+            <header class="uk-comment-header uk-flex-middle" uk-grid>
+                <div class="uk-width-auto">
+                    {% if cv.image %}
+                        <img class="uk-comment-avatar" src="{{ cv.image.url }}" width="80" height="80" alt="">
+                    {% else %}
+                        <img width="80" height="80" class="uk-comment-avatar"
+                             src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
+                             alt="">
+                    {% endif %}
+                </div>
+                <div class="uk-width-expand">
+                    <h4 class="uk-comment-title uk-margin-remove">
+                        <a class="uk-button uk-button-text"
+                           href="{% if selectable %}{% url 'subscribe_to_vacancy' vacancy_id=vacancy.id cv_id=cv.id %}{% else %}{% url 'cv' cv_id=cv.id %}{% endif %}">
+                            {{ cv.title }}
+                        </a>
+                    </h4>
+                    <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+                        <li>{{ cv.updated_at|timesince }} ago</li>
+                        <li>{{ cv.salary_from }}</li>
+                        {% if selectable %}
+                            {% if can_sub %}
+                                <li><a class="uk-button uk-button-text"
+                                       href="{% url 'cv' cv_id=cv.id %}">edit</a></li>
                             {% endif %}
-                        </ul>
-                    </div>
-                </header>
-                {% if not selectable %}
-                    <div class="uk-comment-body">
-
-                        {% if item.position %}
-                            {{ item.position.description }}
-                        {% else %}
-                            -
                         {% endif %}
-                    </div>
-                {% endif %}
-            </article>
-        </div>
-    {% endfor %}
+                    </ul>
+                </div>
+            </header>
+            {% if candidate_info %}
+                <div>
+                    {{ cv.sex|title }}{% if cv.birth_date %}, {{ cv.birth_date|date:'d E Y' }} year of
+                        birth{% endif %}{% if cv.level %}, education level:
+                        {{ cv.level.title|lower }}{% endif %}
+                </div>
+                <div>
+                    {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}{% if cv.official_journey %}, ready for official journey{% endif %}
+                </div>
+                <hr/>
+            {% endif %}
+            {% if not selectable %}
+                <div class="uk-comment-body">
+                    {% if cv.position %}
+                        {{ cv.position.description|safe|truncatewords:30 }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </div>
+            {% endif %}
+        </article>
+    </div>
 {% endif %}

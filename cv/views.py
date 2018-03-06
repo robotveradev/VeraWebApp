@@ -1,21 +1,13 @@
 from account.decorators import login_required
-from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
-
 from jobboard.decorators import choose_role_required
-from vacancy.models import CVOnVacancy
 from jobboard.models import Candidate
 from .forms import *
 
 
 def cv(request, cv_id):
     args = {'cv': get_object_or_404(CurriculumVitae, id=cv_id)}
-    employers = [item['vacancy__employer__user'] for item in
-                 CVOnVacancy.objects.values('vacancy__employer__user').filter(cv=args['cv'])]
-    if args['cv'].candidate.user != request.user and request.user.id not in employers:
-        raise Http404
-    else:
-        return render(request, 'cv/cv_full.html', args)
+    return render(request, 'cv/cv_full.html', args)
 
 
 @login_required
@@ -94,7 +86,7 @@ def change_cv_status(request, cv_id):
 @choose_role_required(redirect_url='/role/')
 def cv_all(request):
     args = {}
-    args['cv'] = CurriculumVitae.objects.filter(candidate__user=request.user)
+    args['cvs'] = CurriculumVitae.objects.filter(candidate__user=request.user)
     return render(request, 'cv/cv_all.html', args)
 
 

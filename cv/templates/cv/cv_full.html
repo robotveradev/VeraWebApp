@@ -38,8 +38,7 @@
                         birth{% endif %}{% if cv.level %}, education level: {{ cv.level.title|lower }}{% endif %}
                 </div>
                 <div>
-                    {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}{% if cv.official_journey %}
-                        , ready for official journey{% endif %}
+                    {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}{% if cv.official_journey %}, ready for official journey{% endif %}
                 </div>
                 <hr/>
                 {% for item in cv.specialisations.all %}

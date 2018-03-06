@@ -77,7 +77,7 @@ class CurriculumVitae(models.Model):
     official_journey = models.NullBooleanField(default=None)
     experience = models.ManyToManyField('Experience', blank=True)
     position = models.ForeignKey('Position', on_delete=models.SET_NULL, null=True, blank=True, default=None)
-    specialisations = models.ManyToManyField('jobboard.Specialisation', blank=True)
+    specializations = models.ManyToManyField('jobboard.Specialisation', blank=True)
     keywords = models.ManyToManyField('jobboard.Keyword', blank=True)
     education = models.ManyToManyField('Education', blank=True)
     languages = models.ManyToManyField('Languages', blank=True)
@@ -88,6 +88,14 @@ class CurriculumVitae(models.Model):
 
     def __str__(self):
         return 'CurriculumVitae: {} {}'.format(self.first_name, self.last_name)
+
+    @property
+    def title(self):
+        return self.position.title if self.position is not None else 'Unpublished CV'
+
+    @property
+    def salary_from(self):
+        return 'from ' + str(self.position.salary_from) + '$' if self.position is not None else 'Salary not available'
 
 
 class Position(models.Model):
@@ -142,3 +150,7 @@ class Languages(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class CVReport(models.Model):
+    vacancy_id = models.PositiveIntegerField(default=0)

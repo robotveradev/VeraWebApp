@@ -23,6 +23,9 @@ class Vacancy(models.Model):
     def __str__(self):
         return str(self.employer) + ' ' + self.title
 
+    class Meta:
+        ordering = ('-updated_at', )
+
 
 class VacancyTest(models.Model):
     vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE)

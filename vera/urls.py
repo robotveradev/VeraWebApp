@@ -23,23 +23,22 @@ from vacancy import views as vacancy_views
 
 basic = [
     path('', jobboard_views.index, name='index'),
-    path('role/', jobboard_views.choose_role, name='choose_role'),
+    path('role/', jobboard_views.ChooseRoleView.as_view(), name='choose_role'),
     path('admin/', admin.site.urls),
     path('account/', include("account.urls")),
-    path('job/find/', jobboard_views.find_job, name='find_job'),
-    path('profile/', jobboard_views.profile, name='profile'),
+    path('job/find/', jobboard_views.FindJobView.as_view(), name='find_job'),
+    path('cv/find/', jobboard_views.FindCVView.as_view(), name='find_cv'),
+    path('profile/', jobboard_views.ProfileView.as_view(), name='profile'),
     path('help/', jobboard_views.user_help, name='user_help'),
     path('contract/status/change/', jobboard_views.change_contract_status, name='change_contract_status'),
     path('transactions/', jobboard_views.transactions, name='transactions'),
     path('withdraw/', jobboard_views.withdraw, name='withdraw'),
     path('check_agent/', jobboard_views.check_agent, name='check_agent'),
-    path('grant_agent/', jobboard_views.grant_agent, name='grant_agent'),
-    path('revoke_agent/', jobboard_views.revoke_agent, name='revoke_agent'),
-    path('new_fact/', jobboard_views.new_fact, name='new_fact'),
+    path('agent/<slug:action>/', jobboard_views.GrantRevokeAgentView.as_view(), name='grant_agent'),
+    path('new_fact/', jobboard_views.NewFactView.as_view(), name='new_fact'),
 ]
 
 candidate_urlpatterns = [
-    path('candidate/<int:candidate_id>/', jobboard_views.candidate, name='candidate'),
     path('candidate/pay/<int:vacancy_id>/', jobboard_views.pay_to_candidate, name='pay_to_candidate'),
 ]
 
@@ -68,14 +67,12 @@ vacancy_urlpatterns = [
     path('vacancy/<int:vacancy_id>/tests/new/', vacancy_views.vacancy_test_new, name='vacancy_test_new'),
     path('vacancy/<int:vacancy_id>/status/change/', vacancy_views.change_vacancy_status, name='change_vacancy_status'),
     path('vacancy/tests/add/', vacancy_views.new_test, name='new_test'),
-    # path('vacancy/increase/allowance', jobboard_views.increase_vacancy_allowance, name='increase_vacancy_allowance'),
     path('vacancy/all/', vacancy_views.vacancy_all, name='vacancy_all'),
 ]
 
 employer_urlpatterns = [
     path('employer/<int:employer_id>/about/', jobboard_views.employer_about, name='employer_about'),
-    path('candidate/approve/', jobboard_views.approve_candidate, name='approve_candidate'),
-    path('candidate/revoke/', jobboard_views.revoke_candidate, name='revoke_candidate'),
+    path('candidate/access/', jobboard_views.GrantRevokeCandidate.as_view(), name='access_candidate'),
 ]
 
 urlpatterns = basic + \

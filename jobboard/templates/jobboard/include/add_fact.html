@@ -16,7 +16,7 @@
             </ul>
             <ul id="add_fact_container" class="uk-switcher uk-padding-small">
                 <li>
-                    <form action="{% url 'new_fact' %}" method="post">
+                    <form class="uk-form-horizontal" action="{% url 'new_fact' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="f_type" value="learning">
                         {% form form=learning_form %}{% endform %}
@@ -26,7 +26,7 @@
                     </form>
                 </li>
                 <li>
-                    <form action="{% url 'new_fact' %}" method="post">
+                    <form class="uk-form-horizontal" action="{% url 'new_fact' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="f_type" value="worked">
                         {% form form=worked_form %}{% endform %}
@@ -36,7 +36,7 @@
                     </form>
                 </li>
                 <li>
-                    <form action="{% url 'new_fact' %}" method="post">
+                    <form class="uk-form-horizontal" action="{% url 'new_fact' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="f_type" value="certification">
                         {% form form=certificate_form %}{% endform %}
