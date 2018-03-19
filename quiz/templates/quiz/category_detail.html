@@ -1,0 +1,32 @@
+{% extends 'jobboard/base.html' %}
+
+{% load quiz_tags %}
+
+{% block head_title %}
+    {{ object.title|title }}
+{% endblock %}
+
+{% block content %}
+    <div class="uk-container uk-align-center">
+        <h3>{{ object.title|title }}</h3>
+        {% if object.sub_categories %}
+            {% for category in object.sub_categories.all %}
+                {% include 'quiz/include/category.html' with item=category %}
+            {% endfor %}
+        {% else %}
+            {% include 'quiz/include/category.html' with item=object %}
+        {% endif %}
+        <h4>Category questions</h4>
+        {% if object.questions.all %}
+            {{ object.max_points }}
+            {% for question in object.questions.all %}
+                {% include 'quiz/include/question.html' with item=question %}
+            {% endfor %}
+            <a href="{% url 'new_question' category_id=object.id %}"
+               class="uk-button uk-button-default uk-button-small uk-align-right">Add new question</a>
+        {% else %}
+            You have no one question in category.
+            <a href="{% url 'new_question' category_id=object.id %}" class="uk-link-muted">Add first one right now!</a>
+        {% endif %}
+    </div>
+{% endblock %}

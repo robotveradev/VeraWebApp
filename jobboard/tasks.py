@@ -1,11 +1,9 @@
 from __future__ import absolute_import, unicode_literals
 from datetime import timedelta
-
 from celery import shared_task
 from celery.task import periodic_task
 from django.conf import settings
 from web3.utils.events import get_event_data
-
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.vacancy import VacancyHandler

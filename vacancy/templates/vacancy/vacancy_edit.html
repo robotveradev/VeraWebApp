@@ -23,7 +23,7 @@
                     <button class="uk-button uk-button-primary uk-align-right uk-button-small">Save</button>
                 </form>
             {% else %}
-                {% include 'jobboard/include/message.html' %}
+                {% include 'jobboard/include/message.html' with message='Vacancy contract does not ready yet.' %}
             {% endif %}
         {% endif %}
     </div>

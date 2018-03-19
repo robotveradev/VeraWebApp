@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'btcha4=9_!7*hhjka8b^m2cjih06y0amiin-ftcdpj$myl(g8_'
+SECRET_KEY = 'btcha4=9_!7*hhjka8b^m2cjih06y0amiin-ftcaweq$myl(g8_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,11 +38,11 @@ INSTALLED_APPS = [
     'jobboard',
     'cv',
     'vacancy',
+    'quiz',
     'account',
     'material',
     'material.frontend',
     'django_filters',
-    'django_extensions',
 ]
 
 SITE_ID = 1
@@ -151,3 +151,7 @@ WEB_ETH_COINBASE = '0x8dc270b448958fed366e0edfb28b335bf84fca91'  # Rinkeby
 NODE_URL = 'http://localhost:8545'
 
 NET_URL = 'https://rinkeby.etherscan.io/'
+
+LOGIN_URL = '/account/login'
+
+W2V_API_URL = 'http://52.166.10.44:3000/getvecw2v'

@@ -16,7 +16,7 @@
 <nav class="uk-navbar-container" uk-navbar uk-sticky>
     <div class="uk-navbar-left">
         <a class="uk-navbar-item uk-logo" href="{% url 'index' %}">Vera Oracle</a>
-        {% with request.user.id|user_role as role %}
+        {% with request.role as role %}
             <ul class="uk-navbar-nav">
                 <li>
                     <a href="{% url 'index' %}">Home</a>
@@ -33,13 +33,17 @@
                     </li>
                 {% endif %}
                 {% if role == 'candidate' %}
-                    {% if not request.user.id|has_cv %}
+                    {% if not request.role_object.cvs.all %}
                         <li>
                             <a href="{% url 'new_cv' %}">Post a CV</a>
                         </li>
                     {% endif %}
                     <li>
-                        <a href="{% url 'offers' %}">Feedback</a>
+                        <a href="{% url 'offers' %}">Feedback
+                            {% with request.role_object|offers_count as off_count %}{% if off_count > 0 %}
+                                ({{ off_count }})
+                            {% endif %}{% endwith %}
+                        </a>
                     </li>
                 {% endif %}
                 {% if user.is_authenticated %}
@@ -52,6 +56,7 @@
                                     <li><a href="{% url 'cv_all' %}">All CV</a></li>
                                 {% elif role == 'employer' %}
                                     <li><a href="{% url 'vacancy_all' %}">Vacancies</a></li>
+                                    <li><a href="{% url 'quiz_index' %}">Quiz</a></li>
                                 {% endif %}
                                 <li><a href="{% url 'transactions' %}">Transactions</a></li>
                             </ul>

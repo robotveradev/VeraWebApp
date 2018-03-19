@@ -231,20 +231,6 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_vacancy_address",
-				"type": "address"
-			}
-		],
-		"name": "unpause_vacancy",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"constant": true,
 		"inputs": [],
 		"name": "token",

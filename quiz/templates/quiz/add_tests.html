@@ -1,0 +1,19 @@
+{% extends 'jobboard/base.html' %}
+
+{% load quiz_tags i18n %}
+
+{% block head_title %}VeraOracle - New test{% endblock %}
+
+{% block content %}
+    <div class="uk-container uk-align-center">
+        <h4 class="center">{% trans 'Add tests for vacancy' %} {{ vacancy.title }}</h4>
+        <form method="post" action="{% url 'vacancy_test_new' vacancy_id=vacancy.id %}">
+            {% csrf_token %}
+            <input type="hidden" value="{{ vacancy.id }}" name="vacancy">
+            <ul uk-accordion="multiple: true">
+                {% include 'quiz/tags/category_list.html' with categories=object_list %}
+            </ul>
+            <button type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right">Continue</button>
+        </form>
+    </div>
+{% endblock %}

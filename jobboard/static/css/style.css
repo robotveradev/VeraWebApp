@@ -16,3 +16,9 @@ body {
 a.uk-button {
     text-transform: capitalize;
 }
+
+.uk-border {
+    border: 1px solid #cacaca;
+    border-radius: 3px;
+}
+

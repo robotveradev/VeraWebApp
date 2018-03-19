@@ -1,0 +1,14 @@
+{% with item.verifications.first as ans_ver %}
+    {% if ans_ver %}
+        <div class="uk-border uk-padding-small uk-margin">
+            {{ ans_ver.answer }}, {% if ans_ver.processed %}{{ ans_ver.points }} points.{% else %}
+            <div uk-spinner="ratio: 0.4"></div>{% endif %}
+        </div>
+    {% endif %}
+    <div class="uk-inline uk-margin uk-display-inline">
+        <a data-question-id="{{ item.id }}" class="uk-form-icon uk-form-icon-flip" href="#"
+           uk-icon="forward"></a>
+        <input name="test_answer" class="uk-input" type="text"
+               placeholder="Write a guess for the test">
+    </div>
+{% endwith %}

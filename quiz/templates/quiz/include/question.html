@@ -1,0 +1,59 @@
+{% load quiz_tags %}
+{% if item %}
+    <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
+        {% if item.kind %}
+            <div class="uk-align-right amber-text uk-text-small">
+                <span>Max points: <span class="uk-text-muted">{{ item.max_points }}</span></span>
+                <span>
+                Question kind:
+                        <a class="uk-link-muted" href="#question_{{ item.id }}" uk-toggle>{{ item.kind }}</a>
+                    {% if item.kind.w2v %}<sup uk-tooltip="The question is estimated with the help of AI"
+                                               class="green-text">AI</sup>{% endif %}
+                    <span class="uk-text-meta" uk-tooltip="Question type can be changed" uk-icon="question"></span>
+            </span>
+            </div>
+            <div id="question_{{ item.id }}" uk-modal>
+                <div class="uk-modal-dialog">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <form action="{% url 'update_question_kind' pk=item.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="uk-modal-header">
+                            <h2 class="uk-modal-title">Change question kind</h2>
+                        </div>
+                        <div class="uk-modal-body">
+                            You can specify the kind of question, current question kind: {{ item.kind }} <br/>
+                            <span class="uk-text-lead">Choose one of the available options</span>
+                            {% get_questions_kinds item %}
+                        </div>
+                        <div class="uk-modal-footer uk-text-right">
+                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel
+                            </button>
+                            <button type="submit" class="uk-button uk-button-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+        <br/>
+        <span class="uk-text-lead">{{ item.question_text|safe }}</span>
+        <div class="uk-accordion-content">
+            {% if item.answers.all %}
+                <ul class="uk-list uk-list-divider uk-margin-left">
+                    {% for answer in item.answers.all %}
+                        <li>{{ answer.text }}, <span class="uk-text-meta">{{ answer.weight }}</span></li>
+                    {% endfor %}
+                    {% if item.kind.w2v %}
+                        <li>
+                            {% include 'quiz/tags/w2v_verification.html' %}
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <a href="{% url 'new_answer' question_id=item.id %}" class="uk-align-right uk-link-muted">Add answer</a>
+            {% else %}
+                <span class="uk-text-warning">Question have no one answer! <a
+                        href="{% url 'new_answer' question_id=item.id %}" class="uk-link-muted">Add answer</a></span>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

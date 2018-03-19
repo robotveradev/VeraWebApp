@@ -1,9 +1,6 @@
-import json
-import re
-import time
 from account.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -13,12 +10,11 @@ from cv.models import CurriculumVitae
 from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
-from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.tasks import save_txn_to_history, save_txn
 from .handlers.candidate import CandidateHandler
 from .models import Employer, Candidate, TransactionHistory
-from vacancy.models import Vacancy, VacancyTest, CandidateVacancyPassing
-from .decorators import choose_role_required
+from vacancy.models import Vacancy
+from .decorators import choose_role_required, role_required
 from .handlers.oracle import OracleHandler
 from django.conf import settings as django_settings
 from django.db.models import Q
@@ -167,6 +163,10 @@ class FindCVView(TemplateView):
 class ChooseRoleView(TemplateView):
     template_name = 'jobboard/choose_role.html'
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         role = request.POST.get('role')
         if role == _EMPLOYER:
@@ -175,7 +175,6 @@ class ChooseRoleView(TemplateView):
             _form = CandidateForm(request.POST)
         else:
             return redirect('choose_role')
-
         if _form.is_valid():
             role_o = _form.save(commit=False)
             role_o.user = request.user
@@ -199,7 +198,7 @@ class ProfileView(TemplateView):
     template_name = 'jobboard/profile.html'
 
     @method_decorator(login_required)
-    @method_decorator(choose_role_required(redirect_url='/role/'))
+    @method_decorator(choose_role_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
@@ -227,33 +226,31 @@ class ProfileView(TemplateView):
 class GrantRevokeCandidate(View):
 
     @method_decorator(login_required)
-    @method_decorator(choose_role_required(redirect_url='/role/'))
+    @method_decorator(choose_role_required)
+    @role_required('employer')
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if request.role != _EMPLOYER:
+        action = request.POST.get('action')
+        if action not in ['revoke', 'grant']:
             return redirect('profile')
         else:
-            action = request.POST.get('action')
-            if action not in ['revoke', 'grant']:
-                return redirect('profile')
+            vac_o = get_object_or_404(Vacancy, id=request.POST.get('vacancy'), employer=request.role_object)
+            can_o = get_object_or_404(Candidate, id=request.POST.get('candidate'))
+            employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE,
+                                               request.role_object.contract_address)
+            oracle = OracleHandler()
+            oracle.unlockAccount()
+            if action == 'revoke':
+                txn_hash = employer_handler.revoke_access_to_candidate(vac_o.contract_address,
+                                                                       can_o.contract_address)
             else:
-                vac_o = get_object_or_404(Vacancy, id=request.POST.get('vacancy'), employer=request.role_object)
-                can_o = get_object_or_404(Candidate, id=request.POST.get('candidate'))
-                employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE,
-                                                   request.role_object.contract_address)
-                oracle = OracleHandler()
-                oracle.unlockAccount()
-                if action == 'revoke':
-                    txn_hash = employer_handler.revoke_access_to_candidate(vac_o.contract_address,
-                                                                           can_o.contract_address)
-                else:
-                    txn_hash = employer_handler.grant_access_to_candidate(vac_o.contract_address,
-                                                                          can_o.contract_address)
+                txn_hash = employer_handler.grant_access_to_candidate(vac_o.contract_address,
+                                                                      can_o.contract_address)
 
-                self.save_txn(vac=vac_o, can=can_o, txn_hash=txn_hash, action=action)
-                return redirect('vacancy', vacancy_id=vac_o.id)
+            self.save_txn(vac=vac_o, can=can_o, txn_hash=txn_hash, action=action)
+            return redirect('vacancy', vacancy_id=vac_o.id)
 
     @staticmethod
     def save_txn(**kwargs):
@@ -270,79 +267,6 @@ class GrantRevokeCandidate(View):
                                       kwargs['vac'].employer.contract_address,
                                       kwargs['action'],
                                       kwargs['vac'].contract_address))
-
-
-def candidate_testing(request, vacancy_id):
-    vacancy_obj = get_object_or_404(Vacancy, id=vacancy_id)
-    candidate_obj = get_object_or_404(Candidate, user=request.user)
-    if request.method == 'POST':
-        for item in request.POST.keys():
-            match = re.match(r'answer_([0-9]+)', item)
-            if match:
-                test_id = match.group(1)
-                test_obj = get_object_or_404(VacancyTest, id=test_id)
-                cvp, created = CandidateVacancyPassing.objects.get_or_create(candidate=candidate_obj,
-                                                                             test_id=test_id)
-                if request.POST.get(item).lower() == test_obj.answer.lower():
-                    if created:
-                        cvp.passed = True
-                    else:
-                        cvp.passed = (cvp.attempts + 1 <= test_obj.max_attempts)
-                else:
-                    if not created:
-                        cvp.attempts += 1
-                    if cvp.attempts >= test_obj.max_attempts:
-                        # todo: revoke candidate когда завалил тесты
-                        cvp.passed = False
-                cvp.save()
-    vacancy_handler = VacancyHandler(django_settings.WEB_ETH_COINBASE, vacancy_obj.contract_address)
-    state = vacancy_handler.get_candidate_state(candidate_obj.contract_address)
-    if state != 'accepted':
-        raise Http404
-    else:
-        args = {'vacancy': vacancy_obj,
-                'candidate': candidate_obj,
-                'tests': VacancyTest.objects.values('id', 'title', 'question').filter(vacancy=vacancy_obj,
-                                                                                      enabled=True)}
-        return render(request, 'jobboard/candidate_testing.html', args)
-
-
-def pay_to_candidate(request, vacancy_id):
-    can_o = get_object_or_404(Candidate, user=request.user)
-    vac_o = get_object_or_404(Vacancy, id=vacancy_id)
-    test_count = VacancyTest.objects.filter(vacancy_id=vacancy_id).count()
-    passed_count = CandidateVacancyPassing.objects.filter(test__vacancy_id=vacancy_id,
-                                                          candidate_id=can_o.id,
-                                                          passed=True).count()
-    if passed_count >= test_count:
-        passed = True
-    else:
-        passed = False
-    vacancy_handler = VacancyHandler(django_settings.WEB_ETH_COINBASE, vac_o.contract_address)
-    state = vacancy_handler.get_candidate_state(can_o.contract_address)
-    if state != 'accepted' or not passed:
-        return HttpResponse('I see the cheater here', status=404)
-    else:
-        oracle_h = OracleHandler()
-
-        txn_hash = oracle_h.pay_to_candidate(vac_o.employer.contract_address,
-                                             can_o.contract_address,
-                                             vac_o.contract_address)
-        save_txn_to_history.delay(vac_o.employer.user_id, txn_hash,
-                                  'Pay to candidate {} from vacancy {}'.format(can_o.contract_address,
-                                                                               vac_o.contract_address))
-        save_txn_to_history.delay(can_o.user_id, txn_hash,
-                                  'Pay interview fee from vacancy {}'.format(vac_o.contract_address))
-        can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE,
-                                 can_o.contract_address)
-        fact = {'from': django_settings.VERA_ORACLE_CONTRACT_ADDRESS,
-                'type': 'vac_pass',
-                'title': 'Test for vacancy "{}" passed.'.format(vac_o.title),
-                'date': time.time(),
-                'employer': vac_o.employer.organization}
-        fact_txn_hash = can_h.new_fact(fact)
-        save_txn_to_history.delay(can_o.user_id, fact_txn_hash, 'New fact from {}'.format(vac_o.employer.organization))
-        return redirect('profile')
 
 
 def employer_about(request, employer_id):
@@ -409,7 +333,7 @@ def get_relevant(request, limit=None):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def withdraw(request):
     if request.method == 'POST':
         address = request.POST.get('address')
@@ -437,7 +361,7 @@ def withdraw(request):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def check_agent(request):
     if request.is_ajax():
         if request.method == 'POST':
@@ -458,7 +382,7 @@ def check_agent(request):
 class GrantRevokeAgentView(View):
 
     @method_decorator(login_required)
-    @method_decorator(choose_role_required(redirect_url='/role/'))
+    @method_decorator(choose_role_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
@@ -489,7 +413,7 @@ class GrantRevokeAgentView(View):
 class NewFactView(View):
 
     @method_decorator(login_required)
-    @method_decorator(choose_role_required(redirect_url='/role/'))
+    @method_decorator(choose_role_required)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 

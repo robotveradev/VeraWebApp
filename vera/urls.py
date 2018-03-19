@@ -18,10 +18,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-
 from jobboard import views as jobboard_views
 from cv import views as cv_views
 from vacancy import views as vacancy_views
+from quiz import views as quiz_views
 
 basic = [
     path('', jobboard_views.index, name='index'),
@@ -41,7 +41,7 @@ basic = [
 ]
 
 candidate_urlpatterns = [
-    path('candidate/pay/<int:vacancy_id>/', jobboard_views.pay_to_candidate, name='pay_to_candidate'),
+
 ]
 
 curriculum_vitae_urlpatterns = [
@@ -67,13 +67,24 @@ vacancy_urlpatterns = [
     path('vacancy/<int:vacancy_id>/subscribe/<int:cv_id>/', vacancy_views.subscribe_to_vacancy,
          name='subscribe_to_vacancy'),
     path('vacancy/<int:vacancy_id>/', vacancy_views.vacancy, name='vacancy'),
-    path('vacancy/<int:vacancy_id>/test/', jobboard_views.candidate_testing, name='candidate_testing'),
     path('vacancy/<int:vacancy_id>/edit/', vacancy_views.vacancy_edit, name='vacancy_edit'),
-    path('vacancy/<int:vacancy_id>/tests/', vacancy_views.vacancy_tests, name='vacancy_tests'),
-    path('vacancy/<int:vacancy_id>/tests/new/', vacancy_views.vacancy_test_new, name='vacancy_test_new'),
     path('vacancy/<int:vacancy_id>/status/change/', vacancy_views.change_vacancy_status, name='change_vacancy_status'),
-    path('vacancy/tests/add/', vacancy_views.new_test, name='new_test'),
     path('vacancy/all/', vacancy_views.vacancy_all, name='vacancy_all'),
+]
+
+quiz_urlpatterns = [
+    path('quiz/', quiz_views.QuizIndexPage.as_view(), name='quiz_index'),
+    path('quiz/category/<int:pk>', quiz_views.CategoryView.as_view(), name='category'),
+    path('quiz/category/new/', quiz_views.NewCategoryView.as_view(), name='new_category'),
+    path('quiz/category/<int:category_id>/question/new/', quiz_views.NewQuestionView.as_view(), name='new_question'),
+    path('quiz/question/<int:question_id>/answer/new/', quiz_views.NewAnswerView.as_view(), name='new_answer'),
+    path('quiz/<int:vacancy_id>/test/', quiz_views.CandidateTestingView.as_view(), name='candidate_testing'),
+    path('quiz/vacancy/<int:vacancy_id>/tests/', quiz_views.VacancyTestsView.as_view(), name='vacancy_tests'),
+    path('quiz/<int:vacancy_id>/tests/add/', quiz_views.VacancyAddTestsView.as_view(), name='vacancy_test_new'),
+    path('quiz/<int:pk>/update/kind/', quiz_views.QuestionUpdateKindView.as_view(), name='update_question_kind'),
+    path('quiz/exam/<int:pk>/update/grade/', quiz_views.ExamUpdateGradeView.as_view(), name='exam_update_grade'),
+    path('quiz/test/answer/', quiz_views.ProcessAnswerView.as_view(), name='process_answer'),
+    path('quiz/candidate/pay/<int:vacancy_id>/', quiz_views.PayToCandidateView.as_view(), name='pay_to_candidate'),
 ]
 
 employer_urlpatterns = [
@@ -84,6 +95,7 @@ employer_urlpatterns = [
 urlpatterns = basic + \
               candidate_urlpatterns + \
               vacancy_urlpatterns + \
+              quiz_urlpatterns + \
               curriculum_vitae_urlpatterns + \
               employer_urlpatterns + \
               static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
