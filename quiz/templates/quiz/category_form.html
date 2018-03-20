@@ -1,0 +1,17 @@
+{% extends 'jobboard/base.html' %}
+
+{% load material_form %}
+
+{% block head_title %} Quiz - new category {% endblock %}
+
+{% block content %}
+    <div class="uk-container uk-align-center">
+        <h3>New category</h3>
+        <form class="uk-form-horizontal" method="post">
+            {% csrf_token %}
+            {% form form=form %}{% endform %}
+            <button type="submit" class="uk-button uk-button-small uk-button-default uk-align-right">Save</button>
+        </form>
+    </div>
+{% endblock %}
+

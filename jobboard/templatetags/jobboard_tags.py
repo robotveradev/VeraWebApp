@@ -10,9 +10,10 @@ from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.handlers.coin import CoinHandler
 from jobboard.models import Candidate, Employer, Transaction
-from vacancy.models import VacancyTest, Vacancy, CandidateVacancyPassing, CVOnVacancy
+from quiz.models import VacancyExam
+from vacancy.models import Vacancy, CVOnVacancy, VacancyOffer
 from django.conf import settings
-from jobboard.views import  get_relevant
+from jobboard.views import get_relevant
 
 register = template.Library()
 
@@ -32,10 +33,7 @@ def user_role(user_id):
 
 @register.filter(name='has_cv')
 def has_cv(user_id):
-    if CurriculumVitae.objects.filter(candidate__user_id=user_id).count() > 0:
-        return True
-    else:
-        return False
+    return CurriculumVitae.objects.filter(candidate__user_id=user_id).count() > 0
 
 
 @register.filter(name='allowance_rest')
@@ -80,25 +78,7 @@ def candidate_state(vacancy, candidate):
 
 @register.filter(name='vacancy_tests_count')
 def vacancy_tests_count(vacancy_id):
-    return VacancyTest.objects.filter(vacancy_id=vacancy_id, enabled=True).count()
-
-
-@register.filter(name='is_test_passed')
-def is_test_passed(candidate_id, vacancy_test_id):
-    try:
-        return CandidateVacancyPassing.objects.get(candidate_id=candidate_id, test_id=vacancy_test_id).passed
-    except CandidateVacancyPassing.DoesNotExist:
-        return None
-
-
-@register.filter(name='all_test_passed')
-def all_test_passed(candidate_id, vacancy_id):
-    test_count = VacancyTest.objects.filter(vacancy_id=vacancy_id).count()
-    passed = CandidateVacancyPassing.objects.filter(test__vacancy_id=vacancy_id,
-                                                    candidate_id=candidate_id)
-    is_passed = passed.filter(passed=True).count() == test_count
-    finished = passed.exclude(passed=None).count() == test_count
-    return is_passed or passed.filter(passed=False).count() == test_count or finished, is_passed
+    return VacancyExam.objects.filter(vacancy_id=vacancy_id).first().questions.count()
 
 
 @register.inclusion_tag('jobboard/tags/employers.html')
@@ -316,3 +296,8 @@ def get_blockies_png(address):
 def show_me(a):
     print(a.data)
     return ''
+
+
+@register.filter(name='offers_count')
+def offers_count(candidate):
+    return VacancyOffer.objects.filter(cv__candidate=candidate, is_active=True).count()

@@ -1,0 +1,42 @@
+{% extends 'jobboard/base.html' %}
+
+{% load quiz_tags i18n %}
+
+{% block head_title %} VeraOracle - Vacancy tests {% endblock %}
+
+{% block content %}
+    <div class="uk-container uk-align-center">
+        <h4>{% trans 'Tests of vacancy' %} "{{ vacancy.title | truncatewords:'4' }}"</h4>
+        <input type="hidden" name="e_id" value="{{ object_list.pk }}">
+        {% csrf_token %}
+        {% with object_list.questions.all as question_list %}
+            {% regroup question_list by category as question_list %}
+            {% if question_list %}
+                Max points: <span class="uk-text-muted">{{ object_list.max_points }}</span>, passing grade:
+                <span class="uk-text-muted"
+                      id="passing_grade">{{ object_list.passing_grade }}</span>
+                <div class="uk-margin">
+                    <input class="uk-range" type="range" value="{{ object_list.passing_grade }}" min="0"
+                           max="{{ object_list.max_points }}" step="1">
+                </div>
+                {% for item in question_list %}
+                    <h4>{{ item.grouper }}</h4>
+                    <ul class="uk-list uk-list-divider uk-margin-left">
+                        {% for question in item.list %}
+                            <li>{{ question.question_text }}
+                                <small class="uk-text-muted">{{ question.answers.all|get_right|join:', ' }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            {% else %}
+                <p>{% trans 'The vacancy does not have any tests yet' %}</p>
+            {% endif %}
+        {% endwith %}
+        <br>
+        <a href="{% url 'vacancy_test_new' vacancy_id=vacancy.id %}"
+           class="uk-button uk-button-primary uk-button-small uk-align-right">
+            {% trans 'Add new test now' %}
+        </a>
+    </div>
+{% endblock %}

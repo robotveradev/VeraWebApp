@@ -83,7 +83,7 @@
                         </div>
                     {% endif %}
                     {% if candidate %}
-                        <div class="uk-position-center-right">
+                        <div class="uk-position-center-right uk-text-right">
                             {% with item|candidate_state:candidate as st %}
                                 <span class="{% if st == 'wait' %}amber{% elif st == 'accepted' %}green{% elif st == 'revoked' %}red{% endif %}-text">
                                 {{ st | capfirst }}

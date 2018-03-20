@@ -1,0 +1,23 @@
+{% extends 'jobboard/base.html' %}
+
+{% load material_form %}
+
+{% block head_title %} Quiz - new answer for {{ question.question_text|safe }} {% endblock %}
+
+{% block content %}
+    <div class="uk-container uk-align-center">
+        <h3>New answer</h3>
+        <span class="uk-text-lead">{{ question.question_text|safe }}</span>
+        <form class="uk-form-horizontal" method="post">
+            {% csrf_token %}
+            {% form form=form %}{% endform %}
+            <div class="uk-align-right">
+                <button type="submit" name="_addanother"
+                        class="uk-button uk-button-small uk-button-default">Save and add another
+                </button>
+                <button type="submit" class="uk-button uk-button-small uk-button-primary">Save</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+

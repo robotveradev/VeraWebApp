@@ -37,10 +37,9 @@ class OracleHandler(object):
     def name(self):
         return self.contract.call().name()
 
-    def new_employer(self, e_id, token):
-        validate_address(token)
+    def new_employer(self, e_id):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).new_employer(e_id, token)
+        return self.contract.transact({'from': self.account}).new_employer(e_id)
 
     def get_employers(self):
         return self.contract.call().get_employers()

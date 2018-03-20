@@ -1,0 +1,13 @@
+<span class="uk-text-lead uk-text-background">{{ question.question_text }}</span>
+{% for answer in question.answers.all %}
+    <div class="uk-margin uk-margin-left">
+        <label><input
+                class="uk-radio"
+                type="radio"
+                name="question_{{ question.id }}"
+                id="answer_{{ answer.id }}"
+                value="{{ answer.id }}">
+            {{ answer.text }}
+        </label>
+    </div>
+{% endfor %}

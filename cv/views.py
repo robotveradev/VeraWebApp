@@ -29,7 +29,7 @@ def cv(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def new_cv(request):
     can_o = get_object_or_404(Candidate, user=request.user)
     args = {'form': CurriculumVitaeForm(
@@ -48,7 +48,7 @@ def new_cv(request):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def new_position(request, cv_id):
     args = {'cv': cv_id}
     cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
@@ -63,7 +63,7 @@ def new_position(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def new_education(request, cv_id):
     args = {'cv': cv_id}
     cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
@@ -77,7 +77,7 @@ def new_education(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def new_experience(request, cv_id):
     args = {'cv': cv_id}
     cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
@@ -91,7 +91,7 @@ def new_experience(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def change_cv_status(request, cv_id):
     cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
     if cv_o.position is not None:
@@ -101,7 +101,7 @@ def change_cv_status(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def cv_all(request):
     args = {}
     args['cvs'] = CurriculumVitae.objects.filter(candidate__user=request.user)
@@ -109,7 +109,7 @@ def cv_all(request):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def cv_edit(request, cv_id):
     args = {}
     args['cv_o'] = get_object_or_404(CurriculumVitae, candidate__user=request.user, pk=cv_id)
@@ -125,7 +125,7 @@ def cv_edit(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def position_edit(request, position_id):
     args = {}
     args['position_o'] = get_object_or_404(Position, pk=position_id)
@@ -142,7 +142,7 @@ def position_edit(request, position_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def experience_edit(request, experience_id):
     args = {}
     args['exp_o'] = get_object_or_404(Experience, pk=experience_id)
@@ -159,7 +159,7 @@ def experience_edit(request, experience_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def education_edit(request, education_id):
     args = {}
     args['edu_o'] = get_object_or_404(Education, pk=education_id)
