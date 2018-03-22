@@ -1,4 +1,4 @@
-{% load jobboard_tags vacancy_tags %}
+{% load jobboard_tags vacancy_tags statistic_tags %}
 {% with item.employer|is_owner:request.role_object as owner %}
     <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
         <div uk-grid>
@@ -13,10 +13,10 @@
                         {% endwith %}
                     {% else %}
                         <a class="uk-button uk-button-text"
-                           href="{% url 'vacancy' vacancy_id=item.id %}">{{ item.title }}</a>
+                           href="{% url 'vacancy' pk=item.id %}">{{ item.title }}</a>
                     {% endif %}
                     {% if owner and editable %}
-                        <a href="{% url 'vacancy_edit' vacancy_id=item.id %}" uk-icon="icon: file-edit"></a>
+                        <a href="{% url 'vacancy_edit' pk=item.id %}" uk-icon="icon: file-edit"></a>
                     {% endif %}
                 </div>
                 <span class="uk-text-small">created {{ item.created_at|date }}
@@ -40,7 +40,7 @@
                         {% if owner and editable %}
                             {% if item.contract_address is not None %}
                                 {% if item.enabled is not None %}
-                                    <a href="{% url 'change_vacancy_status' vacancy_id=item.id %}">
+                                    <a href="{% url 'change_vacancy_status' pk=item.id %}">
                                         {% if item.enabled is True %}
                                             disable
                                         {% else %}
@@ -56,9 +56,6 @@
                             {% endif %}
                         {% endif %}
                     </span>
-                    {% if show_info %}
-                        {# TODO добавить статистику сюда #}
-                    {% endif %}
                 </div>
             </div>
             {% if not selectable %}
@@ -103,5 +100,8 @@
                 </div>
             {% endif %}
         </div>
+        {% if show_info %}
+            {% statistic item %}
+        {% endif %}
     </div>
 {% endwith %}

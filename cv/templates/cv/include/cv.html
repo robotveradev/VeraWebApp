@@ -1,3 +1,4 @@
+{% load statistic_tags %}
 {% if cv %}
     <div class="uk-box-shadow-small uk-padding-small uk-margin-small uk-box-shadow-hover-medium">
         <article class="uk-comment">
@@ -13,8 +14,9 @@
                 </div>
                 <div class="uk-width-expand">
                     <h4 class="uk-comment-title uk-margin-remove">
+                    {% url 'subscribe_to_vacancy' vacancy_id=vacancy.id cv_id=cv.id as sub_url%}
                         <a class="uk-button uk-button-text"
-                           href="{% if selectable %}{% url 'subscribe_to_vacancy' vacancy_id=vacancy.id cv_id=cv.id %}{% else %}{% url 'cv' cv_id=cv.id %}{% endif %}">
+                           href="{% if selectable %}{{ sub_url }}{% else %}{% url 'cv' pk=cv.id %}{% endif %}">
                             {{ cv.title }}
                         </a>
                     </h4>
@@ -24,7 +26,7 @@
                         {% if selectable %}
                             {% if can_sub %}
                                 <li><a class="uk-button uk-button-text"
-                                       href="{% url 'cv' cv_id=cv.id %}">edit</a></li>
+                                       href="{% url 'cv' pk=cv.id %}">edit</a></li>
                             {% endif %}
                         {% endif %}
                     </ul>
@@ -37,7 +39,8 @@
                         {{ cv.level.title|lower }}{% endif %}
                 </div>
                 <div>
-                    {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}{% if cv.official_journey %}, ready for official journey{% endif %}
+                    {{ cv.city|title }}{% if cv.relocation %}, ready for transfer{% endif %}{% if cv.official_journey %}
+                        , ready for official journey{% endif %}
                 </div>
                 <hr/>
             {% endif %}
@@ -51,5 +54,8 @@
                 </div>
             {% endif %}
         </article>
+        {% if cv.candidate == request.role_object and show_stat %}
+            {% statistic cv %}
+        {% endif %}
     </div>
 {% endif %}

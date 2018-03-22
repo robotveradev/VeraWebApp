@@ -39,7 +39,7 @@
         <div class="uk-accordion-content">
             {% if item.answers.all %}
                 <ul class="uk-list uk-list-divider uk-margin-left">
-                    {% for answer in item.answers.all %}
+                    {% for answer in item.answers.all|dictsortreversed:'weight' %}
                         <li>{{ answer.text }}, <span class="uk-text-meta">{{ answer.weight }}</span></li>
                     {% endfor %}
                     {% if item.kind.w2v %}
