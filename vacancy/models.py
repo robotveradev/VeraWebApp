@@ -1,27 +1,53 @@
 from django.db import models
+from django.urls import reverse
+
 from cv.models import Busyness, Schedule
 
 
 class Vacancy(models.Model):
-    employer = models.ForeignKey('jobboard.Employer', blank=False, null=False, on_delete=models.CASCADE)
-    contract_address = models.CharField(max_length=255, blank=True, null=True)
+    employer = models.ForeignKey('jobboard.Employer',
+                                 blank=False,
+                                 null=False,
+                                 on_delete=models.CASCADE,
+                                 related_name='vacancies')
+    contract_address = models.CharField(max_length=255,
+                                        blank=True,
+                                        null=True)
     title = models.CharField(max_length=255)
-    specialisations = models.ManyToManyField('jobboard.Specialisation', blank=True)
-    keywords = models.ManyToManyField('jobboard.Keyword', blank=True)
-    experience = models.CharField(max_length=10, null=True, blank=True)
-    description = models.TextField(blank=True, null=True)
-    requirement = models.TextField(blank=True, null=True)
+    specialisations = models.ManyToManyField('jobboard.Specialisation',
+                                             blank=True)
+    keywords = models.ManyToManyField('jobboard.Keyword',
+                                      blank=True)
+    experience = models.CharField(max_length=10,
+                                  null=True,
+                                  blank=True)
+    description = models.TextField(blank=True,
+                                   null=True)
+    requirement = models.TextField(blank=True,
+                                   null=True)
     city = models.CharField(max_length=255)
-    salary_from = models.PositiveIntegerField(default=0, blank=True, null=True)
-    salary_up_to = models.PositiveIntegerField(blank=True, null=True)
-    busyness = models.ManyToManyField(Busyness, blank=True)
-    schedule = models.ManyToManyField(Schedule, blank=True)
+    salary_from = models.PositiveIntegerField(default=0,
+                                              blank=True,
+                                              null=True)
+    salary_up_to = models.PositiveIntegerField(blank=True,
+                                               null=True)
+    busyness = models.ManyToManyField(Busyness,
+                                      blank=True)
+    schedule = models.ManyToManyField(Schedule,
+                                      blank=True)
     enabled = models.NullBooleanField(default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_statistic_url(self):
+        return reverse('vacancystatistic', kwargs={'pk': self.pk})
+
     def __str__(self):
-        return str(self.employer) + ' ' + self.title
+        return '{}: {}'.format(self.employer.organization, self.title)
+
+    @property
+    def user_field_name(self):
+        return 'employer'
 
     class Meta:
         ordering = ('-updated_at',)
@@ -44,7 +70,9 @@ class VacancyOffer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
-    description = models.TextField(null=True, blank=True, default='')
+    description = models.TextField(null=True,
+                                   blank=True,
+                                   default='')
 
     class Meta:
         unique_together = (("vacancy", "cv"),)

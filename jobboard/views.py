@@ -274,7 +274,6 @@ def employer_about(request, employer_id):
     args['employer'] = get_object_or_404(Employer, id=employer_id)
     if args['employer'].user == request.user:
         return redirect('profile')
-    args['vacancies'] = Vacancy.objects.filter(employer_id=employer_id, enabled=True)
     return render(request, 'jobboard/employer_about.html', args)
 
 

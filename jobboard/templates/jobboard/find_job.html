@@ -35,7 +35,7 @@
                     <div class="uk-box-shadow-small uk-padding-small uk-margin-top">
                         <p class="text-lead">
                             <a class="uk-button uk-button-text uk-text-uppercase uk-text-bold"
-                               href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.title }}</a>
+                               href="{% url 'vacancy' pk=vacancy.id %}">{{ vacancy.title }}</a>
                             <span class="grey-text uk-align-right">
                             {% if vacancy.salary_from %}
                                 {% if vacancy.salary_up_to %}
@@ -63,7 +63,7 @@
                         <div class="grey-text">{{ vacancy.description|safe|truncatewords:10 }}</div>
                         <div>
                             <a class="uk-button uk-button-text uk-text-lowercase"
-                               href="{% url 'vacancy' vacancy_id=vacancy.id %}">Learn more</a>
+                               href="{% url 'vacancy' pk=vacancy.id %}">Learn more</a>
                             <div class="grey-text uk-align-right">{{ vacancy.created_at|date:'d M Y' }}</div>
                         </div>
                     </div>
