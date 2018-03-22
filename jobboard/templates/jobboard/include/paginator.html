@@ -1,9 +1,7 @@
 {% load jobboard_tags %}
 <ul class="uk-pagination uk-flex-center" uk-margin>
     <li{% if not paginate.has_previous %} class="uk-disabled"{% endif %}>
-        <a {% if paginate.has_previous %}href="?
-
-                {% if get_list %}{{ get_list|get_url_without:'page' }}&{% endif %}page={{ paginate.previous_page_number }}"{% endif %}>
+        <a {% if paginate.has_previous %}href="?{% if get_list %}{{ get_list|get_url_without:'page' }}&{% endif %}page={{ paginate.previous_page_number }}"{% endif %}>
             <span uk-pagination-previous></span></a>
         </a>
     </li>

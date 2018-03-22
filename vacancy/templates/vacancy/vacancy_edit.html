@@ -6,25 +6,16 @@
 
 {% block content %}
     <div class="uk-container uk-align-center">
-
-        {% if error %}
-            <h4 class="uk-danger">
-                {{ error }}
-            </h4>
+        {% include 'jobboard/include/messages.html' %}
+        {% if object.contract_address %}
+            <h4>Edit vacancy "{{ object.title|title }}"</h4>
+            <form class="uk-form-horizontal" action="{% url 'vacancy_edit' pk=object.id %}" method="post">
+                {% csrf_token %}
+                {% form form=form %}{% endform %}
+                <button class="uk-button uk-button-primary uk-align-right uk-button-small">Save</button>
+            </form>
         {% else %}
-            {% if vac_o.contract_address %}
-                <h4>Edit vacancy "{{ vac_o.title|title }}"</h4>
-                {% if error %}
-                    <span class="red-text">{{ error }}</span>
-                {% endif %}
-                <form class="uk-form-horizontal" action="{% url 'vacancy_edit' vacancy_id=vac_o.id %}" method="post">
-                    {% csrf_token %}
-                    {% form form=form %}{% endform %}
-                    <button class="uk-button uk-button-primary uk-align-right uk-button-small">Save</button>
-                </form>
-            {% else %}
-                {% include 'jobboard/include/message.html' with message='Vacancy contract does not ready yet.' %}
-            {% endif %}
+            {% include 'jobboard/include/message.html' with message='Vacancy contract does not ready yet' %}
         {% endif %}
     </div>
 {% endblock %}

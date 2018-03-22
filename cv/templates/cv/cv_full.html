@@ -152,7 +152,7 @@
                         <h2 class="uk-modal-title">Select vacancy</h2>
                     </div>
                     <div>
-                        {% for vac in vacs %}
+                        {% for vac in request.role_object.vacancies.filter %}
                              {% include 'vacancy/vacancy_short.html' with item=vac selectable=True cv_id=cv.id %}
                         {% endfor %}
                     </div>
