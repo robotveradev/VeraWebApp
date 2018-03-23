@@ -18,19 +18,6 @@ from jobboard.views import get_relevant
 register = template.Library()
 
 
-@register.filter(name='user_role')
-def user_role(user_id):
-    try:
-        Employer.objects.get(user_id=user_id)
-        return 'employer'
-    except Employer.DoesNotExist:
-        try:
-            Candidate.objects.get(user_id=user_id)
-            return 'candidate'
-        except Candidate.DoesNotExist:
-            return False
-
-
 @register.filter(name='has_cv')
 def has_cv(user_id):
     return CurriculumVitae.objects.filter(candidate__user_id=user_id).count() > 0
@@ -249,8 +236,8 @@ def need_dots(first, next_o):
 
 
 @register.filter(name='is_owner')
-def is_owner(user, curent_user):
-    if user == curent_user:
+def is_owner(user, current_user):
+    if user == current_user:
         return True
     else:
         return False
@@ -301,3 +288,8 @@ def show_me(a):
 @register.filter(name='offers_count')
 def offers_count(candidate):
     return VacancyOffer.objects.filter(cv__candidate=candidate, is_active=True).count()
+
+
+@register.simple_tag
+def net_url():
+    return settings.NET_URL

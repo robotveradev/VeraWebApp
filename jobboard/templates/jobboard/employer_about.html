@@ -28,31 +28,13 @@
                 </td>
             </tr>
         </table>
-        {% if vacancies %}
-            <h3>Employer vacancies</h3>
-            <table class="uk-table uk-table-small uk-table-divider">
-                <thead>
-                <tr>
-                    <th>Vacancy title</th>
-                    <th>Contract address</th>
-                </tr>
-                </thead>
-                <tbody>
+        {% with employer.vacancies.all as vacancies %}
+            {% if vacancies %}
+                <h3>Employer vacancies</h3>
                 {% for vacancy in vacancies %}
-                    {% with vacancy.id|is_enabled_vacancy as is_enabled %}
-                        <tr>
-                            <td class="uk-table-link"><a class="uk-link-reset" href="{% url 'vacancy' vacancy_id=vacancy.id %}">{{ vacancy.title }}</a></td>
-                            <td>{{ vacancy.contract_address|default:'Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>' }}
-                                {% if not is_enabled %}
-                                    <span class="badge">disabled</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endwith %}
+                    {% include 'vacancy/vacancy_short.html' with item=vacancy %}
                 {% endfor %}
-                </tbody>
-
-            </table>
-        {% endif %}
+            {% endif %}
+        {% endwith %}
     </div>
 {% endblock %}

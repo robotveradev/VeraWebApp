@@ -6,12 +6,16 @@
 
 {% block content %}
     <div class="uk-container uk-align-center">
+        {% include 'jobboard/include/messages.html' %}
         <h4>All vacancies</h4>
-        {% for vacancy in vacancies %}
+        {% for vacancy in object_list %}
             {% include 'vacancy/vacancy_short.html' with item=vacancy desc=True show_info=True editable=True %}
         {% endfor %}
+    {% if is_paginated %}
+        {% include 'jobboard/include/paginator.html' with paginate=page_obj %}
+    {% endif %}
         <hr/>
-        {% if obj.contract_address %}
+        {% if request.role_object.contract_address %}
             <a class="uk-button uk-button-primary uk-align-right uk-button-small" href="{% url 'new_vacancy' %}">Create
                 new vacancy</a>
         {% endif %}
