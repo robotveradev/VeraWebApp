@@ -22,6 +22,7 @@ from jobboard import views as jobboard_views
 from cv import views as cv_views
 from vacancy import views as vacancy_views
 from quiz import views as quiz_views
+from statistic import views as statistic_views
 
 basic = [
     path('', jobboard_views.index, name='index'),
@@ -47,7 +48,7 @@ candidate_urlpatterns = [
 curriculum_vitae_urlpatterns = [
     path('cv/new/', cv_views.new_cv, name='new_cv'),
     path('cv/all/', cv_views.cv_all, name='cv_all'),
-    path('cv/<int:cv_id>/', cv_views.cv, name='cv'),
+    path('cv/<int:pk>/', cv_views.cv, name='cv'),
     path('cv/<int:cv_id>/edit/', cv_views.cv_edit, name='cv_edit'),
     path('cv/<int:cv_id>/new/position/', cv_views.new_position, name='new_position'),
     path('cv/<int:position_id>/edit/position/', cv_views.position_edit, name='position_edit'),
@@ -61,15 +62,16 @@ curriculum_vitae_urlpatterns = [
 ]
 
 vacancy_urlpatterns = [
-    path('vacancy/new/', vacancy_views.new_vacancy, name='new_vacancy'),
+    path('vacancy/new/', vacancy_views.CreateVacancyView.as_view(), name='new_vacancy'),
     path('vacancy/<int:vacancy_id>/offer/<int:cv_id>/', vacancy_views.OfferVacancyView.as_view(),
          name='offer_vacancy'),
     path('vacancy/<int:vacancy_id>/subscribe/<int:cv_id>/', vacancy_views.subscribe_to_vacancy,
          name='subscribe_to_vacancy'),
-    path('vacancy/<int:vacancy_id>/', vacancy_views.vacancy, name='vacancy'),
-    path('vacancy/<int:vacancy_id>/edit/', vacancy_views.vacancy_edit, name='vacancy_edit'),
-    path('vacancy/<int:vacancy_id>/status/change/', vacancy_views.change_vacancy_status, name='change_vacancy_status'),
-    path('vacancy/all/', vacancy_views.vacancy_all, name='vacancy_all'),
+    # path('vacancy/<int:vacancy_id>/', vacancy_views.vacancy, name='vacancy'),
+    path('vacancy/<int:pk>/', vacancy_views.VacancyView.as_view(), name='vacancy'),
+    path('vacancy/<int:pk>/edit/', vacancy_views.VacancyEditView.as_view(), name='vacancy_edit'),
+    path('vacancy/<int:pk>/status/change/', vacancy_views.ChangeVacancyStatus.as_view(), name='change_vacancy_status'),
+    path('vacancy/all/', vacancy_views.VacanciesListView.as_view(), name='vacancy_all'),
 ]
 
 quiz_urlpatterns = [
@@ -92,10 +94,16 @@ employer_urlpatterns = [
     path('candidate/access/', jobboard_views.GrantRevokeCandidate.as_view(), name='access_candidate'),
 ]
 
+statistic_urlpatterns = [
+    path('vacancy/<int:pk>/statistic/', statistic_views.StatisticView.as_view(), name='vacancystatistic'),
+    path('cv/<int:pk>/statistic/', statistic_views.StatisticView.as_view(), name='cvstatistic'),
+]
+
 urlpatterns = basic + \
               candidate_urlpatterns + \
               vacancy_urlpatterns + \
               quiz_urlpatterns + \
               curriculum_vitae_urlpatterns + \
               employer_urlpatterns + \
+              statistic_urlpatterns + \
               static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -6,36 +6,26 @@
 
 {% block content %}
     <div class="uk-container uk-align-center">
-        {% if error %}
-            <h4 class="center">
-                {{ error }}
-            </h4>
-        {% else %}
-            {% if obj.enabled == True %}
-                {% if obj.contract_address %}
-                    <h4 class="center"></h4>
-                    {% if error %}
-                        <div class="uk-alert-danger" uk-alert>
-                            <a class="uk-alert-close" uk-close></a>
-                            <p>{{ error }}</p>
-                        </div>
-                    {% endif %}
-                    <form class="uk-form-horizontal" class="uk-form-horizontal uk-margin-large" action="{% url 'new_vacancy' %}" method="post">
-                        {% csrf_token %}
-                        <fieldset class="uk-fieldset">
-                            <legend class="uk-legend">
-                                {% trans 'New Vacancy' %}
-                            </legend>
-                            {% form form=form %}{% endform %}
-                            <button class="uk-button uk-button-primary uk-align-right">Continue</button>
-                        </fieldset>
-                    </form>
-                {% else %}
-                    {% include 'jobboard/include/message.html' with message="Your contract doesn't ready yet" %}
-                {% endif %}
+        {% include 'jobboard/include/messages.html' %}
+        {% if request.role_object.enabled == True %}
+            {% if request.role_object.contract_address %}
+                <form class="uk-form-horizontal" class="uk-form-horizontal uk-margin-large"
+                      action="{% url 'new_vacancy' %}" method="post">
+                    {% csrf_token %}
+                    <fieldset class="uk-fieldset">
+                        <legend class="uk-legend">
+                            {% trans 'New Vacancy' %}
+                        </legend>
+                        {% form form=form %}{% endform %}
+                        <button class="uk-button uk-button-primary uk-align-right">Continue</button>
+                    </fieldset>
+                </form>
             {% else %}
-                {% include 'jobboard/include/message.html' with message="You must enable your main contract for create new vacancy" %}
+                {% include 'jobboard/include/message.html' with message="Your contract doesn't ready yet" %}
             {% endif %}
+        {% else %}
+            {% include 'jobboard/include/message.html' with message="You must enable your main contract for create new vacancy" %}
         {% endif %}
+
     </div>
 {% endblock %}

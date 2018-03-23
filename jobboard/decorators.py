@@ -1,11 +1,9 @@
 from __future__ import unicode_literals
 import functools
-from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import available_attrs
 from account.compat import is_authenticated
-from account.utils import handle_redirect_to_login
 
 
 def choose_role_required(func=None):

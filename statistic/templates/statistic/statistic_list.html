@@ -1,0 +1,66 @@
+{% extends 'jobboard/base.html' %}
+
+{% load statistic_tags %}
+
+{% block head_title %}
+    Vacancy statistic
+{% endblock %}
+
+{% block content %}
+    <div class="uk-container uk-align-center">
+        {% if object_list %}
+            <h4>Statistic for: {{ related.title }}</h4>
+            <table class="uk-table uk-table-divider uk-table-small uk-table-justify">
+                <thead>
+                <tr>
+                    <th class="uk-table-expand">
+                        user
+                    </th>
+                    <th class="uk-text-center">
+                        views
+                    </th>
+                    <th class="uk-text-right">
+                        last visit
+                    </th>
+                    <th class="uk-text-right">
+                        date
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in object_list %}
+                    <tr>
+                        <td>
+                            {% with item|user_role as role_object %}
+                                {% if role_object is None %}
+                                    <span class="uk-text-muted">{{ item.role|capfirst }}</span>
+                                {% else %}
+                                    {% if role_object.obj.get_url %}
+                                        <a href="{{ role_object.obj.get_url }}">{{ role_object.obj.organization }}</a>
+                                    {% else %}
+                                        {{ role_object.obj.full_name }}
+                                    {% endif %}
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td class="uk-text-center">
+                            {{ item.count }}
+                        </td>
+                        <td class="uk-text-right">
+                            {{ item.date_updated }}
+                        </td>
+                        <td class="uk-text-right">
+                            {{ item.date_created }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% if is_paginated %}
+                {% include 'jobboard/include/paginator.html' with paginate=page_obj %}
+            {% endif %}
+        {% else %}
+            Statistic does not exist!
+        {% endif %}
+    </div>
+{% endblock %}

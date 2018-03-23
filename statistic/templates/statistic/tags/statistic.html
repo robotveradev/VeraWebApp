@@ -1,0 +1,6 @@
+{% load statistic_tags %}
+{% if not empty %}
+    {% if show_type == 'short' %}
+        {% statistic_short statistic item %}
+    {% endif %}
+{% endif %}

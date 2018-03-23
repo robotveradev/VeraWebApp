@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'vacancy',
     'quiz',
     'account',
+    'statistic',
     'material',
     'material.frontend',
     'django_filters',
@@ -88,8 +90,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'statistic': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'statistic.sqlite3'),
     }
 }
+
+DATABASE_ROUTERS = ['jobboard.database_router.DBRouter', 'jobboard.database_router.PrimaryRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -121,7 +129,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
@@ -155,3 +162,5 @@ NET_URL = 'https://rinkeby.etherscan.io/'
 LOGIN_URL = '/account/login'
 
 W2V_API_URL = 'http://52.166.10.44:3000/getvecw2v'
+
+SESSION_SAVE_EVERY_REQUEST = True
