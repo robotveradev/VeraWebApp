@@ -468,15 +468,18 @@ contract VeraOracle is Ownable {
 
     address public beneficiary;
 
+    address public token;
+
     event NewEmployer(address employer_address, uint256 time);
 
     event NewCandidate(address candidate_address, uint256 time);
 
-    function VeraOracle(bytes32 _name, uint8 _service_fee, address _beneficiary, uint256 _vacancy_fee) public {
+    function VeraOracle(bytes32 _name, uint8 _service_fee, address _beneficiary, uint256 _vacancy_fee, address _token) public {
         name = _name;
         service_fee = _service_fee;
         beneficiary = _beneficiary;
         vacancy_fee = _vacancy_fee;
+        token = _token;
     }
 
     function new_service_fee(uint8 _service_fee) public onlyOwner {
@@ -491,8 +494,8 @@ contract VeraOracle is Ownable {
         vacancy_fee = _vacancy_fee;
     }
 
-    function new_employer(bytes32 _id, address _token) public onlyOwner returns(bool) {
-        Employer employer = new Employer(_id, _token);
+    function new_employer(bytes32 _id) public onlyOwner returns(bool) {
+        Employer employer = new Employer(_id, token);
         employers.push(employer);
         employer.grant_access(msg.sender);
         NewEmployer(employer, now);
@@ -559,10 +562,6 @@ contract Employer is Withdrawable {
 
     function pause_vacancy(address _vacancy_address) public onlyAgent {
         Pausable(_vacancy_address).pause();
-    }
-
-    function unpause_vacancy(address _vacancy_address) public onlyAgent {
-        Pausable(_vacancy_address).unpause();
     }
 
     function grant_access_to_candidate(address _vacancy_address, address _candidate_address) public onlyAgent {

@@ -6,20 +6,19 @@
 
 {% block content %}
     <div class="uk-container uk-align-center">
-
-            <fieldset class="uk-fieldset">
-                <legend class="uk-legend">
-                    {% trans "Choose your role" %}
-                </legend>
-
-                <ul class="uk-child-width-expand" uk-tab="{connect: '#choose_role_contrainer'}">
-                    <li class="uk-active"><a href="#">Employer</a></li>
-                    <li><a href="#">Candidate</a></li>
-                </ul>
-                <ul id="choose_role_contrainer" class="uk-switcher">
-                    <li class="uk-animation-slide-left-small">
-                     <form action="{% url 'choose_role' %}" method="post">
-                     {% csrf_token %}
+        <fieldset class="uk-fieldset">
+            <legend class="uk-legend">
+                {% trans "Choose your role" %}
+            </legend>
+            {% if errors %}{{ errors }}{% endif %}
+            <ul class="uk-child-width-expand" uk-tab="{connect: '#choose_role_contrainer'}">
+                <li class="uk-active"><a href="#">Employer</a></li>
+                <li><a href="#">Candidate</a></li>
+            </ul>
+            <ul id="choose_role_contrainer" class="uk-switcher">
+                <li class="uk-animation-slide-left-small">
+                    <form action="{% url 'choose_role' %}" method="post">
+                        {% csrf_token %}
                         <input type="hidden" name="role" value="employer">
                         <input type="hidden" name="next" value="{{ request.GET.next }}">
 
@@ -48,11 +47,11 @@
                                    value="{{ redirect_field_value }}"/>
                         {% endif %}
                         <button type="submit" class="uk-button uk-button-primary uk-align-right">Send</button>
-                     </form>
-                    </li>
-                    <li class="uk-animation-slide-right-small">
-                     <form action="{% url 'choose_role' %}" method="post">
-                     {% csrf_token %}
+                    </form>
+                </li>
+                <li class="uk-animation-slide-right-small">
+                    <form action="{% url 'choose_role' %}" method="post">
+                        {% csrf_token %}
                         <input type="hidden" name="role" value="candidate">
                         <input type="hidden" name="next" value="{{ request.GET.next }}">
 
@@ -96,14 +95,14 @@
                                    value="{{ redirect_field_value }}"/>
                         {% endif %}
                         <button type="submit" class="uk-button uk-button-primary uk-align-right">Send</button>
-                     </form>
-                    </li>
-                </ul>
+                    </form>
+                </li>
+            </ul>
 
-            </fieldset>
-            <div class="uk-text-danger">{{ form.non_field_errors }}</div>
-            {% if error %}
-                <div class="uk-text-danger">{{ error }}</div>{% endif %}
+        </fieldset>
+        <div class="uk-text-danger">{{ form.non_field_errors }}</div>
+        {% if error %}
+            <div class="uk-text-danger">{{ error }}</div>{% endif %}
 
     </div>
 {% endblock %}

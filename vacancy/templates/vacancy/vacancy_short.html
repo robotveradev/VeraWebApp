@@ -1,12 +1,21 @@
-{% load jobboard_tags %}
-{% with item.employer.user|is_owner:request.user as owner %}
+{% load jobboard_tags vacancy_tags %}
+{% with item.employer|is_owner:request.role_object as owner %}
     <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
         <div uk-grid>
-            <div class="uk-width-2-3">
+            <div class="{% if not selectable %}uk-width-2-3{% endif %}">
                 <div>
-                    <a class="uk-button uk-button-text"
-                       href="{% url 'vacancy' vacancy_id=item.id %}">{{ item.title }}</a>
-                    {% if owner %}
+                    {% if selectable %}
+                        {% with item.id|is_already_offer:cv_id as offer %}
+                            {% url 'offer_vacancy' vacancy_id=item.id cv_id=cv_id as offer_url %}
+                            <a class="uk-button uk-button-text{% if offer %} uk-text-muted{% endif %}"
+                               href="{% if offer %}#{% else %}{{ offer_url }}{% endif %}">
+                                {{ item.title }}{% if offer %}, (you already send request).{% endif %}</a>
+                        {% endwith %}
+                    {% else %}
+                        <a class="uk-button uk-button-text"
+                           href="{% url 'vacancy' vacancy_id=item.id %}">{{ item.title }}</a>
+                    {% endif %}
+                    {% if owner and editable %}
                         <a href="{% url 'vacancy_edit' vacancy_id=item.id %}" uk-icon="icon: file-edit"></a>
                     {% endif %}
                 </div>
@@ -21,14 +30,14 @@
                         {% endif %}
                         {% if item.contract_address %}
                             {% if owner %}
-                                {{ item.id|allowance_rest }} Vera,
+                                {{ item.id|allowance_rest }} Vera
                             {% else %}
                                 {{ item.id|get_interview_fee }} Vera
                             {% endif %}
                         {% else %}
                             <div uk-spinner="ratio:0.4"></div>
                         {% endif %}
-                        {% if owner %}
+                        {% if owner and editable %}
                             {% if item.contract_address is not None %}
                                 {% if item.enabled is not None %}
                                     <a href="{% url 'change_vacancy_status' vacancy_id=item.id %}">
@@ -47,49 +56,52 @@
                             {% endif %}
                         {% endif %}
                     </span>
-                    {% if desc %}
-                        <div class="uk-text-muted uk-text-small">{{ item.description|truncatewords:30 }}</div>
+                    {% if show_info %}
+                        {# TODO добавить статистику сюда #}
                     {% endif %}
                 </div>
             </div>
-            <div class="uk-width-1-3 uk-inline">
-                {% if owner and item.contract_address %}
-                    <div class="uk-position-center-right">
-                        {% with item.contract_address|get_wait_candidates_count as count %}
-                            {% if count.paid > 0 %}
-                                <span data-badge-caption="paid" class="new badge">{{ count.paid }}</span>
-                            {% endif %}
-                            {% if count.revoked > 0 %}
-                                <span data-badge-caption="revoked" class="new badge red">{{ count.revoked }}</span>
-                            {% endif %}
-                            {% if count.accepted > 0 %}
-                                <span data-badge-caption="accepted" class="new badge green">{{ count.accepted }}</span>
-                            {% endif %}
-                            {% if count.wait > 0 %}
-                                <span class="new badge amber darken-2">{{ count.wait }}</span>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-                {% endif %}
-                {% if candidate %}
-                    <div class="uk-position-center-right">
-                        {% with item|candidate_state:candidate as st %}
-                            <span class="{% if st == 'wait' %}amber{% elif st == 'accepted' %}green{% elif st == 'revoked' %}red{% endif %}-text">
+            {% if not selectable %}
+                <div class="uk-width-1-3 uk-inline">
+                    {% if owner and item.contract_address and show_info %}
+                        <div class="uk-position-center-right">
+                            {% with item.contract_address|get_wait_candidates_count as count %}
+                                {% if count.paid > 0 %}
+                                    <span data-badge-caption="paid" class="new badge">{{ count.paid }}</span>
+                                {% endif %}
+                                {% if count.revoked > 0 %}
+                                    <span data-badge-caption="revoked" class="new badge red">{{ count.revoked }}</span>
+                                {% endif %}
+                                {% if count.accepted > 0 %}
+                                    <span data-badge-caption="accepted"
+                                          class="new badge green">{{ count.accepted }}</span>
+                                {% endif %}
+                                {% if count.wait > 0 %}
+                                    <span class="new badge amber darken-2">{{ count.wait }}</span>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    {% endif %}
+                    {% if candidate %}
+                        <div class="uk-position-center-right uk-text-right">
+                            {% with item|candidate_state:candidate as st %}
+                                <span class="{% if st == 'wait' %}amber{% elif st == 'accepted' %}green{% elif st == 'revoked' %}red{% endif %}-text">
                                 {{ st | capfirst }}
                             </span>
-                            <br/>
-                            {% if st == 'accepted' %}
-                                {% if item.id|vacancy_tests_count > 0 %}
-                                    <span>
+                                <br/>
+                                {% if st == 'accepted' %}
+                                    {% if item.id|vacancy_tests_count > 0 %}
+                                        <span>
                                         <a class="grey-text uk-button uk-button-text uk-text-lowercase uk-text-small"
                                            href="{% url 'candidate_testing' vacancy_id=vacancy.id %}">Now you can pass the tests</a>
                                     </span>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-                {% endif %}
-            </div>
+                            {% endwith %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endwith %}

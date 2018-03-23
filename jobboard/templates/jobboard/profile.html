@@ -4,11 +4,11 @@
 
 {% block content %}
     <div class="uk-container uk-align-center">
-        <h2>{{ role|title }} profile</h2>
-        {% with obj.enabled as en %}
+        <h2>{{ request.role|title }} profile</h2>
+        {% with request.role_object.enabled as en %}
             <div class="uk-align-right">
                 {% if en != None %}
-                    {% if obj|is_oracle_agent %}
+                    {% if request.role_object|is_oracle_agent %}
                         <a class="uk-button-text uk-button uk-text-capitalize" href="#agent-modal" uk-toggle>Agents,</a>
 
                         <div id="agent-modal" uk-modal>
@@ -32,7 +32,7 @@
                                 <div class="uk-modal-footer uk-text-right">
                                     <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel
                                     </button>
-                                    <button id="check_agent"  class="uk-button uk-button-primary">Check agent</button>
+                                    <button id="check_agent" class="uk-button uk-button-primary">Check agent</button>
                                 </div>
                             </div>
                         </div>
@@ -68,7 +68,7 @@
                 {% endif %}
             </div>
         {% endwith %}
-        {% if role == 'candidate' %}
+        {% if request.role == 'candidate' %}
             <table class="uk-table uk-table-divider uk-table-small" width="100%">
                 <colgroup>
                     <col width="20%">
@@ -76,27 +76,28 @@
                 </colgroup>
                 <tr>
                     <td>Name:</td>
-                    <td>{{ obj.first_name }}</td>
+                    <td>{{ request.role_object.first_name }}</td>
                 </tr>
                 <tr>
                     <td>Last name:</td>
-                    <td>{{ obj.last_name }}</td>
+                    <td>{{ request.role_object.last_name }}</td>
                 </tr>
                 <tr>
                     <td>Middle name:</td>
-                    <td>{{ obj.middle_name|default:'-' }}</td>
+                    <td>{{ request.role_object.middle_name|default:'-' }}</td>
                 </tr>
                 <tr>
                     <td>Tax number:</td>
-                    <td>{{ obj.tax_number }}</td>
+                    <td>{{ request.role_object.tax_number }}</td>
                 </tr>
                 <tr>
                     <td>Contract address:</td>
                     <td>
-                        {% if obj.contract_address is not None %}
-                            <img style="width: 16px; height: 16px;" src="{{ obj.contract_address|get_blockies_png }}" alt="">
+                        {% if request.role_object.contract_address is not None %}
+                            <img style="width: 16px; height: 16px;"
+                                 src="{{ request.role_object.contract_address|get_blockies_png }}" alt="">
                             <a class="uk-link-reset" target="_blank"
-                               href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
+                               href="https://rinkeby.etherscan.io/address/{{ request.role_object.contract_address }}">{{ request.role_object.contract_address }}</a>
                         {% else %}
                             <div uk-spinner="ratio: 0.7"></div>
                         {% endif %}
@@ -105,24 +106,18 @@
                 <tr>
                     <td>Balance:</td>
                     <td>
-                        {% get_balance obj.user obj.contract_address %}
+                        {% get_balance request.role_object.user request.role_object.contract_address %}
                     </td>
                 </tr>
             </table>
-            {% if cv %}
-                <h5>My Curriculum vitae</h5>
-                {% include 'cv/include/cv.html' %}
-                <a class="uk-button uk-button-primary uk-button-small uk-align-right" href="{% url 'new_cv' %}">Add new
-                    CV</a>
-            {% endif %}
-            {% if obj.contract_address %}
-                {% get_facts obj %}
-                {% if obj|is_oracle_agent %}
+            {% if request.role_object.contract_address %}
+                {% get_facts request.role_object %}
+                {% if  request.role_object|is_oracle_agent %}
                     {% include 'jobboard/include/add_fact.html' %}
                 {% endif %}
-                {% get_candidate_vacancies obj request %}
+                {% get_candidate_vacancies request.role_object request %}
             {% endif %}
-        {% elif role == 'employer' %}
+        {% elif request.role == 'employer' %}
             <table class="uk-table uk-table-divider uk-table-small" width="100%">
                 <colgroup>
                     <col width="20%">
@@ -130,19 +125,20 @@
                 </colgroup>
                 <tr>
                     <td>Organization:</td>
-                    <td>{{ obj.organization }}</td>
+                    <td>{{ request.role_object.organization }}</td>
                 </tr>
                 <tr>
                     <td>Tax number:</td>
-                    <td>{{ obj.tax_number }}</td>
+                    <td>{{ request.role_object.tax_number }}</td>
                 </tr>
                 <tr>
                     <td>Contract address:</td>
                     <td>
-                        {% if obj.contract_address is not None %}
-                            <img style="width: 16px; height: 16px;" src="{{ obj.contract_address|get_blockies_png }}" alt="">
+                        {% if request.role_object.contract_address is not None %}
+                            <img style="width: 16px; height: 16px;"
+                                 src="{{ request.role_object.contract_address|get_blockies_png }}" alt="">
                             <a class="uk-link-reset" target="_blank"
-                               href="https://rinkeby.etherscan.io/address/{{ obj.contract_address }}">{{ obj.contract_address }}</a>
+                               href="https://rinkeby.etherscan.io/address/{{ request.role_object.contract_address }}">{{ request.role_object.contract_address }}</a>
                         {% else %}
                             <div uk-spinner="ratio: 0.7"></div>
                         {% endif %}
@@ -151,14 +147,14 @@
                 <tr>
                     <td>Balance:</td>
                     <td>
-                        {% get_balance obj.user obj.contract_address %}
+                        {% get_balance request.role_object.user request.role_object.contract_address %}
                     </td>
                 </tr>
             </table>
             {% if vacancies %}
                 <h5>Your vacancies</h5>
                 {% for vacancy in vacancies %}
-                    {% include 'vacancy/vacancy_short.html' with item=vacancy %}
+                    {% include 'vacancy/vacancy_short.html' with item=vacancy editable=True show_info=True %}
                 {% endfor %}
             {% endif %}
         {% endif %}

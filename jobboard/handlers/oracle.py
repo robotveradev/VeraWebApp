@@ -2,16 +2,16 @@ from web3 import Web3, RPCProvider
 import json
 from web3.exceptions import BadFunctionCallOutput
 from web3.utils.validation import validate_address
-from django.conf import settings
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
+from django.conf import settings
 
 
 class OracleHandler(object):
-    def __init__(self, account, contract_address):
+    def __init__(self, account=None, contract_address=None):
         self.web3 = Web3(RPCProvider(host='localhost', port=8545))
-        self.account = account
-        self.contract_address = contract_address
+        self.account = account or settings.WEB_ETH_COINBASE
+        self.contract_address = contract_address or settings.VERA_ORACLE_CONTRACT_ADDRESS
         with open('jobboard/handlers/oracle_abi.json', 'r') as ad:
             self.abi = json.load(ad)
         self.__password = 'onGridTest_lGG%tts%QP'
@@ -37,10 +37,9 @@ class OracleHandler(object):
     def name(self):
         return self.contract.call().name()
 
-    def new_employer(self, e_id, token):
-        validate_address(token)
+    def new_employer(self, e_id):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).new_employer(e_id, token)
+        return self.contract.transact({'from': self.account}).new_employer(e_id)
 
     def get_employers(self):
         return self.contract.call().get_employers()

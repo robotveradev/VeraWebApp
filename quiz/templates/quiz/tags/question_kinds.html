@@ -1,0 +1,16 @@
+{% load quiz_tags %}
+<ul class="uk-list uk-divider uk-margin-left">
+    {% for kind in kinds %}
+        <li><label><input
+                class="uk-radio"
+                name="kind"
+                value="{{ kind.id }}"
+                {% if kind.id == question.kind.id %} checked="checked"{% endif %}
+                {% if not question|is_question_can_be_kind:kind %} disabled{% endif %}
+                type="radio">
+            {{ kind.title }} {% if kind.w2v %}<sup uk-tooltip="The question is estimated with the help of AI"
+                                                   class="green-text">AI</sup>{% endif %}
+        </label>
+        </li>
+    {% endfor %}
+</ul>

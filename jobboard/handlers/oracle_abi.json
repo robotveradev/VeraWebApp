@@ -101,29 +101,6 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_id",
-				"type": "bytes32"
-			},
-			{
-				"name": "_token",
-				"type": "address"
-			}
-		],
-		"name": "new_employer",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"constant": true,
 		"inputs": [
 			{
@@ -235,6 +212,25 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "_id",
+				"type": "bytes32"
+			}
+		],
+		"name": "new_employer",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "_employer_address",
 				"type": "address"
 			},
@@ -304,6 +300,20 @@
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [],
+		"name": "token",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"name": "_name",
@@ -320,6 +330,10 @@
 			{
 				"name": "_vacancy_fee",
 				"type": "uint256"
+			},
+			{
+				"name": "_token",
+				"type": "address"
 			}
 		],
 		"payable": false,

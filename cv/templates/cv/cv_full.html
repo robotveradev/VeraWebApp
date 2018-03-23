@@ -22,7 +22,8 @@
             </div>
             <div class="uk-width-4-5">
                 {% if request.user == cv.candidate.user %}
-                    <a class="uk-button uk-button-text uk-align-right uk-text-capitalize" href="{% url 'change_cv_status' cv_id=cv.id %}">
+                    <a class="uk-button uk-button-text uk-align-right uk-text-capitalize"
+                       href="{% url 'change_cv_status' cv_id=cv.id %}">
                         {% if cv.published %}Disable{% else %}Enable{% endif %}
                     </a>
                 {% endif %}
@@ -139,6 +140,28 @@
                 {% endif %}
             {% endwith %}
         </div>
+        {% if request.role == 'employer' %}
+            <button class="uk-button uk-button-primary uk-button-small uk-align-right" uk-toggle="target: #offer_modal">
+                Offer a vacancy
+            </button>
+
+            <div id="offer_modal" uk-modal>
+                <div class="uk-modal-dialog">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <div class="uk-modal-header">
+                        <h2 class="uk-modal-title">Select vacancy</h2>
+                    </div>
+                    <div>
+                        {% for vac in vacs %}
+                             {% include 'vacancy/vacancy_short.html' with item=vac selectable=True cv_id=cv.id %}
+                        {% endfor %}
+                    </div>
+                    <div class="uk-modal-footer uk-text-right">
+                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
 </div>
 {% endblock %}

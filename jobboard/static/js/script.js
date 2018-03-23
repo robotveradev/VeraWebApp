@@ -79,11 +79,11 @@ $(document).ready(function () {
                     var action = '';
                     link_item.show();
                     if (data === 'False') {
-                        link = '/grant_agent/?address=';
+                        link = '/agent/grant/?address=';
                         elem = 'Address ' + agent_address + ' not is agent.';
                         action = 'grant';
                     } else if (data === 'True') {
-                        link = '/revoke_agent/?address=';
+                        link = '/agent/revoke/?address=';
                         elem = 'Address ' + agent_address + ' is agent.';
                         action = 'revoke';
                     } else {
@@ -92,11 +92,88 @@ $(document).ready(function () {
                         link_item.hide();
                     }
                     $('#grant_revoke_title').text(action + ' agent');
-                    link_item.attr('href', link+agent_address).text(action);
+                    link_item.attr('href', link + agent_address).text(action);
                     $('#agent_status').html(elem);
                     UIkit.modal('#grant_revoke_agent').show();
                 }
             })
         }
     });
+
+    $('textarea').htmlarea({
+        toolbar: ["bold", "italic", "underline", "|", "p", "h1", "h2", "h3", "h4", "h5", "h6", "|", "indent", "outdent", "|", "orderedList", "unorderedList", "horizontalrule", "|", "justifyLeft", "justifyCenter", "justifyRight"]
+    });
+    $('.jHtmlArea').parent('div').addClass('jHtml-textarea');
+
+    $('.select-all').on('click', function () {
+        $(this).closest('li').find('input').each(function (i, item) {
+            console.log($(item));
+            if (!$(item).is(':disabled')) {
+                $(item).attr('checked', true);
+            }
+        });
+    });
+
+    $('input[type=range]').on('change', function () {
+        $.ajax({
+            url: '/quiz/exam/' + $('input[name=e_id]').val() + '/update/grade/',
+            type: 'POST',
+            data: {
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                passing_grade: $(this).val()
+            },
+            success: function (data) {
+                if (data === 'True') {
+                    UIkit.notification({
+                        message: 'Passing grade successfully updated!',
+                        status: 'success',
+                        pos: 'top-right',
+                        timeout: 3000
+                    });
+                } else {
+                    UIkit.notification({
+                        message: 'Some problems while update passing grade...',
+                        status: 'danger',
+                        pos: 'top-right',
+                        timeout: 3000
+                    });
+                }
+            }
+        });
+    }).on('input', function () {
+        $('#passing_grade').text($(this).val());
+    });
+
+    $('input[name="test_answer"]').closest('div').find('a').on('click', function () {
+        var question_id = $(this).data('question-id');
+        var answer = $(this).closest('div').find('input').val();
+        if (answer === '') {
+            UIkit.notification({
+                message: 'Please specify the text answer',
+                status: 'primary',
+                pos: 'top-right',
+                timeout: 3000
+            });
+        } else {
+            $.ajax({
+                url: '/quiz/test/answer/',
+                type: 'POST',
+                context: $(this),
+                data: {
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                    que_id: question_id,
+                    ans: answer
+                },
+                success: function () {
+                    location.reload();
+                }
+            })
+        }
+        return false;
+    })
 });
+
+
+
+
+

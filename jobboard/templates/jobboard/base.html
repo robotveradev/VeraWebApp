@@ -8,41 +8,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.39/css/uikit.min.css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{% static 'css/materialize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jHtmlArea.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-{#<div>#}
-{#    {% if request.user.is_staff %}#}
-{#        <div class="chip">#}
-{#            Last block:#}
-{#            <span id="time_to_block" data-per-block="{{ 12|time_per_block }}">{{ 12|next_block_in }}</span>#}
-{#            sec ago#}
-{#        </div>#}
-{#    {% endif %}#}
-{#</div>#}
 <nav class="uk-navbar-container" uk-navbar uk-sticky>
     <div class="uk-navbar-left">
         <a class="uk-navbar-item uk-logo" href="{% url 'index' %}">Vera Oracle</a>
-        {% with request.user.id|user_role as role %}
+        {% with request.role as role %}
             <ul class="uk-navbar-nav">
                 <li>
                     <a href="{% url 'index' %}">Home</a>
                 </li>
                 <li>
-                    <a href="{% url 'find_job' %}">Jobs</a>
+                    <a href="{% url 'find_job' %}">Vacancies</a>
                 </li>
                 {% if role == 'employer' %}
+                    <li>
+                        <a href="{% url 'find_cv' %}">CVs</a>
+                    </li>
                     <li>
                         <a href="{% url 'new_vacancy' %}">Post a job</a>
                     </li>
                 {% endif %}
                 {% if role == 'candidate' %}
-                    {% if not request.user.id|has_cv %}
+                    {% if not request.role_object.cvs.all %}
                         <li>
                             <a href="{% url 'new_cv' %}">Post a CV</a>
                         </li>
                     {% endif %}
+                    <li>
+                        <a href="{% url 'offers' %}">Feedback
+                            {% with request.role_object|offers_count as off_count %}{% if off_count > 0 %}
+                                ({{ off_count }})
+                            {% endif %}{% endwith %}
+                        </a>
+                    </li>
                 {% endif %}
                 {% if user.is_authenticated %}
                     <li>
@@ -54,6 +56,7 @@
                                     <li><a href="{% url 'cv_all' %}">All CV</a></li>
                                 {% elif role == 'employer' %}
                                     <li><a href="{% url 'vacancy_all' %}">Vacancies</a></li>
+                                    <li><a href="{% url 'quiz_index' %}">Quiz</a></li>
                                 {% endif %}
                                 <li><a href="{% url 'transactions' %}">Transactions</a></li>
                             </ul>
@@ -137,10 +140,11 @@
 </div>
 </body>
 <!-- UIkit JS -->
-<script src="https://code.jquery.com/jquery-2.2.4.min.js"
-        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<script src="{% static 'js/jquery.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.39/js/uikit.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.39/js/uikit-icons.min.js"></script>
+<script src="{% static 'js/jHtmlArea.js' %}"></script>
 <script src="{% static 'js/script.js' %}"></script>
 {% block extra_js %}{% endblock %}
 </html>
+

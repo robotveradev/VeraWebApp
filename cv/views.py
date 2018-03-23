@@ -1,25 +1,35 @@
 from account.decorators import login_required
-from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
-
+from django.views.generic import TemplateView, RedirectView
 from jobboard.decorators import choose_role_required
-from vacancy.models import CVOnVacancy
 from jobboard.models import Candidate
+from vacancy.models import Vacancy, VacancyOffer
 from .forms import *
+
+_CANDIDATE, _EMPLOYER = 'candidate', 'employer'
+
+
+class VacancyOfferView(TemplateView):
+    template_name = 'cv/vacancy_offer.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.role != 'candidate':
+            return redirect('profile')
+        context = self.get_context_data(**kwargs)
+        context['vac_offers'] = VacancyOffer.objects.filter(cv__candidate=request.role_object, is_active=True).order_by(
+            '-created_at')
+        return self.render_to_response(context)
 
 
 def cv(request, cv_id):
     args = {'cv': get_object_or_404(CurriculumVitae, id=cv_id)}
-    employers = [item['vacancy__employer__user'] for item in
-                 CVOnVacancy.objects.values('vacancy__employer__user').filter(cv=args['cv'])]
-    if args['cv'].candidate.user != request.user and request.user.id not in employers:
-        raise Http404
-    else:
-        return render(request, 'cv/cv_full.html', args)
+    if request.role == 'employer':
+        args['vacs'] = Vacancy.objects.filter(employer=request.role_object, enabled=True)
+    return render(request, 'cv/cv_full.html', args)
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def new_cv(request):
     can_o = get_object_or_404(Candidate, user=request.user)
     args = {'form': CurriculumVitaeForm(
@@ -38,7 +48,7 @@ def new_cv(request):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def new_position(request, cv_id):
     args = {'cv': cv_id}
     cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
@@ -53,7 +63,7 @@ def new_position(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def new_education(request, cv_id):
     args = {'cv': cv_id}
     cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
@@ -67,7 +77,7 @@ def new_education(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def new_experience(request, cv_id):
     args = {'cv': cv_id}
     cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
@@ -81,7 +91,7 @@ def new_experience(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def change_cv_status(request, cv_id):
     cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
     if cv_o.position is not None:
@@ -91,15 +101,15 @@ def change_cv_status(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def cv_all(request):
     args = {}
-    args['cv'] = CurriculumVitae.objects.filter(candidate__user=request.user)
+    args['cvs'] = CurriculumVitae.objects.filter(candidate__user=request.user)
     return render(request, 'cv/cv_all.html', args)
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def cv_edit(request, cv_id):
     args = {}
     args['cv_o'] = get_object_or_404(CurriculumVitae, candidate__user=request.user, pk=cv_id)
@@ -115,7 +125,7 @@ def cv_edit(request, cv_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def position_edit(request, position_id):
     args = {}
     args['position_o'] = get_object_or_404(Position, pk=position_id)
@@ -132,7 +142,7 @@ def position_edit(request, position_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def experience_edit(request, experience_id):
     args = {}
     args['exp_o'] = get_object_or_404(Experience, pk=experience_id)
@@ -149,7 +159,7 @@ def experience_edit(request, experience_id):
 
 
 @login_required
-@choose_role_required(redirect_url='/role/')
+@choose_role_required
 def education_edit(request, education_id):
     args = {}
     args['edu_o'] = get_object_or_404(Education, pk=education_id)
@@ -163,3 +173,15 @@ def education_edit(request, education_id):
         form = EducationForm(instance=args['edu_o'])
     args['form'] = form
     return render(request, 'cv/education_edit.html', args)
+
+
+class HideOfferView(RedirectView):
+    pattern_name = 'offers'
+
+    def get_redirect_url(self, *args, **kwargs):
+        if self.request.role != _CANDIDATE:
+            pass
+        else:
+            offer_o = get_object_or_404(VacancyOffer, id=kwargs['offer_id'], cv__candidate=self.request.role_object)
+            offer_o.refuse()
+        return super().get_redirect_url()

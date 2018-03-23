@@ -20,7 +20,7 @@
                             <p>{{ error }}</p>
                         </div>
                     {% endif %}
-                    <form action="{% url 'new_vacancy' %}" method="post">
+                    <form class="uk-form-horizontal" class="uk-form-horizontal uk-margin-large" action="{% url 'new_vacancy' %}" method="post">
                         {% csrf_token %}
                         <fieldset class="uk-fieldset">
                             <legend class="uk-legend">

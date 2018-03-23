@@ -65,7 +65,9 @@ class Schedule(models.Model):
 
 
 class CurriculumVitae(models.Model):
-    candidate = models.ForeignKey('jobboard.Candidate', on_delete=models.CASCADE)
+    candidate = models.ForeignKey('jobboard.Candidate',
+                                  on_delete=models.CASCADE,
+                                  related_name='cvs')
     image = models.ImageField(blank=True, null=True)
     first_name = models.CharField(max_length=50, null=False, blank=False)
     last_name = models.CharField(max_length=50, null=False, blank=False)
@@ -88,6 +90,14 @@ class CurriculumVitae(models.Model):
 
     def __str__(self):
         return 'CurriculumVitae: {} {}'.format(self.first_name, self.last_name)
+
+    @property
+    def title(self):
+        return self.position.title if self.position is not None else 'Unpublished CV'
+
+    @property
+    def salary_from(self):
+        return 'from ' + str(self.position.salary_from) + '$' if self.position is not None else 'Salary not available'
 
 
 class Position(models.Model):
@@ -133,7 +143,7 @@ class Education(models.Model):
     education_to = models.DateField()
 
     def __str__(self):
-        return self.institute
+        return self.institute or '-'
 
 
 class Languages(models.Model):

@@ -4,6 +4,12 @@
 {% else %}
     {% part bound_field.field %}
         <div class="uk-margin">
+            <label class="uk-form-label" for="id_{{ bound_field.html_name }}">{{ bound_field.label }}{% part field help_text %}
+                    {% if field.help_text %}
+                        <span style="font-size: 0.7rem" class="uk-text-meta">, {{ bound_field.help_text|safe }}</span>
+                    {% endif %}
+                {% endpart %}
+            </label>
             <div{% attrs bound_field 'group' %}
                 class="uk-form-controls"
             {% endattrs %}>
@@ -17,10 +23,7 @@
                         {% if bound_field.value != None %}value="{{ bound_field.value|unlocalize }}"{% endif %}
                         {% if field.required %} required{% endif %}
                     {% endattrs %}>{% endpart %}
-                {% part field help_text %}{% if field.help_text %}
-                    <div class="help-block">{{ bound_field.help_text|safe }}</div>
-                {% endif %}
-                {% endpart %}{% part field errors %}
+                {% part field errors %}
                     {% if bound_field.errors %}{% include  'material/field_errors.html' %}{% endif %}
                 {% endpart %}{{ hidden_initial }}
             </div>
