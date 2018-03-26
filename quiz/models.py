@@ -1,6 +1,5 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Max
+from django.db.models import Max, Sum
 from jsonfield import JSONField
 
 
@@ -26,9 +25,11 @@ class Category(models.Model):
 
 class QuestionKind(models.Model):
     title = models.CharField(max_length=50)
-    template_name = models.CharField(max_length=25, help_text=u'*_question.html')
+    template_name = models.CharField(max_length=25,
+                                     help_text=u'*_question.html')
     w2v = models.BooleanField(default=False)
     min_answers = models.PositiveSmallIntegerField(default=0)
+    one_right_answer = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title
@@ -55,9 +56,11 @@ class Question(models.Model):
 
     @property
     def max_points(self):
-        if self.kind.w2v:
-            return self.answers.all().aggregate(Max('weight'))['weight__max'] * self.weight
-        return sum([item.weight for item in self.answers.filter(weight__gt=0)]) * self.weight
+        if self.kind.one_right_answer:
+            max_points = self.answers.all().aggregate(max=Max('weight'))['max'] * self.weight
+        else:
+            max_points = self.answers.filter(weight__gt=0).aggregate(sum=Sum('weight'))['sum'] * self.weight
+        return max_points
 
 
 class Answer(models.Model):
@@ -72,7 +75,7 @@ class Answer(models.Model):
         return '{}: {}'.format(self.text, self.weight)
 
     class Meta:
-        ordering = ('?', )
+        ordering = ('?',)
 
 
 class VacancyExam(models.Model):

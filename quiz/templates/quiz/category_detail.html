@@ -18,7 +18,6 @@
         {% endif %}
         <h4>Category questions</h4>
         {% if object.questions.all %}
-            {{ object.max_points }}
             {% for question in object.questions.all %}
                 {% include 'quiz/include/question.html' with item=question %}
             {% endfor %}

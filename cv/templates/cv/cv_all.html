@@ -8,7 +8,7 @@
     <div class="uk-container uk-align-center">
         <h4>All your CVs</h4>
         {% for cv in cvs %}
-            {% include 'cv/include/cv.html' %}
+            {% include 'cv/include/cv.html' with show_stat=True %}
         {% endfor %}
         <a class="uk-button uk-button-primary uk-button-small uk-align-right"
            href="{% url 'new_cv' %}">{% trans 'Add new curriculum vitae' %}</a>

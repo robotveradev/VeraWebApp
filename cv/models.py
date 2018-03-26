@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
@@ -91,6 +92,9 @@ class CurriculumVitae(models.Model):
     def __str__(self):
         return 'CurriculumVitae: {} {}'.format(self.first_name, self.last_name)
 
+    def get_statistic_url(self):
+        return reverse('cvstatistic', kwargs={'pk': self.pk})
+
     @property
     def title(self):
         return self.position.title if self.position is not None else 'Unpublished CV'
@@ -98,6 +102,10 @@ class CurriculumVitae(models.Model):
     @property
     def salary_from(self):
         return 'from ' + str(self.position.salary_from) + '$' if self.position is not None else 'Salary not available'
+
+    @property
+    def user_field_name(self):
+        return 'candidate'
 
 
 class Position(models.Model):

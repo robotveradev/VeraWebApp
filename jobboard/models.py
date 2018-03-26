@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 
 
 class Keyword(models.Model):
@@ -38,9 +39,8 @@ class Candidate(models.Model):
         self.save()
 
     def enable(self):
-        assert (self.contract_address is not None), (
-            "%s contract address must be not None for enable"
-            ) % self.__class__.__name__
+        assert self.contract_address is not None, "%s contract address must be not None for enable" % (
+            self.__class__.__name__)
         self.enabled = True
         self.save()
 
@@ -64,11 +64,16 @@ class Employer(models.Model):
         self.save()
 
     def enable(self):
-        assert (self.contract_address is not None), (
-            "%s contract address must be not None for enable"
-            ) % self.__class__.__name__
+        assert self.contract_address is not None, "%s contract address must be not None for enable" % (
+            self.__class__.__name__)
         self.enabled = True
         self.save()
+
+    def get_url(self):
+        return reverse('employer_about', kwargs={'employer_id': self.pk})
+
+    def vacancies_top(self):
+        return self.vacancies.filter(enabled=True).order_by('-created_at')[:3]
 
 
 class Transaction(models.Model):

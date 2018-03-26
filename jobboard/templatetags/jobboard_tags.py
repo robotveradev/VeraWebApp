@@ -18,19 +18,6 @@ from jobboard.views import get_relevant
 register = template.Library()
 
 
-@register.filter(name='user_role')
-def user_role(user_id):
-    try:
-        Employer.objects.get(user_id=user_id)
-        return 'employer'
-    except Employer.DoesNotExist:
-        try:
-            Candidate.objects.get(user_id=user_id)
-            return 'candidate'
-        except Candidate.DoesNotExist:
-            return False
-
-
 @register.filter(name='has_cv')
 def has_cv(user_id):
     return CurriculumVitae.objects.filter(candidate__user_id=user_id).count() > 0
@@ -143,8 +130,8 @@ def employer_answered(candidate_id, vacancy_id):
         return False
 
 
-@register.inclusion_tag('jobboard/tags/vacancies.html')
-def get_candidate_vacancies(candidate, request):
+@register.inclusion_tag('jobboard/tags/vacancies.html', takes_context=True)
+def get_candidate_vacancies(context, candidate):
     vacancies = []
     can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
     for item in can_h.get_vacancies():
@@ -153,7 +140,7 @@ def get_candidate_vacancies(candidate, request):
         except Vacancy.DoesNotExist:
             pass
     return {'vacancies': vacancies,
-            'request': request,
+            'request': context.request,
             'candidate': candidate}
 
 
@@ -249,11 +236,8 @@ def need_dots(first, next_o):
 
 
 @register.filter(name='is_owner')
-def is_owner(user, curent_user):
-    if user == curent_user:
-        return True
-    else:
-        return False
+def is_owner(user, current_user):
+    return user == current_user
 
 
 @register.filter(name='can_withdraw')
@@ -301,3 +285,8 @@ def show_me(a):
 @register.filter(name='offers_count')
 def offers_count(candidate):
     return VacancyOffer.objects.filter(cv__candidate=candidate, is_active=True).count()
+
+
+@register.simple_tag
+def net_url():
+    return settings.NET_URL

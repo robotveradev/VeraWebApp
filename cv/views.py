@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, RedirectView
 from jobboard.decorators import choose_role_required
 from jobboard.models import Candidate
+from statistic.decorators import statistical
 from vacancy.models import Vacancy, VacancyOffer
 from .forms import *
 
@@ -21,10 +22,9 @@ class VacancyOfferView(TemplateView):
         return self.render_to_response(context)
 
 
-def cv(request, cv_id):
-    args = {'cv': get_object_or_404(CurriculumVitae, id=cv_id)}
-    if request.role == 'employer':
-        args['vacs'] = Vacancy.objects.filter(employer=request.role_object, enabled=True)
+@statistical
+def cv(request, pk):
+    args = {'cv': get_object_or_404(CurriculumVitae, id=pk)}
     return render(request, 'cv/cv_full.html', args)
 
 
@@ -43,7 +43,7 @@ def new_cv(request):
             cv_saved_obj.candidate = can_o
             cv_saved_obj.save()
             args['form'].save_m2m()
-            return redirect(cv, cv_id=cv_saved_obj.id)
+            return redirect(cv, pk=cv_saved_obj.id)
     return render(request, 'cv/cv_new.html', args)
 
 
@@ -58,7 +58,7 @@ def new_position(request, cv_id):
         cv_o.position = s
         cv_o.published = True
         cv_o.save()
-        return redirect(cv, cv_id=cv_id)
+        return redirect(cv, pk=cv_id)
     return render(request, 'cv/new_position.html', args)
 
 
@@ -72,7 +72,7 @@ def new_education(request, cv_id):
         s = args['form'].save()
         cv_o.education.add(s)
         cv_o.save()
-        return redirect(cv, cv_id=cv_id)
+        return redirect(cv, pk=cv_id)
     return render(request, 'cv/new_education.html', args)
 
 
@@ -86,7 +86,7 @@ def new_experience(request, cv_id):
         s = args['form'].save()
         cv_o.experience.add(s)
         cv_o.save()
-        return redirect(cv, cv_id=cv_id)
+        return redirect(cv, pk=cv_id)
     return render(request, 'cv/new_experience.html', args)
 
 
@@ -97,7 +97,7 @@ def change_cv_status(request, cv_id):
     if cv_o.position is not None:
         cv_o.published = not cv_o.published
         cv_o.save()
-    return redirect(cv, cv_id=cv_id)
+    return redirect(cv, pk=cv_id)
 
 
 @login_required
@@ -117,7 +117,7 @@ def cv_edit(request, cv_id):
         form = CurriculumVitaeForm(request.POST, request.FILES, instance=args['cv_o'])
         if form.is_valid():
             form.save()
-            return redirect(cv, cv_id=cv_id)
+            return redirect(cv, pk=cv_id)
     else:
         form = CurriculumVitaeForm(instance=args['cv_o'])
     args['form'] = form
@@ -134,7 +134,7 @@ def position_edit(request, position_id):
         form = PositionForm(request.POST, instance=args['position_o'])
         if form.is_valid():
             form.save()
-            return redirect(cv, cv_id=cv_o.id)
+            return redirect(cv, pk=cv_o.id)
     else:
         form = PositionForm(instance=args['position_o'])
     args['form'] = form
@@ -151,7 +151,7 @@ def experience_edit(request, experience_id):
         form = ExperienceForm(request.POST, instance=args['exp_o'])
         if form.is_valid():
             form.save()
-            return redirect(cv, cv_id=cv_o.id)
+            return redirect(cv, pk=cv_o.id)
     else:
         form = ExperienceForm(instance=args['exp_o'])
     args['form'] = form
@@ -168,7 +168,7 @@ def education_edit(request, education_id):
         form = EducationForm(request.POST, instance=args['edu_o'])
         if form.is_valid():
             form.save()
-            return redirect(cv, cv_id=cv_o.id)
+            return redirect(cv, pk=cv_o.id)
     else:
         form = EducationForm(instance=args['edu_o'])
     args['form'] = form
