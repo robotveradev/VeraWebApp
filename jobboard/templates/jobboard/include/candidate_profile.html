@@ -1,0 +1,49 @@
+{% load jobboard_tags %}
+<table class="uk-table uk-table-divider uk-table-small" width="100%">
+    <colgroup>
+        <col width="20%">
+        <col width="80%">
+    </colgroup>
+    <tr>
+        <td>Name:</td>
+        <td>{{ request.role_object.first_name }}</td>
+    </tr>
+    <tr>
+        <td>Last name:</td>
+        <td>{{ request.role_object.last_name }}</td>
+    </tr>
+    <tr>
+        <td>Middle name:</td>
+        <td>{{ request.role_object.middle_name|default:'-' }}</td>
+    </tr>
+    <tr>
+        <td>Tax number:</td>
+        <td>{{ request.role_object.tax_number }}</td>
+    </tr>
+    <tr>
+        <td>Contract address:</td>
+        <td>
+            {% if request.role_object.contract_address is not None %}
+                <img style="width: 16px; height: 16px;"
+                     src="{{ request.role_object.contract_address|get_blockies_png }}" alt="">
+                <a class="uk-link-reset" target="_blank"
+                   href="https://rinkeby.etherscan.io/address/{{ request.role_object.contract_address }}">{{ request.role_object.contract_address }}</a>
+            {% else %}
+                <div uk-spinner="ratio: 0.7"></div>
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td>Balance:</td>
+        <td>
+            {% get_balance request.role_object.user request.role_object.contract_address %}
+        </td>
+    </tr>
+</table>
+{% if request.role_object.contract_address %}
+    {% get_facts request.role_object %}
+    {% if  request.role_object|is_oracle_agent %}
+        {% include 'jobboard/include/add_fact.html' %}
+    {% endif %}
+    {% get_candidate_vacancies request.role_object %}
+{% endif %}

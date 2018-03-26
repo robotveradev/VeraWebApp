@@ -67,10 +67,11 @@
                     <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                 {% endif %}
                 <p class="login-signup uk-text">
-                    {% trans "Already have an account?" %} <a class="uk-button uk-button-text"
+                    {% trans "Already have an account?" %} <a class="uk-link-reset"
                                                               href="{% urlnext 'account_login' %}">{% trans "Log in" %}</a>
                 </p>
-                <button type="submit" class="uk-button uk-button-primary uk-align-right">{% trans "Sign up" %}</button>
+                <button type="submit"
+                        class="uk-button uk-button-primary uk-button-small uk-align-right">{% trans "Sign up" %}</button>
             </fieldset>
         </form>
     </div>

@@ -156,7 +156,7 @@ $(document).ready(function () {
             });
         } else {
             $.ajax({
-                url: '/quiz/test/answer/',
+                url: '/quiz/process/answer/',
                 type: 'POST',
                 context: $(this),
                 data: {

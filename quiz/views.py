@@ -15,8 +15,8 @@ from vacancy.models import Vacancy
 from quiz.models import VacancyExam, Category, Question, Answer, QuestionKind, ExamPassing, AnswerForVerification
 
 
-class VacancyTestsView(ListView):
-    template_name = 'quiz/vacancy_tests.html'
+class VacancyExamView(ListView):
+    template_name = 'quiz/vacancy_exams.html'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -37,8 +37,8 @@ class VacancyTestsView(ListView):
         return context
 
 
-class VacancyAddTestsView(ListView):
-    template_name = 'quiz/add_tests.html'
+class VacancyAddQuestionsView(ListView):
+    template_name = 'quiz/add_exam.html'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -69,11 +69,11 @@ class VacancyAddTestsView(ListView):
         vacancy_exam, _ = VacancyExam.objects.get_or_create(vacancy=vacancy)
         vacancy_exam.questions.set(Question.objects.filter(id__in=question_ids))
         vacancy_exam.save()
-        return redirect('vacancy_tests', vacancy_id=vacancy.id)
+        return redirect('vacancy_exam', vacancy_id=vacancy.id)
 
 
-class CandidateTestingView(TemplateView):
-    template_name = 'quiz/candidate_testing.html'
+class CandidateExaminingView(TemplateView):
+    template_name = 'quiz/candidate_examining.html'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
