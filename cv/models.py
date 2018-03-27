@@ -52,14 +52,14 @@ def current_month():
 
 
 class Busyness(models.Model):
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=127)
 
     def __str__(self):
         return self.title
 
 
 class Schedule(models.Model):
-    title = models.CharField(max_length=30)
+    title = models.CharField(max_length=127)
 
     def __str__(self):
         return self.title
@@ -137,7 +137,7 @@ class Experience(models.Model):
 
 class EducationLevel(models.Model):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
-    title = models.CharField(max_length=20)
+    title = models.CharField(max_length=127)
 
     def __str__(self):
         return self.title

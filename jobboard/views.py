@@ -211,15 +211,10 @@ class ProfileView(TemplateView):
     @staticmethod
     def get_current_object_data(request):
         data = {}
-        if request.role == _EMPLOYER:
-            vacancies = Vacancy.objects.filter(employer=request.role_object)
-            data['vacancies'] = vacancies.order_by('-created_at')[:3]
-            data['vacancies_count'] = vacancies.count()
-        elif request.role == 'candidate':
+        if request.role == _CANDIDATE:
             data['learning_form'] = LearningForm()
             data['worked_form'] = WorkedForm()
             data['certificate_form'] = CertificateForm()
-            data['cvs'] = CurriculumVitae.objects.filter(candidate=request.role_object)
         return data
 
 
@@ -227,9 +222,9 @@ class GrantRevokeCandidate(View):
 
     @method_decorator(login_required)
     @method_decorator(choose_role_required)
-    @role_required('employer')
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    @method_decorator(role_required('employer'))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
@@ -250,7 +245,7 @@ class GrantRevokeCandidate(View):
                                                                       can_o.contract_address)
 
             self.save_txn(vac=vac_o, can=can_o, txn_hash=txn_hash, action=action)
-            return redirect('vacancy', vacancy_id=vac_o.id)
+            return redirect('vacancy', pk=vac_o.id)
 
     @staticmethod
     def save_txn(**kwargs):

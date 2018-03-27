@@ -90,7 +90,7 @@
                                     {% if item.id|vacancy_tests_count > 0 %}
                                         <span>
                                         <a class="grey-text uk-button uk-button-text uk-text-lowercase uk-text-small"
-                                           href="{% url 'candidate_testing' vacancy_id=vacancy.id %}">Now you can pass the tests</a>
+                                           href="{% url 'candidate_examining' vacancy_id=vacancy.id %}">Now you can pass the tests</a>
                                     </span>
                                     {% endif %}
                                 {% endif %}

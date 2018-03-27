@@ -6,7 +6,7 @@
 
 {% block content %}
     <div class="uk-container uk-align-center">
-        <fieldset class="uk-fieldset">
+        <fieldset class="uk-fieldset uk-margin-bottom">
             <legend class="uk-legend">
                 {% trans "Choose your role" %}
             </legend>
@@ -98,11 +98,9 @@
                     </form>
                 </li>
             </ul>
-
         </fieldset>
         <div class="uk-text-danger">{{ form.non_field_errors }}</div>
         {% if error %}
             <div class="uk-text-danger">{{ error }}</div>{% endif %}
-
     </div>
 {% endblock %}

@@ -85,7 +85,7 @@ class VacancyEditView(UpdateView):
         return obj
 
     def get_success_url(self):
-        return reverse('vacancy', kwargs={'vacancy_id': self.object.id})
+        return reverse('vacancy', kwargs={'pk': self.object.id})
 
 
 class VacancyView(DetailView):
@@ -121,7 +121,7 @@ def subscribe_to_vacancy(request, vacancy_id, cv_id):
     save_txn.delay(txn_hash, 'Subscribe', request.user.id, vac_o.id)
 
     save_txn_to_history.delay(request.user.id, txn_hash, 'Subscribe to vacancy {}'.format(vac_o.title))
-    return redirect('vacancy', vacancy_id=vacancy_id)
+    return redirect('vacancy', pk=vacancy_id)
 
 
 class ChangeVacancyStatus(RedirectView):

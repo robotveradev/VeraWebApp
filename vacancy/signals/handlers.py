@@ -32,6 +32,6 @@ def new_vacancy(sender, instance, created, **kwargs):
             else:
                 txn_hash = employer_handler.pause_vacancy(instance.contract_address)
 
-                save_txn.delay(txn_hash, 'vacancyChange', instance.employer.user.id, instance.id)
-                save_txn_to_history.delay(instance.employer.user.id, txn_hash,
-                                          'Change vacancy {} status'.format(instance.contract_address))
+            save_txn.delay(txn_hash, 'vacancyChange', instance.employer.user.id, instance.id)
+            save_txn_to_history.delay(instance.employer.user.id, txn_hash,
+                                      'Change vacancy {} status'.format(instance.contract_address))

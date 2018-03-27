@@ -153,7 +153,7 @@
                     </div>
                     <div>
                         {% for vac in request.role_object.vacancies.all %}
-                             {% include 'vacancy/vacancy_short.html' with item=vac selectable=True cv_id=cv.id %}
+                            {% include 'vacancy/vacancy_short.html' with item=vac selectable=True cv_id=cv.id %}
                         {% endfor %}
                     </div>
                     <div class="uk-modal-footer uk-text-right">

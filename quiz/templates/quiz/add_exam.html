@@ -2,12 +2,12 @@
 
 {% load quiz_tags i18n %}
 
-{% block head_title %}VeraOracle - New test{% endblock %}
+{% block head_title %}VeraOracle - New exam{% endblock %}
 
 {% block content %}
     <div class="uk-container uk-align-center">
-        <h4 class="center">{% trans 'Add tests for vacancy' %} {{ vacancy.title }}</h4>
-        <form method="post" action="{% url 'vacancy_test_new' vacancy_id=vacancy.id %}">
+        <h4 class="center">{% trans 'Add exam for vacancy' %} {{ vacancy.title }}</h4>
+        <form method="post" action="{% url 'vacancy_exam_new' vacancy_id=vacancy.id %}">
             {% csrf_token %}
             <input type="hidden" value="{{ vacancy.id }}" name="vacancy">
             <ul uk-accordion="multiple: true">

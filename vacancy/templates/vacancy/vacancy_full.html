@@ -171,8 +171,8 @@
             <div class="uk-align-right">
                 <a href="{% url 'vacancy_edit' pk=vacancy.id %}"
                    class="uk-button uk-button-default uk-button-small">Edit</a>
-                <a href="{% url 'vacancy_tests' vacancy_id=vacancy.id %}"
-                   class="uk-button uk-button-primary uk-button-small">Tests</a>
+                <a href="{% url 'vacancy_exam' vacancy_id=vacancy.id %}"
+                   class="uk-button uk-button-primary uk-button-small">Exam</a>
             </div>
             <div class="uk-clearfix"></div>
             {% if vacancy.contract_address %}

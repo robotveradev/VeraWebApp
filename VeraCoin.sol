@@ -145,7 +145,7 @@ contract ERC20 is ERC20Basic {
 contract BasicToken is ERC20Basic {
     using SafeMath for uint256;
 
-    mapping (address => uint256) balances;
+    mapping(address => uint256) balances;
 
     /**
     * @dev transfer token for a specified address
@@ -180,7 +180,7 @@ contract BasicToken is ERC20Basic {
  */
 contract StandardToken is ERC20, BasicToken {
 
-    mapping (address => mapping (address => uint256)) allowed;
+    mapping(address => mapping(address => uint256)) allowed;
 
 
     /**
@@ -292,7 +292,7 @@ contract VeraCoinPreSale is Haltable {
 
     bool public crowdsaleFinished = false;
 
-    mapping (address => bool) refunded;
+    mapping(address => bool) refunded;
 
     event GoalReached(uint256 amountRaised);
 
@@ -393,7 +393,7 @@ contract VeraCoinPreSale is Haltable {
 }
 
 contract PermissionedAgents {
-    mapping (address => bool) public agents;
+    mapping(address => bool) public agents;
 
     event GrantAgent(address sender, address allowed, uint256);
 
@@ -418,6 +418,7 @@ contract PermissionedAgents {
         RevokeAgent(msg.sender, _address, now);
     }
 }
+
 contract Pausable is PermissionedAgents {
     event Pause();
     event Unpause();
@@ -448,7 +449,7 @@ contract Pausable is PermissionedAgents {
 
 contract Withdrawable is Pausable {
     function withdraw(address _token, address _to, uint256 _amount) public onlyAgent {
-        ERC20(_token).transfer(_to, _amount);
+        ERC20Basic(_token).transfer(_to, _amount);
     }
 }
 
@@ -470,10 +471,11 @@ contract VeraOracle is Ownable {
 
     address public token;
 
-    event NewEmployer(address employer_address, uint256 time);
+    event NewEmployer(address employer_address);
 
-    event NewCandidate(address candidate_address, uint256 time);
+    event NewCandidate(address candidate_address);
 
+    //"vera",5,"0xca35b7d915458ef540ade6068dfe2f44e8fa733c",25,"0x692a70d2e424a56d2c6c27aa97d1a86395877b3a"
     function VeraOracle(bytes32 _name, uint8 _service_fee, address _beneficiary, uint256 _vacancy_fee, address _token) public {
         name = _name;
         service_fee = _service_fee;
@@ -494,36 +496,34 @@ contract VeraOracle is Ownable {
         vacancy_fee = _vacancy_fee;
     }
 
-    function new_employer(bytes32 _id) public onlyOwner returns(bool) {
+    function new_employer(bytes32 _id) public onlyOwner {
         Employer employer = new Employer(_id, token);
         employers.push(employer);
         employer.grant_access(msg.sender);
-        NewEmployer(employer, now);
-        return true;
+        NewEmployer(employer);
     }
 
-    function get_employers() public view returns(address[]) {
+    function get_employers() public view returns (address[]) {
         return employers;
     }
 
-    function new_candidate(bytes32 _id) public onlyOwner returns(bool) {
+    function new_candidate(bytes32 _id) public onlyOwner {
         Candidate candidate = new Candidate(_id);
         candidates.push(candidate);
         candidate.grant_access(msg.sender);
-        NewCandidate(candidate, now);
-        return true;
+        NewCandidate(candidate);
     }
 
-    function get_candidates() public view returns(address[]) {
+    function get_candidates() public view returns (address[]) {
         return candidates;
     }
 
     function new_vacancy(address _employer, uint256 _allowed_amount, uint256 _interview_fee) public {
-        Employer(_employer).new_vacancy(_allowed_amount, _interview_fee, beneficiary, vacancy_fee);
+        EmployerInterface(_employer).new_vacancy(_allowed_amount, _interview_fee, beneficiary, vacancy_fee);
     }
 
     function pay_to_candidate(address _employer_address, address _candidate_address, address _vacancy_address) onlyOwner public {
-        Employer(_employer_address).pay_to_candidate(_vacancy_address, _candidate_address, beneficiary, service_fee);
+        EmployerInterface(_employer_address).pay_to_candidate(_vacancy_address, _candidate_address, beneficiary, service_fee);
     }
 
     function withdraw(address _token, address _from, address _to, uint256 _amount) public onlyOwner {
@@ -531,7 +531,17 @@ contract VeraOracle is Ownable {
     }
 }
 
-contract Employer is Withdrawable {
+interface EmployerInterface {
+    function new_vacancy(uint256 _allowed_amount, uint256 _interview_fee, address _beneficiary, uint256 _vacancy_fee) public;
+    function get_vacancies() public view returns (address[]);
+    function pause_vacancy(address _vacancy_address) public;
+    function unpause_vacancy(address _vacancy_address) public;
+    function grant_access_to_candidate(address _vacancy_address, address _candidate_address) public;
+    function revoke_access_to_candidate(address _vacancy_address, address _candidate_address) public;
+    function pay_to_candidate(address _vacancy_address, address _candidate_address, address _beneficiary, uint8 _service_fee) public;
+}
+
+contract Employer is EmployerInterface, Withdrawable {
 
     using SafeMath for uint256;
 
@@ -541,7 +551,7 @@ contract Employer is Withdrawable {
 
     address[] public vacancies;
 
-    event NewVacancy(address vacancy_address, uint256 time);
+    event NewVacancy(address vacancy_address);
 
     function Employer(bytes32 _id, address _token) public {
         id = _id;
@@ -550,13 +560,18 @@ contract Employer is Withdrawable {
 
     function new_vacancy(uint256 _allowed_amount, uint256 _interview_fee, address _beneficiary, uint256 _vacancy_fee) public onlyAgent whenNotPaused {
         Vacancy vacancy = new Vacancy(_interview_fee);
-        require(ERC20(token).transfer(_beneficiary, _vacancy_fee));
+        require(ERC20Basic(token).transfer(_beneficiary, _vacancy_fee));
         require(ERC20(token).approve(vacancy, _allowed_amount));
         vacancies.push(vacancy);
-        NewVacancy(vacancy, now);
+        NewVacancy(vacancy);
     }
 
-    function get_vacancies() public view returns(address[]) {
+    function new_vacancy(address _vacancy_address) public onlyAgent whenNotPaused {
+        vacancies.push(_vacancy_address);
+        NewVacancy(_vacancy_address);
+    }
+
+    function get_vacancies() public view returns (address[]) {
         return vacancies;
     }
 
@@ -564,37 +579,57 @@ contract Employer is Withdrawable {
         Pausable(_vacancy_address).pause();
     }
 
+    function unpause_vacancy(address _vacancy_address) public onlyAgent {
+        Pausable(_vacancy_address).unpause();
+    }
+
     function grant_access_to_candidate(address _vacancy_address, address _candidate_address) public onlyAgent {
-        Vacancy(_vacancy_address).grant_candidate(_candidate_address);
+        VacancyInterface(_vacancy_address).grant_candidate(_candidate_address);
     }
 
     function revoke_access_to_candidate(address _vacancy_address, address _candidate_address) public onlyAgent {
-        Vacancy(_vacancy_address).revoke_candidate(_candidate_address);
+        VacancyInterface(_vacancy_address).revoke_candidate(_candidate_address);
+    }
+
+    function candidate_exam_fail(address _vacancy_address, address _candidate_address) public onlyAgent {
+        VacancyInterface(_vacancy_address).candidate_failed(_candidate_address);
     }
 
     function pay_to_candidate(address _vacancy_address, address _candidate_address, address _beneficiary, uint8 _service_fee) public onlyAgent whenNotPaused {
-        Vacancy(_vacancy_address).pay_to_candidate(_candidate_address, token, _beneficiary, _service_fee);
+        VacancyInterface(_vacancy_address).pay_to_candidate(_candidate_address, token, _beneficiary, _service_fee);
     }
 }
 
-contract Vacancy is Ownable, Pausable {
+interface VacancyInterface {
+    function get_candidates() public view returns (address[]);
+    function get_candidate_state(address _candidate_address) public view returns (Vacancy.Interview_phase);
+    function subscribe_to_interview() public returns (bool);
+    function grant_candidate(address _candidate_address) public;
+    function revoke_candidate(address _candidate_address) public;
+    function candidate_failed(address _candidate_address) public;
+    function pay_to_candidate(address _candidate_address, address _token, address _beneficiary, uint8 _service_fee) returns (bool);
+}
+
+contract Vacancy is VacancyInterface, Ownable, Pausable {
 
     using SafeMath for uint256;
 
     uint256 public interview_fee;
 
-    enum Interview_phase {_, wait, accepted, paid, revoked}
+    enum Interview_phase {_, wait, accepted, paid, revoked, failed}
 
     struct Interview_phase_dict {
-        mapping (address => Interview_phase) dict;
+        mapping(address => Interview_phase) dict;
         address[] keys;
     }
 
     Interview_phase_dict candidates_to_interview;
 
-    event CandidateGrantAccess(address indexed candidate);
+    event CandidateGrantAccess(address candidate);
 
-    event CandidateRevokeAccess(address indexed candidate);
+    event CandidateRevokeAccess(address candidate);
+
+    event CandidateFailExam(address candidate);
 
     modifier onlyNotExist() {
         require(candidates_to_interview.dict[msg.sender] == Interview_phase._);
@@ -615,7 +650,7 @@ contract Vacancy is Ownable, Pausable {
         interview_fee = _interview_fee;
     }
 
-    function get_candidates() public view returns(address[]) {
+    function get_candidates() public view returns (address[]) {
         return candidates_to_interview.keys;
     }
 
@@ -623,25 +658,28 @@ contract Vacancy is Ownable, Pausable {
         return candidates_to_interview.dict[_candidate_address];
     }
 
-    function subscribe_to_interview() public onlyNotExist whenNotPaused returns(bool) {
+    function subscribe_to_interview() public onlyNotExist whenNotPaused returns (bool) {
         candidates_to_interview.dict[msg.sender] = Interview_phase.wait;
         candidates_to_interview.keys.push(msg.sender);
         return true;
     }
 
-    function grant_candidate(address _candidate_address) public onlyOwner whenNotPaused returns(bool) {
+    function grant_candidate(address _candidate_address) public onlyOwner whenNotPaused {
         candidates_to_interview.dict[_candidate_address] = Interview_phase.accepted;
         CandidateGrantAccess(_candidate_address);
-        return true;
     }
 
-    function revoke_candidate(address _candidate_address) public onlyOwner returns(bool) {
+    function revoke_candidate(address _candidate_address) public onlyOwner {
         candidates_to_interview.dict[_candidate_address] = Interview_phase.revoked;
         CandidateRevokeAccess(_candidate_address);
-        return true;
     }
 
-    function pay_to_candidate(address _candidate_address, address _token, address _beneficiary, uint8 _service_fee) public onlyOwner onlyAccepted(_candidate_address) onlyNotPaid(_candidate_address) whenNotPaused returns(bool) {
+    function candidate_failed(address _candidate_address) public onlyOwner {
+        candidates_to_interview.dict[_candidate_address] = Interview_phase.failed;
+        CandidateFailExam(_candidate_address);
+    }
+
+    function pay_to_candidate(address _candidate_address, address _token, address _beneficiary, uint8 _service_fee) public onlyOwner onlyAccepted(_candidate_address) onlyNotPaid(_candidate_address) whenNotPaused returns (bool) {
         uint256 candidate_fee = interview_fee - (interview_fee / 100 * _service_fee);
         uint256 service_fee = interview_fee - candidate_fee;
         ERC20(_token).transferFrom(msg.sender, _beneficiary, service_fee);
@@ -670,34 +708,33 @@ contract Candidate is Withdrawable {
 
     address[] public vacancies;
 
-    event NewFact(address sender, uint256 time, bytes32 id);
+    event NewFact(address sender, bytes32 id);
 
     function Candidate(bytes32 _id) public {
         id = _id;
     }
 
-    function new_fact(string _fact) public onlyAgent returns(bool) {
+    function new_fact(string _fact) public onlyAgent {
         bytes32 _id = keccak256(_fact);
         facts.dict[_id] = Fact(msg.sender, now, _fact);
         facts.keys.push(_id);
-        NewFact(msg.sender, now, _id);
-        return true;
+        NewFact(msg.sender, _id);
     }
 
-    function keys_of_facts() public view returns(bytes32[]) {
+    function keys_of_facts() public view returns (bytes32[]) {
         return facts.keys;
     }
 
-    function get_fact(bytes32 _id) public view returns(address from, uint256 time, string fact) {
+    function get_fact(bytes32 _id) public view returns (address from, uint256 time, string fact) {
         return (facts.dict[_id].from, facts.dict[_id].time, facts.dict[_id].fact);
     }
 
     function subscribe_to_interview(address _vacancy_address) public whenNotPaused onlyAgent {
-        require(Vacancy(_vacancy_address).subscribe_to_interview());
+        require(VacancyInterface(_vacancy_address).subscribe_to_interview());
         vacancies.push(_vacancy_address);
     }
 
-    function get_vacancies() public view returns(address[]){
+    function get_vacancies() public view returns (address[]){
         return vacancies;
     }
 }
