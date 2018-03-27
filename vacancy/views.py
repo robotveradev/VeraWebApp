@@ -1,17 +1,16 @@
 from account.decorators import login_required
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import RedirectView, CreateView, UpdateView, TemplateView, DetailView, ListView
+from django.views.generic import RedirectView, CreateView, UpdateView, DetailView, ListView
 from cv.models import CurriculumVitae
 from jobboard.decorators import choose_role_required, role_required
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.coin import CoinHandler
-from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.oracle import OracleHandler
 from django.conf import settings
-
+from jobboard.mixins import OnlyEmployerMixin
 from statistic.decorators import statistical
 from vacancy.forms import VacancyForm, EditVacancyForm
 from vacancy.models import Vacancy, CVOnVacancy, VacancyOffer
@@ -25,7 +24,7 @@ MESSAGES = {'not_enough_tokens': _('The cost of placing a vacancy of {} tokens. 
             'new_vacancy': _('New vacancy "{}" successfully added'), }
 
 
-class CreateVacancyView(CreateView):
+class CreateVacancyView(OnlyEmployerMixin, CreateView):
     template_name = 'vacancy/new_vacancy.html'
     model = Vacancy
     form_class = VacancyForm
@@ -34,12 +33,6 @@ class CreateVacancyView(CreateView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object = None
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    @method_decorator(role_required('employer'))
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         return self.check_balance(form)
@@ -61,16 +54,10 @@ class CreateVacancyView(CreateView):
         return super().form_valid(form)
 
 
-class VacancyEditView(UpdateView):
+class VacancyEditView(OnlyEmployerMixin, UpdateView):
     model = Vacancy
     form_class = EditVacancyForm
     template_name = 'vacancy/vacancy_edit.html'
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    @method_decorator(role_required('employer'))
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         queryset = super().get_queryset()
@@ -124,17 +111,11 @@ def subscribe_to_vacancy(request, vacancy_id, cv_id):
     return redirect('vacancy', pk=vacancy_id)
 
 
-class ChangeVacancyStatus(RedirectView):
+class ChangeVacancyStatus(OnlyEmployerMixin, RedirectView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object = None
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    @method_decorator(role_required('employer'))
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
         return reverse('vacancy', kwargs={'pk': self.object.id})
@@ -149,17 +130,11 @@ class ChangeVacancyStatus(RedirectView):
         return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
 
 
-class VacanciesListView(ListView):
+class VacanciesListView(OnlyEmployerMixin, ListView):
     model = Vacancy
     template_name = 'vacancy/vacancies_all.html'
     paginate_by = 15
     ordering = '-created_at'
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    @method_decorator(role_required('employer'))
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -167,14 +142,8 @@ class VacanciesListView(ListView):
         return queryset
 
 
-class OfferVacancyView(RedirectView):
+class OfferVacancyView(OnlyEmployerMixin, RedirectView):
     pattern_name = 'cv'
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    @method_decorator(role_required('employer'))
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
         vac_o = get_object_or_404(Vacancy, id=kwargs['vacancy_id'], employer=self.request.role_object)
