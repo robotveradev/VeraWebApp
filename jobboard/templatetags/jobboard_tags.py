@@ -9,11 +9,10 @@ from jobboard import blockies
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.handlers.coin import CoinHandler
-from jobboard.models import Candidate, Employer, Transaction
+from jobboard.models import Candidate, Transaction
 from quiz.models import VacancyExam
 from vacancy.models import Vacancy, CVOnVacancy, VacancyOffer
 from django.conf import settings
-from jobboard.views import get_relevant
 
 register = template.Library()
 
@@ -262,12 +261,6 @@ def is_oracle_agent(candidate):
         return False
     can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
     return can_h.is_agent(settings.WEB_ETH_COINBASE)
-
-
-@register.inclusion_tag('jobboard/include/candidate_relevant.html')
-def get_candidate_relevant(candidate):
-    vacancies = get_relevant(candidate.user, 3)
-    return {'vacancies': vacancies}
 
 
 @register.filter(name='get_blockies_png')

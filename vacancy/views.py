@@ -64,7 +64,6 @@ class VacancyEditView(OnlyEmployerMixin, UpdateView):
         pk = self.kwargs.get(self.pk_url_kwarg)
         if pk is not None:
             queryset = queryset.filter(pk=pk, employer=self.request.role_object)
-
         try:
             obj = queryset.get()
         except queryset.model.DoesNotExist:
@@ -84,8 +83,6 @@ class VacancyView(DetailView):
         return super().dispatch(request, *args, **kwargs)
 
 
-@login_required
-@choose_role_required
 @role_required('candidate')
 def subscribe_to_vacancy(request, vacancy_id, cv_id):
     can_o = request.role_object
@@ -149,4 +146,4 @@ class OfferVacancyView(OnlyEmployerMixin, RedirectView):
         vac_o = get_object_or_404(Vacancy, id=kwargs['vacancy_id'], employer=self.request.role_object)
         cv_o = get_object_or_404(CurriculumVitae, id=kwargs['cv_id'])
         VacancyOffer.objects.get_or_create(vacancy=vac_o, cv=cv_o)
-        return super().get_redirect_url(cv_id=kwargs['cv_id'])
+        return super().get_redirect_url(pk=kwargs['cv_id'])

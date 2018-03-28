@@ -23,14 +23,14 @@
             <div class="uk-width-4-5">
                 {% if request.user == cv.candidate.user %}
                     <a class="uk-button uk-button-text uk-align-right uk-text-capitalize"
-                       href="{% url 'change_cv_status' cv_id=cv.id %}">
+                       href="{% url 'change_cv_status' pk=cv.id %}">
                         {% if cv.published %}Disable{% else %}Enable{% endif %}
                     </a>
                 {% endif %}
                 <div>
                     <h5>{{ cv.last_name }} {{ cv.first_name }}
                         {% if request.user == cv.candidate.user %}
-                            <a href="{% url 'cv_edit' cv_id=cv.id %}" uk-icon="icon: file-edit"></a>
+                            <a href="{% url 'cv_edit' pk=cv.id %}" uk-icon="file-edit"></a>
                         {% endif %}
                     </h5>
                 </div>
@@ -54,7 +54,7 @@
                 <div class="uk-article">
                     <p class="uk-text-lead">{{ cv.position.title }}
                         {% if request.user == cv.candidate.user %}
-                            <a href="{% url 'position_edit' position_id=cv.position.id %}"
+                            <a href="{% url 'position_edit' pk=cv.position.id %}"
                                uk-icon="icon: file-edit"></a>
                         {% endif %}
                     </p>
@@ -77,8 +77,8 @@
                     <p>Career objective information is not available </p>
                 </div>
                 {% if request.user == cv.candidate.user %}
-                    <a href="{% url 'new_position' cv_id=cv.id %}"
-                       class="uk-button uk-button-primary uk-align-right uk-button-small">Add career objective</a>
+                    <a href="{% url 'new_position' pk=cv.id %}"
+                       class="uk-button uk-button-default uk-align-right uk-button-small">Add career objective</a>
                     <div class="clearfix"></div>
                 {% endif %}
                 <br/>
@@ -100,8 +100,8 @@
                     </div>
                 {% endif %}
                 {% if request.user == cv.candidate.user %}
-                    <a href="{% url 'new_experience' cv_id=cv.id %}"
-                       class="uk-button uk-button-primary uk-align-right uk-button-small">Add
+                    <a href="{% url 'new_experience' pk=cv.id %}"
+                       class="uk-button uk-button-default uk-align-right uk-button-small">Add
                         experience info</a>
                     <div class="uk-clearfix"></div>
                 {% endif %}
@@ -123,8 +123,8 @@
                     </div>
                 {% endif %}
                 {% if request.user == cv.candidate.user %}
-                    <a href="{% url 'new_education' cv_id=cv.id %}"
-                       class="uk-button uk-button-primary uk-align-right uk-button-small">Add education info</a>
+                    <a href="{% url 'new_education' pk=cv.id %}"
+                       class="uk-button uk-button-default uk-align-right uk-button-small">Add education info</a>
                     <div class="uk-clearfix"></div>
                 {% endif %}
             {% endwith %}
@@ -141,7 +141,7 @@
             {% endwith %}
         </div>
         {% if request.role == 'employer' %}
-            <button class="uk-button uk-button-primary uk-button-small uk-align-right" uk-toggle="target: #offer_modal">
+            <button class="uk-button uk-button-default uk-button-small uk-align-right" uk-toggle="target: #offer_modal">
                 Offer a vacancy
             </button>
 

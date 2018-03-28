@@ -30,7 +30,6 @@
                         </div>
                     </div>
                 </div>
-
                 {% for vacancy in vacancies %}
                     <div class="uk-box-shadow-small uk-padding-small uk-margin-top">
                         <p class="text-lead">
@@ -60,7 +59,7 @@
                                 {% endif %}
                             </span>
                         </div>
-                        <div class="grey-text">{{ vacancy.description|safe|truncatewords:10 }}</div>
+                        <div class="grey-text">{{ vacancy.description|safe }}</div>
                         <div>
                             <a class="uk-button uk-button-text uk-text-lowercase"
                                href="{% url 'vacancy' pk=vacancy.id %}">Learn more</a>

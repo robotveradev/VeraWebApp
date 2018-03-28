@@ -14,14 +14,14 @@
             {% if error %}
                 <span class="center red-text">{{ error }}</span>
             {% endif %}
-            <form class="uk-form-horizontal" action="{% url 'cv_edit' cv_id=cv_o.id %}" enctype="multipart/form-data" method="post">
+            <form class="uk-form-horizontal" enctype="multipart/form-data" method="post">
                 <fieldset class="uk-fieldset">
                     <legend class="uk-legend">
-                        Edit CV
+                        Edit {{ object.title }}
                     </legend>
                     {% csrf_token %}
                     {% form form=form %}{% endform %}
-                    <button class="uk-button uk-button-primary uk-align-right uk-buttom-small">Save</button>
+                    <button class="uk-button uk-button-primary uk-align-right uk-button-small">Save</button>
                 </fieldset>
             </form>
         {% endif %}

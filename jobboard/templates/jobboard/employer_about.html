@@ -2,7 +2,7 @@
 
 {% load jobboard_tags %}
 
-{% block head_title %}VeraOracle - {{ employer.organization }}{% endblock %}
+{% block head_title %}VeraOracle - {{ object.organization }}{% endblock %}
 
 {% block content %}
     <div class="uk-container uk-align-center">
@@ -10,25 +10,25 @@
         <table class="uk-table uk-table-small uk-table-divider">
             <tr>
                 <td>Organization:</td>
-                <td>{{ employer.organization }}</td>
+                <td>{{ object.organization }}</td>
             </tr>
             <tr>
                 <td>Tax number:</td>
-                <td>{{ employer.tax_number }}</td>
+                <td>{{ object.tax_number }}</td>
             </tr>
             <tr>
                 <td>Contract address:</td>
                 <td class="uk-table-link">
-                    {% if employer.contract_address is not None %}
+                    {% if object.contract_address is not None %}
                         <a class="uk-link-reset" target="_blank"
-                           href="https://rinkeby.etherscan.io/address/{{ employer.contract_address }}">{{ employer.contract_address }}</a>
+                           href="https://rinkeby.etherscan.io/address/{{ object.contract_address }}">{{ object.contract_address }}</a>
                     {% else %}
-                        Pending...<i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+                        Pending... <div uk-spinner="ratio: 0.4"></div>
                     {% endif %}
                 </td>
             </tr>
         </table>
-        {% with employer.vacancies.all as vacancies %}
+        {% with object.vacancies.all as vacancies %}
             {% if vacancies %}
                 <h3>Employer vacancies</h3>
                 {% for vacancy in vacancies %}

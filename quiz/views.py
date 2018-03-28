@@ -11,6 +11,7 @@ from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.models import Employer
+from quiz.forms import CategoryForm
 from vacancy.models import Vacancy
 from quiz.models import VacancyExam, Category, Question, Answer, QuestionKind, ExamPassing, AnswerForVerification
 
@@ -137,8 +138,13 @@ class QuizIndexPage(TemplateView):
 
 class NewCategoryView(CreateView):
     model = Category
-    fields = ['title', 'parent_category']
+    form_class = CategoryForm
     success_url = reverse_lazy('quiz_index')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['employer'] = self.request.role_object
+        return kwargs
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -25,7 +25,7 @@ from quiz import views as quiz_views
 from statistic import views as statistic_views
 
 basic = [
-    path('', jobboard_views.index, name='index'),
+    path('', TemplateView.as_view(template_name='jobboard/index.html'), name='index'),
     path('role/', jobboard_views.ChooseRoleView.as_view(), name='choose_role'),
     path('admin/', admin.site.urls),
     path('account/', include("account.urls")),
@@ -33,8 +33,8 @@ basic = [
     path('cv/find/', jobboard_views.FindCVView.as_view(), name='find_cv'),
     path('profile/', jobboard_views.ProfileView.as_view(), name='profile'),
     path('help/', TemplateView.as_view(template_name='jobboard/user_help.html'), name='user_help'),
-    path('contract/status/change/', jobboard_views.change_contract_status, name='change_contract_status'),
-    path('transactions/', jobboard_views.transactions, name='transactions'),
+    path('contract/status/change/', jobboard_views.ChangeContractStatus.as_view(), name='change_contract_status'),
+    path('transactions/', jobboard_views.TransactionsView.as_view(), name='transactions'),
     path('withdraw/', jobboard_views.withdraw, name='withdraw'),
     path('check_agent/', jobboard_views.check_agent, name='check_agent'),
     path('agent/<slug:action>/', jobboard_views.GrantRevokeAgentView.as_view(), name='grant_agent'),
@@ -46,19 +46,19 @@ candidate_urlpatterns = [
 ]
 
 curriculum_vitae_urlpatterns = [
-    path('cv/new/', cv_views.new_cv, name='new_cv'),
-    path('cv/all/', cv_views.cv_all, name='cv_all'),
-    path('cv/<int:pk>/', cv_views.cv, name='cv'),
-    path('cv/<int:cv_id>/edit/', cv_views.cv_edit, name='cv_edit'),
-    path('cv/<int:cv_id>/new/position/', cv_views.new_position, name='new_position'),
-    path('cv/<int:position_id>/edit/position/', cv_views.position_edit, name='position_edit'),
-    path('cv/<int:cv_id>/new/education/', cv_views.new_education, name='new_education'),
-    path('cv/<int:education_id>/edit/education/', cv_views.education_edit, name='education_edit'),
-    path('cv/<int:cv_id>/new/experience/', cv_views.new_experience, name='new_experience'),
-    path('cv/<int:experience_id>/edit/experience/', cv_views.experience_edit, name='experience_edit'),
-    path('cv/<int:cv_id>/status/change/', cv_views.change_cv_status, name='change_cv_status'),
+    path('cv/new/', cv_views.NewCvView.as_view(), name='new_cv'),
+    path('cv/all/', cv_views.CvAllView.as_view(), name='cv_all'),
+    path('cv/<int:pk>/', cv_views.CvView.as_view(), name='cv'),
+    path('cv/<int:pk>/edit/', cv_views.CvEditView.as_view(), name='cv_edit'),
+    path('cv/<int:pk>/position/new/', cv_views.NewPositionView.as_view(), name='new_position'),
+    path('position/<int:pk>/edit/', cv_views.PositionEditView.as_view(), name='position_edit'),
+    path('cv/<int:pk>/education/new/', cv_views.NewEducationView.as_view(), name='new_education'),
+    path('education/<int:pk>/edit/', cv_views.EducationEditView.as_view(), name='education_edit'),
+    path('cv/<int:pk>/experience/new/', cv_views.NewExperienceView.as_view(), name='new_experience'),
+    path('experience/<int:pk>/edit/', cv_views.ExperienceEditView.as_view(), name='experience_edit'),
+    path('cv/<int:pk>/status/change/', cv_views.ChangeCvStatusView.as_view(), name='change_cv_status'),
     path('cv/offer/', cv_views.VacancyOfferView.as_view(), name='offers'),
-    path('hide/offer/<int:offer_id>', cv_views.HideOfferView.as_view(), name='hide_offer'),
+    path('hide/offer/<int:pk>', cv_views.HideOfferView.as_view(), name='hide_offer'),
 ]
 
 vacancy_urlpatterns = [
@@ -89,7 +89,7 @@ quiz_urlpatterns = [
 ]
 
 employer_urlpatterns = [
-    path('employer/<int:employer_id>/about/', jobboard_views.employer_about, name='employer_about'),
+    path('employer/<int:pk>/about/', jobboard_views.EmployerAboutView.as_view(), name='employer_about'),
     path('candidate/access/', jobboard_views.GrantRevokeCandidate.as_view(), name='access_candidate'),
 ]
 
