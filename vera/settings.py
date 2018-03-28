@@ -139,7 +139,7 @@ STATIC_ROOT = '/opt/vera_jobboard/static/'
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = 'media/'
+MEDIA_ROOT = '/opt/vera_jobboard/media/'
 
 DEFAULT_FROM_EMAIL = 'you@domain.com'
 
