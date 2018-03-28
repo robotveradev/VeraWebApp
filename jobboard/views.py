@@ -10,6 +10,7 @@ from cv.models import CurriculumVitae
 from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
+from jobboard.mixins import ChooseRoleMixin, OnlyEmployerMixin, OnlyCandidateMixin
 from jobboard.tasks import save_txn_to_history, save_txn
 from .handlers.candidate import CandidateHandler
 from .models import Employer, Candidate, TransactionHistory
@@ -194,13 +195,8 @@ class ChooseRoleView(TemplateView):
         return self.render_to_response(context)
 
 
-class ProfileView(TemplateView):
+class ProfileView(ChooseRoleMixin, TemplateView):
     template_name = 'jobboard/profile.html'
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -218,13 +214,7 @@ class ProfileView(TemplateView):
         return data
 
 
-class GrantRevokeCandidate(View):
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    @method_decorator(role_required('employer'))
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+class GrantRevokeCandidate(OnlyEmployerMixin, View):
 
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
@@ -373,12 +363,7 @@ def check_agent(request):
             return HttpResponse('You must use Post request', status=400)
 
 
-class GrantRevokeAgentView(View):
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class GrantRevokeAgentView(ChooseRoleMixin, View):
 
     def get(self, request, *args, **kwargs):
         action = kwargs['action']
@@ -404,12 +389,7 @@ class GrantRevokeAgentView(View):
         return redirect('profile')
 
 
-class NewFactView(View):
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class NewFactView(OnlyCandidateMixin, View):
 
     def post(self, request, *args, **kwargs):
         if request.role != _CANDIDATE or request.role_object is None:
