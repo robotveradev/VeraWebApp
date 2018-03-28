@@ -16,10 +16,10 @@
 
                         <div class="uk-accordion-content">
                             <p>Hello! Please consider our vacancy <a
-                                    href="{% url 'vacancy' vacancy_id=item.vacancy.id %}">{{ item.vacancy.title|lower }}</a>.
+                                    href="{% url 'vacancy' pk=item.vacancy.id %}">{{ item.vacancy.title|lower }}</a>.
                             </p>
                             <div class="uk-align-right">
-                                <a class="uk-button uk-button-small red white-text  uk-button-default" href="{% url 'hide_offer' offer_id=item.pk %}">Hide</a>
+                                <a class="uk-button uk-button-small red white-text  uk-button-default" href="{% url 'hide_offer' pk=item.pk %}">Hide</a>
                             </div>
                         </div>
                     </li>

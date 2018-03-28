@@ -92,6 +92,9 @@ class CurriculumVitae(models.Model):
     def __str__(self):
         return 'CurriculumVitae: {} {}'.format(self.first_name, self.last_name)
 
+    def get_absolute_url(self):
+        return reverse('cv', kwargs={'pk': self.id})
+
     def get_statistic_url(self):
         return reverse('cvstatistic', kwargs={'pk': self.pk})
 
@@ -119,6 +122,9 @@ class Position(models.Model):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return reverse('cv', kwargs={'pk': self.curriculumvitae_set.first().pk})
+
 
 class Experience(models.Model):
     start_year = models.IntegerField(choices=YEARS, default=current_year, verbose_name=_("start year"))
@@ -133,6 +139,9 @@ class Experience(models.Model):
 
     def __str__(self):
         return 'Experience {}'.format(self.position)
+
+    def get_absolute_url(self):
+        return reverse('cv', kwargs={'pk': self.curriculumvitae_set.first().pk})
 
 
 class EducationLevel(models.Model):
@@ -152,6 +161,9 @@ class Education(models.Model):
 
     def __str__(self):
         return self.institute or '-'
+
+    def get_absolute_url(self):
+        return reverse('cv', kwargs={'pk': self.curriculumvitae_set.first().pk})
 
 
 class Languages(models.Model):

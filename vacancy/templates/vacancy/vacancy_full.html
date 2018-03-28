@@ -68,7 +68,7 @@
             <div>
                 Organization:
                 <a class="uk-button uk-button-text"
-                   href="{% url 'employer_about' employer_id=vacancy.employer.id %}">{{ vacancy.employer.organization }}</a>
+                   href="{% url 'employer_about' pk=vacancy.employer.id %}">{{ vacancy.employer.organization }}</a>
             </div>
             <div>
                 City: {{ vacancy.city|title }}

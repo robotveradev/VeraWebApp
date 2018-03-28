@@ -1,187 +1,174 @@
-from account.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import TemplateView, RedirectView
-from jobboard.decorators import choose_role_required
-from jobboard.models import Candidate
+from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView, RedirectView, DetailView, CreateView, UpdateView
+from jobboard.mixins import OnlyCandidateMixin
 from statistic.decorators import statistical
-from vacancy.models import Vacancy, VacancyOffer
+from vacancy.models import VacancyOffer
 from .forms import *
 
-_CANDIDATE, _EMPLOYER = 'candidate', 'employer'
 
-
-class VacancyOfferView(TemplateView):
+class VacancyOfferView(OnlyCandidateMixin, TemplateView):
     template_name = 'cv/vacancy_offer.html'
 
     def get(self, request, *args, **kwargs):
-        if request.role != 'candidate':
-            return redirect('profile')
         context = self.get_context_data(**kwargs)
         context['vac_offers'] = VacancyOffer.objects.filter(cv__candidate=request.role_object, is_active=True).order_by(
             '-created_at')
         return self.render_to_response(context)
 
 
-@statistical
-def cv(request, pk):
-    args = {'cv': get_object_or_404(CurriculumVitae, id=pk)}
-    return render(request, 'cv/cv_full.html', args)
+class CvView(DetailView):
+
+    @method_decorator(statistical)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    model = CurriculumVitae
+    template_name = 'cv/cv_full.html'
+    context_object_name = 'cv'
 
 
-@login_required
-@choose_role_required
-def new_cv(request):
-    can_o = get_object_or_404(Candidate, user=request.user)
-    args = {'form': CurriculumVitaeForm(
-        initial={'first_name': can_o.first_name,
-                 'last_name': can_o.last_name,
-                 'middle_name': can_o.middle_name})}
-    if request.method == 'POST':
-        args['form'] = CurriculumVitaeForm(request.POST, request.FILES)
-        if args['form'].is_valid():
-            cv_saved_obj = args['form'].save(commit=False)
-            cv_saved_obj.candidate = can_o
-            cv_saved_obj.save()
-            args['form'].save_m2m()
-            return redirect(cv, pk=cv_saved_obj.id)
-    return render(request, 'cv/cv_new.html', args)
+class NewCvView(OnlyCandidateMixin, CreateView):
+    model = CurriculumVitae
+    form_class = CurriculumVitaeForm
+    template_name = 'cv/cv_new.html'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.object = None
+        self.request = None
+
+    def get_initial(self):
+        return {'first_name': self.request.role_object.first_name,
+                'last_name': self.request.role_object.last_name,
+                'middle_name': self.request.role_object.middle_name}
+
+    def form_valid(self, form):
+        form.instance.candidate = self.request.role_object
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('cv', kwargs={'pk': self.object.pk})
 
 
-@login_required
-@choose_role_required
-def new_position(request, cv_id):
-    args = {'cv': cv_id}
-    cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
-    args['form'] = PositionForm(request.POST or None)
-    if args['form'].is_valid():
-        s = args['form'].save()
-        cv_o.position = s
-        cv_o.published = True
-        cv_o.save()
-        return redirect(cv, pk=cv_id)
-    return render(request, 'cv/new_position.html', args)
+class NewCVFragmentMixin:
+
+    def __init__(self):
+        self.cv = None
+        self.object = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.cv = get_object_or_404(CurriculumVitae, pk=kwargs.get('pk'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cv'] = self.cv
+        return context
 
 
-@login_required
-@choose_role_required
-def new_education(request, cv_id):
-    args = {'cv': cv_id}
-    cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
-    args['form'] = EducationForm(request.POST or None)
-    if args['form'].is_valid():
-        s = args['form'].save()
-        cv_o.education.add(s)
-        cv_o.save()
-        return redirect(cv, pk=cv_id)
-    return render(request, 'cv/new_education.html', args)
+class NewPositionView(NewCVFragmentMixin, OnlyCandidateMixin, CreateView):
+    model = Position
+    form_class = PositionForm
+    template_name = 'cv/new_position.html'
+
+    def form_valid(self, form):
+        self.object = form.save()
+        self.cv.position = self.object
+        self.cv.published = True
+        self.cv.save()
+        return HttpResponseRedirect(reverse('cv', kwargs={'pk': self.cv.id}))
 
 
-@login_required
-@choose_role_required
-def new_experience(request, cv_id):
-    args = {'cv': cv_id}
-    cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
-    args['form'] = ExperienceForm(request.POST or None)
-    if args['form'].is_valid():
-        s = args['form'].save()
-        cv_o.experience.add(s)
-        cv_o.save()
-        return redirect(cv, pk=cv_id)
-    return render(request, 'cv/new_experience.html', args)
+class NewEducationView(NewCVFragmentMixin, OnlyCandidateMixin, CreateView):
+    model = Education
+    form_class = EducationForm
+    template_name = 'cv/new_education.html'
+
+    def form_valid(self, form):
+        self.object = form.save()
+        self.cv.education.add(self.object)
+        self.cv.save()
+        return HttpResponseRedirect(reverse('cv', kwargs={'pk': self.cv.id}))
 
 
-@login_required
-@choose_role_required
-def change_cv_status(request, cv_id):
-    cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate__user=request.user)
-    if cv_o.position is not None:
-        cv_o.published = not cv_o.published
-        cv_o.save()
-    return redirect(cv, pk=cv_id)
+class NewExperienceView(NewCVFragmentMixin, OnlyCandidateMixin, CreateView):
+    model = Experience
+    form_class = ExperienceForm
+    template_name = 'cv/new_experience.html'
+
+    def form_valid(self, form):
+        self.object = form.save()
+        self.cv.experience.add(self.object)
+        self.cv.save()
+        return HttpResponseRedirect(reverse('cv', kwargs={'pk': self.cv.id}))
 
 
-@login_required
-@choose_role_required
-def cv_all(request):
-    args = {}
-    args['cvs'] = CurriculumVitae.objects.filter(candidate__user=request.user)
-    return render(request, 'cv/cv_all.html', args)
+class ChangeCvStatusView(OnlyCandidateMixin, RedirectView):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.cv = None
+
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('cv', kwargs={'pk': kwargs.get('pk')})
+
+    def get(self, request, *args, **kwargs):
+        self.cv = get_object_or_404(CurriculumVitae, pk=kwargs.get('pk'))
+        self.cv.published = not self.cv.published
+        self.cv.save()
+        return super().get(request, *args, **kwargs)
 
 
-@login_required
-@choose_role_required
-def cv_edit(request, cv_id):
-    args = {}
-    args['cv_o'] = get_object_or_404(CurriculumVitae, candidate__user=request.user, pk=cv_id)
-    if request.method == 'POST':
-        form = CurriculumVitaeForm(request.POST, request.FILES, instance=args['cv_o'])
-        if form.is_valid():
-            form.save()
-            return redirect(cv, pk=cv_id)
-    else:
-        form = CurriculumVitaeForm(instance=args['cv_o'])
-    args['form'] = form
-    return render(request, 'cv/cv_edit.html', args)
+class CvAllView(OnlyCandidateMixin, TemplateView):
+    template_name = 'cv/cv_all.html'
 
 
-@login_required
-@choose_role_required
-def position_edit(request, position_id):
-    args = {}
-    args['position_o'] = get_object_or_404(Position, pk=position_id)
-    cv_o = get_object_or_404(CurriculumVitae, position=args['position_o'], candidate__user=request.user)
-    if request.method == 'POST':
-        form = PositionForm(request.POST, instance=args['position_o'])
-        if form.is_valid():
-            form.save()
-            return redirect(cv, pk=cv_o.id)
-    else:
-        form = PositionForm(instance=args['position_o'])
-    args['form'] = form
-    return render(request, 'cv/position_edit.html', args)
+class CvEditView(OnlyCandidateMixin, UpdateView):
+    model = CurriculumVitae
+    form_class = CurriculumVitaeForm
+    template_name = 'cv/cv_edit.html'
+
+    def get_object(self, queryset=None):
+        obj = super().get_object()
+        if obj.candidate != self.request.role_object:
+            raise Http404
+        return obj
 
 
-@login_required
-@choose_role_required
-def experience_edit(request, experience_id):
-    args = {}
-    args['exp_o'] = get_object_or_404(Experience, pk=experience_id)
-    cv_o = get_object_or_404(CurriculumVitae, experience__in=[experience_id, ], candidate__user=request.user)
-    if request.method == 'POST':
-        form = ExperienceForm(request.POST, instance=args['exp_o'])
-        if form.is_valid():
-            form.save()
-            return redirect(cv, pk=cv_o.id)
-    else:
-        form = ExperienceForm(instance=args['exp_o'])
-    args['form'] = form
-    return render(request, 'cv/experience_edit.html', args)
+class CvFragmentEditMixin(OnlyCandidateMixin):
+
+    def get_object(self):
+        obj = super().get_object()
+        if obj.curriculumvitae_set.first().candidate != self.request.role_object:
+            raise Http404
+        return obj
 
 
-@login_required
-@choose_role_required
-def education_edit(request, education_id):
-    args = {}
-    args['edu_o'] = get_object_or_404(Education, pk=education_id)
-    cv_o = get_object_or_404(CurriculumVitae, education__in=[education_id, ], candidate__user=request.user)
-    if request.method == 'POST':
-        form = EducationForm(request.POST, instance=args['edu_o'])
-        if form.is_valid():
-            form.save()
-            return redirect(cv, pk=cv_o.id)
-    else:
-        form = EducationForm(instance=args['edu_o'])
-    args['form'] = form
-    return render(request, 'cv/education_edit.html', args)
+class PositionEditView(CvFragmentEditMixin, UpdateView):
+    model = Position
+    form_class = PositionForm
+    template_name = 'cv/position_edit.html'
 
 
-class HideOfferView(RedirectView):
+class ExperienceEditView(CvFragmentEditMixin, UpdateView):
+    model = Experience
+    form_class = ExperienceForm
+    template_name = 'cv/experience_edit.html'
+
+
+class EducationEditView(CvFragmentEditMixin, UpdateView):
+    model = Education
+    form_class = EducationForm
+    template_name = 'cv/education_edit.html'
+
+
+class HideOfferView(OnlyCandidateMixin, RedirectView):
     pattern_name = 'offers'
 
     def get_redirect_url(self, *args, **kwargs):
-        if self.request.role != _CANDIDATE:
-            pass
-        else:
-            offer_o = get_object_or_404(VacancyOffer, id=kwargs['offer_id'], cv__candidate=self.request.role_object)
-            offer_o.refuse()
+        offer_o = get_object_or_404(VacancyOffer, id=kwargs['pk'], cv__candidate=self.request.role_object)
+        offer_o.refuse()
         return super().get_redirect_url()

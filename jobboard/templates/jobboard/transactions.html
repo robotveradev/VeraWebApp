@@ -16,9 +16,10 @@
             </tr>
             </thead>
             <tbody>
-            {% for txn in txns %}
+            {% for txn in object_list %}
                 <tr>
-                    <td><a class="uk-button uk-button-text" target="_blank" href="{{ net_url }}tx/{{ txn.hash }}">{{ txn.hash|truncatechars:30 }}</a>
+                    <td><a class="uk-button uk-button-text" target="_blank"
+                           href="{{ net_url }}tx/{{ txn.hash }}">{{ txn.hash|truncatechars:30 }}</a>
                     </td>
                     <td>{{ txn.action|parse_addresses|safe }}</td>
                     <td class="right">{{ txn.created_at|date:'d E Y, H:i:s, e' }}</td>
@@ -32,8 +33,8 @@
             {% endfor %}
             </tbody>
         </table>
-        {% if txns.has_other_pages %}
-            {% include 'jobboard/include/paginator.html' with paginate=txns %}
+        {% if is_paginated %}
+            {% include 'jobboard/include/paginator.html' with paginate=page_obj %}
         {% endif %}
     </div>
 {% endblock %}

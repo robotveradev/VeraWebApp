@@ -14,10 +14,10 @@
             {% if error %}
                 <span class="center red-text">{{ error }}</span>
             {% endif %}
-            <form class="uk-form-horizontal" action="{% url 'experience_edit' experience_id=exp_o.id %}" method="post">
+            <form class="uk-form-horizontal" action="{% url 'experience_edit' pk=object.id %}" method="post">
                 <fieldset class="uk-fieldset">
                     <legend class="uk-legend">
-                        Edit CV Experience "{{ exp_o.position|title }}"
+                        Edit CV Experience {{ object.position|title }}
                     </legend>
                     {% csrf_token %}
                     {% form form=form %}{% endform %}

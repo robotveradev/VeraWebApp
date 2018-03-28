@@ -7,7 +7,7 @@
 {% block content %}
     <div class="uk-container uk-align-center">
         <h4>All your CVs</h4>
-        {% for cv in cvs %}
+        {% for cv in request.role_object.cvs.all %}
             {% include 'cv/include/cv.html' with show_stat=True %}
         {% endfor %}
         <a class="uk-button uk-button-primary uk-button-small uk-align-right"

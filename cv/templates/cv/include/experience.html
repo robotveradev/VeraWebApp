@@ -3,7 +3,7 @@
     <p class="uk-text-lead">{{ experience.organization }},
         <small class="uk-text-muted">{{ experience.position }}, {{ experience.city }}</small>
         {% if request.user == cv.candidate.user %}
-            <a href="{% url 'experience_edit' experience_id=experience.id %}" uk-icon="icon: file-edit"></a>
+            <a href="{% url 'experience_edit' pk=experience.id %}" uk-icon="icon: file-edit"></a>
         {% endif %}
     </p>
     {% if not experience.still %}

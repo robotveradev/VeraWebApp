@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+from web3 import Web3
 
 
 class Keyword(models.Model):
@@ -32,21 +33,23 @@ class Candidate(models.Model):
     enabled = models.NullBooleanField(default=None)
 
     def __str__(self):
-        return self.first_name + ' ' + self.last_name + ' (' + self.tax_number + ')'
+        return '{}: ({})'.format(self.full_name, self.tax_number)
 
     def disable(self):
         self.enabled = False
         self.save()
 
     def enable(self):
-        assert self.contract_address is not None, "%s contract address must be not None for enable" % (
-            self.__class__.__name__)
         self.enabled = True
         self.save()
 
     @property
     def full_name(self):
         return '%s %s%s' % (self.first_name, self.last_name, ' ' + self.middle_name if self.middle_name else '')
+
+    @property
+    def contract_id(self):
+        return Web3.toBytes(hexstr=Web3.sha3(text=self.full_name + self.tax_number))
 
 
 class Employer(models.Model):
@@ -57,15 +60,13 @@ class Employer(models.Model):
     enabled = models.NullBooleanField(default=None)
 
     def __str__(self):
-        return self.organization + ' (' + self.tax_number + ')'
+        return '{}: ({})'.format(self.organization, self.tax_number)
 
     def disable(self):
         self.enabled = False
         self.save()
 
     def enable(self):
-        assert self.contract_address is not None, "%s contract address must be not None for enable" % (
-            self.__class__.__name__)
         self.enabled = True
         self.save()
 
@@ -74,6 +75,10 @@ class Employer(models.Model):
 
     def vacancies_top(self):
         return self.vacancies.filter(enabled=True).order_by('-created_at')[:3]
+
+    @property
+    def contract_id(self):
+        return Web3.toBytes(hexstr=Web3.sha3(text=self.organization + self.tax_number))
 
 
 class Transaction(models.Model):
@@ -92,7 +97,12 @@ class TransactionHistory(models.Model):
     hash = models.CharField(max_length=127)
     action = models.CharField(max_length=512)
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name='transactions')
 
     def __str__(self):
         return '{}: {}'.format(self.user.username, self.hash)
+
+    class Meta:
+        ordering = ('-created_at',)

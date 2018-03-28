@@ -2,19 +2,21 @@ from account.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView, RedirectView, ListView
 from web3.utils.validation import validate_address
 from cv.models import CurriculumVitae
 from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
+from jobboard.mixins import ChooseRoleMixin, OnlyEmployerMixin, OnlyCandidateMixin
 from jobboard.tasks import save_txn_to_history, save_txn
 from .handlers.candidate import CandidateHandler
 from .models import Employer, Candidate, TransactionHistory
 from vacancy.models import Vacancy
-from .decorators import choose_role_required, role_required
+from .decorators import choose_role_required
 from .handlers.oracle import OracleHandler
 from django.conf import settings as django_settings
 from django.db.models import Q
@@ -29,10 +31,6 @@ SORTS = [{'id': 1, 'order': '-salary_from', 'title': 'by salary descending', 'ty
 CVS_SORTS = [{'id': 1, 'order': '-position__salary_from', 'title': 'by salary descending', 'type': 'sort'},
              {'id': 2, 'order': 'position__salary_from', 'title': 'by salary ascending', 'type': 'sort'},
              {'id': 3, 'order': '-updated_at', 'title': 'by date', 'type': 'sort'}]
-
-
-def index(request):
-    return render(request, 'jobboard/index.html', {})
 
 
 class FindJobView(TemplateView):
@@ -194,13 +192,8 @@ class ChooseRoleView(TemplateView):
         return self.render_to_response(context)
 
 
-class ProfileView(TemplateView):
+class ProfileView(ChooseRoleMixin, TemplateView):
     template_name = 'jobboard/profile.html'
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -218,13 +211,7 @@ class ProfileView(TemplateView):
         return data
 
 
-class GrantRevokeCandidate(View):
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    @method_decorator(role_required('employer'))
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
+class GrantRevokeCandidate(OnlyEmployerMixin, View):
 
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
@@ -264,42 +251,32 @@ class GrantRevokeCandidate(View):
                                       kwargs['vac'].contract_address))
 
 
-def employer_about(request, employer_id):
-    args = {}
-    args['employer'] = get_object_or_404(Employer, id=employer_id)
-    if args['employer'].user == request.user:
-        return redirect('profile')
-    return render(request, 'jobboard/employer_about.html', args)
+class EmployerAboutView(DetailView):
+    model = Employer
+    template_name = 'jobboard/employer_about.html'
 
 
-def change_contract_status(request):
-    if request.role:
-        oracle = OracleHandler()
+class ChangeContractStatus(ChooseRoleMixin, RedirectView):
 
-        if request.role_object.enabled:
-            txn_hash = oracle.pause_contract(request.role_object.contract_address)
-        elif request.role_object.enabled is False:
-            txn_hash = oracle.unpause_contract(request.role_object.contract_address)
-        else:
-            txn_hash = False
+    def get(self, request, *args, **kwargs):
+        request.role_object.enabled = None
+        request.role_object._status_changed = True
+        request.role_object.save()
+        return super().get(request, *args, **kwargs)
 
-        if txn_hash:
-            request.role_object.enabled = None
-            request.role_object.save()
-            save_txn.delay(txn_hash, request.role + 'Change', request.user.id, request.role_object.id)
-            save_txn_to_history.delay(request.role_object.user_id, txn_hash,
-                                      '{} change contract {} status'.format(request.role.capitalize(),
-                                                                            request.role_object.contract_address))
-    return redirect('profile')
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('profile')
 
 
-def transactions(request):
-    args = {'net_url': django_settings.NET_URL}
-    all_txns = TransactionHistory.objects.filter(user=request.user).order_by('-created_at')
-    paginator = Paginator(all_txns, request.GET.get('list') or 25)
-    page = request.GET.get('page')
-    args['txns'] = paginator.get_page(page)
-    return render(request, 'jobboard/transactions.html', args)
+class TransactionsView(ChooseRoleMixin, ListView):
+    model = TransactionHistory
+    paginate_by = 25
+    template_name = 'jobboard/transactions.html'
+    ordering = '-created_at'
+
+    def get_queryset(self):
+        qu = super().get_queryset()
+        return qu.filter(user=self.request.user)
 
 
 def get_item(periods, f_id):
@@ -307,23 +284,6 @@ def get_item(periods, f_id):
         if item['id'] == f_id:
             return item
     return False
-
-
-def get_relevant(request, limit=None):
-    if request.role == _EMPLOYER:
-        return Vacancy.objects.filter(employer=request.role_object)
-    elif request.role == _CANDIDATE:
-        cvs = CurriculumVitae.objects.filter(candidate=request.role_object, published=True)
-        specs_list = list(set([item['specialisations__id'] for item in cvs.values('specialisations__id') if
-                               item['specialisations__id'] is not None]))
-        keywords_list = list(
-            set([item['keywords__id'] for item in cvs.values('keywords__id') if item['keywords__id'] is not None]))
-        vacs = Vacancy.objects.filter(Q(enabled=True),
-                                      Q(employer__enabled=True),
-                                      Q(specializations__in=specs_list) |
-                                      Q(keywords__in=keywords_list)).exclude(
-            contract_address=None).distinct()
-        return vacs[:limit] if limit else vacs
 
 
 @login_required
@@ -373,12 +333,7 @@ def check_agent(request):
             return HttpResponse('You must use Post request', status=400)
 
 
-class GrantRevokeAgentView(View):
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class GrantRevokeAgentView(ChooseRoleMixin, View):
 
     def get(self, request, *args, **kwargs):
         action = kwargs['action']
@@ -404,16 +359,9 @@ class GrantRevokeAgentView(View):
         return redirect('profile')
 
 
-class NewFactView(View):
-
-    @method_decorator(login_required)
-    @method_decorator(choose_role_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+class NewFactView(OnlyCandidateMixin, View):
 
     def post(self, request, *args, **kwargs):
-        if request.role != _CANDIDATE or request.role_object is None:
-            return redirect('profile')
         f_type = request.POST.get('f_type')
         if f_type not in ['learning', 'worked', 'certification']:
             return redirect('profile')
