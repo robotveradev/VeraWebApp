@@ -91,6 +91,7 @@ class VeraW2V(object):
                                i not in self.stop]
         self.candidate_sentence = [self.corrector.FixFragment(i) for i in word_tokenize(candidate_answer.lower()) if
                                    i not in self.stop]
+        self.similarity = 0
 
     def get_similarity_euql(self):
         for i in self.right_sentence:
