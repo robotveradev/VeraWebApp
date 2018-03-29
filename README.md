@@ -25,7 +25,7 @@ rm -rf /etc/grub.d/
 sudo add-apt-repository ppa:ethereum/ethereum
 apt -y update
 apt upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" 
-apt install -y git solc libssl-dev openssl screen vim python3-pip python3-venv mc nginx supervisor libjpeg-dev
+apt install -y swig git solc libssl-dev openssl screen vim python3-pip python3-venv mc nginx supervisor libjpeg-dev
 service supervisor restart  
 apt install -y grub-pc grub-common
 grub-install /dev/vda

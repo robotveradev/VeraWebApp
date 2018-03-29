@@ -7,6 +7,7 @@ from sklearn.metrics.pairwise import euclidean_distances
 from nltk.corpus import stopwords
 from nltk import word_tokenize
 from django.conf import settings
+import jamspell
 
 
 class ProcessExam(Task):
@@ -73,26 +74,26 @@ class VeraW2V(object):
         self.stop = set(stopwords.words('english'))
         self.stop.update(['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}'])
         self.api_url = settings.W2V_API_URL
-        self.candidate_answer = None
-        self.right_answer = None
+        self.candidate_sentence = None
+        self.right_sentence = None
         self.similarity = 0
+        self.corrector = jamspell.TSpellCorrector()
+        self.corrector.LoadLangModel('en.bin')
 
     def run(self):
-        if not (self.candidate_answer or self.right_answer):
+        if not self.candidate_sentence or not self.right_sentence:
             return False
         self.get_similarity_euql()
         return self.similarity
 
     def set_answers(self, right_answer, candidate_answer):
-        self.right_answer = right_answer
-        self.candidate_answer = candidate_answer
+        self.right_sentence = [self.corrector.FixFragment(i) for i in word_tokenize(right_answer.lower()) if
+                               i not in self.stop]
+        self.candidate_sentence = [self.corrector.FixFragment(i) for i in word_tokenize(candidate_answer.lower()) if
+                                   i not in self.stop]
 
     def get_similarity_euql(self):
-        right_sentence = [i for i in word_tokenize(self.right_answer.lower()) if i not in self.stop]
-        candidate_sentence = [i for i in word_tokenize(self.candidate_answer.lower()) if i not in self.stop]
-        if not bool(len(right_sentence)) or not bool(len(candidate_sentence)):
-            return False
-        for i in right_sentence:
+        for i in self.right_sentence:
             first_vector = requests.post(self.api_url, data={"word": i}).text
             try:
                 first_vector = np.asarray(eval(first_vector), dtype=np.float32)
@@ -100,7 +101,7 @@ class VeraW2V(object):
                 pass
             else:
                 sim_i = 0
-                for j in candidate_sentence:
+                for j in self.candidate_sentence:
                     second_vector = requests.post(self.api_url, data={"word": j}).text
                     try:
                         second_vector = np.asarray(eval(second_vector), dtype=np.float32)
@@ -108,8 +109,8 @@ class VeraW2V(object):
                         pass
                     else:
                         sim_i += euclidean_distances(first_vector.reshape(-1, 1), second_vector.reshape(-1, 1))[0][0]
-                self.similarity += sim_i / len(candidate_sentence)
-        self.similarity = self.similarity / len(right_sentence)
+                self.similarity += sim_i / len(self.candidate_sentence)
+        self.similarity = self.similarity / len(self.right_sentence)
 
 
 class VerifyAnswer(Task):
