@@ -13,7 +13,7 @@ from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.models import Employer
 from quiz.forms import CategoryForm
 from vacancy.models import Vacancy
-from quiz.models import VacancyExam, Category, Question, Answer, QuestionKind, ExamPassing, AnswerForVerification
+from quiz.models import ActionExam, Category, Question, Answer, QuestionKind, ExamPassing, AnswerForVerification
 
 
 class VacancyExamView(ListView):
@@ -37,7 +37,7 @@ class VacancyExamView(ListView):
         context['vacancy'] = self.vacancy
         return context
 
-
+# TODO переписать под action
 class VacancyAddQuestionsView(ListView):
     template_name = 'quiz/add_exam.html'
 
@@ -59,7 +59,7 @@ class VacancyAddQuestionsView(ListView):
         return context
 
     def get_seleted_exam_questions(self):
-        exam = VacancyExam.objects.filter(vacancy=self.vacancy).first()
+        exam = ActionExam.objects.filter(action=self.action).first()
         if exam is not None:
             return [qe.id for qe in exam.questions.all()]
         return []
@@ -67,7 +67,7 @@ class VacancyAddQuestionsView(ListView):
     def post(self, request, *args, **kwargs):
         vacancy = get_object_or_404(Vacancy, employer=request.role_object, id=request.POST.get('vacancy'))
         question_ids = request.POST.getlist('questions')
-        vacancy_exam, _ = VacancyExam.objects.get_or_create(vacancy=vacancy)
+        vacancy_exam, _ = ActionExam.objects.get_or_create(vacancy=vacancy)
         vacancy_exam.questions.set(Question.objects.filter(id__in=question_ids))
         vacancy_exam.save()
         return redirect('vacancy_exam', vacancy_id=vacancy.id)
@@ -91,7 +91,7 @@ class CandidateExaminingView(TemplateView):
             context['exam_passed'] = ExamPassing.objects.filter(exam__vacancy=self.vacancy,
                                                                 candidate=self.request.role_object).first()
         else:
-            context['exam'] = VacancyExam.objects.filter(vacancy=self.vacancy).first()
+            context['exam'] = ActionExam.objects.filter(vacancy=self.vacancy).first()
         context['vacancy'] = self.vacancy
         return context
 
@@ -117,7 +117,7 @@ class CandidateExaminingView(TemplateView):
 
     @staticmethod
     def process_request(request):
-        exam = get_object_or_404(VacancyExam, pk=request.POST.get('exam_id', None))
+        exam = get_object_or_404(ActionExam, pk=request.POST.get('exam_id', None))
         answers = {key: value[0] if len(value) == 1 else value for key, value in dict(request.POST).items() if
                    key.startswith('question_') and value[0] != ''}
         ExamPassing.objects.create(candidate=request.role_object, exam=exam, answers=answers)
@@ -253,7 +253,7 @@ class QuestionUpdateKindView(UpdateView):
 
 
 class ExamUpdateGradeView(BaseUpdateView):
-    model = VacancyExam
+    model = ActionExam
     fields = ['passing_grade', ]
 
     def __init__(self, **kwargs):
@@ -297,7 +297,7 @@ class PayToCandidateView(RedirectView):
     def dispatch(self, request, *args, **kwargs):
         self.candidate = request.role_object
         self.vacancy = get_object_or_404(Vacancy, id=kwargs.get('vacancy_id', None))
-        self.exam = VacancyExam.objects.filter(vacancy=self.vacancy).first()
+        self.exam = ActionExam.objects.filter(vacancy=self.vacancy).first()
         return self.check_vacancy_enabled(request, *args, **kwargs)
 
     def check_vacancy_enabled(self, request, *args, **kwargs):

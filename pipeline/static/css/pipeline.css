@@ -1,0 +1,21 @@
+.ban-action {
+    cursor: pointer;
+}
+
+.ban-action:hover {
+    color: red;
+}
+
+/*.disabled > div > div {*/
+/*background: rgba(238, 238, 238, .5);*/
+/*}*/
+
+.disabled > div > div {
+    background: linear-gradient(45deg, rgba(0, 0, 0, 0) 49.9%, lightgray 49.9%, lightgray 60%, rgba(0, 0, 0, 0) 60%) fixed,
+    linear-gradient(45deg, lightgray 10%, rgba(0, 0, 0, 0) 10%) fixed;
+    background-size: 0.5em 0.5em;
+}
+
+.uk-sortable-handle:hover {
+    color: blue;
+}

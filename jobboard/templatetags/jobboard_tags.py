@@ -10,7 +10,7 @@ from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.vacancy import VacancyHandler
 from jobboard.handlers.coin import CoinHandler
 from jobboard.models import Candidate, Transaction
-from quiz.models import VacancyExam
+from quiz.models import ActionExam
 from vacancy.models import Vacancy, CVOnVacancy, VacancyOffer
 from django.conf import settings
 
@@ -64,7 +64,7 @@ def candidate_state(vacancy, candidate):
 
 @register.filter(name='vacancy_tests_count')
 def vacancy_tests_count(vacancy_id):
-    return VacancyExam.objects.filter(vacancy_id=vacancy_id).first().questions.count()
+    return ActionExam.objects.filter(action__pipeline__vacancy_id=vacancy_id).first().questions.count()
 
 
 @register.inclusion_tag('jobboard/tags/employers.html')

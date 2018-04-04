@@ -36,6 +36,8 @@ class Vacancy(models.Model):
     schedule = models.ManyToManyField(Schedule,
                                       blank=True)
     enabled = models.NullBooleanField(default=None)
+    published = models.BooleanField(default=False)
+    allowed_amount = models.CharField(max_length=127)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

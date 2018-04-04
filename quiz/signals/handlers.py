@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, pre_save, m2m_changed
 from django.dispatch import receiver
-from quiz.models import ExamPassing, AnswerForVerification, VacancyExam
+from quiz.models import ExamPassing, AnswerForVerification, ActionExam
 from quiz.tasks import ProcessExam, VerifyAnswer
 
 
@@ -24,7 +24,7 @@ def process_verification(sender, instance, created, **kwargs):
         va.delay(instance.id)
 
 
-@receiver(m2m_changed, sender=VacancyExam.questions.through)
+@receiver(m2m_changed, sender=ActionExam.questions.through)
 def recount_points(sender, instance, action, **kwargs):
     if action in ['post_add', 'post_remove', ]:
         max_points = sum([item.max_points for item in instance.questions.all()])

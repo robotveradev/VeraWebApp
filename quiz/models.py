@@ -78,17 +78,18 @@ class Answer(models.Model):
         ordering = ('?',)
 
 
-class VacancyExam(models.Model):
-    vacancy = models.ForeignKey('vacancy.Vacancy',
-                                on_delete=models.CASCADE,
-                                related_name='tests')
+class ActionExam(models.Model):
+    action = models.ForeignKey('pipeline.Action',
+                               on_delete=models.SET_NULL,
+                               null=True,
+                               related_name='exams')
     questions = models.ManyToManyField(Question)
     max_attempts = models.PositiveIntegerField(default=3)
     passing_grade = models.PositiveIntegerField(default=0)
     max_points = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return 'Exam for "{}"'.format(self.vacancy.title)
+        return 'Exam for "{}"'.format(self.action)
 
 
 class ExamPassing(models.Model):
@@ -96,7 +97,7 @@ class ExamPassing(models.Model):
                                   on_delete=models.SET_NULL,
                                   null=True,
                                   related_name='exams')
-    exam = models.ForeignKey(VacancyExam,
+    exam = models.ForeignKey(ActionExam,
                              on_delete=models.SET_NULL,
                              null=True)
     answers = JSONField()
@@ -106,7 +107,7 @@ class ExamPassing(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return '{}'.format(self.candidate, )
+        return '{}'.format(self.candidate)
 
 
 class AnswerForVerification(models.Model):

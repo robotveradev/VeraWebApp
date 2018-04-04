@@ -23,6 +23,7 @@ from cv import views as cv_views
 from vacancy import views as vacancy_views
 from quiz import views as quiz_views
 from statistic import views as statistic_views
+from pipeline import views as pipeline_views
 
 basic = [
     path('', TemplateView.as_view(template_name='jobboard/index.html'), name='index'),
@@ -71,6 +72,7 @@ vacancy_urlpatterns = [
     path('vacancy/<int:pk>/edit/', vacancy_views.VacancyEditView.as_view(), name='vacancy_edit'),
     path('vacancy/<int:pk>/status/change/', vacancy_views.ChangeVacancyStatus.as_view(), name='change_vacancy_status'),
     path('vacancy/all/', vacancy_views.VacanciesListView.as_view(), name='vacancy_all'),
+    path('vacancy/<int:pk>/update_allowed/', vacancy_views.UpdateAllowedView.as_view(), name='update_allowed'),
 ]
 
 quiz_urlpatterns = [
@@ -98,6 +100,10 @@ statistic_urlpatterns = [
     path('cv/<int:pk>/statistic/', statistic_views.StatisticView.as_view(), name='cvstatistic'),
 ]
 
+pipeline_urlpatterns = [
+    path('vacancy/<int:pk>/pipeline/', pipeline_views.PipelineConstructorView.as_view(), name='pipeline_constructor'),
+]
+
 urlpatterns = basic + \
               candidate_urlpatterns + \
               vacancy_urlpatterns + \
@@ -105,4 +111,5 @@ urlpatterns = basic + \
               curriculum_vitae_urlpatterns + \
               employer_urlpatterns + \
               statistic_urlpatterns + \
+              pipeline_urlpatterns + \
               static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

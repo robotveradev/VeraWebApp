@@ -1,5 +1,5 @@
 from django.contrib import admin
-from quiz.models import Category, Question, Answer, VacancyExam, QuestionKind, ExamPassing, AnswerForVerification
+from quiz.models import Category, Question, Answer, ActionExam, QuestionKind, ExamPassing, AnswerForVerification
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -19,7 +19,7 @@ class AnswerForVerificationAdmin(admin.ModelAdmin):
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Question)
 admin.site.register(Answer)
-admin.site.register(VacancyExam)
+admin.site.register(ActionExam)
 admin.site.register(QuestionKind)
 admin.site.register(ExamPassing)
 admin.site.register(AnswerForVerification, AnswerForVerificationAdmin)

@@ -3,11 +3,8 @@ from .models import Vacancy
 
 
 class VacancyForm(forms.ModelForm):
-    allowed_amount = forms.CharField(widget=forms.NumberInput)
-    interview_fee = forms.CharField(widget=forms.NumberInput)
-
     class Meta:
-        exclude = ('employer', 'contract_address', 'enabled', )
+        exclude = ('employer', 'contract_address', 'enabled', 'published', )
         model = Vacancy
 
         labels = {
@@ -19,7 +16,7 @@ class VacancyForm(forms.ModelForm):
 
 class EditVacancyForm(forms.ModelForm):
     class Meta:
-        exclude = ('employer', 'contract_address', )
+        exclude = ('employer', 'contract_address', 'published', )
         model = Vacancy
 
         labels = {

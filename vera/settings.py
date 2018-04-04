@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'material',
     'material.frontend',
     'django_filters',
+    'pipeline'
 ]
 
 SITE_ID = 1

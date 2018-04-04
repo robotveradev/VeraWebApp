@@ -1,5 +1,5 @@
 from account.decorators import login_required
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
@@ -28,29 +28,21 @@ class CreateVacancyView(OnlyEmployerMixin, CreateView):
     template_name = 'vacancy/new_vacancy.html'
     model = Vacancy
     form_class = VacancyForm
-    success_url = reverse_lazy('vacancy_all')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object = None
+        self.request = None
+
+    def get_success_url(self):
+        return reverse('pipeline_constructor', kwargs={'pk': self.object.id})
 
     def form_valid(self, form):
         return self.check_balance(form)
 
     def check_balance(self, form):
-        coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-        oracle = OracleHandler()
-        decimals = coin_h.decimals
-        user_balance = coin_h.balanceOf(self.request.role_object.contract_address)
-        if user_balance < oracle.vacancy_fee:
-            messages.warning(self.request, MESSAGES['not_enough_tokens'].format(
-                oracle.vacancy_fee / 10 ** decimals,
-                user_balance / 10 ** decimals))
-            return super().form_invalid(form)
         form.instance.employer = self.request.role_object
         form.instance.allowed_amount = form.cleaned_data['allowed_amount']
-        form.instance.interview_fee = form.cleaned_data['interview_fee']
-        messages.success(self.request, MESSAGES['new_vacancy'].format(form.cleaned_data['title']))
         return super().form_valid(form)
 
 
@@ -147,3 +139,11 @@ class OfferVacancyView(OnlyEmployerMixin, RedirectView):
         cv_o = get_object_or_404(CurriculumVitae, id=kwargs['cv_id'])
         VacancyOffer.objects.get_or_create(vacancy=vac_o, cv=cv_o)
         return super().get_redirect_url(pk=kwargs['cv_id'])
+
+
+class UpdateAllowedView(OnlyEmployerMixin, UpdateView):
+
+    def post(self, request, *args, **kwargs):
+        print(request.role)
+        print(kwargs)
+        return HttpResponse('ok', status=200)
