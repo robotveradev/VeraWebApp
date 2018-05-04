@@ -1,7 +1,8 @@
 from account.decorators import login_required
+from account.views import SignupView
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -10,14 +11,13 @@ from web3.utils.validation import validate_address
 from cv.models import CurriculumVitae
 from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm
 from jobboard.handlers.coin import CoinHandler
-from jobboard.handlers.employer import EmployerHandler
+from jobboard.handlers.new_employer import EmployerHandler
 from jobboard.mixins import ChooseRoleMixin, OnlyEmployerMixin, OnlyCandidateMixin
 from jobboard.tasks import save_txn_to_history, save_txn
-from .handlers.candidate import CandidateHandler
-from .models import Employer, Candidate, TransactionHistory
+from .models import Employer, TransactionHistory, InviteCode
 from vacancy.models import Vacancy
 from .decorators import choose_role_required
-from .handlers.oracle import OracleHandler
+from .handlers.new_oracle import OracleHandler
 from django.conf import settings as django_settings
 from django.db.models import Q
 from .filters import VacancyFilter, CVFilter
@@ -39,7 +39,7 @@ class FindJobView(TemplateView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
-        self.vacancies = Vacancy.objects.filter(enabled=True, employer__enabled=True).exclude(contract_address=None)
+        self.vacancies = Vacancy.objects.filter(published=True, enabled=True, employer__enabled=True)
         self.vacancies_filter = None
         self.cvs = CurriculumVitae.objects
         self.context = {}
@@ -211,46 +211,6 @@ class ProfileView(ChooseRoleMixin, TemplateView):
         return data
 
 
-class GrantRevokeCandidate(OnlyEmployerMixin, View):
-
-    def post(self, request, *args, **kwargs):
-        action = request.POST.get('action')
-        if action not in ['revoke', 'grant']:
-            return redirect('profile')
-        else:
-            vac_o = get_object_or_404(Vacancy, id=request.POST.get('vacancy'), employer=request.role_object)
-            can_o = get_object_or_404(Candidate, id=request.POST.get('candidate'))
-            employer_handler = EmployerHandler(django_settings.WEB_ETH_COINBASE,
-                                               request.role_object.contract_address)
-            oracle = OracleHandler()
-            oracle.unlockAccount()
-            if action == 'revoke':
-                txn_hash = employer_handler.revoke_access_to_candidate(vac_o.contract_address,
-                                                                       can_o.contract_address)
-            else:
-                txn_hash = employer_handler.grant_access_to_candidate(vac_o.contract_address,
-                                                                      can_o.contract_address)
-
-            self.save_txn(vac=vac_o, can=can_o, txn_hash=txn_hash, action=action)
-            return redirect('vacancy', pk=vac_o.id)
-
-    @staticmethod
-    def save_txn(**kwargs):
-        user_id = kwargs['vac'].employer.user.id
-        save_txn.delay(kwargs['txn_hash'], 'EmpAnswer', user_id, kwargs['can'].id,
-                       kwargs['vac'].id)
-        save_txn_to_history.delay(user_id, kwargs['txn_hash'],
-                                  'Candidate {} {}{} to vacancy {}'.format(kwargs['can'].contract_address,
-                                                                           kwargs['action'],
-                                                                           'ed' if kwargs['action'] == 'grant' else 'd',
-                                                                           kwargs['vac'].contract_address))
-        save_txn_to_history.delay(kwargs['can'].user_id, kwargs['txn_hash'],
-                                  'Employer {} {} your candidacy to vacancy {}'.format(
-                                      kwargs['vac'].employer.contract_address,
-                                      kwargs['action'],
-                                      kwargs['vac'].contract_address))
-
-
 class EmployerAboutView(DetailView):
     model = Employer
     template_name = 'jobboard/employer_about.html'
@@ -259,8 +219,7 @@ class EmployerAboutView(DetailView):
 class ChangeContractStatus(ChooseRoleMixin, RedirectView):
 
     def get(self, request, *args, **kwargs):
-        request.role_object.enabled = None
-        request.role_object._status_changed = True
+        request.role_object.enabled = not request.role_object.enabled
         request.role_object.save()
         return super().get(request, *args, **kwargs)
 
@@ -375,9 +334,66 @@ class NewFactView(OnlyCandidateMixin, View):
             if form.is_valid():
                 fact = form.cleaned_data
                 fact.update({'type': f_type, 'from': request.role_object.contract_address})
-                can_h = CandidateHandler(django_settings.WEB_ETH_COINBASE, request.role_object.contract_address)
                 oracle = OracleHandler()
                 oracle.unlockAccount()
-                txn_hash = can_h.new_fact(fact)
+                txn_hash = oracle.new_fact(request.role_object.contract_address, fact)
                 save_txn_to_history.delay(request.role_object.user_id, txn_hash, 'New "{}" fact added'.format(f_type))
         return redirect('profile')
+
+
+class ApproveTokenView(OnlyEmployerMixin, RedirectView):
+    pattern_name = 'profile'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.already_approved = 0
+        self.coin = CoinHandler()
+        self.employer_h = EmployerHandler
+
+    def dispatch(self, request, *args, **kwargs):
+        self.employer_h = self.employer_h(django_settings.WEB_ETH_COINBASE, request.role_object.contract_address)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.set_already_approved()
+        if self.already_approved > 0:
+            self.set_already_to_0()
+        self.approve_money(request.POST.get('approved_amount'))
+        return super().get(request, *args, **kwargs)
+
+    def set_already_approved(self):
+        self.already_approved = self.coin.allowance(self.request.role_object.contract_address,
+                                                    django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
+
+    def set_already_to_0(self):
+        self.employer_h.approve_money(0)
+
+    def approve_money(self, amount):
+        tnx_hash = self.employer_h.approve_money(int(amount) * 10 ** 18)
+        user_id = self.request.role_object.user.id
+        save_txn.delay(tnx_hash, 'tokenApprove', user_id, self.request.role_object.id)
+        save_txn_to_history.delay(user_id, tnx_hash, 'Money approved for oracle')
+
+
+class SignupInviteView(SignupView):
+
+    def get_code(self):
+        return self.request.COOKIES.get('invtoken')
+
+
+class InviteLinkView(RedirectView):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.code = None
+
+    def get(self, request, *args, **kwargs):
+        try:
+            self.code = InviteCode.objects.get(code=kwargs.get('code'), expired=False)
+        except InviteCode.DoesNotExist:
+            return HttpResponse('Invalid code')
+        else:
+            self.code.expire()
+            hrr = HttpResponseRedirect(reverse('account_signup'))
+            hrr.set_cookie('invtoken', self.code.signup_code.code)
+            return hrr

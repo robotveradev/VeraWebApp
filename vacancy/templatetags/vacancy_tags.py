@@ -1,6 +1,7 @@
 from django import template
-
+from pipeline.templatetags.pipeline_tags import is_empty_action
 from cv.models import Schedule, Busyness, CurriculumVitae
+from jobboard.handlers.new_oracle import OracleHandler
 from jobboard.models import Specialisation, Keyword
 from vacancy.models import VacancyOffer
 
@@ -153,5 +154,17 @@ def get_real_filter_name(need_key):
 
 
 @register.filter(name='is_already_offer')
-def is_already_offer(vacancy_id, cv_id):
-    return VacancyOffer.objects.filter(vacancy_id=vacancy_id, cv_id=cv_id).exists()
+def is_already_offer(vacancy, cv):
+    oracle = OracleHandler()
+    current_action = oracle.current_cv_action_on_vacancy(vacancy.uuid, cv.uuid)
+    return VacancyOffer.objects.filter(vacancy_id=vacancy.id, cv_id=cv.id).exists() or not is_empty_action(
+        current_action)
+
+
+@register.filter
+def get_interview_fee(uuid):
+    oracle = OracleHandler()
+    print(uuid)
+    print(oracle.contract_address)
+    fee_list = [int(oracle.get_action(uuid, i)['fee']) for i in range(oracle.get_vacancy_pipeline_length(uuid))]
+    return '-'.join([str(i) for i in fee_list]) if sum(fee_list) > 0 else 0

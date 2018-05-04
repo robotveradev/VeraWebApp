@@ -5,9 +5,9 @@ from django.conf import settings
 
 
 class CoinHandler(object):
-    def __init__(self, contract_address, account=None):
+    def __init__(self, contract_address=None, account=None):
         self.web3 = Web3(RPCProvider(host='localhost', port=8545))
-        self.contract_address = contract_address
+        self.contract_address = contract_address or settings.VERA_COIN_CONTRACT_ADDRESS
         self.account = account
         with open('jobboard/handlers/coin_abi.json', 'r') as ad:
             self.abi = json.load(ad)

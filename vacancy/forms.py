@@ -4,7 +4,7 @@ from .models import Vacancy
 
 class VacancyForm(forms.ModelForm):
     class Meta:
-        exclude = ('employer', 'contract_address', 'enabled', 'published', )
+        exclude = ('employer', 'uuid', 'enabled', 'published', )
         model = Vacancy
 
         labels = {
@@ -16,7 +16,7 @@ class VacancyForm(forms.ModelForm):
 
 class EditVacancyForm(forms.ModelForm):
     class Meta:
-        exclude = ('employer', 'contract_address', 'published', )
+        exclude = ('employer', 'uuid', 'published', 'allowed_amount', 'enabled', )
         model = Vacancy
 
         labels = {

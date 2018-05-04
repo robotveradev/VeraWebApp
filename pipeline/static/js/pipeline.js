@@ -1,8 +1,8 @@
 $(document).ready(function () {
-    $('#alert_increase').hide().find('a').on('click', function() {
+    $('#alert_increase').hide().find('a').on('click', function () {
         $(this).closest('#alert_increase').hide();
     });
-    $('.ban-action').on('click', function (){
+    $('.ban-action').on('click', function () {
         $(this).closest('li').toggleClass('disabled');
     });
 
@@ -15,20 +15,20 @@ $(document).ready(function () {
         }
     });
 
-    $('#process_form').on('click', function (e){
+    $('#pipeline_form_submit').on('click', function (e) {
         e.preventDefault();
         let totalFee = 0;
         let allowed_amount = Number($('#allowed').text());
         let lis = $('ul#pipeline-constructor').find('li');
-        lis.map(function(i, item) {
+        lis.map(function (i, item) {
             let select = $(item).find('div > div > select');
-            if ($(select).val() === null) {
+            if ($(select).val() === null || $(item).hasClass('disabled')) {
                 $(item).remove();
             } else {
                 let approve = $(item).find('input[type=checkbox]')[0];
                 let approve_input = $(item).find('input[name="approve"]')[0];
                 let fee = $(item).find('input[name="fee"]')[0];
-                $(fee).val($(fee).val() > 0 ? $(fee).val():0);
+                $(fee).val($(fee).val() > 0 ? $(fee).val() : 0);
                 totalFee += Number($(fee).val());
                 if (approve.checked) {
                     $(approve_input).val('True');
@@ -39,7 +39,29 @@ $(document).ready(function () {
         });
         if (totalFee > allowed_amount) {
             $('#alert_increase').show();
+            $('#new_allowed').attr('min', totalFee)
+        } else {
+            $('#pipeline_form').submit();
         }
-        // $(this).closest('form')[0].submit();
+    });
+
+    $('#increase_allowed_form').on('submit', function (e) {
+
+        e.preventDefault();
+
+        $.ajax({
+            type: $(this).attr('method'),
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (data) {
+                console.log('Submission was successful.');
+                UIkit.modal('#increase').hide();
+                $('#pipeline_form').submit();
+            },
+            error: function (data) {
+                console.log('An error occurred.');
+                console.log(data);
+            },
+        });
     });
 });

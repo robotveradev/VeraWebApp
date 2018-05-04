@@ -1,27 +1,28 @@
-from account.decorators import login_required
+import os
+from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, HttpResponse
-from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse_lazy, reverse
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import RedirectView, CreateView, UpdateView, DetailView, ListView
+from web3 import Web3
 from cv.models import CurriculumVitae
-from jobboard.decorators import choose_role_required, role_required
-from jobboard.handlers.candidate import CandidateHandler
 from jobboard.handlers.coin import CoinHandler
-from jobboard.handlers.oracle import OracleHandler
+from jobboard.handlers.new_oracle import OracleHandler
 from django.conf import settings
-from jobboard.mixins import OnlyEmployerMixin
+from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
 from statistic.decorators import statistical
 from vacancy.forms import VacancyForm, EditVacancyForm
 from vacancy.models import Vacancy, CVOnVacancy, VacancyOffer
-from jobboard.tasks import save_txn_to_history, save_txn
-from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
-MESSAGES = {'not_enough_tokens': _('The cost of placing a vacancy of {} tokens. Your balance {} tokens.'),
-            'new_vacancy': _('New vacancy "{}" successfully added'), }
+MESSAGES = {'allow': _('You must approve the tokens for the oracle.'),
+            'empty_exam': _('One or more actions do not have an exam.'),
+            'empty_interview': _('One or more actions do not have an interview.'),
+            'disabled_cv': _('Curriculum Vitae {} now disabled. You must enable it for subscribe.'),
+            'disabled_vacancy': _('Vacancy {} now disabled. You cannot subscribe to disabled vacancy.')}
 
 
 class CreateVacancyView(OnlyEmployerMixin, CreateView):
@@ -38,11 +39,12 @@ class CreateVacancyView(OnlyEmployerMixin, CreateView):
         return reverse('pipeline_constructor', kwargs={'pk': self.object.id})
 
     def form_valid(self, form):
-        return self.check_balance(form)
+        return self.process_form_instance(form)
 
-    def check_balance(self, form):
+    def process_form_instance(self, form):
         form.instance.employer = self.request.role_object
         form.instance.allowed_amount = form.cleaned_data['allowed_amount']
+        form.instance.uuid = Web3.toHex(os.urandom(15))
         return super().form_valid(form)
 
 
@@ -75,29 +77,35 @@ class VacancyView(DetailView):
         return super().dispatch(request, *args, **kwargs)
 
 
-@role_required('candidate')
-def subscribe_to_vacancy(request, vacancy_id, cv_id):
-    can_o = request.role_object
-    vac_o = get_object_or_404(Vacancy, id=vacancy_id)
-    cv_o = get_object_or_404(CurriculumVitae, id=cv_id, candidate=can_o)
+class SubscribeToVacancyView(OnlyCandidateMixin, RedirectView):
 
-    if not can_o.contract_address or not vac_o.contract_address:
-        raise Http404
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.cv = None
+        self.vacancy = None
+        self.request = None
 
-    oracle = OracleHandler(settings.WEB_ETH_COINBASE, settings.VERA_ORACLE_CONTRACT_ADDRESS)
-    oracle.unlockAccount()
-    can_h = CandidateHandler(settings.WEB_ETH_COINBASE, can_o.contract_address)
-    txn_hash = can_h.subscribe_to_interview(vac_o.contract_address)
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('vacancy', kwargs={'pk': kwargs.get('vacancy_id')})
 
-    cvonvac = CVOnVacancy()
-    cvonvac.cv = cv_o
-    cvonvac.vacancy = vac_o
-    cvonvac.save()
+    def get(self, request, *args, **kwargs):
+        self.cv = get_object_or_404(CurriculumVitae, id=kwargs.get('cv_id'), candidate=request.role_object)
+        self.vacancy = get_object_or_404(Vacancy, id=kwargs.get('vacancy_id'))
+        return self.check_vac_cv(*args, **kwargs)
 
-    save_txn.delay(txn_hash, 'Subscribe', request.user.id, vac_o.id)
+    def check_vac_cv(self, *args, **kwargs):
+        if not self.vacancy.enabled:
+            messages.error(self.request, MESSAGES['disabled_vacancy'].format(self.vacancy.title))
+        elif not self.cv.enabled:
+            messages.error(self.request, MESSAGES['disabled_cv'].format(self.cv.title))
+        if not self.vacancy.enabled or not self.cv.enabled:
+            return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
+        else:
+            return self.subscribe(*args, **kwargs)
 
-    save_txn_to_history.delay(request.user.id, txn_hash, 'Subscribe to vacancy {}'.format(vac_o.title))
-    return redirect('vacancy', pk=vacancy_id)
+    def subscribe(self, *args, **kwargs):
+        CVOnVacancy.objects.create(cv=self.cv, vacancy=self.vacancy)
+        return super().get(self.request, *args, **kwargs)
 
 
 class ChangeVacancyStatus(OnlyEmployerMixin, RedirectView):
@@ -105,18 +113,47 @@ class ChangeVacancyStatus(OnlyEmployerMixin, RedirectView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object = None
+        self.errors = []
 
     def get_redirect_url(self, *args, **kwargs):
         return reverse('vacancy', kwargs={'pk': self.object.id})
 
     def get(self, request, *args, **kwargs):
         self.object = get_object_or_404(Vacancy, pk=kwargs.get('pk', None), employer=request.role_object)
-        if self.object.enabled is None:
-            pass
+        self.check_employer()
+        self.check_actions()
+        if not self.errors:
+            if self.object.enabled is not None:
+                self.object.enabled = None
+                self.object.save()
         else:
-            self.object.enabled = None
-            self.object.save()
+            for error in set(self.errors):
+                messages.warning(request, MESSAGES[error])
         return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
+
+    def check_employer(self):
+        oracle = OracleHandler()
+        coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
+        vac_allowance = oracle.get_vacancy(self.object.uuid)[2]
+        oracle_allowance = coin_h.allowance(self.object.employer.contract_address, oracle.contract_address)
+        if oracle_allowance < vac_allowance:
+            self.errors.append('allow')
+
+    def check_actions(self):
+        for action in self.object.pipeline.actions.all():
+            if action.type.condition_of_passage:
+                method = getattr(self, 'check_' + action.type.condition_of_passage)
+                method(action)
+
+    def check_quiz(self, action):
+        if not action.exam.exists():
+            self.errors.append('empty_exam')
+        else:
+            print('VOT: {}'.format(action.exam.all()))
+
+    def check_interview(self, action):
+        if not action.interview.exists():
+            self.errors.append('empty_interview')
 
 
 class VacanciesListView(OnlyEmployerMixin, ListView):
@@ -142,8 +179,13 @@ class OfferVacancyView(OnlyEmployerMixin, RedirectView):
 
 
 class UpdateAllowedView(OnlyEmployerMixin, UpdateView):
+    model = Vacancy
+    fields = ('allowed_amount',)
 
     def post(self, request, *args, **kwargs):
-        print(request.role)
-        print(kwargs)
+        get_object_or_404(Vacancy, pk=kwargs.get('pk'), employer=request.role_object)
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
         return HttpResponse('ok', status=200)

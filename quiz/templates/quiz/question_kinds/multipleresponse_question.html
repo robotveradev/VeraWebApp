@@ -1,3 +1,5 @@
+{% load jobboard_tags %}
+
 <span class="uk-text-lead uk-text-background">{{ question.question_text }}</span>
 {% for answer in question.answers.all %}
     <div class="uk-margin uk-margin-left">
@@ -6,6 +8,14 @@
                 type="checkbox"
                 name="question_{{ question.id }}"
                 id="answer_{{ answer.id }}"
+                {% if answers %}
+                    {% for answered_id in answers %}
+                        {% if answered_id == answer.id %}
+                checked="checked"
+                        {% endif %}
+                    {% endfor %}
+                disabled
+                {% endif %}
                 value="{{ answer.id }}">
             {{ answer.text }}
         </label>

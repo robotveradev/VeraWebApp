@@ -10,9 +10,9 @@ class Vacancy(models.Model):
                                  null=False,
                                  on_delete=models.CASCADE,
                                  related_name='vacancies')
-    contract_address = models.CharField(max_length=255,
-                                        blank=True,
-                                        null=True)
+    uuid = models.CharField(max_length=64,
+                            blank=False,
+                            null=False)
     title = models.CharField(max_length=255)
     specialisations = models.ManyToManyField('jobboard.Specialisation',
                                              blank=True)
@@ -35,7 +35,7 @@ class Vacancy(models.Model):
                                       blank=True)
     schedule = models.ManyToManyField(Schedule,
                                       blank=True)
-    enabled = models.NullBooleanField(default=None)
+    enabled = models.NullBooleanField(default=False)
     published = models.BooleanField(default=False)
     allowed_amount = models.CharField(max_length=127)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -43,6 +43,9 @@ class Vacancy(models.Model):
 
     def get_statistic_url(self):
         return reverse('vacancystatistic', kwargs={'pk': self.pk})
+
+    def get_absolute_url(self):
+        return reverse('vacancy', kwargs={'pk': self.id})
 
     def __str__(self):
         return '{}: {}'.format(self.employer.organization, self.title)

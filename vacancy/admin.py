@@ -3,7 +3,7 @@ from .models import Vacancy
 
 
 class AdminVacancy(admin.ModelAdmin):
-    list_display = ['id', 'employer', 'contract_address', 'title', 'city', 'created_at',
+    list_display = ['id', 'employer', 'uuid', 'title', 'city', 'created_at',
                     'updated_at', 'enabled']
 
     class Meta:

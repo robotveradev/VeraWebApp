@@ -6,12 +6,13 @@
 
 {% block content %}
     <div class="uk-container uk-align-center">
-        <h4>{% trans 'Test for vacancy' %} {{ vacancy.title }}</h4>
+        <h4>{% trans 'Test for ' %} {{ action.pipeline.vacancy.title|title }}</h4>
         {% if exam %}
             <form method="post">
                 <fieldset class="uk-fieldset">
                     {% csrf_token %}
                     <input type="hidden" name="exam_id" value="{{ exam.id }}">
+                    <input type="hidden" name="cv_id" value="{{ cv.id }}">
                     {% with exam.questions.all as questions %}
                         {% for question in questions %}
                             <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
@@ -22,7 +23,7 @@
                 </fieldset>
                 <button class="uk-button uk-button-primary uk-button-small uk-align-right">Continue</button>
             </form>
-        {% else %}
+        {% elif exam_passed %}
             <p class="uk-text-lead">
                 You already pass this exam.
             </p>
@@ -31,13 +32,9 @@
                     You scored {{ exam_passed.points }} points. Employer set passing grade
                     {{ exam_passed.exam.passing_grade }} points.
                 </p>
-                {% if exam_passed.points >= exam_passed.exam.passing_grade %}
-                    <a href="{% url 'pay_to_candidate' vacancy_id=exam_passed.exam.vacancy.id %}" class="uk-button uk-button-primary uk-button-small uk-align-right">Get reward!</a>
-                {% endif %}
             {% else %}
                 <div uk-spinner="ratio: 0.4">The results of your exam are now being processed  </div>
             {% endif %}
-            <br><br><br><br><br><br><br><br><br><br>
         {% endif %}
     </div>
 {% endblock %}

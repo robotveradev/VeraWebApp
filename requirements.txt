@@ -1,3 +1,5 @@
+websockets
+uvloop
 jamspell
 amqp==2.2.2
 billiard==3.5.0.3

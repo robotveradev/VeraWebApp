@@ -7,7 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 class CurriculumVitaeForm(forms.ModelForm):
     class Meta:
         exclude = (
-            'candidate', 'experience', 'position', 'education', 'created_at', 'updated_at', 'published',)
+            'candidate', 'experience', 'position', 'education', 'created_at', 'updated_at', 'published', 'uuid',
+            'enabled',)
         model = CurriculumVitae
         labels = {
             'level': 'Education level',

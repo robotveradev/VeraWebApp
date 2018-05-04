@@ -1,0 +1,1 @@
+[{"model": "pipeline.actiontype", "pk": 1, "fields": {"title": "Exam", "condition_of_passage": "quiz", "fee": true}}, {"model": "pipeline.actiontype", "pk": 2, "fields": {"title": "Interview", "condition_of_passage": "interview", "fee": true}}, {"model": "pipeline.actiontype", "pk": 3, "fields": {"title": "Wait", "condition_of_passage": null, "fee": false}}]

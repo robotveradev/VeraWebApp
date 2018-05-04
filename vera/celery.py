@@ -10,6 +10,14 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.autodiscover_tasks()
 
+app.conf.beat_schedule = {
+    'check_transactions': {
+        'task': 'CheckTransaction',
+        'schedule': 10.0,
+    },
+}
+app.conf.timezone = 'UTC'
+
 
 @app.task(bind=True)
 def debug_task(self):

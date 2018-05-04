@@ -1,0 +1,11 @@
+<p class="uk-text-lead uk-padding">
+    {% if action %}
+        {% if action.type.title|lower != 'wait' %}
+            To go to the next stage of the vacancy, you need to pass <a class="uk-link-text"
+                                                                        href="{{ url }}">{{ action.type.title|lower }}</a>
+            {% if next_approvable %} and wait for approve from employer{% endif %}
+        {% else %}
+            To go to the next stage of the vacancy, you need to wait for approve from employer
+        {% endif %}
+    {% endif %}
+</p>

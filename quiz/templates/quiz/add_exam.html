@@ -6,10 +6,10 @@
 
 {% block content %}
     <div class="uk-container uk-align-center">
-        <h4 class="center">{% trans 'Add exam for vacancy' %} {{ vacancy.title }}</h4>
-        <form method="post" action="{% url 'vacancy_exam_new' vacancy_id=vacancy.id %}">
+        <h4 class="center">{% trans 'Add exam for action' %}</h4>
+        <form method="post" action="{% url 'action_exam_new' pk=action.id %}">
             {% csrf_token %}
-            <input type="hidden" value="{{ vacancy.id }}" name="vacancy">
+            <input type="hidden" value="{{ action.id }}" name="action">
             <ul uk-accordion="multiple: true">
                 {% include 'quiz/tags/category_list.html' with categories=object_list %}
             </ul>

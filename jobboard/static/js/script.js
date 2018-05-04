@@ -100,7 +100,7 @@ $(document).ready(function () {
         }
     });
 
-    $('textarea').htmlarea({
+    $('textarea:not(.simple)').htmlarea({
         toolbar: ["bold", "italic", "underline", "|", "p", "h1", "h2", "h3", "h4", "h5", "h6", "|", "indent", "outdent", "|", "orderedList", "unorderedList", "horizontalrule", "|", "justifyLeft", "justifyCenter", "justifyRight"]
     });
     $('.jHtmlArea').parent('div').addClass('jHtml-textarea');

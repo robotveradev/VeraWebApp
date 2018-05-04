@@ -13,7 +13,7 @@
                     {% if field.required %} required{% endif %}
                     class="uk-select{% if bound_field.errors %} uk-form-danger{% endif %}"
                 {% endattrs %}>
-                    <option disabled selected>{{ bound_field.label }}</option>
+{#                    <option disabled selected>{{ bound_field.label }}</option>#}
                     {% part field options %}
                         {% for group, items in bound_field|select_options %}
                             {% if group %}

@@ -6,7 +6,8 @@
 
 {% block content %}
     <div class="uk-container uk-align-center">
-        <h4>{% trans 'Exam of vacancy' %} "{{ vacancy.title | truncatewords:'4' }}"</h4>
+        <h4>{% trans 'Action exam for vacancy' %} "{{ action.pipeline.vacancy.title | truncatewords:'4' }}"</h4>
+        {% include 'jobboard/include/messages.html' %}
         <input type="hidden" name="e_id" value="{{ object_list.pk }}">
         {% csrf_token %}
         {% with object_list.questions.all as question_list %}
@@ -30,13 +31,17 @@
                     </ul>
                 {% endfor %}
             {% else %}
-                <p>{% trans 'The vacancy does not have exam yet' %}</p>
+                <p>{% trans 'Action does not have exam yet' %}</p>
             {% endif %}
         {% endwith %}
         <br>
-        <a href="{% url 'vacancy_exam_new' vacancy_id=vacancy.id %}"
-           class="uk-button uk-button-primary uk-button-small uk-align-right">
-            {% trans 'Add new question right now' %}
-        </a>
+        <div class="uk-align-right">
+            <a class="uk-button uk-button-default uk-button-small"
+               href="{% url 'vacancy' pk=action.pipeline.vacancy.id %}">Back to vacancy</a>
+            <a href="{% url 'action_exam_new' pk=action.id %}"
+               class="uk-button uk-button-primary uk-button-small">
+                {% trans 'Add question' %}
+            </a>
+        </div>
     </div>
 {% endblock %}

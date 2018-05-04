@@ -17,4 +17,5 @@ class ActionTypeAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Pipeline, PipelineAdmin)
+admin.site.register(Action)
 admin.site.register(ActionType, ActionTypeAdmin)

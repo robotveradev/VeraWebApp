@@ -3,5 +3,10 @@
     <input class="uk-input"
            type="text"
            name="question_{{ question.id }}"
-           placeholder="Place your answer here">
+           placeholder="Place your answer here"
+           {% if answers %}
+                value="{{ answers.0 }}"
+                disabled
+           {% endif %}
+    >
 </div>

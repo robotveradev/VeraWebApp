@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Max, Sum
+from django.urls import reverse
 from jsonfield import JSONField
 
 
@@ -82,7 +83,7 @@ class ActionExam(models.Model):
     action = models.ForeignKey('pipeline.Action',
                                on_delete=models.SET_NULL,
                                null=True,
-                               related_name='exams')
+                               related_name='exam')
     questions = models.ManyToManyField(Question)
     max_attempts = models.PositiveIntegerField(default=3)
     passing_grade = models.PositiveIntegerField(default=0)
@@ -92,11 +93,11 @@ class ActionExam(models.Model):
         return 'Exam for "{}"'.format(self.action)
 
 
-class ExamPassing(models.Model):
-    candidate = models.ForeignKey('jobboard.Candidate',
-                                  on_delete=models.SET_NULL,
-                                  null=True,
-                                  related_name='exams')
+class ExamPassed(models.Model):
+    cv = models.ForeignKey('cv.CurriculumVitae',
+                           on_delete=models.SET_NULL,
+                           null=True,
+                           related_name='exams')
     exam = models.ForeignKey(ActionExam,
                              on_delete=models.SET_NULL,
                              null=True)
@@ -107,7 +108,10 @@ class ExamPassing(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return '{}'.format(self.candidate)
+        return '{}'.format(self.cv.uuid)
+
+    def get_absolute_url(self):
+        return reverse('exam_results', kwargs={'pk': self.id})
 
 
 class AnswerForVerification(models.Model):

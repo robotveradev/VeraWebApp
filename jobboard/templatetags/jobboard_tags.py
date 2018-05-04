@@ -6,8 +6,7 @@ from django.shortcuts import get_object_or_404
 from urllib.parse import urlencode
 from cv.models import CurriculumVitae
 from jobboard import blockies
-from jobboard.handlers.candidate import CandidateHandler
-from jobboard.handlers.vacancy import VacancyHandler
+from jobboard.handlers.new_oracle import OracleHandler
 from jobboard.handlers.coin import CoinHandler
 from jobboard.models import Candidate, Transaction
 from quiz.models import ActionExam
@@ -24,25 +23,13 @@ def has_cv(user_id):
 
 @register.filter(name='allowance_rest')
 def allowance_rest(vacancy_id):
-    vac = Vacancy.objects.values('employer__contract_address', 'contract_address').get(id=vacancy_id)
-    if vac['employer__contract_address'] is None or vac['contract_address'] is None:
+    vac = Vacancy.objects.get(id=vacancy_id)
+    if not vac.published:
         return 0
-    coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-    return coin_h.allowance(vac['employer__contract_address'],
-                            vac['contract_address']) / 10 ** coin_h.decimals
+    oracle = OracleHandler()
+    return oracle.get_vacancy_allowed_rest(vac.uuid) / 10 ** 18
 
 
-@register.filter(name='get_interview_fee')
-def get_interview_fee(vacancy_id):
-    vac = Vacancy.objects.values('employer__contract_address', 'contract_address').get(id=vacancy_id)
-    if not vac['contract_address']:
-        return 0
-    coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-    vac_h = VacancyHandler(vac['employer__contract_address'], vac['contract_address'])
-    return vac_h.interview_fee() / 10 ** coin_h.decimals
-
-
-@register.filter(name='get_coin_symbol')
 def get_coin_symbol(id):
     coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
     return coin_h.symbol
@@ -50,16 +37,8 @@ def get_coin_symbol(id):
 
 @register.inclusion_tag("jobboard/tags/candidates.html")
 def get_candidates(vacancy):
-    args = {}
-    args['vacancy'] = vacancy
-    args['cvs'] = CVOnVacancy.objects.filter(vacancy=vacancy)
+    args = {'vacancy': vacancy, 'cvs': CVOnVacancy.objects.filter(vacancy=vacancy)}
     return args
-
-
-@register.filter(name='candidate_state')
-def candidate_state(vacancy, candidate):
-    vac_h = VacancyHandler(settings.WEB_ETH_COINBASE, vacancy.contract_address)
-    return vac_h.get_candidate_state(candidate.contract_address)
 
 
 @register.filter(name='vacancy_tests_count')
@@ -81,13 +60,6 @@ def get_employers(vacancies, candidate_id):
             'candidate_id': candidate_id}
 
 
-@register.filter(name='is_allowed')
-def is_allowed(candidate_id, employer_contract_address):
-    candidate = get_object_or_404(Candidate, id=candidate_id)
-    can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
-    return can_h.is_agent(employer_contract_address)
-
-
 @register.filter(name='is_enabled_vacancy')
 def is_enabled_vacancy(vacancy_id):
     vacancy_obj = get_object_or_404(Vacancy, id=vacancy_id)
@@ -99,45 +71,40 @@ def get_balance(user, address):
     if address is None:
         return {'balance': None, 'user': user}
     coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-    return {'balance': coin_h.balanceOf(address) / 10 ** coin_h.decimals, 'user': user}
+    return {'balance': coin_h.balanceOf(address) / 10 ** 18, 'user': user}
 
 
-@register.filter(name='is_can_subscribe')
-def is_can_subscribe(candidate, vacancy):
-    if candidate.contract_address is None:
-        return False, 'Your contract doesn\'t ready yet'
-    if candidate.enabled is False:
-        return False, 'You must enable your contract'
-    else:
-        vac_h = VacancyHandler(settings.WEB_ETH_COINBASE, vacancy.contract_address)
-        if vac_h.get_candidate_state(candidate.contract_address) != 'not exist':
-            return False, 'You have already subscribed to this vacancy'
-        else:
-            txn = Transaction.objects.filter(user=candidate.user, txn_type='Subscribe', obj_id=vacancy.id)
-            if txn:
-                return False, 'You have already send request'
-            else:
-                return True, ''
+@register.inclusion_tag('jobboard/tags/allowance.html')
+def oracle_allowance(address, user_id):
+    if address is None:
+        return {'allowance': 0, 'user_id': user_id}
+    coin = CoinHandler()
+    return {'allowance': coin.allowance(address, settings.VERA_ORACLE_CONTRACT_ADDRESS) / 10 ** 18,
+            'user_id': user_id}
 
 
-@register.filter(name='employer_answered')
-def employer_answered(candidate_id, vacancy_id):
+@register.filter
+def employer_answered(cv_id, vacancy_id):
+    return Transaction.objects.filter(txn_type='EmpAnswer', obj_id=cv_id, vac_id=vacancy_id).exists()
+
+
+def get_vacancy(vac_uuid):
     try:
-        Transaction.objects.get(txn_type='EmpAnswer', obj_id=candidate_id, vac_id=vacancy_id)
-        return True
-    except Transaction.DoesNotExist:
-        return False
+        return Vacancy.objects.get(uuid=vac_uuid)
+    except Vacancy.DoesNotExist:
+        return None
 
 
 @register.inclusion_tag('jobboard/tags/vacancies.html', takes_context=True)
 def get_candidate_vacancies(context, candidate):
-    vacancies = []
-    can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
-    for item in can_h.get_vacancies():
-        try:
-            vacancies.append(Vacancy.objects.get(contract_address=item))
-        except Vacancy.DoesNotExist:
-            pass
+    vac_set = set()
+    oracle = OracleHandler()
+    for cv in candidate.cvs.all():
+        count = oracle.vacancies_on_cv_length(cv.uuid)
+        for i in range(count):
+            vac_uuid = oracle.vacancy_on_cv_by_index(cv.uuid, i)
+            vac_set.add(vac_uuid)
+    vacancies = Vacancy.objects.filter(uuid__in=vac_set)
     return {'vacancies': vacancies,
             'request': context.request,
             'candidate': candidate}
@@ -145,12 +112,12 @@ def get_candidate_vacancies(context, candidate):
 
 @register.inclusion_tag('jobboard/tags/facts.html')
 def get_facts(candidate):
-    can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
-    fact_keys = can_h.get_facts()
+    oracle = OracleHandler()
+    fact_keys = oracle.facts_keys(candidate.contract_address)
     args = {}
     facts = []
     for item in fact_keys:
-        fact = can_h.get_fact(item)
+        fact = oracle.fact(candidate.contract_address, item)
         facts.append({'id': item,
                       'from': fact[0],
                       'date': datetime.datetime.fromtimestamp(int(fact[1])),
@@ -166,42 +133,8 @@ def check_fact(f_id):
 
 @register.filter(name='is_fact_verify')
 def is_fact_verify(address, f_id):
-    can_h = CandidateHandler(settings.WEB_ETH_COINBASE, address)
-    fact = can_h.get_fact(f_id)
-    fact_from = fact[0]
-    fact_object = json.loads(fact[2])
-    return fact_from.casefold() == settings.WEB_ETH_COINBASE.casefold() and fact_object[
-        'from'].casefold() == settings.VERA_ORACLE_CONTRACT_ADDRESS.casefold() or check_fact(f_id)
-
-
-@register.filter(name='can_spend')
-def can_spend(vacancy):
-    coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-    vac_h = VacancyHandler(settings.WEB_ETH_COINBASE, vacancy.contract_address)
-    interview_fee = vac_h.interview_fee()
-    employer_balance = coin_h.balanceOf(vacancy.employer.contract_address)
-    allowance = coin_h.allowance(vacancy.employer.contract_address, vacancy.contract_address)
-    return allowance >= interview_fee and employer_balance >= interview_fee
-
-
-@register.filter(name='get_wait_candidates_count')
-def get_candidates_count(vacancy_address):
-    vac_h = VacancyHandler(settings.WEB_ETH_COINBASE, vacancy_address)
-    wait_count = accepted_count = revoked_count = paid_count = 0
-    for item in vac_h.candidates():
-        state = vac_h.get_candidate_state(item)
-        if state == 'wait':
-            wait_count += 1
-        elif state == 'accepted':
-            accepted_count += 1
-        elif state == 'revoked':
-            revoked_count += 1
-        elif state == 'paid':
-            paid_count += 1
-    return {'wait': wait_count,
-            'accepted': accepted_count,
-            'revoked': revoked_count,
-            'paid': paid_count}
+    # TODO change for oracle
+    return False
 
 
 @register.filter(name='parse_addresses')
@@ -257,22 +190,15 @@ def get_url_without(get_list, item=None):
 
 @register.filter(name='is_oracle_agent')
 def is_oracle_agent(candidate):
-    if not candidate.contract_address:
-        return False
-    can_h = CandidateHandler(settings.WEB_ETH_COINBASE, candidate.contract_address)
-    return can_h.is_agent(settings.WEB_ETH_COINBASE)
+    # TODO change this
+    oracle = OracleHandler()
+    return oracle.is_owner(candidate.contract_address)
 
 
 @register.filter(name='get_blockies_png')
 def get_blockies_png(address):
     data = blockies.create(address.lower(), size=8, scale=16)
     return blockies.png_to_data_uri(data)
-
-
-@register.filter(name='show_me')
-def show_me(a):
-    print(a.data)
-    return ''
 
 
 @register.filter(name='offers_count')
@@ -283,3 +209,8 @@ def offers_count(candidate):
 @register.simple_tag
 def net_url():
     return settings.NET_URL
+
+
+@register.filter(name='approve_pending')
+def approve_pending(user_id):
+    return Transaction.objects.filter(user_id=user_id, txn_type='tokenApprove').exists()

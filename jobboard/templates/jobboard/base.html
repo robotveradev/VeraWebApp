@@ -13,9 +13,13 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-<nav class="uk-navbar-container" uk-navbar uk-sticky>
+<nav class="uk-navbar-container">
     <div class="uk-navbar-left">
         <a class="uk-navbar-item uk-logo" href="{% url 'index' %}">Vera Oracle</a>
+    </div>
+</nav>
+<nav class="uk-navbar-container" uk-navbar uk-sticky>
+    <div class="uk-navbar-left">
         {% with request.role as role %}
             <ul class="uk-navbar-nav">
                 <li>
@@ -74,7 +78,7 @@
 
             {% if user.is_authenticated %}
                 <li>
-                    <a href="{% url 'account_logout' %}">Logout ({{ user }})</a>
+                    <a href="{% url 'account_logout' %}">Logout&nbsp;({{ user }})</a>
                 </li>
             {% else %}
                 <li>

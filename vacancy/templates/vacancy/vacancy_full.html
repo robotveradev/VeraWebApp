@@ -1,63 +1,52 @@
 {% extends 'jobboard/base.html' %}
 
-{% load jobboard_tags %}
+{% load jobboard_tags pipeline_tags static %}
 
 {% block head_title %}Vera Oracle - Vacancy {{ vacancy.title }}{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pipeline.css' %}">
+{% endblock %}
+
 {% block content %}
-    <div class="uk-container uk-align-center">
-        <h4>{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.employer.organization|title }}</small></span>
+    <div class="uk-container uk-align-center uk-offcanvas-content">
+        {% include 'jobboard/include/messages.html' %}
+        <h4>{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.employer.organization|title }}</small>
+            {% if vacancy.employer == request.role_object %}
+                <a href="{% url 'vacancy_edit' pk=vacancy.id %}" uk-icon="file-edit"></a>
+            {% endif %}
+        </span>
         </h4>
         {% if request.role_object == vacancy.employer %}
-            {% if vacancy.contract_address is not None %}
-                {% with vacancy.enabled as en %}
-                    <div class="uk-align-right">
-                        {% if en != None %}
-                            <a class="uk-button-text uk-button uk-text-capitalize"
-                               href="{% url 'change_vacancy_status' pk=vacancy.id %}">
-                                {% if en is True %}
-                                    Disable contract
-                                {% elif en is False %}
-                                    Enable contract
-                                {% endif %}
-                            </a>
-                        {% else %}
-                            <div uk-spinner="ratio: 0.7"></div>
-                        {% endif %}
-                    </div>
-                {% endwith %}
-            {% endif %}
+            {% with vacancy.enabled as en %}
+                <div class="uk-align-right">
+                    {% if en != None %}
+                        <a class="uk-button-text uk-button uk-text-capitalize"
+                           href="{% url 'change_vacancy_status' pk=vacancy.id %}">
+                            {% if en is True %}
+                                Disable vacancy
+                            {% elif en is False %}
+                                Enable vacancy
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <div uk-spinner="ratio: 0.4"></div>
+                    {% endif %}
+                </div>
+            {% endwith %}
         {% endif %}
         <section>
             <span class="uk-text-lead">Contract info</span>
             <div>
-                {% with vacancy.contract_address as address %}
-                    Vacancy contract address:
-                    {% if vacancy.contract_address is not None %}
-                        <img style="width: 16px; height: 16px;" src="{{ address|get_blockies_png }}"
-                             alt="">
-                        <a class="uk-button uk-button-text" target="_blank"
-                           href="{% net_url %}address/{{ address }}">{{ address }}</a>
-                    {% else %}
-                        <div uk-spinner="ratio: 0.7"></div>
-                    {% endif %}
-                {% endwith %}
-            </div>
-            <div>
-                Interview fee:
-                {% if vacancy.contract_address %}
-                    {{ vacancy.id|get_interview_fee }} Vera
-                {% else %}
-                    <div uk-spinner="ratio: 0.7"></div>
-                {% endif %}
+                Vacancy uuid: {{ vacancy.uuid }}
             </div>
             {% if vacancy.employer.user == request.user %}
                 <div>
                     Allowance:
-                    {% if vacancy.contract_address %}
+                    {% if vacancy.published %}
                         {{ vacancy.id|allowance_rest }} Vera
                     {% else %}
-                        <div uk-spinner="ratio: 0.7"></div>
+                        <div uk-spinner="ratio: 0.4"></div>
                     {% endif %}
                 </div>
             {% endif %}
@@ -67,7 +56,7 @@
             <span class="uk-text-lead">General vacancy info</span>
             <div>
                 Organization:
-                <a class="uk-button uk-button-text"
+                <a class=" red-text"
                    href="{% url 'employer_about' pk=vacancy.employer.id %}">{{ vacancy.employer.organization }}</a>
             </div>
             <div>
@@ -137,47 +126,12 @@
                 <div class="chip grey lighten-3">{{ item }}</div>
             {% endfor %}
         </section>
-        {% if request.role == 'candidate' and vacancy.contract_address and request.role_object.cvs.all %}
-            {% with request.role_object|is_can_subscribe:vacancy as can_subscribe %}
-                <a {% if not can_subscribe.0 %}uk-tooltip="{{ can_subscribe.1 }}"{% endif %}
-                   {% if can_subscribe.0 %}href="#subscribe" uk-toggle{% endif %}
-                   class="uk-toggle uk-button uk-button-primary uk-button-small uk-align-right">
-                    Subscribe to interview
-                </a>
-                <div id="subscribe" uk-modal>
-                    <div class="uk-modal-dialog" uk-overflow-auto>
-                        <button class="uk-modal-close-default" type="button" uk-close></button>
-                        <div class="uk-modal-header">
-                            <h2 class="uk-modal-title">{{ vacancy.title }}</h2>
-                        </div>
-                        <div>
-                            {% for cv in request.role_object.cvs.all %}
-                                {% include 'cv/include/cv.html' with selectable=True can_sub=can_subscribe %}
-                            {% endfor %}
-                        </div>
-                        <div class="uk-modal-footer uk-text-right">
-                            <button class="uk-button uk-button-default uk-modal-close uk-button-smal" type="button">
-                                Cancel
-                            </button>
-                            <a href="{% url 'new_cv' %}" class="uk-button uk-button-primary uk-button-smal"
-                               type="button">Add new CV</a>
-                        </div>
-                    </div>
-                </div>
-            {% endwith %}
+        <br>
+        {% if request.role_object == vacancy.employer %}
+            {% vacancy_employer_pipeline vacancy %}
+        {% elif request.role == 'candidate' %}
+            {% vacancy_candidate_pipeline vacancy request.role_object %}
         {% endif %}
 
-        {% if vacancy.employer == request.role_object %}
-            <div class="uk-align-right">
-                <a href="{% url 'vacancy_edit' pk=vacancy.id %}"
-                   class="uk-button uk-button-default uk-button-small">Edit</a>
-                <a href="{% url 'vacancy_exam' vacancy_id=vacancy.id %}"
-                   class="uk-button uk-button-primary uk-button-small">Exam</a>
-            </div>
-            <div class="uk-clearfix"></div>
-            {% if vacancy.contract_address %}
-                {% get_candidates vacancy %}
-            {% endif %}
-        {% endif %}
     </div>
 {% endblock %}

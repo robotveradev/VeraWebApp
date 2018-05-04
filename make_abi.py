@@ -14,6 +14,3 @@ with open('jobboard/handlers/employer_abi.json', 'w') as oracle_abi:
 
 with open('jobboard/handlers/candidate_abi.json', 'w') as oracle_abi:
     oracle_abi.write(json.dumps(compile_sol['<stdin>:Candidate']['abi']))
-
-with open('jobboard/handlers/vacancy_abi.json', 'w') as oracle_abi:
-    oracle_abi.write(json.dumps(compile_sol['<stdin>:Vacancy']['abi']))

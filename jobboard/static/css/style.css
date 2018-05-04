@@ -12,7 +12,6 @@ body {
     padding: 10px;
 }
 
-
 a.uk-button {
     text-transform: capitalize;
 }
@@ -22,3 +21,11 @@ a.uk-button {
     border-radius: 3px;
 }
 
+.uk-alert-error {
+    background: #fef4f6;
+    color: #f0506e
+}
+
+.uk-navbar-item, .uk-navbar-nav>li>a, .uk-navbar-toggle {
+    height: 40px;
+}

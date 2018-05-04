@@ -1,6 +1,6 @@
 {% extends 'jobboard/base.html' %}
 
-{% load static %}
+{% load static pipeline_tags %}
 
 {% block head_title %}{{ vacancy.title }} pipeline {% endblock %}
 
@@ -23,12 +23,13 @@
                     href="#increase" uk-toggle>Increase.</a></p>
             <br/>
         </div>
-        <form method="post">
+        <form method="post" id="pipeline_form">
             {% csrf_token %}
             <ul id="pipeline-constructor"
                 class="uk-grid-small uk-child-width-1-6@l uk-child-width-1-4@m uk-child-width-1-2@s"
                 uk-sortable="handle: .uk-sortable-handle" uk-grid>
-                {% for i in "x"|rjust:'9' %}
+
+                {% for i in 6|pipeline_max_length %}
                     <li class="uk-padding-remove">
                         <div class="uk-border uk-margin-right">
                             <div class="uk-card uk-padding-small">
@@ -54,7 +55,9 @@
                     </li>
                 {% endfor %}
             </ul>
-            <button id="process_form" class="uk-button uk-button-small uk-button-primary uk-align-right">Continue
+            <br/>
+            <button id="pipeline_form_submit" type="submit"
+                    class="uk-button uk-button-small uk-button-primary uk-align-right">Continue
             </button>
         </form>
     </div>
@@ -64,7 +67,8 @@
             <div class="uk-modal-header">
                 <h2 class="uk-modal-title">Increase total amount</h2>
             </div>
-            <form method="post" action="{% url 'update_allowed' pk=vacancy.id  %}" class="uk-form-horizontal">
+            <form id="increase_allowed_form" method="post" action="{% url 'update_allowed' pk=vacancy.id %}"
+                  class="uk-form-horizontal">
                 <div class="uk-modal-body">
                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid consectetur cum doloremque
                         dolorum
@@ -80,7 +84,7 @@
                 </div>
                 <div class="uk-modal-footer uk-text-right">
                     <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                    <button class="uk-button uk-button-primary" type="button">Save</button>
+                    <button class="uk-button uk-button-primary" type="submit">Save</button>
                 </div>
             </form>
         </div>

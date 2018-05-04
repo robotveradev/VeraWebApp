@@ -13,7 +13,10 @@ class Pipeline(models.Model):
 
 class ActionType(models.Model):
     title = models.CharField(max_length=64)
-    condition_of_passage = models.CharField(max_length=255)
+    condition_of_passage = models.CharField(max_length=255,
+                                            null=True,
+                                            blank=True,
+                                            default=None)
     fee = models.BooleanField(default=False)
 
 
@@ -26,9 +29,11 @@ class Action(models.Model):
                              on_delete=models.SET_NULL,
                              null=True,
                              related_name='actions')
+    sort = models.SmallIntegerField(default=0)
 
     def __str__(self):
-        return '{}: {}'.format(self.pipeline.vacancy.title, self.type.title)
+        return '{}: {}'.format(self.pipeline.vacancy.title if self.pipeline and self.pipeline.vacancy else '',
+                               self.type.title)
 
 
 class CandidateAction(models.Model):
