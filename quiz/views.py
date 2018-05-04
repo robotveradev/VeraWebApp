@@ -1,52 +1,49 @@
-import time
-from django.conf import settings
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.contrib import messages
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
-from django.views.generic import TemplateView, CreateView, DetailView, ListView, UpdateView, RedirectView
+from django.views.generic import TemplateView, CreateView, DetailView, ListView, UpdateView
 from django.views.generic.edit import BaseUpdateView
-from jobboard.tasks import save_txn_to_history, save_txn
-from jobboard.handlers.candidate import CandidateHandler
-from jobboard.handlers.oracle import OracleHandler
-from jobboard.handlers.vacancy import VacancyHandler
-from jobboard.models import Employer
+
+from cv.models import CurriculumVitae
+from jobboard.mixins import OnlyEmployerMixin
+from pipeline.models import Action
 from quiz.forms import CategoryForm
-from vacancy.models import Vacancy
-from quiz.models import VacancyExam, Category, Question, Answer, QuestionKind, ExamPassing, AnswerForVerification
+from quiz.models import ActionExam, Category, Question, Answer, QuestionKind, ExamPassed, AnswerForVerification
 
 
-class VacancyExamView(ListView):
-    template_name = 'quiz/vacancy_exams.html'
+class ActionExamView(OnlyEmployerMixin, ListView):
+    template_name = 'quiz/action_exams.html'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.vacancy = None
+        self.action = None
 
     def dispatch(self, request, *args, **kwargs):
-        if not isinstance(request.role_object, Employer):
-            raise Http404
-        self.vacancy = get_object_or_404(Vacancy, id=kwargs.get('vacancy_id'), employer=request.role_object)
+        self.action = get_object_or_404(Action,
+                                        id=kwargs.get('pk'),
+                                        pipeline__vacancy__employer=request.role_object)
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.vacancy.tests.first()
+        return self.action.exam.first()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['vacancy'] = self.vacancy
+        context['action'] = self.action
         return context
 
 
-class VacancyAddQuestionsView(ListView):
+class ActionAddQuestionsView(ListView):
     template_name = 'quiz/add_exam.html'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.vacancy = None
+        self.action = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.vacancy = get_object_or_404(Vacancy, id=kwargs.get('vacancy_id'))
+        self.action = get_object_or_404(Action, id=kwargs.get('pk'))
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -54,23 +51,27 @@ class VacancyAddQuestionsView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['vacancy'] = self.vacancy
+        context['action'] = self.action
         context['selected'] = self.get_seleted_exam_questions()
         return context
 
     def get_seleted_exam_questions(self):
-        exam = VacancyExam.objects.filter(vacancy=self.vacancy).first()
+        exam = self.action.exam.first()
         if exam is not None:
             return [qe.id for qe in exam.questions.all()]
         return []
 
     def post(self, request, *args, **kwargs):
-        vacancy = get_object_or_404(Vacancy, employer=request.role_object, id=request.POST.get('vacancy'))
+        action = get_object_or_404(Action, pipeline__vacancy__employer=request.role_object,
+                                   id=request.POST.get('action'))
         question_ids = request.POST.getlist('questions')
-        vacancy_exam, _ = VacancyExam.objects.get_or_create(vacancy=vacancy)
-        vacancy_exam.questions.set(Question.objects.filter(id__in=question_ids))
-        vacancy_exam.save()
-        return redirect('vacancy_exam', vacancy_id=vacancy.id)
+        if question_ids:
+            action_exam, _ = ActionExam.objects.get_or_create(action=action)
+            action_exam.questions.set(Question.objects.filter(id__in=question_ids))
+            action_exam.save()
+        else:
+            messages.error(request, 'You cannot delete all questions from exam.')
+        return redirect('action_exam', pk=action.id)
 
 
 class CandidateExaminingView(TemplateView):
@@ -78,49 +79,43 @@ class CandidateExaminingView(TemplateView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.vacancy = None
+        self.action_exam = None
+        self.cv = None
+        self.request = None
         self.already_pass_exam = False
-
-    def get(self, request, *args, **kwargs):
-        res = self.check_request(**kwargs)
-        return res if res else super().get(self, request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.already_pass_exam:
-            context['exam_passed'] = ExamPassing.objects.filter(exam__vacancy=self.vacancy,
-                                                                candidate=self.request.role_object).first()
+            context['exam_passed'] = ExamPassed.objects.filter(cv=self.cv,
+                                                               exam=self.action_exam).first()
         else:
-            context['exam'] = VacancyExam.objects.filter(vacancy=self.vacancy).first()
-        context['vacancy'] = self.vacancy
+            context['cv'] = self.cv
+            context['exam'] = self.action_exam
+        context['action'] = self.action_exam.action
         return context
 
-    def check_request(self, **kwargs):
-        vac = kwargs.get('vacancy_id', None)
-        self.vacancy = Vacancy.objects.get(id=vac) if vac is not None else None
-        if self.vacancy and self.vacancy.contract_address:
-            return self.check_candidate()
-        else:
-            raise Http404
+    def get(self, request, *args, **kwargs):
+        self.cv = get_object_or_404(CurriculumVitae, pk=kwargs.get('cv_id'))
+        self.action_exam = get_object_or_404(ActionExam, pk=kwargs.get('pk'))
+        self.check_candidate()
+        return super().get(self, request, *args, **kwargs)
 
     def check_candidate(self):
-        vac_h = VacancyHandler(settings.WEB_ETH_COINBASE, self.vacancy.contract_address)
-        if ExamPassing.objects.filter(candidate=self.request.role_object, exam__vacancy=self.vacancy).count() > 0:
-            self.already_pass_exam = True
-        state = vac_h.get_candidate_state(self.request.role_object.contract_address)
-        if state != 'accepted':
-            return HttpResponse(status=403)
+        self.already_pass_exam = ExamPassed.objects.filter(cv=self.cv,
+                                                           exam=self.action_exam).exists()
 
     def post(self, request, *args, **kwargs):
         self.process_request(request)
-        return HttpResponseRedirect(reverse('profile'))
+        return HttpResponseRedirect(
+            reverse('candidate_examining', kwargs={'pk': self.action_exam.pk, 'cv_id': self.cv.id}))
 
-    @staticmethod
-    def process_request(request):
-        exam = get_object_or_404(VacancyExam, pk=request.POST.get('exam_id', None))
+    def process_request(self, request):
+        self.action_exam = get_object_or_404(ActionExam, pk=request.POST.get('exam_id', None))
+        self.cv = get_object_or_404(CurriculumVitae, pk=request.POST.get('cv_id', None))
         answers = {key: value[0] if len(value) == 1 else value for key, value in dict(request.POST).items() if
                    key.startswith('question_') and value[0] != ''}
-        ExamPassing.objects.create(candidate=request.role_object, exam=exam, answers=answers)
+        ExamPassed.objects.create(cv=self.cv, exam=self.action_exam, answers=answers)
 
 
 class QuizIndexPage(TemplateView):
@@ -253,7 +248,7 @@ class QuestionUpdateKindView(UpdateView):
 
 
 class ExamUpdateGradeView(BaseUpdateView):
-    model = VacancyExam
+    model = ActionExam
     fields = ['passing_grade', ]
 
     def __init__(self, **kwargs):
@@ -282,61 +277,5 @@ class ProcessAnswerView(View):
         return HttpResponse('ok', status=200)
 
 
-class PayToCandidateView(RedirectView):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.candidate = None
-        self.vacancy = None
-        self.vacancy_handler = None
-        self.exam = None
-
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse('profile')
-
-    def dispatch(self, request, *args, **kwargs):
-        self.candidate = request.role_object
-        self.vacancy = get_object_or_404(Vacancy, id=kwargs.get('vacancy_id', None))
-        self.exam = VacancyExam.objects.filter(vacancy=self.vacancy).first()
-        return self.check_vacancy_enabled(request, *args, **kwargs)
-
-    def check_vacancy_enabled(self, request, *args, **kwargs):
-        if not self.vacancy.enabled:
-            return HttpResponse(status=403)
-        else:
-            self.vacancy_handler = VacancyHandler(settings.WEB_ETH_COINBASE, self.vacancy.contract_address)
-        return self.check_the_candidate(request, *args, **kwargs)
-
-    def check_the_candidate(self, request, *args, **kwargs):
-        state = self.vacancy_handler.get_candidate_state(self.candidate.contract_address)
-        if state != 'accepted':
-            return HttpResponse(status=403)
-        return self.check_candidate_exam_passing(request, *args, **kwargs)
-
-    def check_candidate_exam_passing(self, request, *args, **kwargs):
-        exam_passing = ExamPassing.objects.get(exam=self.exam, candidate=self.candidate)
-        if exam_passing.points < self.exam.passing_grade:
-            return HttpResponse(status=403)
-        return self.pay_to_candidate(request, *args, **kwargs)
-
-    def pay_to_candidate(self, request, *args, **kwargs):
-        oracle_h = OracleHandler()
-        txn_hash = oracle_h.pay_to_candidate(self.vacancy.employer.contract_address,
-                                             self.candidate.contract_address,
-                                             self.vacancy.contract_address)
-        save_txn_to_history.delay(self.vacancy.employer.user_id, txn_hash,
-                                  'Pay to candidate {} from vacancy {}'.format(self.candidate.contract_address,
-                                                                               self.vacancy.contract_address))
-        save_txn_to_history.delay(self.candidate.user_id, txn_hash,
-                                  'Pay interview fee from vacancy {}'.format(self.vacancy.contract_address))
-        can_h = CandidateHandler(settings.WEB_ETH_COINBASE,
-                                 self.candidate.contract_address)
-        fact = {'from': settings.VERA_ORACLE_CONTRACT_ADDRESS,
-                'type': 'vac_pass',
-                'title': 'Test for vacancy "{}" passed.'.format(self.vacancy.title),
-                'date': time.time(),
-                'employer': self.vacancy.employer.organization}
-        fact_txn_hash = can_h.new_fact(fact)
-        save_txn_to_history.delay(self.candidate.user_id, fact_txn_hash,
-                                  'New fact from {}'.format(self.vacancy.employer.organization))
-        return super().dispatch(request, *args, **kwargs)
+class ExamResultsView(DetailView):
+    model = ExamPassed

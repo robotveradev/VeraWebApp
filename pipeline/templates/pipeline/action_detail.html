@@ -1,0 +1,102 @@
+{% extends 'jobboard/base.html' %}
+
+{% load pipeline_tags jobboard_tags %}
+
+{% block head_title %}Vera Oracle - Action details{% endblock %}
+
+{% block content %}
+    <div class="uk-container uk-align-center">
+        <h4>Action for vacancy {{ vacancy.title|title }} details</h4>
+
+        <ul class="uk-list uk-list-bullet">
+            <li>Type: {{ action.title|title }}</li>
+            <li>Fee: {{ action.fee }}&nbsp;Vera</li>
+            <li>Approvable: {{ action.approvable|yesno|title }}</li>
+        </ul>
+        {% with vacancy.uuid|cvs_on_vacancy_per_stage as cvs %}
+            {% with cvs|get_item:action.id as cvs_on_stage %}
+                {% if cvs_on_stage %}
+                    <h5>Cvs at stage</h5>
+                    <table class="uk-table uk-table-small uk-table-striped">
+                        <thead>
+                        <tr>
+                            <th class="uk-width-small">uuid</th>
+                            <th class="uk-width-expand">result</th>
+                            {% if not action.last %}
+                                <th class="uk-width-small"></th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in cvs_on_stage %}
+                            {% with item|cv_by_uuid as cv %}
+                                <tr>
+                                    <td>
+                                        <a class="uk-link-reset"
+                                           href="{{ cv.get_absolute_url }}">{{ cv.title|title }}</a>
+                                    </td>
+                                    <td>
+                                        {% results_with_link action.db_action cv %}
+                                    </td>
+                                    {% if not action.last %}
+                                        <td class="uk-text-right">
+                                            {% with cv.id|employer_answered:vacancy.id as exist_transaction %}
+                                                {% if not exist_transaction %}
+                                                    <a href="{% url 'employer_approve_action' vacancy_id=vacancy.id cv_id=cv.id %}"
+                                                       class="uk-button uk-button-small uk-button-primary">Approve</a>
+                                                    <a href="{% url 'employer_revoke' vacancy_id=vacancy.id cv_id=cv.id %}"
+                                                       class="uk-button uk-button-small uk-button-default">Revoke</a>
+                                                {% else %}
+                                                    <div uk-spinner="ratio: 0.4"></div>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endwith %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="uk-alert-primary" uk-alert>
+                        <a class="uk-alert-close" uk-close></a>
+                        <p>No candidates at this stage</p>
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% with cvs|get_passed_cvs_by:action.id as cvs_passed %}
+                {% if cvs_passed %}
+                    <h5>Cvs who passed the stage</h5>
+                    <table class="uk-table uk-table-small uk-table-striped">
+                        <thead>
+                        <tr>
+                            <th class="">uuid</th>
+                            <th class="uk-text-right">result</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in cvs_passed %}
+                            {% with item|cv_by_uuid as cv %}
+                                <tr>
+                                <td>
+                                    <a class="uk-link-reset"
+                                       href="{{ cv.get_absolute_url }}">{{ cv.title|title }}</a>
+                                </td>
+                                <td class="uk-text-right">
+                                    {% results_with_link action.db_action cv %}
+                                </td>
+                            {% endwith %}
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            {% endwith %}
+        {% endwith %}
+        <div class="uk-align-right">
+            <a href="{{ vacancy.get_absolute_url }}" class="uk-button uk-button-default uk-button-small">Back to
+                vacancy</a>
+        </div>
+    </div>
+{% endblock %}

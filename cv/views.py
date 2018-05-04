@@ -1,8 +1,13 @@
+import os
+
+from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, RedirectView, DetailView, CreateView, UpdateView
+from web3 import Web3
+
 from jobboard.mixins import OnlyCandidateMixin
 from statistic.decorators import statistical
 from vacancy.models import VacancyOffer
@@ -47,6 +52,7 @@ class NewCvView(OnlyCandidateMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.candidate = self.request.role_object
+        form.instance.uuid = Web3.toHex(os.urandom(15))
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -116,9 +122,12 @@ class ChangeCvStatusView(OnlyCandidateMixin, RedirectView):
         return reverse('cv', kwargs={'pk': kwargs.get('pk')})
 
     def get(self, request, *args, **kwargs):
-        self.cv = get_object_or_404(CurriculumVitae, pk=kwargs.get('pk'))
-        self.cv.published = not self.cv.published
-        self.cv.save()
+        self.cv = get_object_or_404(CurriculumVitae, pk=kwargs.get('pk'), candidate=request.role_object)
+        if not self.cv.position:
+            messages.error(request, 'You cannot enable Curriculum Vitae without position.')
+        else:
+            self.cv.enabled = not self.cv.enabled
+            self.cv.save()
         return super().get(request, *args, **kwargs)
 
 

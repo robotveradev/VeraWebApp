@@ -1,0 +1,47 @@
+{% extends 'jobboard/base.html' %}
+
+{% load quiz_tags i18n %}
+
+{% block head_title %} VeraOracle - Vacancy exam {% endblock %}
+
+{% block content %}
+    <div class="uk-container uk-align-center">
+        <h4>{% trans 'Action exam for vacancy' %} "{{ action.pipeline.vacancy.title | truncatewords:'4' }}"</h4>
+        {% include 'jobboard/include/messages.html' %}
+        <input type="hidden" name="e_id" value="{{ object_list.pk }}">
+        {% csrf_token %}
+        {% with object_list.questions.all as question_list %}
+            {% regroup question_list by category as question_list %}
+            {% if question_list %}
+                Max points: <span class="uk-text-muted">{{ object_list.max_points }}</span>, passing grade:
+                <span class="uk-text-muted"
+                      id="passing_grade">{{ object_list.passing_grade }}</span>
+                <div class="uk-margin">
+                    <input class="uk-range" type="range" value="{{ object_list.passing_grade }}" min="0"
+                           max="{{ object_list.max_points }}" step="1">
+                </div>
+                {% for item in question_list %}
+                    <h4>{{ item.grouper }}</h4>
+                    <ul class="uk-list uk-list-divider uk-margin-left">
+                        {% for question in item.list %}
+                            <li>{{ question.question_text }}
+                                <small class="uk-text-muted">{{ question.answers.all|get_right|join:', ' }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            {% else %}
+                <p>{% trans 'Action does not have exam yet' %}</p>
+            {% endif %}
+        {% endwith %}
+        <br>
+        <div class="uk-align-right">
+            <a class="uk-button uk-button-default uk-button-small"
+               href="{% url 'vacancy' pk=action.pipeline.vacancy.id %}">Back to vacancy</a>
+            <a href="{% url 'action_exam_new' pk=action.id %}"
+               class="uk-button uk-button-primary uk-button-small">
+                {% trans 'Add question' %}
+            </a>
+        </div>
+    </div>
+{% endblock %}

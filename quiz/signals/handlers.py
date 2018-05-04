@@ -1,14 +1,23 @@
 from django.db.models.signals import post_save, pre_save, m2m_changed
 from django.dispatch import receiver
-from quiz.models import ExamPassing, AnswerForVerification, VacancyExam
+
+from jobboard.handlers.new_oracle import OracleHandler
+from jobboard.tasks import save_txn_to_history
+from quiz.models import ExamPassed, AnswerForVerification, ActionExam
 from quiz.tasks import ProcessExam, VerifyAnswer
 
 
-@receiver(post_save, sender=ExamPassing)
+@receiver(post_save, sender=ExamPassed)
 def candidate_pass_exam(sender, instance, created, **kwargs):
     if created:
         pr = ProcessExam()
         pr.delay(instance.id)
+    else:
+        if instance.processed and instance.points >= instance.exam.passing_grade:
+            oracle = OracleHandler()
+            txn_hash = oracle.level_up(instance.exam.action.pipeline.vacancy.uuid, instance.cv.uuid)
+            save_txn_to_history.delay(instance.cv.candidate.user.id, txn_hash,
+                                      'Level up on vacancy {}'.format(instance.exam.action.pipeline.vacancy.title))
 
 
 @receiver(pre_save, sender=AnswerForVerification)
@@ -24,7 +33,7 @@ def process_verification(sender, instance, created, **kwargs):
         va.delay(instance.id)
 
 
-@receiver(m2m_changed, sender=VacancyExam.questions.through)
+@receiver(m2m_changed, sender=ActionExam.questions.through)
 def recount_points(sender, instance, action, **kwargs):
     if action in ['post_add', 'post_remove', ]:
         max_points = sum([item.max_points for item in instance.questions.all()])

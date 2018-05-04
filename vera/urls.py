@@ -23,11 +23,14 @@ from cv import views as cv_views
 from vacancy import views as vacancy_views
 from quiz import views as quiz_views
 from statistic import views as statistic_views
+from pipeline import views as pipeline_views
 
 basic = [
     path('', TemplateView.as_view(template_name='jobboard/index.html'), name='index'),
+    path('invite/<slug:code>/', jobboard_views.InviteLinkView.as_view(), name='invite_link'),
     path('role/', jobboard_views.ChooseRoleView.as_view(), name='choose_role'),
     path('admin/', admin.site.urls),
+    path('account/signup/', jobboard_views.SignupInviteView.as_view(), name="account_signup"),
     path('account/', include("account.urls")),
     path('job/find/', jobboard_views.FindJobView.as_view(), name='find_job'),
     path('cv/find/', jobboard_views.FindCVView.as_view(), name='find_cv'),
@@ -36,9 +39,11 @@ basic = [
     path('contract/status/change/', jobboard_views.ChangeContractStatus.as_view(), name='change_contract_status'),
     path('transactions/', jobboard_views.TransactionsView.as_view(), name='transactions'),
     path('withdraw/', jobboard_views.withdraw, name='withdraw'),
+    path('approve/', jobboard_views.ApproveTokenView.as_view(), name='approve'),
     path('check_agent/', jobboard_views.check_agent, name='check_agent'),
     path('agent/<slug:action>/', jobboard_views.GrantRevokeAgentView.as_view(), name='grant_agent'),
     path('fact/new/', jobboard_views.NewFactView.as_view(), name='new_fact'),
+    path('interview/', include('interview.urls')),
 ]
 
 candidate_urlpatterns = [
@@ -65,12 +70,13 @@ vacancy_urlpatterns = [
     path('vacancy/new/', vacancy_views.CreateVacancyView.as_view(), name='new_vacancy'),
     path('vacancy/<int:vacancy_id>/offer/<int:cv_id>/', vacancy_views.OfferVacancyView.as_view(),
          name='offer_vacancy'),
-    path('vacancy/<int:vacancy_id>/subscribe/<int:cv_id>/', vacancy_views.subscribe_to_vacancy,
+    path('vacancy/<int:vacancy_id>/subscribe/<int:cv_id>/', vacancy_views.SubscribeToVacancyView.as_view(),
          name='subscribe_to_vacancy'),
     path('vacancy/<int:pk>/', vacancy_views.VacancyView.as_view(), name='vacancy'),
     path('vacancy/<int:pk>/edit/', vacancy_views.VacancyEditView.as_view(), name='vacancy_edit'),
     path('vacancy/<int:pk>/status/change/', vacancy_views.ChangeVacancyStatus.as_view(), name='change_vacancy_status'),
     path('vacancy/all/', vacancy_views.VacanciesListView.as_view(), name='vacancy_all'),
+    path('vacancy/<int:pk>/update_allowed/', vacancy_views.UpdateAllowedView.as_view(), name='update_allowed'),
 ]
 
 quiz_urlpatterns = [
@@ -79,23 +85,37 @@ quiz_urlpatterns = [
     path('quiz/category/new/', quiz_views.NewCategoryView.as_view(), name='new_category'),
     path('quiz/category/<int:category_id>/question/new/', quiz_views.NewQuestionView.as_view(), name='new_question'),
     path('quiz/question/<int:question_id>/answer/new/', quiz_views.NewAnswerView.as_view(), name='new_answer'),
-    path('quiz/<int:vacancy_id>/exam/', quiz_views.CandidateExaminingView.as_view(), name='candidate_examining'),
-    path('quiz/vacancy/<int:vacancy_id>/exams/', quiz_views.VacancyExamView.as_view(), name='vacancy_exam'),
-    path('quiz/<int:vacancy_id>/questions/add/', quiz_views.VacancyAddQuestionsView.as_view(), name='vacancy_exam_new'),
+    path('quiz/<int:pk>/exam/<int:cv_id>', quiz_views.CandidateExaminingView.as_view(), name='candidate_examining'),
+    path('quiz/<int:pk>/questions/add/', quiz_views.ActionAddQuestionsView.as_view(), name='action_exam_new'),
     path('quiz/<int:pk>/update/kind/', quiz_views.QuestionUpdateKindView.as_view(), name='update_question_kind'),
     path('quiz/exam/<int:pk>/update/grade/', quiz_views.ExamUpdateGradeView.as_view(), name='exam_update_grade'),
     path('quiz/process/answer/', quiz_views.ProcessAnswerView.as_view(), name='process_answer'),
-    path('quiz/candidate/pay/<int:vacancy_id>/', quiz_views.PayToCandidateView.as_view(), name='pay_to_candidate'),
+    # path('quiz/candidate/pay/<int:vacancy_id>/', quiz_views.PayToCandidateView.as_view(), name='pay_to_candidate'),
+    path('quiz/action/<int:pk>/exam/', quiz_views.ActionExamView.as_view(), name='action_exam'),
+    path('quiz/exam/<int:pk>/result/', quiz_views.ExamResultsView.as_view(), name='exam_results'),
 ]
 
 employer_urlpatterns = [
     path('employer/<int:pk>/about/', jobboard_views.EmployerAboutView.as_view(), name='employer_about'),
-    path('candidate/access/', jobboard_views.GrantRevokeCandidate.as_view(), name='access_candidate'),
 ]
 
 statistic_urlpatterns = [
     path('vacancy/<int:pk>/statistic/', statistic_views.StatisticView.as_view(), name='vacancystatistic'),
     path('cv/<int:pk>/statistic/', statistic_views.StatisticView.as_view(), name='cvstatistic'),
+]
+
+pipeline_urlpatterns = [
+    path('vacancy/<int:pk>/pipeline/', pipeline_views.PipelineConstructorView.as_view(), name='pipeline_constructor'),
+    path('vacancy/<int:vacancy_id>/approve/<int:cv_id>/', pipeline_views.ApproveActionEmployerView.as_view(),
+         name='employer_approve_action'),
+    path('vacancy/<int:vacancy_id>/revoke/<int:cv_id>/', pipeline_views.RevokeCvEmployerView.as_view(),
+         name='employer_revoke'),
+    path('vacancy/<int:pk>/action/<int:action_id>/details/', pipeline_views.ActionDetailView.as_view(),
+         name='action_details'),
+]
+
+interview_urlpatterns = [
+    # path('interview/', TemplateView.as_view(template_name='interview/interview_page.html')),
 ]
 
 urlpatterns = basic + \
@@ -105,4 +125,6 @@ urlpatterns = basic + \
               curriculum_vitae_urlpatterns + \
               employer_urlpatterns + \
               statistic_urlpatterns + \
+              pipeline_urlpatterns + \
+              interview_urlpatterns + \
               static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

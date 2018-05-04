@@ -1,0 +1,16 @@
+<div class="uk-inline action
+        {% if current is not None %}{% if item.id <= current %} green lighten-5{% endif %}{% endif %}">
+    {% if current is not None %}
+        {% if item.id == current %}
+            <div class="overlay pulse pulse-green"></div>
+        {% endif %}
+    {% endif %}
+    <span class="uk-position-center">
+        {{ item.title }}
+        <div class="action-badge">
+            {% if item.fee > 0 %}
+                <span class="green">{{ item.fee }}&nbsp;Vera</span>
+            {% endif %}
+        </div>
+    </span>
+</div>

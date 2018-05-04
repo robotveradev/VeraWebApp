@@ -1,0 +1,88 @@
+{% load pipeline_tags jobboard_tags %}
+
+{% if pipeline %}
+    {% with vacancy.uuid|cvs_on_vacancy_per_stage as cvs %}
+        <div uk-grid>
+            <div class="{% if pipeline|length > 5 %}uk-width-5-6{% else %}uk-align-center{% endif %}">
+                {% with pipeline|resort_pipeline as actions %}
+                    <div class="uk-flex uk-flex-center uk-flex-right actions">
+                        {% for item in actions.0 %}
+                            {% with item|check_action:vacancy as item_checked %}
+                                {% include 'pipeline/action.html' %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                    <div style="padding-top: 60px" class="uk-flex uk-flex-center uk-flex-right actions">
+                        {% for item in actions.1 %}
+                            {% with item|check_action:vacancy as item_checked %}
+                                {% include 'pipeline/action.html' %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                {% endwith %}
+            </div>
+            {% if pipeline|length > 5 %}
+                <div class="uk-width-1-6 uk-padding-remove-left" style="padding-top: 37px">
+                    <div class="transference"></div>
+                </div>
+            {% endif %}
+        </div>
+
+        {% for item in pipeline %}
+
+            <div id="offcanvas-push{{ item.id }}" uk-offcanvas="overlay: true">
+                <div class="uk-offcanvas-bar">
+
+                    <button class="uk-offcanvas-close" type="button" uk-close></button>
+                    <h3>Action info</h3>
+                    <p>
+                        {{ item.title|title }}{% if item.fee > 0 %}, fee: {{ item.fee }} Vera{% endif %}
+                        {% if item.approvable %}, approvable{% endif %}
+                    </p>
+                    {% if vacancy.enabled %}
+                        {% with cvs|get_item:item.id|length as count %}
+                            <p>Now at stage: {{ count }} candidate{{ count|pluralize }}.</p>
+                        {% endwith %}
+                    {% endif %}
+                    <div>
+                        {% if item.title|lower == 'exam' %}
+                            <a class="uk-button uk-button-default uk-button-small"
+                               href="{% url 'action_exam' pk=item.db_action.id %}">Exam</a>
+                        {% elif item.title|lower == 'interview' %}
+                            {% get_interview item.db_action %}
+                        {% endif %}
+                        <a class="uk-button uk-button-primary uk-button-small"
+                           href="{% url 'action_details' pk=vacancy.id action_id=item.id %}">Detail view</a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="action{{ item.id }}" uk-modal>
+                <div class="uk-modal-dialog" uk-overflow-auto>
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <div class="uk-modal-header">
+                        <h2 class="uk-modal-title">Action info</h2>
+                    </div>
+                    <div class="uk-modal-body uk-padding-remove">
+                        <div class="uk-padding-small ">
+                            {% if vacancy.enabled %}
+                                {% with cvs|get_item:item.id|length as count %}
+                                    <p>Now at stage: {{ count }} candidate{{ count|pluralize }}.</p>
+                                {% endwith %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="uk-modal-footer uk-text-right">
+                        <a class="uk-button uk-button-default uk-button-small" href="#">Detail view</a>
+                        {% if item.title|lower == 'exam' %}
+                            <a class="uk-button uk-button-default uk-button-small"
+                               href="{% url 'action_exam' pk=item.db_action.id %}">Exam</a>
+                        {% elif item.title|lower == 'interview' %}
+                            {% get_interview item.db_action %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endwith %}
+{% endif %}

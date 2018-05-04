@@ -8,6 +8,7 @@
     {% if cv %}
         <div class="uk-container uk-align-center">
         <h2>CV Full Info</h2>
+        {% include 'jobboard/include/messages.html' %}
         <div uk-grid>
             <div class="uk-width-1-5">
                 <div>
@@ -21,10 +22,10 @@
                 </div>
             </div>
             <div class="uk-width-4-5">
-                {% if request.user == cv.candidate.user %}
+                {% if request.user == cv.candidate.user and cv.published %}
                     <a class="uk-button uk-button-text uk-align-right uk-text-capitalize"
                        href="{% url 'change_cv_status' pk=cv.id %}">
-                        {% if cv.published %}Disable{% else %}Enable{% endif %}
+                        {% if cv.enabled %}Disable{% else %}Enable{% endif %}
                     </a>
                 {% endif %}
                 <div>
@@ -33,6 +34,9 @@
                             <a href="{% url 'cv_edit' pk=cv.id %}" uk-icon="file-edit"></a>
                         {% endif %}
                     </h5>
+                </div>
+                <div>
+                    CV uuid: {{ cv.uuid }}
                 </div>
                 <div>
                     {{ cv.sex|title }}{% if cv.birth_date %}, {{ cv.birth_date|date:'d E Y' }} year of
@@ -153,11 +157,11 @@
                     </div>
                     <div>
                         {% for vac in request.role_object.vacancies.all %}
-                            {% include 'vacancy/vacancy_short.html' with item=vac selectable=True cv_id=cv.id %}
+                            {% include 'vacancy/vacancy_short.html' with item=vac selectable=True cv=cv %}
                         {% endfor %}
                     </div>
                     <div class="uk-modal-footer uk-text-right">
-                        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                        <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">Cancel</button>
                     </div>
                 </div>
             </div>

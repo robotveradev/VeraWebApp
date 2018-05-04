@@ -40,11 +40,13 @@ INSTALLED_APPS = [
     'cv',
     'vacancy',
     'quiz',
+    'interview',
     'account',
     'statistic',
     'material',
     'material.frontend',
     'django_filters',
+    'pipeline',
 ]
 
 SITE_ID = 1
@@ -55,6 +57,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'jobboard.v_middleware.NodeMiddleware',
     'jobboard.v_middleware.RoleMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -151,7 +154,11 @@ VERA_COIN_CONTRACT_ADDRESS = '0xD1d0cb0eC75F005B54984B94bA7EC45857Df81Ea'  # Rin
 
 VERA_COIN_PRESALE_CONTRACT_ADDRESS = '0x11535d665C841b9A067EDbBBDEcD81E091f442f2'  # Rinkeby
 
-VERA_ORACLE_CONTRACT_ADDRESS = '0x7100D6504261F26B660A5AD93eB4544880845693'  # Rinkeby
+# VERA_ORACLE_CONTRACT_ADDRESS = '0x7100D6504261F26B660A5AD93eB4544880845693'  # Rinkeby
+
+# VERA_ORACLE_CONTRACT_ADDRESS = '0x2427e6108ac2972bc0c52f7f271dffc492c2f9ca'  # Rinkeby
+
+VERA_ORACLE_CONTRACT_ADDRESS = '0x43e51d724827b0cd06f294c2dbe038a955ab6223'  # Rinkeby
 
 WEB_ETH_COINBASE = '0x8dC270b448958fEd366E0eDfb28B335Bf84fCA91'  # Rinkeby
 
@@ -164,3 +171,9 @@ LOGIN_URL = '/account/login'
 W2V_API_URL = 'http://52.166.10.44:3000/getvecw2v'
 
 SESSION_SAVE_EVERY_REQUEST = True
+
+CHAT_WS_SERVER_HOST = '192.168.254.240'
+CHAT_WS_SERVER_PORT = 5002
+CHAT_WS_SERVER_PROTOCOL = 'ws'
+
+ACCOUNT_OPEN_SIGNUP = False

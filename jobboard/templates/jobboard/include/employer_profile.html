@@ -32,6 +32,12 @@
             {% get_balance request.role_object.user request.role_object.contract_address %}
         </td>
     </tr>
+    <tr>
+        <td>Approved for oracle:</td>
+        <td>
+            {% oracle_allowance request.role_object.contract_address request.user.id %}
+        </td>
+    </tr>
 </table>
 {% with request.role_object.vacancies_top as vacancies %}
     {% if vacancies %}

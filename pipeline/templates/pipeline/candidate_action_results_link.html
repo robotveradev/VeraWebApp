@@ -1,0 +1,12 @@
+{% if type == 'quiz' %}
+    {% if not_passed %}
+        {{ message }}
+    {% else %}
+        <a target="_blank" class="uk-link-reset" href="{{ url }}">{{ exam_passed.points }}
+            point{{ exam_passed.points|pluralize }}</a>
+    {% endif %}
+{% elif type == 'interview' %}
+    <a target="_blank" class="uk-link-reset" href="{{ url }}">Interview</a>
+{% else %}
+    No results
+{% endif %}

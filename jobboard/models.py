@@ -1,3 +1,6 @@
+import random
+import string
+from account.models import SignupCode
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
@@ -106,3 +109,25 @@ class TransactionHistory(models.Model):
 
     class Meta:
         ordering = ('-created_at',)
+
+
+def random_string():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=32))
+
+
+class InviteCode(models.Model):
+
+    code = models.CharField("code",
+                            default=random_string,
+                            max_length=32,
+                            unique=True)
+    expired = models.BooleanField(default=False)
+    signup_code = models.ForeignKey(SignupCode,
+                                    on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.code
+
+    def expire(self):
+        self.expired = True
+        self.save()

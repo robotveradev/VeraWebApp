@@ -5,6 +5,7 @@
 {% block head_title %}Vera Oracle - User transactions{% endblock %}
 
 {% block content %}
+
     <div class="uk-container uk-align-center">
         <h4>Your transactions</h4>
         <table class="uk-table uk-table-divider uk-table-small">
@@ -19,7 +20,7 @@
             {% for txn in object_list %}
                 <tr>
                     <td><a class="uk-button uk-button-text" target="_blank"
-                           href="{{ net_url }}tx/{{ txn.hash }}">{{ txn.hash|truncatechars:30 }}</a>
+                           href="{% net_url %}tx/{{ txn.hash }}">{{ txn.hash|truncatechars:30 }}</a>
                     </td>
                     <td>{{ txn.action|parse_addresses|safe }}</td>
                     <td class="right">{{ txn.created_at|date:'d E Y, H:i:s, e' }}</td>

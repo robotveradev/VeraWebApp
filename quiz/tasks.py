@@ -1,6 +1,6 @@
 from vera.celery import app
 from celery.app.task import Task
-from quiz.models import ExamPassing, Answer, AnswerForVerification
+from quiz.models import ExamPassed, Answer, AnswerForVerification
 import numpy as np
 import requests
 from sklearn.metrics.pairwise import euclidean_distances
@@ -22,11 +22,11 @@ class ProcessExam(Task):
 
     def run(self, instance_id, *args, **kwargs):
         try:
-            self.instance = ExamPassing.objects.get(pk=instance_id)
-        except ExamPassing.DoesNotExist:
-            # TODO what is DoesNotExist?
+            self.instance = ExamPassed.objects.get(pk=instance_id)
+        except ExamPassed.DoesNotExist:
             pass
         else:
+            self.total_count = 0
             self.handle_exam()
             self.instance.points = self.total_count
             self.instance.processed = True
@@ -57,6 +57,7 @@ class ProcessExam(Task):
             sim = self.w2v_handler.run()
             if sim < min_sim and isinstance(sim, float):
                 w2v_total = (1 - sim) * answer.weight
+                min_sim = sim
         self.total_count += w2v_total * question.weight
 
     def handle_answer(self, weight, qe_weight):
@@ -65,7 +66,6 @@ class ProcessExam(Task):
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         print('Возникла ошибка: {}'.format(exc))
         self.retry()
-        pass
 
 
 class VeraW2V(object):

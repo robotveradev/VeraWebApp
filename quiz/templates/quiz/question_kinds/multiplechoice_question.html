@@ -6,6 +6,14 @@
                 type="radio"
                 name="question_{{ question.id }}"
                 id="answer_{{ answer.id }}"
+                {% if answers %}
+                    {% for answered_id in answers %}
+                        {% if answered_id == answer.id %}
+                checked="checked"
+                        {% endif %}
+                    {% endfor %}
+                disabled
+                {% endif %}
                 value="{{ answer.id }}">
             {{ answer.text }}
         </label>

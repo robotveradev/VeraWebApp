@@ -1,0 +1,39 @@
+{% load jobboard_tags %}
+
+<span>{{ allowance }} Vera</span>
+{% with user_id|approve_pending as pending %}
+    {% if pending %}
+        <span class="amber-text">Pending...<div uk-spinner="ratio: 0.4"></div></span>
+    {% else %}
+        <a class="uk-link-muted" href="#approve-modal" uk-toggle>Approve</a>
+    {% endif %}
+{% endwith %}
+
+<div id="approve-modal" uk-modal>
+    <div class="uk-modal-dialog">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <form action="{% url 'approve' %}" method="post">
+            {% csrf_token %}
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Token approve</h2>
+            </div>
+            <div class="uk-modal-body">
+                <p>Please indicate amount of coins for approve</p>
+                <div class="uk-margin">
+                    <div class="uk-inline uk-display-block">
+                        <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                        <input class="uk-input" type="number" step="0.001" name="approved_amount" maxlength="30"
+                               required
+                               id="approved_amount"
+                               placeholder="Amount, Vera"
+                               autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">Cancel</button>
+                <button class="uk-button uk-button-small uk-button-primary" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>

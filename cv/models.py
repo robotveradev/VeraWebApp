@@ -69,6 +69,7 @@ class CurriculumVitae(models.Model):
     candidate = models.ForeignKey('jobboard.Candidate',
                                   on_delete=models.CASCADE,
                                   related_name='cvs')
+    uuid = models.CharField(max_length=64, blank=False, null=False)
     image = models.ImageField(blank=True, null=True)
     first_name = models.CharField(max_length=50, null=False, blank=False)
     last_name = models.CharField(max_length=50, null=False, blank=False)
@@ -85,9 +86,10 @@ class CurriculumVitae(models.Model):
     education = models.ManyToManyField('Education', blank=True)
     languages = models.ManyToManyField('Languages', blank=True)
     level = models.ForeignKey('EducationLevel', on_delete=models.SET_NULL, null=True, blank=True)
+    published = models.BooleanField(default=False)
+    enabled = models.NullBooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    published = models.BooleanField(default=False)
 
     def __str__(self):
         return 'CurriculumVitae: {} {}'.format(self.first_name, self.last_name)
