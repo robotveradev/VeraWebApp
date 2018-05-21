@@ -1,6 +1,6 @@
 {% load quiz_tags %}
 {% if item %}
-    <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
+    <div data-hint="question" class="uk-box-shadow-small uk-padding-small uk-margin-small">
         {% if item.kind %}
             <div class="uk-align-right amber-text uk-text-small">
                 <span>Max points: <span class="uk-text-muted">{{ item.max_points }}</span></span>

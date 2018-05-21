@@ -1,17 +1,28 @@
 {% extends 'jobboard/base.html' %}
 
+{% load static %}
+
 {% block head_title %} Vera Oracle Quiz {% endblock %}
 
 {% block content %}
-    <div class="uk-container uk-align-center">
-        <h3>Quiz application</h3>
-        {% for category in categories %}
-            {% include 'quiz/include/category.html' with item=category %}
-        {% endfor %}
-    <div class="uk-clearfix">
-
-    </div>
-        <a href="{% url 'new_category' %}" class="uk-button uk-button-default uk-button-small uk-align-right">New
+    {{ block.super }}
+    <div data-hint="quiz_main" class="uk-container uk-align-center">
+        <h3>Quiz</h3>
+        {% if categories %}
+            <div data-hint="categories">
+                {% for category in categories %}
+                    {% include 'quiz/include/category.html' with item=category %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="uk-clearfix">
+        </div>
+        <a data-hint="new_cat" href="{% url 'new_category' %}"
+           class="uk-button uk-button-default uk-button-small uk-align-right">New
             category</a>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/hints/quiz.js' %}"></script>
 {% endblock %}

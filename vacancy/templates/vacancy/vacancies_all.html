@@ -5,8 +5,8 @@
 {% block head_title %}Vera Oracle - Employer all vacancies{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
-        {% include 'jobboard/include/messages.html' %}
         <h4>All vacancies</h4>
         {% for vacancy in object_list %}
             {% include 'vacancy/vacancy_short.html' with item=vacancy desc=True show_info=True editable=True %}

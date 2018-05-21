@@ -5,6 +5,7 @@
 {% block head_title %}VeraOracle - examining...{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <h4>{% trans 'Test for ' %} {{ action.pipeline.vacancy.title|title }}</h4>
         {% if exam %}

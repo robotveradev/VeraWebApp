@@ -1,8 +1,11 @@
 {% extends 'jobboard/base.html' %}
 
+{% load static %}
+
 {% block head_title %}VeraOracle - Help{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <h2>Инструкция</h2>
         <h4>1. Регистрация в Rinkeby Testnet</h4>
@@ -53,4 +56,16 @@
             Если вы соискатель, то вам так же будет создан адрес контракта. Но для просмотра вакансий вам нет
             необходимости приобретать валюту. Пользование сайтом для вас бесплатно.
     </div>
+    <div class="uk-container uk-align-center">
+        <h4>Training</h4>
+    <p class="uk-text-meta">
+        Here you can turn off training on each of the sections of the site, or start learning.
+    </p>
+    <ul id="hints_list" class="uk-list uk-padding uk-padding-remove-top">
+
+    </ul>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static 'js/hints/settings_page.js' %}"></script>
 {% endblock %}

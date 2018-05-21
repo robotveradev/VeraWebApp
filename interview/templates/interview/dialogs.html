@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <input id="interview_id" type="hidden" value="{{ active_dialog.id }}">
     <input id="owner_username" type="hidden" value="{{ request.user.username }}">
     <div class="uk-container uk-align-center">

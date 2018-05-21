@@ -1,6 +1,6 @@
 {% load vacancy_tags %}
-<ul uk-accordion="multiple: true">
-    <li class="uk-open">
+<ul data-hint="filters" uk-accordion="multiple: true">
+    <li data-hint="industries" class="uk-open">
         <a class="uk-accordion-title uk-text-left" href="#">Industry</a>
         <div class="uk-accordion-content">
             <div id="industry">
@@ -42,7 +42,7 @@
         </li>
     {% endif %}
 
-    <li class="uk-open">
+    <li data-hint="keywords" class="uk-open">
         <a class="uk-accordion-title">Keywords</a>
         <div class="uk-accordion-content">
             <div id="keyword">
@@ -66,7 +66,7 @@
             </div>
         </div>
     </li>
-    <li class="uk-open">
+    <li data-hint="salary" class="uk-open">
         <a class="uk-accordion-title">Salary</a>
         <div class="uk-accordion-content">
             <div id="salary">
@@ -90,7 +90,7 @@
             </div>
         </div>
     </li>
-    <li{% if selected_busyness %} class="uk-open"{% endif %}>
+    <li data-hint="busyness" {% if selected_busyness %} class="uk-open"{% endif %}>
         <a class="uk-accordion-title">Busyness
         </a>
         <div class="uk-accordion-content">
@@ -115,7 +115,7 @@
             </div>
         </div>
     </li>
-    <li{% if selected_schedule %} class="uk-open" {% endif %}>
+    <li data-hint="schedule" {% if selected_schedule %} class="uk-open" {% endif %}>
         <a class="uk-accordion-title">Schedule
         </a>
         <div class="uk-accordion-content">

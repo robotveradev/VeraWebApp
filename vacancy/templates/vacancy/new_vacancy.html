@@ -5,8 +5,8 @@
 {% block head_title %} VeraOracle - New Vacancy {% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
-        {% include 'jobboard/include/messages.html' %}
         {% if request.role_object.enabled == True %}
             {% if request.role_object.contract_address %}
                 <form class="uk-form-horizontal" class="uk-form-horizontal uk-margin-large"

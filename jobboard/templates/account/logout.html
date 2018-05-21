@@ -5,6 +5,7 @@
 {% block head_title %}{% trans "Log out" %}{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <form method="POST" action="{% url "account_logout" %}">
             <h4>{% trans "Log out" %}</h4>

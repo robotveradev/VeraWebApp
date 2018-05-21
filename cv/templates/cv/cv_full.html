@@ -5,10 +5,10 @@
 {% block head_title %}VeraOracle - Curriculum Vitae{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     {% if cv %}
         <div class="uk-container uk-align-center">
         <h2>CV Full Info</h2>
-        {% include 'jobboard/include/messages.html' %}
         <div uk-grid>
             <div class="uk-width-1-5">
                 <div>

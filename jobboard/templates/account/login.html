@@ -1,11 +1,11 @@
 {% extends "jobboard/base.html" %}
 
-{% load account_tags %}
-{% load i18n %}
+{% load account_tags i18n static %}
 
 {% block head_title %}{% trans "Log in" %}{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <div class="uk-text-danger">{{ form.non_field_errors }}</div>
         <form method="POST" action="{% url "account_login" %}"
@@ -36,7 +36,8 @@
                 {% if redirect_field_value %}
                     <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                 {% endif %}
-                <button type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right">{% trans "Log in" %}</button>
+                <button type="submit"
+                        class="uk-button uk-button-primary uk-button-small uk-align-right">{% trans "Log in" %}</button>
             </fieldset>
         </form>
         <a href="{% url "account_password_reset" %}"
@@ -50,8 +51,7 @@
     </div>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
+{% block extra_js %}
     <script type="text/javascript">
         $(document).ready(function () {
             $('#id_username').focus();

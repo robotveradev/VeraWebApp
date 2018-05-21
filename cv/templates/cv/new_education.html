@@ -5,6 +5,7 @@
 {% block head_title %}CurriculumVitae - New education{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <form class="uk-form-horizontal" action="{% url 'new_education' pk=cv.id %}" method="post">
             <fieldset class="uk-fieldset">
