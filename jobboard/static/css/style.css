@@ -29,3 +29,28 @@ a.uk-button {
 .uk-navbar-item, .uk-navbar-nav>li>a, .uk-navbar-toggle {
     height: 40px;
 }
+.enjoyhint_next_btn, .enjoyhint_skip_btn {
+    left: auto !important;
+    top: auto !important;
+    bottom: 25px !important;
+    right: 25px !important;
+    position: absolute;
+    color: #76ff03;
+    border: 2px solid #76ff03;
+}
+
+.enjoyhint_next_btn:hover, .enjoyhint_skip_btn:hover {
+    background: #8bc34a;
+}
+
+.enjoyhint_close_btn {
+    border: 2px solid #76ff03;
+}
+
+.enjoyhint_close_btn:hover {
+    background: #8bc34a;
+}
+
+.hint-green {
+    color: #76ff03 !important;
+}

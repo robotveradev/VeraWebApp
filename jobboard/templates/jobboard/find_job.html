@@ -1,7 +1,11 @@
 {% extends 'jobboard/base.html' %}
+
 {% block head_title %}VeraOracle - Find a job{% endblock %}
-{% load jobboard_tags vacancy_tags %}
+
+{% load jobboard_tags vacancy_tags static %}
+
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <h3>Find a dream job!</h3>
         <div uk-grid>
@@ -14,7 +18,7 @@
                 <div class="uk-box-shadow-small uk-padding-small grey lighten-4">
                     <div uk-grid>
                         <div class="uk-width-expand">
-                            <button class="uk-button uk-button-primary" type="button">{{ selected_sort.title }}</button>
+                            <button data-hint="sort" class="uk-button uk-button-primary" type="button">{{ selected_sort.title }}</button>
                             <div uk-dropdown="mode: click">
                                 <ul id="sort_select" class="uk-nav uk-dropdown-nav">
                                     {% for item in sorts %}
@@ -25,13 +29,13 @@
                         </div>
                         <div class="uk-width-auto uk-inline">
                             <div class="uk-position-center-right">
-                                <a class="" href="{% url 'find_job' %}" uk-close></a>
+                                <a data-hint="reset" class="" href="{% url 'find_job' %}" uk-close></a>
                             </div>
                         </div>
                     </div>
                 </div>
                 {% for vacancy in vacancies %}
-                    <div class="uk-box-shadow-small uk-padding-small uk-margin-top">
+                    <div data-hint="filtered" class="uk-box-shadow-small uk-padding-small uk-margin-top">
                         <p class="text-lead">
                             <a class="uk-button uk-button-text uk-text-uppercase uk-text-bold"
                                href="{% url 'vacancy' pk=vacancy.id %}">{{ vacancy.title }}</a>
@@ -67,7 +71,9 @@
                         </div>
                     </div>
                 {% empty %}
-                    <h6 class="center">Vacancies by conditions not found</h6>
+                    <div data-hint="filtered" class="uk-box-shadow-small uk-padding-small uk-margin-top">
+                        <h6 class="center">Vacancies by conditions not found</h6>
+                    </div>
                 {% endfor %}
                 {% if vacancies.has_other_pages %}
                     {% include 'jobboard/include/paginator.html' with paginate=vacancies get_list=request.GET %}
@@ -75,9 +81,9 @@
             </div>
         </div>
     </div>
-
-
-
 {% endblock %}
 
+{% block extra_js %}
+    <script src="{% static 'js/hints/vacancies.js' %}"></script>
+{% endblock %}
 

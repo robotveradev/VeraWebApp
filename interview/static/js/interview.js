@@ -185,7 +185,7 @@ $(document).ready(function () {
     }
 
     $('#chat-message').keypress(function (e) {
-        if (e.which == 13 && this.value) {
+        if (e.which === 13 && this.value) {
             sendMessage(this.value);
             this.value = "";
             return false

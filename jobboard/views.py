@@ -1,7 +1,7 @@
 from account.decorators import login_required
 from account.views import SignupView
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -21,6 +21,7 @@ from .handlers.new_oracle import OracleHandler
 from django.conf import settings as django_settings
 from django.db.models import Q
 from .filters import VacancyFilter, CVFilter
+from django.contrib import messages
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
@@ -169,7 +170,7 @@ class ChooseRoleView(TemplateView):
         role = request.POST.get('role')
         if role == _EMPLOYER:
             _form = EmployerForm(request.POST)
-        elif role == 'candidate':
+        elif role == _CANDIDATE:
             _form = CandidateForm(request.POST)
         else:
             return redirect('choose_role')
@@ -221,6 +222,7 @@ class ChangeContractStatus(ChooseRoleMixin, RedirectView):
     def get(self, request, *args, **kwargs):
         request.role_object.enabled = not request.role_object.enabled
         request.role_object.save()
+        messages.success(request, 'Contract status has been changed')
         return super().get(request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
@@ -376,6 +378,9 @@ class ApproveTokenView(OnlyEmployerMixin, RedirectView):
 
 
 class SignupInviteView(SignupView):
+
+    def generate_username(self, form):
+        return form.cleaned_data["email"].strip()
 
     def get_code(self):
         return self.request.COOKIES.get('invtoken')

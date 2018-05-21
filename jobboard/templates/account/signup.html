@@ -1,13 +1,15 @@
 {% extends "jobboard/base.html" %}
 
-{% load account_tags %}
-{% load i18n %}
+{% load account_tags i18n static %}
 
 {% block head_title %}{% trans "Sign up" %}{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
-        <span class="uk-text-danger">{{ form.non_field_errors }}</span>
+        {% if form.non_field_errors %}
+            <span class="uk-text-danger">{{ form.non_field_errors }}</span>
+        {% endif %}
         <form id="signup_form" method="post" action="{% url 'account_signup' %}" {% if form.is_multipart %}
               enctype="multipart/form-data"{% endif %}>
             {% csrf_token %}
@@ -18,7 +20,7 @@
                 <div class="uk-margin">
                     <div class="uk-inline" style="display:block;">
                         <span class="uk-form-icon" uk-icon="icon: user"></span>
-                        <input class="uk-input" type="text" name="username" maxlength="30" required id="id_username"
+                        <input tabindex="1" class="uk-input" type="text" name="username" maxlength="30" required id="id_username"
                                placeholder="Username">
                     </div>
                 </div>
@@ -30,7 +32,7 @@
                 <div class="uk-margin">
                     <div class="uk-inline" style="display:block;">
                         <span class="uk-form-icon" uk-icon="icon: lock"></span>
-                        <input class="uk-input" type="password" name="password" required id="id_password"
+                        <input tabindex="2" class="uk-input" type="password" name="password" required id="id_password"
                                placeholder="Password">
                     </div>
                 </div>
@@ -42,7 +44,7 @@
                 <div class="uk-margin">
                     <div class="uk-inline" style="display:block;">
                         <span class="uk-form-icon" uk-icon="icon: lock"></span>
-                        <input class="uk-input" type="password" name="password_confirm" required
+                        <input tabindex="3" class="uk-input" type="password" name="password_confirm" required
                                id="id_password_confirm"
                                placeholder="Password (again)">
                     </div>
@@ -55,7 +57,7 @@
                 <div class="uk-margin">
                     <div class="uk-inline" style="display:block;">
                         <span class="uk-form-icon" uk-icon="icon: mail"></span>
-                        <input class="uk-input" type="text" name="email" required id="id_email" placeholder="Email">
+                        <input tabindex="4" class="uk-input" type="text" name="email" required id="id_email" placeholder="Email">
                     </div>
                 </div>
                 {% for error in form.email.errors %}
@@ -78,11 +80,12 @@
 
 {% endblock %}
 
-{% block scripts %}
+{% block extra_js %}
     {{ block.super }}
     <script type="text/javascript">
         $(document).ready(function () {
             $('#id_username').focus();
         });
     </script>
+    <script src="{% static 'js/hints/signup.js' %}"></script>
 {% endblock %}

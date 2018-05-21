@@ -5,6 +5,7 @@ from io import BytesIO
 import ctypes
 import base64
 import logging
+from django.core.mail.backends.smtp import EmailBackend
 
 log = logging.getLogger('blockies')
 

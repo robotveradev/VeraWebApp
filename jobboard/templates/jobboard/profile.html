@@ -1,12 +1,16 @@
 {% extends 'jobboard/base.html' %}
-{% load jobboard_tags w3_tags %}
+{% load jobboard_tags w3_tags static %}
 {% block head_title %}VeraOracle - Profile {% endblock %}
 
 {% block content %}
+    {{ block.super }}
+    {% if hints_enabled %}
+        <script src="{% static 'js/hints/profile.js' %}"></script>
+    {% endif %}
     <div class="uk-container uk-align-center">
-        <h2>{{ request.role|title }} profile</h2>
+        <h2 data-hint="profile_head">{{ request.role|title }} profile</h2>
         {% with request.role_object.enabled as en %}
-            <div class="uk-align-right">
+            <div data-hint="status_change" class="uk-align-right">
                 {% if en != None %}
                     <a class="uk-button-text uk-button uk-text-capitalize"
                        href="{% url 'change_contract_status' %}">

@@ -1,55 +1,23 @@
 {% extends 'jobboard/base.html' %}
 
-{% load i18n %}
+{% load i18n static %}
 
 {% block head_title %}Choose role{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <fieldset class="uk-fieldset uk-margin-bottom">
             <legend class="uk-legend">
                 {% trans "Choose your role" %}
             </legend>
             {% if errors %}{{ errors }}{% endif %}
-            <ul class="uk-child-width-expand" uk-tab="{connect: '#choose_role_contrainer'}">
-                <li class="uk-active"><a href="#">Employer</a></li>
-                <li><a href="#">Candidate</a></li>
+            <ul data-hint="roles" class="uk-child-width-expand" uk-tab="{connect: '#choose_role_contrainer'}">
+                <li data-role="candidate" class="uk-active"><a href="#">Candidate</a></li>
+                <li data-role="employer"><a href="#">Employer</a></li>
             </ul>
             <ul id="choose_role_contrainer" class="uk-switcher">
-                <li class="uk-animation-slide-left-small">
-                    <form action="{% url 'choose_role' %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="role" value="employer">
-                        <input type="hidden" name="next" value="{{ request.GET.next }}">
-
-                        <div class="uk-margin">
-                            <div class="uk-inline" style="display: block;">
-                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
-                                <input type="text" class="uk-input" name="organization" id="organization" required
-                                       placeholder="Organization">
-                            </div>
-                        </div>
-                        <div class="uk-margin">
-                            <div class="uk-inline" style="display: block;">
-                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
-                                <input type="text" class="uk-input" name="tax_number" id="tax_number" required
-                                       placeholder="Tax number">
-                            </div>
-                        </div>
-                        <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
-                            <label>
-                                <input class="uk-checkbox" type="checkbox" id="personal_data_employer" required/>
-                                I agree with processing of my personal data
-                            </label>
-                        </div>
-                        {% if redirect_field_value %}
-                            <input type="hidden" name="{{ redirect_field_name }}"
-                                   value="{{ redirect_field_value }}"/>
-                        {% endif %}
-                        <button type="submit" class="uk-button uk-button-primary uk-align-right">Send</button>
-                    </form>
-                </li>
-                <li class="uk-animation-slide-right-small">
+                <li data-hint="fields_candidate" class="uk-animation-slide-right-small">
                     <form action="{% url 'choose_role' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="role" value="candidate">
@@ -85,7 +53,42 @@
                         </div>
 
                         <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
-                            <label>
+                            <label data-hint="personal_data_candidate">
+                                <input class="uk-checkbox" type="checkbox" id="personal_data_candidate" required/>
+                                I agree with processing of my personal data
+                            </label>
+                        </div>
+                        {% if redirect_field_value %}
+                            <input type="hidden" name="{{ redirect_field_name }}"
+                                   value="{{ redirect_field_value }}"/>
+                        {% endif %}
+                        <button data-hint="send_but_candidate" type="submit"
+                                class="uk-button uk-button-primary uk-align-right uk-button-small">Send
+                        </button>
+                    </form>
+                </li>
+                <li data-hint="fields_employer" class="uk-animation-slide-left-small">
+                    <form action="{% url 'choose_role' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="role" value="employer">
+                        <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+                        <div class="uk-margin">
+                            <div class="uk-inline" style="display: block;">
+                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                <input type="text" class="uk-input" name="organization" id="organization" required
+                                       placeholder="Organization">
+                            </div>
+                        </div>
+                        <div class="uk-margin">
+                            <div class="uk-inline" style="display: block;">
+                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                <input type="text" class="uk-input" name="tax_number" id="tax_number_employer" required
+                                       placeholder="Tax number">
+                            </div>
+                        </div>
+                        <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                            <label data-hint="personal_data_employer">
                                 <input class="uk-checkbox" type="checkbox" id="personal_data_employer" required/>
                                 I agree with processing of my personal data
                             </label>
@@ -94,7 +97,8 @@
                             <input type="hidden" name="{{ redirect_field_name }}"
                                    value="{{ redirect_field_value }}"/>
                         {% endif %}
-                        <button type="submit" class="uk-button uk-button-primary uk-align-right">Send</button>
+                        <button data-hint="send_but_employer" type="submit" class="uk-button uk-button-primary uk-align-right uk-button-small">Send
+                        </button>
                     </form>
                 </li>
             </ul>
@@ -103,4 +107,7 @@
         {% if error %}
             <div class="uk-text-danger">{{ error }}</div>{% endif %}
     </div>
+{% endblock %}
+{% block extra_js %}
+    <script src="{% static 'js/hints/choose_role.js' %}"></script>
 {% endblock %}

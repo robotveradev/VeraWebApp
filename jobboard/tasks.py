@@ -1,16 +1,19 @@
 from __future__ import absolute_import, unicode_literals
+
 import os
+
 from celery import shared_task
+from celery.app.task import Task
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from solc import compile_source
+from web3 import Web3, HTTPProvider
+
 from cv.models import CurriculumVitae
 from jobboard.handlers.new_oracle import OracleHandler
 from jobboard.models import Transaction, Employer, Candidate, TransactionHistory
 from vacancy.models import Vacancy
-from web3 import Web3, HTTPProvider
-from celery.app.task import Task
 from vera.celery import app
-
 
 DELETE_ONLY_TXN = ['subscribe', 'empanswer', 'withdraw', 'tokenapprove', ]
 
@@ -20,11 +23,12 @@ class CheckTransaction(Task):
     soft_time_limit = 10 * 60
 
     def __init__(self):
-        self.txn_set = Transaction.objects.all()
         self.w3 = Web3(HTTPProvider(settings.NODE_URL))
         self.oracle = OracleHandler()
+        self.txn_set = None
 
     def run(self, *args, **kwargs):
+        self.txn_set = Transaction.objects.all()
         if len(self.txn_set):
             self.process_txns()
         return True
@@ -40,6 +44,7 @@ class CheckTransaction(Task):
         return receipt['status']
 
     def handle_txn(self, txn):
+        print(txn)
         if txn.txn_type.lower() in DELETE_ONLY_TXN:
             self.delete_txn(txn)
             return True
@@ -51,7 +56,10 @@ class CheckTransaction(Task):
         return self.w3.eth.getTransactionReceipt(txn_hash)
 
     def delete_txn(self, txn):
-        txn.delete()
+        try:
+            txn.delete()
+        except AssertionError:
+            pass
 
     def newemployer(self, txn):
         try:
@@ -164,28 +172,34 @@ def save_txn(txn_hash, txn_type, user_id, obj_id, vac_id=None):
 
 
 @shared_task
-def new_role_instance(instance):
-    oracle = OracleHandler()
-    with open('jobboard/contracts/' + instance.__class__.__name__ + '.sol', 'r') as file:
-        source_code = file.read()
-    web3 = Web3(Web3.HTTPProvider(settings.NODE_URL))
-    compile_sol = compile_source(source_code)
-    obj = web3.eth.contract(
-        abi=compile_sol['<stdin>:' + instance.__class__.__name__]['abi'],
-        bytecode=compile_sol['<stdin>:' + instance.__class__.__name__]['bin'],
-        bytecode_runtime=compile_sol['<stdin>:' + instance.__class__.__name__]['bin-runtime'],
-    )
-    args = [web3.toHex(os.urandom(15)), ]
-    if isinstance(instance, Employer):
-        args.append(settings.VERA_COIN_CONTRACT_ADDRESS)
-    args.append(settings.VERA_ORACLE_CONTRACT_ADDRESS)
-
-    oracle.unlockAccount()
-    txn_hash = obj.deploy(transaction={'from': oracle.account}, args=args)
-    if txn_hash:
-        save_txn.delay(txn_hash, 'New' + instance.__class__.__name__, instance.user.id, instance.id)
-
-        save_txn_to_history.delay(instance.user.id, txn_hash,
-                                  'Creation of a new {} contract'.format(instance.__class__.__name__))
+def new_role_instance(instance_id, role):
+    try:
+        role_class = ContentType.objects.get(app_label='jobboard', model=role.lower())
+    except ContentType.DoesNotExist:
+        pass
     else:
-        instance.delete()
+        instance = role_class.model_class().objects.get(pk=instance_id)
+        oracle = OracleHandler()
+        with open('jobboard/contracts/' + role + '.sol', 'r') as file:
+            source_code = file.read()
+        web3 = Web3(Web3.HTTPProvider(settings.NODE_URL))
+        compile_sol = compile_source(source_code)
+        obj = web3.eth.contract(
+            abi=compile_sol['<stdin>:' + role]['abi'],
+            bytecode=compile_sol['<stdin>:' + role]['bin'],
+            bytecode_runtime=compile_sol['<stdin>:' + role]['bin-runtime'],
+        )
+        args = [web3.toHex(os.urandom(15)), ]
+        if isinstance(instance, Employer):
+            args.append(settings.VERA_COIN_CONTRACT_ADDRESS)
+        args.append(settings.VERA_ORACLE_CONTRACT_ADDRESS)
+
+        oracle.unlockAccount()
+        txn_hash = obj.deploy(transaction={'from': oracle.account}, args=args)
+        if txn_hash:
+            save_txn.delay(txn_hash, 'New' + role, instance.user.id, instance.id)
+
+            save_txn_to_history.delay(instance.user.id, txn_hash,
+                                      'Creation of a new {} contract'.format(role))
+        else:
+            instance.delete()

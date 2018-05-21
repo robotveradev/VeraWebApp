@@ -9,9 +9,19 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{% static 'css/materialize.css' %}">
     <link rel="stylesheet" href="{% static 'css/jHtmlArea.css' %}">
+    <link rel="stylesheet" href="{% static 'css/enjoyhint.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
+    <script src="{% static 'js/jquery.js' %}"></script>
 </head>
+<!-- hints-->
+{% if hints_enabled %}
+    <script src="{% static 'js/enjoyhint.js' %}"></script>
+    {% block hint_page_name %}{% endblock %}
+    <script type="text/javascript">
+        let hint_set = [];
+    </script>
+{% endif %}
 <body>
 <nav class="uk-navbar-container">
     <div class="uk-navbar-left">
@@ -23,27 +33,27 @@
         {% with request.role as role %}
             <ul class="uk-navbar-nav">
                 <li>
-                    <a href="{% url 'index' %}">Home</a>
+                    <a id="home" href="{% url 'index' %}">Home</a>
                 </li>
                 <li>
-                    <a href="{% url 'find_job' %}">Vacancies</a>
+                    <a id="vacancies" href="{% url 'find_job' %}">Vacancies</a>
                 </li>
                 {% if role == 'employer' %}
                     <li>
                         <a href="{% url 'find_cv' %}">CVs</a>
                     </li>
                     <li>
-                        <a href="{% url 'new_vacancy' %}">Post a job</a>
+                        <a id="new_vacancy" href="{% url 'new_vacancy' %}">Post a job</a>
                     </li>
                 {% endif %}
                 {% if role == 'candidate' %}
                     {% if not request.role_object.cvs.all %}
                         <li>
-                            <a href="{% url 'new_cv' %}">Post a CV</a>
+                            <a data-hint="post_cv" href="{% url 'new_cv' %}">Post a CV</a>
                         </li>
                     {% endif %}
                     <li>
-                        <a href="{% url 'offers' %}">Feedback
+                        <a data-hint="feedback" href="{% url 'offers' %}">Feedback
                             {% with request.role_object|offers_count as off_count %}{% if off_count > 0 %}
                                 ({{ off_count }})
                             {% endif %}{% endwith %}
@@ -52,15 +62,15 @@
                 {% endif %}
                 {% if user.is_authenticated %}
                     <li>
-                        <a href="#">Profile</a>
+                        <a data-hint="profile_drop" href="#">Profile</a>
                         <div class="uk-navbar-dropdown" uk-dropdown="mode: click">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
-                                <li><a href="{% url 'profile' %}">Profile</a></li>
+                                <li><a data-hint="profile" href="{% url 'profile' %}">Profile</a></li>
                                 {% if role == 'candidate' %}
                                     <li><a href="{% url 'cv_all' %}">All CV</a></li>
                                 {% elif role == 'employer' %}
                                     <li><a href="{% url 'vacancy_all' %}">Vacancies</a></li>
-                                    <li><a href="{% url 'quiz_index' %}">Quiz</a></li>
+                                    <li><a data-hint="quiz_link" href="{% url 'quiz_index' %}">Quiz</a></li>
                                 {% endif %}
                                 <li><a href="{% url 'transactions' %}">Transactions</a></li>
                             </ul>
@@ -68,33 +78,33 @@
                     </li>
                 {% endif %}
                 <li>
-                    <a href="{% url 'user_help' %}">Help</a>
+                    <a id="help" href="{% url 'user_help' %}">Help</a>
                 </li>
             </ul>
         {% endwith %}
     </div>
     <div class="uk-navbar-right">
         <ul class="uk-navbar-nav">
-
             {% if user.is_authenticated %}
                 <li>
-                    <a href="{% url 'account_logout' %}">Logout&nbsp;({{ user }})</a>
+                    <a id="logout" href="{% url 'account_logout' %}">Logout&nbsp;({{ user }})</a>
                 </li>
             {% else %}
                 <li>
-                    <a href="{% url 'account_signup' %}">register</a>
+                    <a id="register" href="{% url 'account_signup' %}">register</a>
                 </li>
                 <li>
-                    <a href="{% url 'account_login' %}">login</a>
+                    <a id="login" href="{% url 'account_login' %}">login</a>
                 </li>
             {% endif %}
-
         </ul>
     </div>
 </nav>
+{% include 'jobboard/include/messages.html' %}
 <div uk-height-viewport="expand: true">
-    <br>
-    {% block content %}{% endblock %}
+    {% block content %}
+        <div class="uk-clearfix"></div>
+    {% endblock %}
 </div>
 <div class="uk-container">
     <div class="uk-child-width-expand@s uk-text-center" uk-grid>
@@ -147,11 +157,63 @@
 </div>
 </body>
 <!-- UIkit JS -->
-<script src="{% static 'js/jquery.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.39/js/uikit.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.39/js/uikit-icons.min.js"></script>
+
+<!--Wisywyg redactor -->
 <script src="{% static 'js/jHtmlArea.js' %}"></script>
 <script src="{% static 'js/script.js' %}"></script>
 {% block extra_js %}{% endblock %}
 </html>
 
+{% if hints_enabled %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+                let hint_instance_set = [];
+                let tuts_count = hint_set.length;
+
+                function next_not_passed(k) {
+                    for (let i = k; i < tuts_count; i++) {
+                        if (localStorage.getItem(hint_set[i].title) !== '0') {
+                            return i;
+                        }
+                    }
+                    return false;
+                }
+
+                for (let i = 0; i < tuts_count; i++) {
+                    let pass = localStorage.getItem(hint_set[i].title);
+                    if (pass !== '0') {
+                        let config = {
+                            onSkip: function () {
+                                localStorage.setItem(hint_set[i].title, '0')
+                            }
+                        };
+                        let next = next_not_passed(i + 1);
+                        config.onEnd = function () {
+                            localStorage.setItem(hint_set[i].title, '0');
+                            if (next) {
+                                hint_instance_set[i + 1].start();
+                            }
+                        };
+                        let hint_object = {
+                            config: config,
+                            steps: hint_set[i].steps,
+                            start:
+                                function () {
+                                    this.instance = new EnjoyHint(this.config);
+                                    this.instance.set(typeof this.steps === 'function' ? this.steps() : this.steps);
+                                    this.instance.run();
+                                }
+                        };
+                        hint_instance_set.push(hint_object);
+                    }
+                }
+                if (hint_instance_set.length > 0) {
+                    hint_instance_set[0].start();
+                }
+            }
+        )
+        ;
+    </script>
+{% endif %}

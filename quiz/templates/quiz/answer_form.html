@@ -1,13 +1,14 @@
 {% extends 'jobboard/base.html' %}
 
-{% load material_form %}
+{% load material_form static %}
 
 {% block head_title %} Quiz - new answer for {{ question.question_text|safe }} {% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <h3>New answer</h3>
-        <span class="uk-text-lead">{{ question.question_text|safe }}</span>
+        <span data-hint="question" class="uk-text-lead">{{ question.question_text|safe }}</span>
         <form class="uk-form-horizontal" method="post">
             {% csrf_token %}
             {% form form=form %}{% endform %}
@@ -15,9 +16,12 @@
                 <button type="submit" name="_addanother"
                         class="uk-button uk-button-small uk-button-default">Save and add another
                 </button>
-                <button type="submit" class="uk-button uk-button-small uk-button-primary">Save</button>
+                <button id="save" type="submit" class="uk-button uk-button-small uk-button-primary">Save</button>
             </div>
         </form>
     </div>
 {% endblock %}
 
+{% block extra_js %}
+    <script src="{% static 'js/hints/new_answer.js' %}"></script>
+{% endblock %}
