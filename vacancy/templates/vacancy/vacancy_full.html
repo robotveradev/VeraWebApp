@@ -9,8 +9,8 @@
 {% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center uk-offcanvas-content">
-        {% include 'jobboard/include/messages.html' %}
         <h4>{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.employer.organization|title }}</small>
             {% if vacancy.employer == request.role_object %}
                 <a href="{% url 'vacancy_edit' pk=vacancy.id %}" uk-icon="file-edit"></a>

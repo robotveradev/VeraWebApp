@@ -5,8 +5,8 @@
 {% load material_form %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
-        {% include 'jobboard/include/messages.html' %}
         {% if object.published %}
             <h4>Edit vacancy "{{ object.title|title }}"</h4>
             <form class="uk-form-horizontal" action="{% url 'vacancy_edit' pk=object.id %}" method="post">

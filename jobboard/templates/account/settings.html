@@ -8,6 +8,7 @@
 {% block head_title %}{% trans "Account" %}{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="row">
         <div class="col-md-5">
             <form method="POST" action="{% url "account_settings" %}">

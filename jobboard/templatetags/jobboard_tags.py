@@ -1,17 +1,19 @@
-import json
 import datetime
+import json
 import re
-from django import template
-from django.shortcuts import get_object_or_404
 from urllib.parse import urlencode
+
+from django import template
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+
 from cv.models import CurriculumVitae
 from jobboard import blockies
-from jobboard.handlers.new_oracle import OracleHandler
 from jobboard.handlers.coin import CoinHandler
-from jobboard.models import Candidate, Transaction
+from jobboard.handlers.new_oracle import OracleHandler
+from jobboard.models import Transaction
 from quiz.models import ActionExam
 from vacancy.models import Vacancy, CVOnVacancy, VacancyOffer
-from django.conf import settings
 
 register = template.Library()
 
@@ -71,7 +73,8 @@ def get_balance(user, address):
     if address is None:
         return {'balance': None, 'user': user}
     coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-    return {'balance': coin_h.balanceOf(address) / 10 ** 18, 'user': user}
+    return {'balance': coin_h.balanceOf(address) / 10 ** 18, 'user': user,
+            'test': settings.NET_URL.startswith('https://rinkeby')}
 
 
 @register.inclusion_tag('jobboard/tags/allowance.html')

@@ -183,6 +183,11 @@ class NewQuestionView(CreateView):
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = self.cat
+        return context
+
 
 class NewAnswerView(CreateView):
     model = Answer

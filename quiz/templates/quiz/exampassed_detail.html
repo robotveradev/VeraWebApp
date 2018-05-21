@@ -5,6 +5,7 @@
 {% block head_title %}Vera Oracle - Exam results {% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <h4>Exam result for CV {{ object.cv.title }}</h4>
         {% for question in object.exam.questions.all %}

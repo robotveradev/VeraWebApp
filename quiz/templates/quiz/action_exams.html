@@ -5,9 +5,9 @@
 {% block head_title %} VeraOracle - Vacancy exam {% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <h4>{% trans 'Action exam for vacancy' %} "{{ action.pipeline.vacancy.title | truncatewords:'4' }}"</h4>
-        {% include 'jobboard/include/messages.html' %}
         <input type="hidden" name="e_id" value="{{ object_list.pk }}">
         {% csrf_token %}
         {% with object_list.questions.all as question_list %}

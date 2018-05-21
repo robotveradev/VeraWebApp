@@ -1,10 +1,15 @@
 {% extends 'jobboard/base.html' %}
-{% block content %}
-    <div class="uk-position-relative uk-visible-toggle" uk-slideshow="animation: scale; min-height: 300; max-height:400; autoplay: true">
 
+{% load static %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-position-relative uk-visible-toggle"
+         uk-slideshow="animation: scale; min-height: 300; max-height:400; autoplay: true">
         <ul class="uk-slideshow-items">
             <li>
-                <img src="http://demo.minimalthemes.net/jobboard-static/images/upload/dummy-slide-1.jpg" alt="" uk-cover>
+                <img src="http://demo.minimalthemes.net/jobboard-static/images/upload/dummy-slide-1.jpg"
+                     uk-cover>
                 <div class="uk-overlay uk-overlay-primary uk-position-bottom uk-text-center">
                     <h3 class="uk-margin-remove">Easiest Way To Find Your Dream Job</h3>
                     <p class="uk-margin-remove">It is a long established fact that a reader will be
@@ -14,7 +19,8 @@
                 </div>
             </li>
             <li>
-                <img src="http://demo.minimalthemes.net/jobboard-static/images/upload/dummy-slide-2.jpg" alt="" uk-cover>
+                <img src="http://demo.minimalthemes.net/jobboard-static/images/upload/dummy-slide-2.jpg" alt=""
+                     uk-cover>
                 <div class="uk-overlay uk-overlay-primary uk-position-bottom uk-text-center">
                     <h4 class="uk-margin-remove">Hire Skilled People, best of them</h4>
                     <p class="uk-margin-remove">It is a long established fact that a reader will be
@@ -31,4 +37,17 @@
                uk-slideshow-item="next"></a>
         </div>
     </div>
+{% endblock %}
+{% block extra_js %}
+    {% if not user.is_authenticated %}
+        <script src="{% static 'js/hints/index_unauth.js' %}"></script>
+    {% else %}
+        {% if role == 'candidate' %}
+            <script src="{% static 'js/hints/index_candidate.js' %}"></script>
+        {% elif role == 'employer' %}
+            pass
+        {% elif role is None %}
+            <script src="{% static 'js/hints/index_choose_role.js' %}"></script>
+        {% endif %}
+    {% endif %}
 {% endblock %}

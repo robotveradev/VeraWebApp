@@ -5,6 +5,7 @@
 {% block head_title %}Vera Oracle - CVs{% endblock %}
 
 {% block content %}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
         <h4>All your CVs</h4>
         {% for cv in request.role_object.cvs.all %}

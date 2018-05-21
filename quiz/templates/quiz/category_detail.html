@@ -1,13 +1,14 @@
 {% extends 'jobboard/base.html' %}
 
-{% load quiz_tags %}
+{% load quiz_tags static %}
 
 {% block head_title %}
     {{ object.title|title }}
 {% endblock %}
 
 {% block content %}
-    <div class="uk-container uk-align-center">
+    {{ block.super }}
+    <div data-hint="main" class="uk-container uk-align-center">
         <h3>{{ object.title|title }}</h3>
         {% if object.sub_categories %}
             {% for category in object.sub_categories.all %}
@@ -21,11 +22,18 @@
             {% for question in object.questions.all %}
                 {% include 'quiz/include/question.html' with item=question %}
             {% endfor %}
-            <a href="{% url 'new_question' category_id=object.id %}"
+            <a data-hint="add_link" href="{% url 'new_question' category_id=object.id %}"
                class="uk-button uk-button-default uk-button-small uk-align-right">Add new question</a>
         {% else %}
             You have no one question in category.
-            <a href="{% url 'new_question' category_id=object.id %}" class="uk-link-muted">Add first one right now!</a>
+            <a data-hint="add_link" href="{% url 'new_question' category_id=object.id %}" class="uk-link-muted">Add
+                first one right now!</a>
         {% endif %}
     </div>
 {% endblock %}
+
+{% if hints_enabled %}
+    {% block extra_js %}
+        <script src="{% static 'js/hints/category_details.js' %}"></script>
+    {% endblock %}
+{% endif %}
