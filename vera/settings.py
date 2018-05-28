@@ -184,7 +184,6 @@ ACCOUNT_OPEN_SIGNUP = True
 HINTS_ENABLED = True
 
 # Google address settings
-
 GOOGLE_ADDRESS = {
     'API_KEY': '',
     'API_LANGUAGE': 'en_US'
