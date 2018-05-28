@@ -32,8 +32,8 @@
                         <a href="#"><img class="circle" src="{% static 'material/imgs/user.png' %}"></a>
                         {% endif %}
                         {% endblock %}
-                        <a href="#"><span class="white-text name">{{ request.user.get_username|title }}</span></a>
-                        <a href="#"><span class="white-text email">{{ request.user.email }}</span></a>
+                        <a href="#"><span class="white-text name">{{ user.get_username|title }}</span></a>
+                        <a href="#"><span class="white-text email">{{ user.email }}</span></a>
                     </div>
                 </li>
                 {% endblock %}

@@ -1,6 +1,9 @@
 from account.decorators import login_required
 from account.views import SignupView
+from django.conf import settings as django_settings
+from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -8,20 +11,18 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import TemplateView, DetailView, RedirectView, ListView
 from web3.utils.validation import validate_address
+
 from cv.models import CurriculumVitae
 from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.new_employer import EmployerHandler
 from jobboard.mixins import ChooseRoleMixin, OnlyEmployerMixin, OnlyCandidateMixin
 from jobboard.tasks import save_txn_to_history, save_txn
-from .models import Employer, TransactionHistory, InviteCode
 from vacancy.models import Vacancy
 from .decorators import choose_role_required
-from .handlers.new_oracle import OracleHandler
-from django.conf import settings as django_settings
-from django.db.models import Q
 from .filters import VacancyFilter, CVFilter
-from django.contrib import messages
+from .handlers.new_oracle import OracleHandler
+from .models import Employer, TransactionHistory, InviteCode
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
@@ -40,7 +41,7 @@ class FindJobView(TemplateView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
-        self.vacancies = Vacancy.objects.filter(published=True, enabled=True, employer__enabled=True)
+        self.vacancies = Vacancy.objects.filter(published=True, enabled=True, company__employer__enabled=True)
         self.vacancies_filter = None
         self.cvs = CurriculumVitae.objects
         self.context = {}
@@ -131,7 +132,7 @@ class FindCVView(TemplateView):
 
     def set_filter_for_relevant_cvs(self):
         if self.request.role == _EMPLOYER:
-            vacs = self.vacs.filter(employer=self.request.role_object, enabled=True)
+            vacs = self.vacs.filter(company__employer=self.request.role_object, enabled=True)
             specs_list = list(set([item['specialisations__id'] for item in vacs.values('specialisations__id') if
                                    item['specialisations__id'] is not None]))
             keywords_list = list(
@@ -402,3 +403,17 @@ class InviteLinkView(RedirectView):
             hrr = HttpResponseRedirect(reverse('account_signup'))
             hrr.set_cookie('invtoken', self.code.signup_code.code)
             return hrr
+
+
+class GetFreeCoinsView(ChooseRoleMixin, RedirectView):
+    pattern_name = 'profile'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def get(self, request, *args, **kwargs):
+        coin_h = CoinHandler()
+        OracleHandler().unlockAccount()
+        txn_hash = coin_h.transfer(request.role_object.contract_address, 1000 * 10 ** 18)
+        save_txn_to_history.delay(request.user.id, txn_hash, 'Free coins added.')
+        return super().get(request, *args, **kwargs)

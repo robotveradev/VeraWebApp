@@ -1,0 +1,21 @@
+{% extends 'jobboard/base.html' %}
+
+{% load static material_form %}
+
+{% block head_title %}Vera Oracle - Employer new company{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        <h3>Create new company</h3>
+        <form method="post" class="uk-form-horizontal" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% form form=form %}{% endform %}
+            <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                <label><input class="uk-checkbox" type="checkbox" required> I agree with processing of personal data</label>
+            </div>
+            <button type="submit" class="uk-button uk-button-small uk-button-primary uk-align-right">Save</button>
+        </form>
+    </div>
+    {{ form.media }}
+{% endblock %}

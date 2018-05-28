@@ -32,12 +32,13 @@
                         <a target="_blank"
                            href="https://rinkeby.etherscan.io/address/{{ candidate.contract_address }}">{{ candidate.contract_address }}</a>
                     {% else %}
-                        Pending... <div uk-spinner="ratio:0.4"></div>
+                        Pending...
+                        <div uk-spinner="ratio:0.4"></div>
                     {% endif %}
                 </td>
             </tr>
         </table>
-    {{ candidate.cvs.all }}
+        {{ candidate.cvs.all }}
         {% if candidate.contract_address %}
             {% get_facts candidate %}
         {% endif %}

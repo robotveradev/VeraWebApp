@@ -24,6 +24,7 @@ from vacancy import views as vacancy_views
 from quiz import views as quiz_views
 from statistic import views as statistic_views
 from pipeline import views as pipeline_views
+from company import views as company_views
 
 basic = [
     path('', TemplateView.as_view(template_name='jobboard/index.html'), name='index'),
@@ -44,6 +45,7 @@ basic = [
     path('agent/<slug:action>/', jobboard_views.GrantRevokeAgentView.as_view(), name='grant_agent'),
     path('fact/new/', jobboard_views.NewFactView.as_view(), name='new_fact'),
     path('interview/', include('interview.urls')),
+    path('free/coins/', jobboard_views.GetFreeCoinsView.as_view(), name='free_coins'),
 ]
 
 candidate_urlpatterns = [
@@ -97,6 +99,11 @@ quiz_urlpatterns = [
 
 employer_urlpatterns = [
     path('employer/<int:pk>/about/', jobboard_views.EmployerAboutView.as_view(), name='employer_about'),
+    path('companies/', company_views.CompaniesView.as_view(), name='companies'),
+    path('company/new/', company_views.NewCompanyView.as_view(), name='new_company'),
+    path('company/<int:pk>', company_views.CompanyDetailsView.as_view(), name='company'),
+    path('company/<int:pk>/delete/', company_views.CompanyDeleteView.as_view(), name='delete_company'),
+    path('company/<int:pk>/office/new/', company_views.CompanyNewOfficeView.as_view(), name='new_office'),
 ]
 
 statistic_urlpatterns = [

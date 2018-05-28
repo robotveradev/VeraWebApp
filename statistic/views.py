@@ -6,6 +6,7 @@ from django.views.generic import ListView
 from jobboard.decorators import choose_role_required
 from django.contrib.contenttypes.models import ContentType
 from django.urls import resolve
+from jobboard.helpers import get_related
 
 
 class StatisticView(ListView):
@@ -17,6 +18,7 @@ class StatisticView(ListView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.pk = None
+        self.request = None
         self.related_model = None
         self.related_model_object = None
 
@@ -27,7 +29,7 @@ class StatisticView(ListView):
         try:
             model = ContentType.objects.get(model=resolve(request.META['PATH_INFO']).url_name)
         except ContentType.DoesNotExist:
-            print('Not exist!')
+            pass
         else:
             self.model = model.model_class()
             self.set_related_model()
@@ -47,7 +49,7 @@ class StatisticView(ListView):
     def check_related_object(self, request, *args, **kwargs):
         self.related_model_object = get_object_or_404(self.related_model, pk=self.pk)
         user_field = self.related_model_object.user_field_name
-        if getattr(self.related_model_object, user_field) != request.role_object:
+        if get_related(self.related_model_object, user_field) != request.role_object:
             raise Http404
         return super().dispatch(request, *args, **kwargs)
 

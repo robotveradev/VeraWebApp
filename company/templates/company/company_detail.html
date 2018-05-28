@@ -1,0 +1,81 @@
+{% extends 'jobboard/base.html' %}
+
+{% load static company_tags material_form %}
+
+{% block content %}
+    {{ office_form.media }}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        <h3>{{ company.name }}</h3>
+        <div uk-grid>
+            <div class="uk-width-1-4">
+                <img src="{{ company.logo.url }}" data-src="{{ company.logo.url }}" width="200" alt="{{ company.name }}"
+                     uk-img>
+            </div>
+            <div class="uk-width-3-4 uk-padding-small">
+                <a class="uk-link-text uk-text-bold" href="{{ company.site }}" target="_blank">{{ company.name|title }}</a>,
+                {{ company.tax_number }}, {{ company.date_created|date }}.<br/>
+                {{ company.legal_address.address_line }}.<br/>
+                <a class="uk-link-text" href="mailto:{{ company.email }}">{{ company.email }}</a>,
+                <a class="uk-link-text" href="tel:{{ company.phone }}">{{ company.phone }}</a>.<br/>
+                {% if company.social_links.all %}
+                    <div class="soclinks uk-padding-small uk-padding-remove-left">
+                        {% for soclink in company.social_links.all %}
+                            <a class="uk-link-text" href="{{ soclink.link }}">{{ soclink.link|icon_for_link }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <p class="uk-dropcap">{{ company.description }}</p>
+        <div class="vacancies">
+            <h3>Vacancies</h3>
+            {% if company.vacancies.all %}
+                {% for vacancy in company.vacancies.all %}
+                    {% include 'vacancy/vacancy_short.html' with item=vacancy %}
+                {% endfor %}
+            {% else %}
+                No one vacancy.
+            {% endif %}
+            <a href="{% url 'new_vacancy' %}" class="uk-button uk-button-small uk-button-primary uk-align-right">Post
+                vacancy</a>
+        </div>
+        {% if company.employer == role_object %}
+            <br/>
+            <div class="offices">
+                <h3>Company offices</h3>
+                {% if company.offices.all %}
+                    <ul class="uk-list uk-list-bullet">
+                        {% for office in company.offices.all %}
+                            {% include 'company/include/office_short.html' with type='li' %}
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    Company doesn't have any offices added yet.
+                {% endif %}
+                <a href="#add_office" class="uk-button uk-button-small uk-button-primary uk-align-right" uk-toggle>Add
+                    office</a>
+            </div>
+
+            <div id="add_office" class="uk-modal-container" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <h2 class="uk-modal-title">Add office</h2>
+                    <form class="uk-form-horizontal" action="{% url 'new_office' pk=company.pk %}" method="post">
+                        {% csrf_token %}
+                        {% form form=office_form %}{% endform %}
+                        <div style="height: 400px; width: 100%;" id="map"></div>
+                        <br>
+                        <div class="uk-align-right uk-margin-remove-bottom">
+                            <button type="reset" class="uk-button uk-button-small uk-button-default">Close
+                            </button>
+                            <button type="submit" class="uk-button uk-button-small uk-button-primary">Save
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}

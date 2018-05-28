@@ -8,7 +8,7 @@
 {% block content %}
     {{ block.super }}
     <input id="interview_id" type="hidden" value="{{ active_dialog.id }}">
-    <input id="owner_username" type="hidden" value="{{ request.user.username }}">
+    <input id="owner_username" type="hidden" value="{{ user.username }}">
     <div class="uk-container uk-align-center">
         <h4>{% trans 'Interview for vacancy' %} {{ active_dialog.action_interview.action.pipeline.vacancy.title|title }}</h4>
         {% if active_dialog.closed %}
@@ -29,7 +29,7 @@
                             <span class="uk-text-muted">{{ msg.get_formatted_create_datetime }}</span>
                         </div>
                     {% endifchanged %}
-                    <div class="{% if msg.sender == request.user %}uk-text-left{% else %}uk-text-right{% endif %}"
+                    <div class="{% if msg.sender == user %}uk-text-left{% else %}uk-text-right{% endif %}"
                          data-id="{{ msg.id }}">
                         {% ifchanged msg.sender.username %}
                             <div class="username uk-text-capitalize">{{ msg.sender.username }}</div>
@@ -54,7 +54,7 @@
                     class="uk-button uk-button-primary uk-button-small uk-align-right"
                     style="margin-left: 10px;">{% trans 'Send' %}</button>
 
-            {% if request.role_object == active_dialog.action_interview.action.pipeline.vacancy.employer %}
+            {% if role_object == active_dialog.action_interview.action.pipeline.vacancy.employer %}
                 <form method="post">
                     {% csrf_token %}
                     <input type="hidden" name="vac_uuid"

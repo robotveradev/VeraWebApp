@@ -10,8 +10,8 @@
         <h2>Employer info</h2>
         <table class="uk-table uk-table-small uk-table-divider">
             <tr>
-                <td>Organization:</td>
-                <td>{{ object.organization }}</td>
+                <td>Name:</td>
+                <td>{{ object.full_name }}</td>
             </tr>
             <tr>
                 <td>Tax number:</td>
@@ -24,7 +24,8 @@
                         <a class="uk-link-reset" target="_blank"
                            href="https://rinkeby.etherscan.io/address/{{ object.contract_address }}">{{ object.contract_address }}</a>
                     {% else %}
-                        Pending... <div uk-spinner="ratio: 0.4"></div>
+                        Pending...
+                        <div uk-spinner="ratio: 0.4"></div>
                     {% endif %}
                 </td>
             </tr>
