@@ -185,11 +185,11 @@ HINTS_ENABLED = True
 
 # Google address settings
 GOOGLE_ADDRESS = {
-    'API_KEY': 'AIzaSyD7bwJfApQNUk4mysMv_GTwsJ0jGITL5rg',
+    'API_KEY': '',
     'API_LANGUAGE': 'en_US'
 }
 
-GOOGLE_JS_MAP_KEY = 'AIzaSyDbzU6DRTo-b4zEcnHJq8BqLrOnL9e6pcY'
+GOOGLE_JS_MAP_KEY = ''
 
 # Social icons
 # icon name on fontawesome, exm: 'www.<ok>.ru' -> <i class="fa fa-<odnoklassniki>"></i>
