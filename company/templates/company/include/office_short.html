@@ -1,0 +1,16 @@
+{% if office %}
+    {% if type == 'li' %}
+        <li>
+    {% else %}
+        <div>
+    {% endif %}
+        {{ office.address.address_line }}
+        {% if office.main %}
+            <span class="uk-text-meta">(main)</span>
+        {% endif %}
+    {% if type == 'li' %}
+        </li>
+    {% else %}
+        </div>
+    {% endif %}
+{% endif %}

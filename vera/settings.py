@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'material.frontend',
     'django_filters',
     'pipeline',
+    'company',
+    'google_address',
 ]
 
 SITE_ID = 1
@@ -140,11 +142,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = '/opt/vera_jobboard/static/'
+STATIC_ROOT = '/static/'
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = '/opt/vera_jobboard/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_FROM_EMAIL = 'you@domain.com'
 
@@ -180,3 +182,21 @@ ACCOUNT_OPEN_SIGNUP = True
 
 # Hints settings
 HINTS_ENABLED = True
+
+# Google address settings
+
+GOOGLE_ADDRESS = {
+    'API_KEY': '',
+    'API_LANGUAGE': 'en_US'
+}
+
+GOOGLE_JS_MAP_KEY = ''
+
+# Social icons
+# icon name on fontawesome, exm: 'www.<ok>.ru' -> <i class="fa fa-<odnoklassniki>"></i>
+SOCIAL_ICONS = {
+    'ok': 'odnoklassniki-square',
+    'facebook': 'facebook-official',
+    't': 'telegram',
+    'steamcommunity': 'steam-square',
+}

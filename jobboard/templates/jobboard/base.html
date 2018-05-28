@@ -30,7 +30,7 @@
 </nav>
 <nav class="uk-navbar-container" uk-navbar uk-sticky>
     <div class="uk-navbar-left">
-        {% with request.role as role %}
+        {% with role as role %}
             <ul class="uk-navbar-nav">
                 <li>
                     <a id="home" href="{% url 'index' %}">Home</a>
@@ -47,14 +47,14 @@
                     </li>
                 {% endif %}
                 {% if role == 'candidate' %}
-                    {% if not request.role_object.cvs.all %}
+                    {% if not role_object.cvs.all %}
                         <li>
                             <a data-hint="post_cv" href="{% url 'new_cv' %}">Post a CV</a>
                         </li>
                     {% endif %}
                     <li>
                         <a data-hint="feedback" href="{% url 'offers' %}">Feedback
-                            {% with request.role_object|offers_count as off_count %}{% if off_count > 0 %}
+                            {% with role_object|offers_count as off_count %}{% if off_count > 0 %}
                                 ({{ off_count }})
                             {% endif %}{% endwith %}
                         </a>
@@ -69,6 +69,7 @@
                                 {% if role == 'candidate' %}
                                     <li><a href="{% url 'cv_all' %}">All CV</a></li>
                                 {% elif role == 'employer' %}
+                                    <li><a href="{% url 'companies' %}">Companies</a></li>
                                     <li><a href="{% url 'vacancy_all' %}">Vacancies</a></li>
                                     <li><a data-hint="quiz_link" href="{% url 'quiz_index' %}">Quiz</a></li>
                                 {% endif %}
@@ -213,7 +214,6 @@
                     hint_instance_set[0].start();
                 }
             }
-        )
-        ;
+        );
     </script>
 {% endif %}

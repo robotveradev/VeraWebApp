@@ -1,0 +1,19 @@
+{% extends 'jobboard/base.html' %}
+
+{% load static %}
+
+{% block head_title %}Vera Oracle - Employer companies{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        <h3>Companies</h3>
+        {% for company in company_list %}
+            {% include 'company/include/company_short.html' %}
+        {% empty %}
+            No companies yet.
+        {% endfor %}
+        <div class="uk-clearfix"></div>
+        <a href="{% url 'new_company' %}" class="uk-button uk-button-small uk-button-primary uk-align-right">Add company</a>
+    </div>
+{% endblock %}

@@ -69,12 +69,12 @@ def is_enabled_vacancy(vacancy_id):
 
 
 @register.inclusion_tag('jobboard/tags/balances.html')
-def get_balance(user, address):
+def get_balance(user, address, role):
     if address is None:
         return {'balance': None, 'user': user}
     coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
     return {'balance': coin_h.balanceOf(address) / 10 ** 18, 'user': user,
-            'test': settings.NET_URL.startswith('https://rinkeby')}
+            'test': settings.NET_URL.startswith('https://rinkeby'), 'role': role}
 
 
 @register.inclusion_tag('jobboard/tags/allowance.html')

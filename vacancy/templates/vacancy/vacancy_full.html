@@ -12,12 +12,12 @@
     {{ block.super }}
     <div class="uk-container uk-align-center uk-offcanvas-content">
         <h4>{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.employer.organization|title }}</small>
-            {% if vacancy.employer == request.role_object %}
+            {% if vacancy.employer == role_object %}
                 <a href="{% url 'vacancy_edit' pk=vacancy.id %}" uk-icon="file-edit"></a>
             {% endif %}
         </span>
         </h4>
-        {% if request.role_object == vacancy.employer %}
+        {% if role_object == vacancy.employer %}
             {% with vacancy.enabled as en %}
                 <div class="uk-align-right">
                     {% if en != None %}
@@ -40,7 +40,7 @@
             <div>
                 Vacancy uuid: {{ vacancy.uuid }}
             </div>
-            {% if vacancy.employer.user == request.user %}
+            {% if vacancy.employer.user == user %}
                 <div>
                     Allowance:
                     {% if vacancy.published %}
@@ -57,10 +57,17 @@
             <div>
                 Organization:
                 <a class=" red-text"
-                   href="{% url 'employer_about' pk=vacancy.employer.id %}">{{ vacancy.employer.organization }}</a>
+                   href="{% url 'company' pk=vacancy.company.id %}">{{ vacancy.company.name }}</a>
             </div>
             <div>
-                City: {{ vacancy.city|title }}
+                {% if vacancy.office.all %}
+                    Office{{ vacancy.office.count|pluralize }}:
+                    <ol class="uk-list uk-padding-small uk-margin-remove-bottom">
+                        {% for office in vacancy.office.all %}
+                            <li>{{ office.address.address_line|title }}</li>
+                        {% endfor %}
+                    </ol>
+                {% endif %}
             </div>
             {% if vacancy.experience %}
                 <div>
@@ -127,10 +134,10 @@
             {% endfor %}
         </section>
         <br>
-        {% if request.role_object == vacancy.employer %}
+        {% if role_object == vacancy.employer %}
             {% vacancy_employer_pipeline vacancy %}
-        {% elif request.role == 'candidate' %}
-            {% vacancy_candidate_pipeline vacancy request.role_object %}
+        {% elif role == 'candidate' %}
+            {% vacancy_candidate_pipeline vacancy role_object %}
         {% endif %}
 
     </div>

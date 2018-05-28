@@ -21,3 +21,10 @@ class OnlyCandidateMixin:
     @method_decorator(role_required('candidate'))
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class OnlyOwnerMixin(ChooseRoleMixin):
+
+    def dispatch(self, request, *args, **kwargs):
+        print(request.role_object.user_name_field)
+        return super().dispatch(request, *args, **kwargs)

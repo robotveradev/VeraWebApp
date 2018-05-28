@@ -32,14 +32,14 @@
                 {% for item in object_list %}
                     <tr>
                         <td>
-                            {% with item|user_role as role_object %}
-                                {% if role_object is None %}
+                            {% with item|user_role as visit_obj %}
+                                {% if visit_obj is None %}
                                     <span class="uk-text-muted">{{ item.role|capfirst }}</span>
                                 {% else %}
-                                    {% if role_object.obj.get_url %}
-                                        <a href="{{ role_object.obj.get_url }}">{{ role_object.obj.organization }}</a>
+                                    {% if visit_obj.obj.get_url %}
+                                        <a class="uk-link-text" href="{{ visit_obj.obj.get_url }}">{{ visit_obj.obj.full_name }}</a>
                                     {% else %}
-                                        {{ role_object.obj.full_name }}
+                                        {{ visit_obj.obj.full_name }}
                                     {% endif %}
                                 {% endif %}
                             {% endwith %}

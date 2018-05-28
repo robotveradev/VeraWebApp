@@ -28,7 +28,7 @@ class PipelineConstructorView(OnlyEmployerMixin, TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('pk'), employer=request.role_object)
+        self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('pk'), company__employer=request.role_object)
         self.new_pipeline()
         self.process_actions(request)
 

@@ -38,7 +38,7 @@ class CoinHandler(object):
 
     def transfer(self, address, amount):
         validate_address(address)
-        self.contract.transact({'from': settings.WEB_ETH_COINBASE}).transfer(address, amount)
+        return self.contract.transact({'from': settings.WEB_ETH_COINBASE}).transfer(address, amount)
 
     # def approve(self, vacancy_address, amount):
     #     if self.account is None:

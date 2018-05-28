@@ -45,7 +45,7 @@
                 </div>
             {% endif %}
         </article>
-        {% if cv.candidate == request.role_object and show_stat %}
+        {% if cv.candidate == role_object and show_stat %}
             {% statistic cv %}
         {% endif %}
     </div>

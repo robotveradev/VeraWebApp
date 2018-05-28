@@ -1,14 +1,14 @@
 {% extends 'jobboard/base.html' %}
 
-{% load jobboard_tags material_form i18n %}
+{% load static jobboard_tags material_form i18n %}
 
 {% block head_title %} VeraOracle - New Vacancy {% endblock %}
 
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        {% if request.role_object.enabled == True %}
-            {% if request.role_object.contract_address %}
+        {% if role_object.enabled == True %}
+            {% if role_object.contract_address %}
                 <form class="uk-form-horizontal" class="uk-form-horizontal uk-margin-large"
                       action="{% url 'new_vacancy' %}" method="post">
                     {% csrf_token %}
@@ -28,4 +28,11 @@
         {% endif %}
 
     </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/n_office.js' %}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyDbzU6DRTo-b4zEcnHJq8BqLrOnL9e6pcY"></script>
+    <script src="{% static 'js/jquery.geocomplete.min.js' %}"></script>
+    <script src="{% static 'js/address.js' %}"></script>
 {% endblock %}
