@@ -1,6 +1,6 @@
 <p class="uk-text-lead">{{ education.institute }}{% if education.faculty %},
     <small class="uk-text-muted">{{ education.faculty }}</small>{% endif %}
-    {% if request.user == cv.candidate.user %}
+    {% if user == cv.candidate.user %}
         <a href="{% url 'education_edit' pk=education.id %}" uk-icon="icon: file-edit"></a>
     {% endif %}
 </p>

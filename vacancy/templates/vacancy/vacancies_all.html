@@ -15,7 +15,7 @@
         {% include 'jobboard/include/paginator.html' with paginate=page_obj %}
     {% endif %}
         <hr/>
-        {% if request.role_object.contract_address %}
+        {% if role_object.contract_address %}
             <a class="uk-button uk-button-primary uk-align-right uk-button-small" href="{% url 'new_vacancy' %}">Create
                 new vacancy</a>
         {% endif %}

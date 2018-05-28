@@ -13,7 +13,7 @@ def new_vacancy(vacancy_id, pipeline_actions):
         print('Vacancy {} does not exist'.format(vacancy_id))
     else:
         oracle = OracleHandler()
-        txn_hash = oracle.new_vacancy(vacancy.employer.contract_address,
+        txn_hash = oracle.new_vacancy(vacancy.company.employer.contract_address,
                                       vacancy.uuid,
                                       int(vacancy.allowed_amount) * 10 ** 18,
                                       pipeline_actions['titles'],

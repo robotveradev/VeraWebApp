@@ -8,8 +8,8 @@
         <script src="{% static 'js/hints/profile.js' %}"></script>
     {% endif %}
     <div class="uk-container uk-align-center">
-        <h2 data-hint="profile_head">{{ request.role|title }} profile</h2>
-        {% with request.role_object.enabled as en %}
+        <h2 data-hint="profile_head">{{ role|title }} profile</h2>
+        {% with role_object.enabled as en %}
             <div data-hint="status_change" class="uk-align-right">
                 {% if en != None %}
                     <a class="uk-button-text uk-button uk-text-capitalize"
@@ -25,9 +25,9 @@
                 {% endif %}
             </div>
         {% endwith %}
-        {% if request.role == 'candidate' %}
+        {% if role == 'candidate' %}
             {% include 'jobboard/include/candidate_profile.html' %}
-        {% elif request.role == 'employer' %}
+        {% elif role == 'employer' %}
             {% include 'jobboard/include/employer_profile.html' %}
         {% endif %}
     </div>

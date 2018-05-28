@@ -1,5 +1,5 @@
 {% load jobboard_tags vacancy_tags statistic_tags %}
-{% with item.employer|is_owner:request.role_object as owner %}
+{% with item.employer|is_owner:role_object as owner %}
     <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
         <div uk-grid>
             <div class="{% if not selectable %}uk-width-2-3{% endif %}">
@@ -12,7 +12,7 @@
                         {% endwith %}
                     {% else %}
                         <a class="uk-button uk-button-text"
-                           href="{% url 'vacancy' pk=item.id %}">{{ item.title }}</a>
+                           href="{% url 'vacancy' pk=item.id %}"> <span class="uk-text-bold">{{ item.company.name }}</span>: {{ item.title }}</a>
                     {% endif %}
                     {% if owner and editable %}
                         <a href="{% url 'vacancy_edit' pk=item.id %}" uk-icon="icon: file-edit"></a>

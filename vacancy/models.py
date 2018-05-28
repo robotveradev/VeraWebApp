@@ -5,11 +5,11 @@ from cv.models import Busyness, Schedule
 
 
 class Vacancy(models.Model):
-    employer = models.ForeignKey('jobboard.Employer',
-                                 blank=False,
-                                 null=False,
-                                 on_delete=models.CASCADE,
-                                 related_name='vacancies')
+    company = models.ForeignKey('company.Company',
+                                blank=False,
+                                null=False,
+                                on_delete=models.CASCADE,
+                                related_name='vacancies')
     uuid = models.CharField(max_length=64,
                             blank=False,
                             null=False)
@@ -25,7 +25,7 @@ class Vacancy(models.Model):
                                    null=True)
     requirement = models.TextField(blank=True,
                                    null=True)
-    city = models.CharField(max_length=255)
+    office = models.ManyToManyField('company.Office')
     salary_from = models.PositiveIntegerField(default=0,
                                               blank=True,
                                               null=True)
@@ -48,11 +48,15 @@ class Vacancy(models.Model):
         return reverse('vacancy', kwargs={'pk': self.id})
 
     def __str__(self):
-        return '{}: {}'.format(self.employer.organization, self.title)
+        return '{}: {}'.format(self.company.name, self.title)
+
+    @property
+    def employer(self):
+        return self.company.employer
 
     @property
     def user_field_name(self):
-        return 'employer'
+        return 'company.employer'
 
     class Meta:
         ordering = ('-updated_at',)

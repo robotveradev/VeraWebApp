@@ -1,5 +1,6 @@
 import random
 import string
+
 from account.models import SignupCode
 from django.contrib.auth.models import User
 from django.db import models
@@ -32,6 +33,7 @@ class Candidate(models.Model):
     first_name = models.CharField(max_length=64, null=False, blank=False)
     middle_name = models.CharField(max_length=64, null=True, blank=True)
     last_name = models.CharField(max_length=64, null=False, blank=False)
+    photo = models.ImageField(null=True, blank=True)
     tax_number = models.CharField(max_length=32, blank=False, null=False)
     enabled = models.NullBooleanField(default=None)
 
@@ -58,12 +60,15 @@ class Candidate(models.Model):
 class Employer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     contract_address = models.CharField(max_length=64, null=True, blank=True)
-    organization = models.CharField(max_length=255, null=False, blank=False)
+    first_name = models.CharField(max_length=64, null=False, blank=False)
+    middle_name = models.CharField(max_length=64, null=True, blank=True)
+    last_name = models.CharField(max_length=64, null=False, blank=False)
+    photo = models.ImageField(null=True, blank=True)
     tax_number = models.CharField(max_length=32, null=False, blank=False)
     enabled = models.NullBooleanField(default=None)
 
     def __str__(self):
-        return '{}: ({})'.format(self.organization, self.tax_number)
+        return '{}: ({})'.format(self.full_name, self.tax_number)
 
     def disable(self):
         self.enabled = False
@@ -74,14 +79,15 @@ class Employer(models.Model):
         self.save()
 
     def get_url(self):
-        return reverse('employer_about', kwargs={'employer_id': self.pk})
+        return reverse('employer_about', kwargs={'pk': self.pk})
 
-    def vacancies_top(self):
-        return self.vacancies.filter(enabled=True).order_by('-created_at')[:3]
+    @property
+    def full_name(self):
+        return '%s %s%s' % (self.first_name, self.last_name, ' ' + self.middle_name if self.middle_name else '')
 
     @property
     def contract_id(self):
-        return Web3.toBytes(hexstr=Web3.sha3(text=self.organization + self.tax_number))
+        return Web3.toBytes(hexstr=Web3.sha3(text=self.full_name + self.tax_number))
 
 
 class Transaction(models.Model):
@@ -116,7 +122,6 @@ def random_string():
 
 
 class InviteCode(models.Model):
-
     code = models.CharField("code",
                             default=random_string,
                             max_length=32,

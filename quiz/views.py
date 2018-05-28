@@ -23,7 +23,7 @@ class ActionExamView(OnlyEmployerMixin, ListView):
     def dispatch(self, request, *args, **kwargs):
         self.action = get_object_or_404(Action,
                                         id=kwargs.get('pk'),
-                                        pipeline__vacancy__employer=request.role_object)
+                                        pipeline__vacancy__company__employer=request.role_object)
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):

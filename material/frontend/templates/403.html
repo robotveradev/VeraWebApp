@@ -10,10 +10,10 @@
         {% trans 'Access Forbidden' %}
     </div>
     <div class="col s12">
-        {% if request.user.is_anonymous %}
+        {% if user.is_anonymous %}
         {% trans 'You are not logged in' %}
         {% else %}
-        {% blocktrans with user=request.user|default:"You" %}{{ user }} have no rights to access to the page{% endblocktrans %}
+        {% blocktrans with user=user|default:"You" %}{{ user }} have no rights to access to the page{% endblocktrans %}
         {% endif %}
     </div>
 </div>

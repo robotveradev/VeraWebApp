@@ -51,8 +51,24 @@
                 </div>
             </div>
         {% endif %}
-        {% if test %}
-            <a class="uk-link-muted" href="#">Get coins!</a>
+        {% if test and role == 'employer' and balance < 100 %}
+            <a class="uk-link-muted" href="#modal-ekv" uk-toggle>Get coins!</a>
+
+            <div id="modal-ekv" uk-modal>
+                <div class="uk-modal-dialog">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <div class="uk-modal-header">
+                        <h2 class="uk-modal-title">Get free coins</h2>
+                    </div>
+                    <div class="uk-modal-body">
+                        <p>Now we using Rinkeby Testnet, so you can get free Vera Coins.</p>
+                    </div>
+                    <div class="uk-modal-footer uk-text-right">
+                        <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">Cancel</button>
+                        <a href="{% url 'free_coins' %}" class="uk-button uk-button-small uk-button-primary">Get coins</a>
+                    </div>
+                </div>
+            </div>
         {% endif %}
 
     {% endwith %}
