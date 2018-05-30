@@ -21,3 +21,8 @@
     </div>
 {% endblock %}
 
+{% if hints_enabled %}
+    {% block extra_js %}
+        <script src="{% static 'js/hints/new_experience.js' %}"></script>
+    {% endblock %}
+{% endif %}

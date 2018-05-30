@@ -94,13 +94,25 @@ $('[data-hint=roles] > li').on('click', function () {
                 showSkip: false
             },
             {
-                'key #organization': 'Enter your <span class="hint-green">organization</span> name.<br/>' +
+                'key #first_name_employer': 'Enter your <span class="hint-green">first name.</span><br/>' +
                 'Click <span class="hint-green">TAB</span> button to continue.',
                 keyCode: 9,
                 showSkip: false,
                 onBeforeStart: function () {
-                    $('#organization').focus();
+                    $('#first_name_employer').focus();
                 }
+            },
+            {
+                'key #last_name_employer': 'And you <span class="hint-green">middle name</span> here.<br/>' +
+                'Click <span class="hint-green">TAB</span> button to continue.',
+                keyCode: 9,
+                showSkip: false,
+            },
+            {
+                'key #middle_name_employer': 'And you <span class="hint-green">tax number</span> here.<br/>' +
+                'Click <span class="hint-green">TAB</span> button to continue.',
+                keyCode: 9,
+                showSkip: false,
             },
             {
                 'key #tax_number_employer': 'And you <span class="hint-green">tax number</span> here.<br/>' +

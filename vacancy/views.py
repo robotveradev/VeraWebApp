@@ -23,7 +23,7 @@ _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 MESSAGES = {'allow': _('You must approve the tokens for the oracle.'),
             'empty_exam': _('One or more actions do not have an exam.'),
             'empty_interview': _('One or more actions do not have an interview.'),
-            'disabled_cv': _('Your profile now disabled. You must enable it for subscribe.'),
+            'disabled_cv': _('Your profile has no position. You must set position it for subscribe.'),
             'disabled_vacancy': _('Vacancy {} now disabled. You cannot subscribe to disabled vacancy.')}
 
 

@@ -17,6 +17,8 @@
     </div>
 {% endblock %}
 
-{% block extra_js %}
-    <script src="{% static 'js/hints/profile_complete.js' %}"></script>
-{% endblock %}
+{% if hinst_enabled %}
+    {% block extra_js %}
+        <script src="{% static 'js/hints/cp_new.js' %}"></script>
+    {% endblock %}
+{% endif %}

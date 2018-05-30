@@ -57,4 +57,4 @@ class SocialLink(models.Model):
                            null=False)
 
     def __str__(self):
-        return f'{self.company.name}: {self.link}'
+        return '{}: {}'.format(self.company.name, self.link)

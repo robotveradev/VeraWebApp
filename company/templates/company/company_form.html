@@ -19,3 +19,9 @@
     </div>
     {{ form.media }}
 {% endblock %}
+
+{% if hints_enabled %}
+    {% block extra_js %}
+        <script src="{% static 'js/hints/new_company.js' %}"></script>
+    {% endblock %}
+{% endif %}

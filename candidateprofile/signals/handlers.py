@@ -19,4 +19,4 @@ def change_cv_paused(sender, instance, created, **kwargs):
 
         save_txn.delay(txn_hash, 'cvChange', instance.candidate.user.id, instance.id)
         save_txn_to_history.delay(instance.candidate.user.id, txn_hash,
-                                  'Change cv {} status'.format(instance.uuid))
+                                  'Change profile {} status'.format(instance.uuid))

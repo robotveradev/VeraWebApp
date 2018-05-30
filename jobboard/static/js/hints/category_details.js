@@ -79,8 +79,12 @@ $(document).ready(function () {
                     showSkip: false,
                     showNext: true
                 },{
-                    'click #new_vacancy': 'Time to create your first vacancy! <br/>' +
-                    'Click <span class="hint-green">new vacancy</span> to continue.',
+                    'click [data-hint=profile_drop]': 'Now click here...',
+                    'timeout': 3,
+                    showSkip: false
+                },{
+                    'click [data-hint=companies]': 'Time to create your first company! <br/>' +
+                    'Click <span class="hint-green">companies</span> to continue.',
                     showSkip: false,
                 },
             ]

@@ -7,13 +7,21 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h3>Companies</h3>
+        <h3 data-hint="companies-main">Companies</h3>
         {% for company in company_list %}
             {% include 'company/include/company_short.html' %}
         {% empty %}
             No companies yet.
         {% endfor %}
         <div class="uk-clearfix"></div>
-        <a href="{% url 'new_company' %}" class="uk-button uk-button-small uk-button-primary uk-align-right">Add company</a>
+        <a data-hint="new-company" href="{% url 'new_company' %}" class="uk-button uk-button-small uk-button-primary uk-align-right">Add
+            company</a>
     </div>
 {% endblock %}
+
+
+{% if hints_enabled %}
+    {% block extra_js %}
+        <script src="{% static 'js/hints/companies_main.js' %}"></script>
+    {% endblock %}
+{% endif %}
