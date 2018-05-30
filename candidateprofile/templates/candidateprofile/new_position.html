@@ -24,6 +24,10 @@
     </div>
 {% endblock %}
 
-{% block extra_js %}
 
-{% endblock %}
+{% if hints_enabled %}
+    {% block extra_js %}
+        <script src="{% static 'js/hints/new_position.js' %}"></script>
+    {% endblock %}
+{% endif %}
+

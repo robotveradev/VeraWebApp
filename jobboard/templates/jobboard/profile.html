@@ -33,3 +33,13 @@
         {% endif %}
     </div>
 {% endblock %}
+
+{% if hints_enabled %}
+    {% block extra_js %}
+        {% if role == 'candidate' %}
+            <script src="{% static 'js/hints/candidate_profile.js' %}"></script>
+        {% elif role == 'employer' %}
+            <script src="{% static 'js/hints/employer_profile.js' %}"></script>
+        {% endif %}
+    {% endblock %}
+{% endif %}

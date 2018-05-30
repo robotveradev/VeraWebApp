@@ -62,7 +62,7 @@
                             <ul class="uk-nav uk-navbar-dropdown-nav">
                                 <li><a data-hint="profile" href="{% url 'profile' %}">Profile</a></li>
                                 {% if role == 'employer' %}
-                                    <li><a href="{% url 'companies' %}">Companies</a></li>
+                                    <li><a data-hint="companies" href="{% url 'companies' %}">Companies</a></li>
                                     <li><a href="{% url 'vacancy_all' %}">Vacancies</a></li>
                                     <li><a data-hint="quiz_link" href="{% url 'quiz_index' %}">Quiz</a></li>
                                 {% endif %}
@@ -163,6 +163,7 @@
 {% if hints_enabled %}
     <script type="text/javascript">
         $(document).ready(function () {
+                console.log(hint_set);
                 let hint_instance_set = [];
                 let tuts_count = hint_set.length;
 
@@ -204,8 +205,9 @@
                     }
                 }
                 if (hint_instance_set.length > 0) {
-                    hint_instance_set[0].start();
-                    console.log(hint_instance_set[0])
+                    setTimeout(function () {
+                        hint_instance_set[0].start();
+                    }, 500);
                 }
             }
         );

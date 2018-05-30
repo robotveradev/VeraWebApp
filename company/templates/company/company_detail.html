@@ -13,7 +13,8 @@
                      uk-img>
             </div>
             <div class="uk-width-3-4 uk-padding-small">
-                <a class="uk-link-text uk-text-bold" href="{{ company.site }}" target="_blank">{{ company.name|title }}</a>,
+                <a class="uk-link-text uk-text-bold" href="{{ company.site }}"
+                   target="_blank">{{ company.name|title }}</a>,
                 {{ company.tax_number }}, {{ company.date_created|date }}.<br/>
                 {{ company.legal_address.address_line }}.<br/>
                 <a class="uk-link-text" href="mailto:{{ company.email }}">{{ company.email }}</a>,
@@ -27,7 +28,9 @@
                 {% endif %}
             </div>
         </div>
-        <p class="uk-dropcap">{{ company.description }}</p>
+        <p class="uk-dropcap">{{ company.description|safe }}</p>
+        <div class="uk-clearfix"></div>
+        <hr class="uk-divider-icon">
         <div class="vacancies">
             <h3>Vacancies</h3>
             {% if company.vacancies.all %}
@@ -79,3 +82,9 @@
     </div>
 
 {% endblock %}
+
+{% if hints_enabled %}
+    {% block extra_js %}
+        <script src="{% static 'js/hints/company_details_main.js' %}"></script>
+    {% endblock %}
+{% endif %}

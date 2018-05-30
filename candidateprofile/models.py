@@ -99,7 +99,7 @@ class CandidateProfile(models.Model):
                               null=True,
                               blank=True)
     published = models.BooleanField(default=False)
-    enabled = models.NullBooleanField(default=False)
+    enabled = models.NullBooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
