@@ -38,20 +38,15 @@
                 <li>
                     <a id="vacancies" href="{% url 'find_job' %}">Vacancies</a>
                 </li>
+                <li>
+                    <a href="{% url 'find_cv' %}">Profiles</a>
+                </li>
                 {% if role == 'employer' %}
-                    <li>
-                        <a href="{% url 'find_cv' %}">CVs</a>
-                    </li>
                     <li>
                         <a id="new_vacancy" href="{% url 'new_vacancy' %}">Post a job</a>
                     </li>
                 {% endif %}
                 {% if role == 'candidate' %}
-                    {% if not role_object.cvs.all %}
-                        <li>
-                            <a data-hint="post_cv" href="{% url 'new_cv' %}">Post a CV</a>
-                        </li>
-                    {% endif %}
                     <li>
                         <a data-hint="feedback" href="{% url 'offers' %}">Feedback
                             {% with role_object|offers_count as off_count %}{% if off_count > 0 %}
@@ -66,9 +61,7 @@
                         <div class="uk-navbar-dropdown" uk-dropdown="mode: click">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
                                 <li><a data-hint="profile" href="{% url 'profile' %}">Profile</a></li>
-                                {% if role == 'candidate' %}
-                                    <li><a href="{% url 'cv_all' %}">All CV</a></li>
-                                {% elif role == 'employer' %}
+                                {% if role == 'employer' %}
                                     <li><a href="{% url 'companies' %}">Companies</a></li>
                                     <li><a href="{% url 'vacancy_all' %}">Vacancies</a></li>
                                     <li><a data-hint="quiz_link" href="{% url 'quiz_index' %}">Quiz</a></li>
@@ -212,6 +205,7 @@
                 }
                 if (hint_instance_set.length > 0) {
                     hint_instance_set[0].start();
+                    console.log(hint_instance_set[0])
                 }
             }
         );

@@ -1,7 +1,7 @@
 import itertools
 from django import template
 from django.urls import reverse
-from cv.models import CurriculumVitae
+from candidateprofile.models import CandidateProfile
 from interview.forms import ActionInterviewForm
 from interview.models import ActionInterview
 from jobboard.handlers.new_oracle import OracleHandler
@@ -37,8 +37,8 @@ def get_action(pipeline, index):
 @register.filter
 def cv_by_uuid(cv_uuid):
     try:
-        return CurriculumVitae.objects.get(uuid=cv_uuid)
-    except CurriculumVitae.DoesNotExist:
+        return CandidateProfile.objects.get(uuid=cv_uuid)
+    except CandidateProfile.DoesNotExist:
         return None
 
 
@@ -76,10 +76,9 @@ def vacancy_employer_pipeline(vacancy):
 def candidate_cvs_on_vacancy(vacancy, candidate):
     cvs = []
     oracle = OracleHandler()
-    for cv in candidate.cvs.all():
-        current_action = oracle.current_cv_action_on_vacancy(vacancy.uuid, cv.uuid)
-        if not is_empty_action(current_action):
-            cvs.append({'cv_object': cv, 'current_action': current_action})
+    current_action = oracle.current_cv_action_on_vacancy(vacancy.uuid, candidate.profile.uuid)
+    if not is_empty_action(current_action):
+        cvs.append({'cv_object': candidate.profile, 'current_action': current_action})
     return cvs
 
 

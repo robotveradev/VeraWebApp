@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 
-from cv.models import Busyness, Schedule
+from candidateprofile.models import Busyness, Schedule
 
 
 class Vacancy(models.Model):
@@ -63,7 +63,7 @@ class Vacancy(models.Model):
 
 
 class CVOnVacancy(models.Model):
-    cv = models.ForeignKey('cv.CurriculumVitae',
+    cv = models.ForeignKey('candidateprofile.CandidateProfile',
                            on_delete=models.CASCADE)
     vacancy = models.ForeignKey(Vacancy,
                                 on_delete=models.CASCADE)
@@ -73,7 +73,7 @@ class CVOnVacancy(models.Model):
 class VacancyOffer(models.Model):
     vacancy = models.ForeignKey('vacancy.Vacancy',
                                 on_delete=models.CASCADE)
-    cv = models.ForeignKey('cv.CurriculumVitae',
+    cv = models.ForeignKey('candidateprofile.CandidateProfile',
                            on_delete=models.CASCADE,
                            related_name='offers')
     created_at = models.DateTimeField(auto_now_add=True)

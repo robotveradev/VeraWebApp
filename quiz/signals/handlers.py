@@ -15,6 +15,7 @@ def candidate_pass_exam(sender, instance, created, **kwargs):
     else:
         if instance.processed and instance.points >= instance.exam.passing_grade:
             oracle = OracleHandler()
+            print(oracle.current_cv_action_on_vacancy(instance.exam.action.pipeline.vacancy.uuid, instance.cv.uuid))
             txn_hash = oracle.level_up(instance.exam.action.pipeline.vacancy.uuid, instance.cv.uuid)
             save_txn_to_history.delay(instance.cv.candidate.user.id, txn_hash,
                                       'Level up on vacancy {}'.format(instance.exam.action.pipeline.vacancy.title))

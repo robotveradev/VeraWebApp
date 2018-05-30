@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from solc import compile_source
 from web3 import Web3, HTTPProvider
 
-from cv.models import CurriculumVitae
+from candidateprofile.models import CandidateProfile
 from jobboard.handlers.new_oracle import OracleHandler
 from jobboard.models import Transaction, Employer, Candidate, TransactionHistory
 from vacancy.models import Vacancy
@@ -36,7 +36,7 @@ class CheckTransaction(Task):
     def process_txns(self):
         for txn in self.txn_set:
             txn_info = self.w3.eth.getTransaction(txn.txn_hash)
-            if txn_info['blockNumber'] is not None:
+            if txn_info is not None and txn_info['blockNumber'] is not None:
                 self.handle_txn(txn)
 
     def check_txn_status(self, txn):
@@ -102,8 +102,8 @@ class CheckTransaction(Task):
 
     def newcv(self, txn):
         try:
-            cv_o = CurriculumVitae.objects.get(id=txn.obj_id)
-        except CurriculumVitae.DoesNotExist:
+            cv_o = CandidateProfile.objects.get(id=txn.obj_id)
+        except CandidateProfile.DoesNotExist:
             pass
         else:
             cv_o.published = True

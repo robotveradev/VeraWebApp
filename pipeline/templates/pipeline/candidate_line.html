@@ -49,33 +49,8 @@
         </div>
 
         {% if vacancy.published and vacancy.enabled %}
-            <a href="#subscribe-modal" class="uk-button uk-button-small uk-button-primary uk-align-right" uk-toggle>Subscribe</a>
-
-            <div id="subscribe-modal" uk-modal>
-                <div class="uk-modal-dialog" uk-overflow-auto>
-                    <button class="uk-modal-close-default" type="button" uk-close></button>
-                    <div class="uk-modal-header">
-                        <h2 class="uk-modal-title">Subscribe to vacancy</h2>
-                    </div>
-                    <div class="uk-modal-body uk-padding-remove">
-                        <div class="uk-padding-small">
-                            <span>Here you can choose one of your resume to subscribe to the vacancy.</span>
-                        </div>
-                        {% for cv in candidate.cvs.all %}
-                            {% if cv.published %}
-                                {% include 'cv/include/cv.html' with selectable=True can_sub=can_subscribe %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    <div class="uk-modal-footer uk-text-right">
-                        <button class="uk-button uk-button-default uk-modal-close uk-button-small" type="button">
-                            Cancel
-                        </button>
-                        <a href="{% url 'new_cv' %}" class="uk-button uk-button-primary uk-button-small"
-                           type="button">Add new CV</a>
-                    </div>
-                </div>
-            </div>
+            <a href="{% url 'subscribe_to_vacancy' vacancy_id=vacancy.id cv_id=candidate.profile.id %}"
+               class="uk-button uk-button-small uk-button-primary uk-align-right" uk-toggle>Subscribe</a>
         {% endif %}
     {% endif %}
 {% endif %}

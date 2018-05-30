@@ -7,7 +7,7 @@ from django import template
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-from cv.models import CurriculumVitae
+from candidateprofile.models import CandidateProfile
 from jobboard import blockies
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.new_oracle import OracleHandler
@@ -20,7 +20,7 @@ register = template.Library()
 
 @register.filter(name='has_cv')
 def has_cv(user_id):
-    return CurriculumVitae.objects.filter(candidate__user_id=user_id).count() > 0
+    return CandidateProfile.objects.filter(candidate__user_id=user_id).count() > 0
 
 
 @register.filter(name='allowance_rest')
@@ -102,11 +102,10 @@ def get_vacancy(vac_uuid):
 def get_candidate_vacancies(context, candidate):
     vac_set = set()
     oracle = OracleHandler()
-    for cv in candidate.cvs.all():
-        count = oracle.vacancies_on_cv_length(cv.uuid)
-        for i in range(count):
-            vac_uuid = oracle.vacancy_on_cv_by_index(cv.uuid, i)
-            vac_set.add(vac_uuid)
+    count = oracle.vacancies_on_cv_length(candidate.profile.uuid)
+    for i in range(count):
+        vac_uuid = oracle.vacancy_on_cv_by_index(candidate.profile.uuid, i)
+        vac_set.add(vac_uuid)
     vacancies = Vacancy.objects.filter(uuid__in=vac_set)
     return {'vacancies': vacancies,
             'request': context.request,

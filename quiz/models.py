@@ -94,7 +94,7 @@ class ActionExam(models.Model):
 
 
 class ExamPassed(models.Model):
-    cv = models.ForeignKey('cv.CurriculumVitae',
+    cv = models.ForeignKey('candidateprofile.CandidateProfile',
                            on_delete=models.SET_NULL,
                            null=True,
                            related_name='exams')

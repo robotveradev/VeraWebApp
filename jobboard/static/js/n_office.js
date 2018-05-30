@@ -4,7 +4,7 @@ $(document).ready(function () {
         '<label class="uk-form-label" for="new_office">New office address' +
         '</label>' +
         '<div class="uk-form-controls">' +
-        '<input class="uk-input address" id="new_office" maxlength="255" placeholder="New office address" type="text" required="">' +
+        '<input class="uk-input address" id="new_office" maxlength="255" placeholder="New office address" type="text">' +
         '<span style="font-size: 0.7rem" class="uk-text-meta">Enter the address of the new office, and click Enter button</span>' +
         '</div>' +
         '</div>';
@@ -29,7 +29,7 @@ $(document).ready(function () {
                         },
                         success: function (d) {
                             $('#id_office').append('<option value="' + d.id + '" selected>' + d.label + '</option>');
-                            $(this).val('');
+                            $('#new_office').val('');
                         },
                         error: function (e) {
                             UIkit.notification({message: 'Error saving new office', pos: 'top-right'});

@@ -1,0 +1,24 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}Vera Oracle - Position {{ position_o.title|title }} edit{% endblock %}
+
+{% load material_form %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        {% if error %}
+            <span class="center red-text">{{ error }}</span>
+        {% endif %}
+        <form class="uk-form-horizontal" action="{% url 'position_edit' %}" method="post">
+            <fieldset class="uk-fieldset">
+                <legend class="uk-legend">
+                    Edit position entry {{ object.title|title }}
+                </legend>
+                {% csrf_token %}
+                {% form form=form %}{% endform %}
+                <button class="uk-button uk-button-primary uk-align-right uk-button-small">Save</button>
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}

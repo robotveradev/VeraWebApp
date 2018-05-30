@@ -7,7 +7,7 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h4>Exam result for CV {{ object.cv.title }}</h4>
+        <h4>Exam result for {{ object.cv.candidate.user.username }}</h4>
         {% for question in object.exam.questions.all %}
             {% with object.answers|question_result:question.id as answers %}
                 <div class="uk-box-shadow-small uk-padding-small uk-margin-small">

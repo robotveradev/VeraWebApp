@@ -11,7 +11,7 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center uk-offcanvas-content">
-        <h4>{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.employer.organization|title }}</small>
+        <h4>{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.company.name|title }}</small>
             {% if vacancy.employer == role_object %}
                 <a href="{% url 'vacancy_edit' pk=vacancy.id %}" uk-icon="file-edit"></a>
             {% endif %}
@@ -134,11 +134,14 @@
             {% endfor %}
         </section>
         <br>
-        {% if role_object == vacancy.employer %}
-            {% vacancy_employer_pipeline vacancy %}
-        {% elif role == 'candidate' %}
-            {% vacancy_candidate_pipeline vacancy role_object %}
+        {% if not user.is_authenticated %}
+            {% include 'jobboard/include/login_modal.html' with button_text='Subscribe' %}
+        {% else %}
+            {% if role_object == vacancy.employer %}
+                {% vacancy_employer_pipeline vacancy %}
+            {% elif role == 'candidate' %}
+                {% vacancy_candidate_pipeline vacancy role_object %}
+            {% endif %}
         {% endif %}
-
     </div>
 {% endblock %}

@@ -14,7 +14,7 @@
             {% with vacancy|candidate_state:cv.cv.candidate as st %}
                 <tr>
                     <td>
-                        <a href="{% url 'cv' pk=cv.cv.id %}">{{ cv.cv.candidate.first_name }} {{ cv.cv.candidate.last_name }}
+                        <a href="{% url 'candidateprofile' pk=cv.cv.id %}">{{ cv.cv.candidate.first_name }} {{ cv.cv.candidate.last_name }}
                             - {{ cv.cv.position.title }}</a>
                     </td>
                     <td class="uk-text-center

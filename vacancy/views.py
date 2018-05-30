@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, CreateView, UpdateView, DetailView, ListView
 from web3 import Web3
 
-from cv.models import CurriculumVitae
+from candidateprofile.models import CandidateProfile
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.new_oracle import OracleHandler
 from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
@@ -23,7 +23,7 @@ _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 MESSAGES = {'allow': _('You must approve the tokens for the oracle.'),
             'empty_exam': _('One or more actions do not have an exam.'),
             'empty_interview': _('One or more actions do not have an interview.'),
-            'disabled_cv': _('Curriculum Vitae {} now disabled. You must enable it for subscribe.'),
+            'disabled_cv': _('Your profile now disabled. You must enable it for subscribe.'),
             'disabled_vacancy': _('Vacancy {} now disabled. You cannot subscribe to disabled vacancy.')}
 
 
@@ -48,7 +48,6 @@ class CreateVacancyView(OnlyEmployerMixin, CreateView):
         return self.process_form_instance(form)
 
     def process_form_instance(self, form):
-        # form.instance.employer = self.request.role_object
         form.instance.allowed_amount = form.cleaned_data['allowed_amount']
         form.instance.uuid = Web3.toHex(os.urandom(15))
         return super().form_valid(form)
@@ -95,7 +94,7 @@ class SubscribeToVacancyView(OnlyCandidateMixin, RedirectView):
         return reverse('vacancy', kwargs={'pk': kwargs.get('vacancy_id')})
 
     def get(self, request, *args, **kwargs):
-        self.cv = get_object_or_404(CurriculumVitae, id=kwargs.get('cv_id'), candidate=request.role_object)
+        self.cv = get_object_or_404(CandidateProfile, id=kwargs.get('cv_id'), candidate=request.role_object)
         self.vacancy = get_object_or_404(Vacancy, id=kwargs.get('vacancy_id'))
         return self.check_vac_cv(*args, **kwargs)
 
@@ -175,13 +174,11 @@ class VacanciesListView(OnlyEmployerMixin, ListView):
 
 
 class OfferVacancyView(OnlyEmployerMixin, RedirectView):
-    pattern_name = 'cv'
-
     def get_redirect_url(self, *args, **kwargs):
-        vac_o = get_object_or_404(Vacancy, id=kwargs['vacancy_id'], employer=self.request.role_object)
-        cv_o = get_object_or_404(CurriculumVitae, id=kwargs['cv_id'])
-        VacancyOffer.objects.get_or_create(vacancy=vac_o, cv=cv_o)
-        return super().get_redirect_url(pk=kwargs['cv_id'])
+        vac_o = get_object_or_404(Vacancy, id=kwargs['vacancy_id'], company__employer=self.request.role_object)
+        cp_o = get_object_or_404(CandidateProfile, id=kwargs['cv_id'])
+        VacancyOffer.objects.get_or_create(vacancy=vac_o, cv=cp_o)
+        return reverse('candidate_profile', kwargs={'username': cp_o.candidate.user.username})
 
 
 class UpdateAllowedView(OnlyEmployerMixin, UpdateView):

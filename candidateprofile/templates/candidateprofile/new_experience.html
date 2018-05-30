@@ -1,0 +1,23 @@
+{% extends 'jobboard/base.html' %}
+
+{% load material_form i18n static %}
+
+{% block head_title %}CurriculumVitae - New experience{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    {{ form.media }}
+    <div class="uk-container uk-align-center">
+        <form class="uk-form-horizontal" action="{% url 'new_experience' %}" method="post">
+            <fieldset class="uk-fieldset">
+                <legend class="uk-legend">
+                    {% trans 'Add work experience' %}
+                </legend>
+                {% csrf_token %}
+                {% form form=form %}{% endform %}
+                <button class="uk-button uk-button-primary uk-button-small uk-align-right">Save</button>
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}
+

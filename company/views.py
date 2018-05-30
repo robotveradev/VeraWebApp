@@ -67,6 +67,7 @@ class CompanyDeleteView(OnlyEmployerMixin, DeleteView):
 
 
 class CompanyNewOfficeView(OnlyEmployerMixin, View):
+
     def post(self, request, *args, **kwargs):
         company = get_object_or_404(Company, pk=kwargs.get('pk'), employer=request.role_object)
         office = Office()
@@ -74,6 +75,6 @@ class CompanyNewOfficeView(OnlyEmployerMixin, View):
         office.address = Address.objects.create(raw=request.POST.get('address'))
         office.main = 'main' in request.POST
         office.save()
-        if request.is_ajax:
+        if request.is_ajax():
             return JsonResponse({'id': office.pk, 'label': str(office)})
         return HttpResponseRedirect(reverse('company', kwargs={'pk': company.pk}))

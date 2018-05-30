@@ -17,7 +17,7 @@
         {% with vacancy.uuid|cvs_on_vacancy_per_stage as cvs %}
             {% with cvs|get_item:action.id as cvs_on_stage %}
                 {% if cvs_on_stage %}
-                    <h5>Cvs at stage</h5>
+                    <h5>Candidates at stage</h5>
                     <table class="uk-table uk-table-small uk-table-striped">
                         <thead>
                         <tr>
@@ -68,7 +68,7 @@
 
             {% with cvs|get_passed_cvs_by:action.id as cvs_passed %}
                 {% if cvs_passed %}
-                    <h5>Cvs who passed the stage</h5>
+                    <h5>Candidates who passed the stage</h5>
                     <table class="uk-table uk-table-small uk-table-striped">
                         <thead>
                         <tr>
