@@ -37,5 +37,6 @@
                 <div uk-spinner="ratio: 0.4">The results of your exam are now being processed  </div>
             {% endif %}
         {% endif %}
+        <a class="uk-button uk-button-primary uk-button-small uk-align-right" href="{% url 'vacancy' pk=action.pipeline.vacancy.pk %}">Back to vacancy</a>
     </div>
 {% endblock %}

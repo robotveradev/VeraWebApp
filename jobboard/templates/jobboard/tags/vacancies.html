@@ -2,6 +2,6 @@
 {% if vacancies %}
     <h5>Vacancies, you subscribed to</h5>
     {% for vacancy in vacancies %}
-        {% include 'vacancy/vacancy_short.html' with item=vacancy candidate=candidate %}
+        {% include 'vacancy/vacancy_short.html' with item=vacancy candidate=candidate role_object=candidate %}
     {% endfor %}
 {% endif %}

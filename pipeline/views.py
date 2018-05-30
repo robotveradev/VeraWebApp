@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import TemplateView, RedirectView, DetailView
-from cv.models import CurriculumVitae
+from candidateprofile.models import CandidateProfile
 from jobboard.handlers.new_employer import EmployerHandler
 from jobboard.handlers.new_oracle import OracleHandler
 from jobboard.mixins import OnlyEmployerMixin
@@ -68,8 +68,8 @@ class ApproveActionEmployerView(OnlyEmployerMixin, RedirectView):
         return reverse('vacancy', kwargs={'pk': self.vacancy.id})
 
     def dispatch(self, request, *args, **kwargs):
-        self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('vacancy_id'), employer=request.role_object)
-        self.cv = get_object_or_404(CurriculumVitae, pk=kwargs.get('cv_id'))
+        self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('vacancy_id'), company__employer=request.role_object)
+        self.cv = get_object_or_404(CandidateProfile, pk=kwargs.get('cv_id'))
         self.employer_h = self.employer_h(settings.WEB_ETH_COINBASE, self.vacancy.employer.contract_address)
         return super().dispatch(request, *args, **kwargs)
 
@@ -98,8 +98,8 @@ class RevokeCvEmployerView(OnlyEmployerMixin, RedirectView):
         return reverse('vacancy', kwargs={'pk': self.vacancy.id})
 
     def dispatch(self, request, *args, **kwargs):
-        self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('vacancy_id'), employer=request.role_object)
-        self.cv = get_object_or_404(CurriculumVitae, pk=kwargs.get('cv_id'))
+        self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('vacancy_id'), company__employer=request.role_object)
+        self.cv = get_object_or_404(CandidateProfile, pk=kwargs.get('cv_id'))
         self.employer_h = self.employer_h(settings.WEB_ETH_COINBASE, self.vacancy.employer.contract_address)
         return super().dispatch(request, *args, **kwargs)
 
@@ -111,9 +111,9 @@ class RevokeCvEmployerView(OnlyEmployerMixin, RedirectView):
         txn_hash = self.employer_h.reset_cv(self.vacancy.uuid, self.cv.uuid)
         save_txn.delay(txn_hash, 'EmpAnswer', self.request.user.id, self.cv.id, self.vacancy.id)
         save_txn_to_history.delay(self.request.user.id, txn_hash,
-                                  'Cv {} revoked.'.format(self.cv.uuid))
+                                  'Candidate {} revoked.'.format(self.cv.uuid))
         save_txn_to_history.delay(self.cv.candidate.user.id, txn_hash,
-                                  'Cv {} revoked on vacancy {}.'.format(self.cv.uuid, self.vacancy.uuid))
+                                  'Candidate {} revoked on vacancy {}.'.format(self.cv.uuid, self.vacancy.uuid))
 
 
 class ActionDetailView(OnlyEmployerMixin, DetailView):

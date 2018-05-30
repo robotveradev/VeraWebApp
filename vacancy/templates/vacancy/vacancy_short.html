@@ -1,5 +1,5 @@
 {% load jobboard_tags vacancy_tags statistic_tags %}
-{% with item.employer|is_owner:role_object as owner %}
+{% with item.company.employer|is_owner:role_object as owner %}
     <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
         <div uk-grid>
             <div class="{% if not selectable %}uk-width-2-3{% endif %}">
@@ -8,7 +8,7 @@
                         {% with item|is_already_offer:cv as offer %}
                             {% url 'offer_vacancy' vacancy_id=item.id cv_id=cv.id as offer_url %}
                             <a class="uk-button uk-button-text{% if offer %} uk-text-muted{% endif %}"
-                               href="{% if offer %}#{% else %}{{ offer_url }}{% endif %}">{{ item.title }}</a>
+                               href="{% if offer %}#{% else %}{{ offer_url }}{% endif %}">{{ item.title }} (Offered)</a>
                         {% endwith %}
                     {% else %}
                         <a class="uk-button uk-button-text"

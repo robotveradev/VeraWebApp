@@ -1,0 +1,29 @@
+{% extends 'jobboard/base.html' %}
+
+{% load material_form i18n static %}
+
+{% block head_title %}CurriculumVitae - New position{% endblock %}
+
+{% block extra_css %}
+
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        <form class="uk-form-horizontal" action="{% url 'new_position' %}" method="post">
+            <fieldset class="uk-fieldset">
+                <legend class="uk-legend">
+                    {% trans 'Complete position' %}
+                </legend>
+                {% csrf_token %}
+                {% form form=form %}{% endform %}
+            </fieldset>
+            <button type="submit" class="uk-button uk-button-small uk-button-primary uk-align-right">Agree</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+
+{% endblock %}

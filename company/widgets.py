@@ -1,5 +1,5 @@
 import sys
-import django
+
 from django import forms
 from django.conf import settings
 from django.utils.safestring import mark_safe
@@ -12,7 +12,6 @@ if sys.version > '3':
     unicode = str
 
 USE_DJANGO_JQUERY = getattr(settings, 'USE_DJANGO_JQUERY', False)
-JQUERY_URL = getattr(settings, 'JQUERY_URL', 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js')
 
 
 class AddressWidget(forms.TextInput):
@@ -25,22 +24,6 @@ class AddressWidget(forms.TextInput):
             'js/jquery.geocomplete.min.js',
             'js/address.js',
         ]
-
-        if JQUERY_URL:
-            js.insert(0, JQUERY_URL)
-        elif JQUERY_URL is not False:
-            vendor = '' if django.VERSION < (1, 9, 0) else 'vendor/jquery/'
-            extra = '' if settings.DEBUG else '.min'
-
-            jquery_paths = [
-                '{}jquery{}.js'.format(vendor, extra),
-                'jquery.init.js',
-            ]
-
-            if USE_DJANGO_JQUERY:
-                jquery_paths = ['admin/js/{}'.format(path) for path in jquery_paths]
-
-            js.extend(jquery_paths)
 
     def __init__(self, *args, **kwargs):
         attrs = kwargs.get('attrs', {})

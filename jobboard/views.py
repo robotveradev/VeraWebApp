@@ -5,14 +5,14 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import TemplateView, DetailView, RedirectView, ListView
 from web3.utils.validation import validate_address
 
-from cv.models import CurriculumVitae
+from candidateprofile.models import CandidateProfile
 from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.new_employer import EmployerHandler
@@ -20,9 +20,9 @@ from jobboard.mixins import ChooseRoleMixin, OnlyEmployerMixin, OnlyCandidateMix
 from jobboard.tasks import save_txn_to_history, save_txn
 from vacancy.models import Vacancy
 from .decorators import choose_role_required
-from .filters import VacancyFilter, CVFilter
+from .filters import VacancyFilter, CPFilter
 from .handlers.new_oracle import OracleHandler
-from .models import Employer, TransactionHistory, InviteCode
+from .models import Employer, TransactionHistory, InviteCode, Candidate
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
@@ -30,7 +30,7 @@ SORTS = [{'id': 1, 'order': '-salary_from', 'title': 'by salary descending', 'ty
          {'id': 2, 'order': 'salary_from', 'title': 'by salary ascending', 'type': 'sort'},
          {'id': 3, 'order': '-updated_at', 'title': 'by date', 'type': 'sort'}]
 
-CVS_SORTS = [{'id': 1, 'order': '-position__salary_from', 'title': 'by salary descending', 'type': 'sort'},
+CPS_SORTS = [{'id': 1, 'order': '-position__salary_from', 'title': 'by salary descending', 'type': 'sort'},
              {'id': 2, 'order': 'position__salary_from', 'title': 'by salary ascending', 'type': 'sort'},
              {'id': 3, 'order': '-updated_at', 'title': 'by date', 'type': 'sort'}]
 
@@ -43,7 +43,7 @@ class FindJobView(TemplateView):
         self.request = None
         self.vacancies = Vacancy.objects.filter(published=True, enabled=True, company__employer__enabled=True)
         self.vacancies_filter = None
-        self.cvs = CurriculumVitae.objects
+        self.cvs = CandidateProfile.objects
         self.context = {}
 
     def dispatch(self, request, *args, **kwargs):
@@ -103,8 +103,8 @@ class FindCVView(TemplateView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
-        self.cvs = CurriculumVitae.objects.filter(published=True, candidate__enabled=True)
-        self.cvs_filter = None
+        self.cps = CandidateProfile.objects.filter(published=True, candidate__enabled=True)
+        self.cps_filter = None
         self.vacs = Vacancy.objects.filter(enabled=True)
         self.context = {}
 
@@ -117,47 +117,47 @@ class FindCVView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         self.get_context_data(**kwargs)
-        self.set_cvs_filter()
-        self.sort_cvs_filter()
-        paginator = Paginator(self.cvs_filter, 15)
-        self.context.update({'cvs': paginator.get_page(request.GET.get('page')),
-                             'sorts': CVS_SORTS})
+        self.set_cps_filter()
+        self.sort_cps_filter()
+        paginator = Paginator(self.cps_filter, 15)
+        self.context.update({'cps': paginator.get_page(request.GET.get('page')),
+                             'sorts': CPS_SORTS})
         return self.render_to_response(self.context)
 
-    def set_cvs_filter(self):
+    def set_cps_filter(self):
         if 'filter' not in self.request.GET:
-            self.set_filter_for_relevant_cvs()
+            self.set_filter_for_relevant_cps()
         else:
             self.set_filter_by_parameters()
 
-    def set_filter_for_relevant_cvs(self):
+    def set_filter_for_relevant_cps(self):
         if self.request.role == _EMPLOYER:
             vacs = self.vacs.filter(company__employer=self.request.role_object, enabled=True)
             specs_list = list(set([item['specialisations__id'] for item in vacs.values('specialisations__id') if
                                    item['specialisations__id'] is not None]))
             keywords_list = list(
                 set([item['keywords__id'] for item in vacs.values('keywords__id') if item['keywords__id'] is not None]))
-            cvs = self.cvs.filter(Q(specialisations__in=specs_list) |
+            cps = self.cps.filter(Q(specialisations__in=specs_list) |
                                   Q(keywords__in=keywords_list)).exclude(
                 candidate__contract_address=None).distinct()
-            self.cvs_filter = cvs
+            self.cps_filter = cps
         else:
-            self.cvs_filter = self.cvs
-        self.context.update({'all': self.cvs})
+            self.cps_filter = self.cps
+        self.context.update({'all': self.cps})
 
     def set_filter_by_parameters(self):
-        self.cvs_filter = CVFilter(self.request.GET, self.cvs).qs
-        self.context.update({'all': self.cvs_filter})
+        self.cps_filter = CPFilter(self.request.GET, self.cps).qs
+        self.context.update({'all': self.cps_filter})
 
-    def sort_cvs_filter(self):
+    def sort_cps_filter(self):
         if 'sort' in self.request.GET:
-            sort_by = get_item(CVS_SORTS, int(self.request.GET.get('sort')))
+            sort_by = get_item(CPS_SORTS, int(self.request.GET.get('sort')))
             if not sort_by:
-                sort_by = CVS_SORTS[2]
+                sort_by = CPS_SORTS[2]
         else:
-            sort_by = CVS_SORTS[2]
+            sort_by = CPS_SORTS[2]
         self.context.update({'selected_sort': sort_by})
-        self.cvs_filter = self.cvs_filter.order_by(sort_by['order'])
+        self.cps_filter = self.cps_filter.order_by(sort_by['order'])
 
 
 class ChooseRoleView(TemplateView):
@@ -181,6 +181,8 @@ class ChooseRoleView(TemplateView):
             role_o.save()
             if hasattr(request.GET, 'next'):
                 return HttpResponseRedirect(request.GET['next'])
+            if role == _CANDIDATE:
+                return redirect('complete_profile')
             return redirect('profile')
         else:
             context = self.get_context_data(**kwargs)
@@ -417,3 +419,12 @@ class GetFreeCoinsView(ChooseRoleMixin, RedirectView):
         txn_hash = coin_h.transfer(request.role_object.contract_address, 1000 * 10 ** 18)
         save_txn_to_history.delay(request.user.id, txn_hash, 'Free coins added.')
         return super().get(request, *args, **kwargs)
+
+
+class CandidateProfileView(DetailView):
+    model = Candidate
+    template_name = 'jobboard/candidate.html'
+
+    def get_object(self, queryset=None):
+        can = get_object_or_404(Candidate, user__username=self.kwargs.get('username'))
+        return can

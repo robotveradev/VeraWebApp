@@ -25,7 +25,7 @@ class Interview(models.Model):
                                          on_delete=models.CASCADE,
                                          null=False,
                                          related_name='interviews')
-    cv = models.ForeignKey('cv.CurriculumVitae',
+    cv = models.ForeignKey('candidateprofile.CandidateProfile',
                            on_delete=models.CASCADE)
     closed = models.BooleanField(default=False)
 

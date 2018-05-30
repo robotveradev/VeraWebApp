@@ -20,13 +20,6 @@ class CompanyForm(forms.ModelForm):
             'description': 'Aims and objectives'
         }
 
-    class Media:
-        js = [
-            'https://maps.googleapis.com/maps/api/js?libraries=places&key=%s' % settings.GOOGLE_JS_MAP_KEY,
-            'js/jquery.geocomplete.min.js',
-            'js/address.js',
-        ]
-
 
 class OfficeForm(forms.ModelForm):
     class Meta:

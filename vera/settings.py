@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'jobboard',
-    'cv',
+    'candidateprofile',
     'vacancy',
     'quiz',
     'interview',
@@ -199,3 +199,9 @@ SOCIAL_ICONS = {
     't': 'telegram',
     'steamcommunity': 'steam-square',
 }
+
+if DEBUG:
+    try:
+        from vera.local_settings import *
+    except Exception:
+        pass

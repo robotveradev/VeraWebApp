@@ -5,7 +5,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import ListView, TemplateView, CreateView
-from cv.models import CurriculumVitae
+from candidateprofile.models import CandidateProfile
 from interview import utils
 from interview.forms import ActionInterviewForm
 from interview.models import *
@@ -24,7 +24,7 @@ class InterviewView(ChooseRoleMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.action_interview = get_object_or_404(ActionInterview, pk=kwargs.get('pk'))
-        self.cv = get_object_or_404(CurriculumVitae, pk=kwargs.get('cv_id'))
+        self.cv = get_object_or_404(CandidateProfile, pk=kwargs.get('cv_id'))
         self.interview, _ = Interview.objects.get_or_create(action_interview=self.action_interview, cv=self.cv)
         return self.check_interview(request, *args, **kwargs)
 

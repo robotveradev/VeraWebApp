@@ -1,0 +1,24 @@
+<div class="uk-clearfix"></div>
+<button class="uk-button uk-button-primary uk-margin-small-right uk-button-small uk-align-right" type="button"
+        uk-toggle="target: #modal-login-required">
+    {% if button_text %}
+        {{ button_text }}
+    {% else %}
+        Apply
+    {% endif %}
+</button>
+
+<div id="modal-login-required" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Login required</h2>
+        {% if message %}
+            {{ message }}
+        {% else %}
+            You must login to continue
+        {% endif %}
+        <p class="uk-text-right">
+            <a href="{% url 'account_login' %}" class="uk-button uk-button-primary uk-button-small" type="button">Login</a>
+            <a href="{% url 'account_signup' %}" class="uk-button uk-button-default uk-button-small" type="button">Register</a>
+        </p>
+    </div>
+</div>

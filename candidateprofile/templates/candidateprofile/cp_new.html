@@ -1,0 +1,22 @@
+{% extends 'jobboard/base.html' %}
+
+{% load material_form static %}
+
+{% block head_title %}Candidate - New CV{% endblock %}
+
+{% block content %}
+    {{ form.media }}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        <h4 class="center">Candidate profile</h4>
+        <form class="uk-form-horizontal" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% form form=form %}{% endform %}
+            <button type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right">Save</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/hints/profile_complete.js' %}"></script>
+{% endblock %}

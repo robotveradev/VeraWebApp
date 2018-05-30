@@ -6,7 +6,7 @@ from django.views import View
 from django.views.generic import TemplateView, CreateView, DetailView, ListView, UpdateView
 from django.views.generic.edit import BaseUpdateView
 
-from cv.models import CurriculumVitae
+from candidateprofile.models import CandidateProfile
 from jobboard.mixins import OnlyEmployerMixin
 from pipeline.models import Action
 from quiz.forms import CategoryForm
@@ -62,7 +62,7 @@ class ActionAddQuestionsView(ListView):
         return []
 
     def post(self, request, *args, **kwargs):
-        action = get_object_or_404(Action, pipeline__vacancy__employer=request.role_object,
+        action = get_object_or_404(Action, pipeline__vacancy__company__employer=request.role_object,
                                    id=request.POST.get('action'))
         question_ids = request.POST.getlist('questions')
         if question_ids:
@@ -96,7 +96,7 @@ class CandidateExaminingView(TemplateView):
         return context
 
     def get(self, request, *args, **kwargs):
-        self.cv = get_object_or_404(CurriculumVitae, pk=kwargs.get('cv_id'))
+        self.cv = get_object_or_404(CandidateProfile, pk=kwargs.get('cv_id'))
         self.action_exam = get_object_or_404(ActionExam, pk=kwargs.get('pk'))
         self.check_candidate()
         return super().get(self, request, *args, **kwargs)
@@ -112,7 +112,7 @@ class CandidateExaminingView(TemplateView):
 
     def process_request(self, request):
         self.action_exam = get_object_or_404(ActionExam, pk=request.POST.get('exam_id', None))
-        self.cv = get_object_or_404(CurriculumVitae, pk=request.POST.get('cv_id', None))
+        self.cv = get_object_or_404(CandidateProfile, pk=request.POST.get('cv_id', None))
         answers = {key: value[0] if len(value) == 1 else value for key, value in dict(request.POST).items() if
                    key.startswith('question_') and value[0] != ''}
         ExamPassed.objects.create(cv=self.cv, exam=self.action_exam, answers=answers)

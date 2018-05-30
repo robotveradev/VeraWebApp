@@ -16,15 +16,16 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.views.generic import TemplateView
+
+from candidateprofile import views as cp_views
+from company import views as company_views
 from jobboard import views as jobboard_views
-from cv import views as cv_views
-from vacancy import views as vacancy_views
+from pipeline import views as pipeline_views
 from quiz import views as quiz_views
 from statistic import views as statistic_views
-from pipeline import views as pipeline_views
-from company import views as company_views
+from vacancy import views as vacancy_views
 
 basic = [
     path('', TemplateView.as_view(template_name='jobboard/index.html'), name='index'),
@@ -33,9 +34,8 @@ basic = [
     path('admin/', admin.site.urls),
     path('account/signup/', jobboard_views.SignupInviteView.as_view(), name="account_signup"),
     path('account/', include("account.urls")),
-    path('job/find/', jobboard_views.FindJobView.as_view(), name='find_job'),
-    path('cv/find/', jobboard_views.FindCVView.as_view(), name='find_cv'),
-    path('profile/', jobboard_views.ProfileView.as_view(), name='profile'),
+    path('vacancies/', jobboard_views.FindJobView.as_view(), name='find_job'),
+    path('profiles/', jobboard_views.FindCVView.as_view(), name='find_cv'),
     path('help/', TemplateView.as_view(template_name='jobboard/user_help.html'), name='user_help'),
     path('contract/status/change/', jobboard_views.ChangeContractStatus.as_view(), name='change_contract_status'),
     path('transactions/', jobboard_views.TransactionsView.as_view(), name='transactions'),
@@ -49,23 +49,21 @@ basic = [
 ]
 
 candidate_urlpatterns = [
-
+    path('profile/complete/', cp_views.CompleteProfileView.as_view(), name='complete_profile'),
+    path('profile/', jobboard_views.ProfileView.as_view(), name='profile'),
+    path('profile/id/<slug:username>/', jobboard_views.CandidateProfileView.as_view(), name='candidate_profile'),
 ]
 
 curriculum_vitae_urlpatterns = [
-    path('cv/new/', cv_views.NewCvView.as_view(), name='new_cv'),
-    path('cv/all/', cv_views.CvAllView.as_view(), name='cv_all'),
-    path('cv/<int:pk>/', cv_views.CvView.as_view(), name='cv'),
-    path('cv/<int:pk>/edit/', cv_views.CvEditView.as_view(), name='cv_edit'),
-    path('cv/<int:pk>/position/new/', cv_views.NewPositionView.as_view(), name='new_position'),
-    path('position/<int:pk>/edit/', cv_views.PositionEditView.as_view(), name='position_edit'),
-    path('cv/<int:pk>/education/new/', cv_views.NewEducationView.as_view(), name='new_education'),
-    path('education/<int:pk>/edit/', cv_views.EducationEditView.as_view(), name='education_edit'),
-    path('cv/<int:pk>/experience/new/', cv_views.NewExperienceView.as_view(), name='new_experience'),
-    path('experience/<int:pk>/edit/', cv_views.ExperienceEditView.as_view(), name='experience_edit'),
-    path('cv/<int:pk>/status/change/', cv_views.ChangeCvStatusView.as_view(), name='change_cv_status'),
-    path('cv/offer/', cv_views.VacancyOfferView.as_view(), name='offers'),
-    path('hide/offer/<int:pk>', cv_views.HideOfferView.as_view(), name='hide_offer'),
+    path('profile/edit/', cp_views.CvEditView.as_view(), name='cv_edit'),
+    path('position/new/', cp_views.NewPositionView.as_view(), name='new_position'),
+    path('position/edit/', cp_views.PositionEditView.as_view(), name='position_edit'),
+    path('education/new/', cp_views.NewEducationView.as_view(), name='new_education'),
+    path('education/<int:pk>/edit/', cp_views.EducationEditView.as_view(), name='education_edit'),
+    path('experience/new/', cp_views.NewExperienceView.as_view(), name='new_experience'),
+    path('experience/<int:pk>/edit/', cp_views.ExperienceEditView.as_view(), name='experience_edit'),
+    path('cv/offer/', cp_views.VacancyOfferView.as_view(), name='offers'),
+    path('hide/offer/<int:pk>', cp_views.HideOfferView.as_view(), name='hide_offer'),
 ]
 
 vacancy_urlpatterns = [

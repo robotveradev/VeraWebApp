@@ -3,14 +3,15 @@
 }
 
 body {
-    font-size: 13px;
-    font-weight: 200;
+    font-size: 14px;
+    font-weight: 400;
 }
 
 .jHtml-textarea {
-    border: 1px solid #e5e5e5;
+    border: 2px solid #bababa;
     padding: 10px;
 }
+
 
 a.uk-button {
     text-transform: capitalize;
@@ -69,4 +70,16 @@ a.uk-button {
     -ms-transition: all .3s;
     -o-transition: all .3s;
     transition: all .3s;
+}
+
+.border {
+    border: 1px solid red;
+}
+
+.uk-navbar-item, .uk-navbar-nav>li>a, .uk-navbar-toggle {
+    height: 40px;
+}
+
+.uk-input, .uk-select, .uk-textarea {
+    border: 2px solid #bababa;
 }

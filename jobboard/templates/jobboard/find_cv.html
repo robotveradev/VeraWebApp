@@ -2,7 +2,7 @@
 
 {% load jobboard_tags vacancy_tags material_form %}
 
-{% block head_title %}Vera Oracle - Find CV{% endblock %}
+{% block head_title %}Vera Oracle - Find employee{% endblock %}
 
 {% block content %}
     {{ block.super }}
@@ -35,10 +35,10 @@
                     </div>
                 </div>
                 <div>
-                    {% for cv in cvs %}
-                        {% include 'cv/include/cv.html' with candidate_info=True %}
+                    {% for cp in cps %}
+                        {% include 'candidateprofile/include/cv.html' with candidate_info=True %}
                     {% empty %}
-                        <h6 class="center">CVs by conditions not found</h6>
+                        <h6 class="center">Profiles by conditions not found</h6>
                     {% endfor %}
                 </div>
             </div>

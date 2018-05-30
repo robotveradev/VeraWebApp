@@ -8,7 +8,7 @@
         <script src="{% static 'js/hints/profile.js' %}"></script>
     {% endif %}
     <div class="uk-container uk-align-center">
-        <h2 data-hint="profile_head">{{ role|title }} profile</h2>
+        <h2 data-hint="profile_head">{{ role|title }} personal office</h2>
         {% with role_object.enabled as en %}
             <div data-hint="status_change" class="uk-align-right">
                 {% if en != None %}
@@ -21,10 +21,11 @@
                         {% endif %}
                     </a>
                 {% else %}
-                    <div uk-spinner="ratio: 0.7"></div>
+                    <div uk-spinner="ratio: 0.5"></div>
                 {% endif %}
             </div>
         {% endwith %}
+        <div class="uk-clearfix"></div>
         {% if role == 'candidate' %}
             {% include 'jobboard/include/candidate_profile.html' %}
         {% elif role == 'employer' %}
