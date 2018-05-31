@@ -1,4 +1,4 @@
-{% load jobboard_tags %}
+{% load jobboard_tags material_form %}
 
 <div uk-grid>
     <div class="uk-width-1-5">
@@ -50,11 +50,48 @@
                                     ready for transfer{% endif %}{% if profile.official_journey %}, ready for official
                                     journey{% endif %}
                             </div>
-
                         </td>
                     </tr>
                 {% endif %}
             {% endwith %}
+            <tr>
+                <td>Languages:</td>
+                <td>{% with role_object.profile.languages.all as langs %}
+                    {% for lang in langs %}
+                        <span class="uk-badge"
+                              uk-tooltip="{{ lang.get_level_display }}">{{ lang.language.name|title }}</span>
+                    {% endfor %}
+                {% endwith %}
+                    <a class="uk-link-text" href="#modal-new-language" uk-toggle><span class="uk-badge"
+                                                                                       uk-tooltip="new language"
+                                                                                       uk-icon="plus"></span></a></td>
+            </tr>
+            <tr>
+                <td>Citizenship:</td>
+                <td>
+                    {% with role_object.profile.citizenship.all as citiz %}
+                        {% for cit in citiz %}
+                            <span class="uk-badge">{{ cit.country.name|title }}</span>
+                        {% endfor %}
+                    {% endwith %}
+                    <a class="uk-link-text" href="#modal-new-citizenship" uk-toggle><span class="uk-badge"
+                                                                                          uk-tooltip="new language"
+                                                                                          uk-icon="plus"></span></a>
+                </td>
+            </tr>
+            <tr>
+                <td>Work permit:</td>
+                <td>
+                    {% with role_object.profile.work_permit.all as permits %}
+                        {% for permit in permits %}
+                            <span class="uk-badge">{{ permit.country.name|title }}</span>
+                        {% endfor %}
+                    {% endwith %}
+                    <a class="uk-link-text" href="#modal-new-work_permit" uk-toggle><span class="uk-badge"
+                                                                                          uk-tooltip="new language"
+                                                                                          uk-icon="plus"></span></a>
+                </td>
+            </tr>
             {% if role_object.profile %}
                 <tr>
                     <td>Profile uuid:</td>
@@ -83,6 +120,9 @@
         </table>
     </div>
 </div>
+{% get_facts role_object %}
+{% include 'jobboard/include/add_fact.html' %}
+<br/>
 <hr class="uk-divider-icon">
 <div>
     {% with role_object.profile as profile %}
@@ -159,18 +199,81 @@
             <div class="uk-clearfix"></div>
         {% endwith %}
         <hr class="uk-divider-icon">
-        {% with profile.languages.all as languages %}
-            {% if languages %}
-                <div>
-                    <p class="uk-text-lead">Languages</p>
-                    {% for language in languages %}
-                        {% include 'candidateprofile/include/languages.html' %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
     {% endwith %}
 </div>
+<div id="modal-new-language" uk-modal>
+    <div class="uk-modal-dialog">
+        <form method="post" class="uk-form-horizontal" action="{% url 'new_language' %}">
+            {% csrf_token %}
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Add language</h2>
+            </div>
+            <div class="uk-modal-body">
+                {% form form=language_form %}{% endform %}
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button-small uk-button uk-button-default uk-modal-close"
+                        type="reset">
+                    Cancel
+                </button>
+                <button class="uk-button-small uk-button uk-button-primary" type="submit">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-new-citizenship" uk-modal>
+    <div class="uk-modal-dialog">
+        <form method="post" class="uk-form-horizontal" action="{% url 'new_citizenship' %}">
+            {% csrf_token %}
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Add citizenship country</h2>
+            </div>
+            <div class="uk-modal-body">
+                {% form form=citizenship_form %}{% endform %}
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button-small uk-button uk-button-default uk-modal-close"
+                        type="reset">
+                    Cancel
+                </button>
+                <button class="uk-button-small uk-button uk-button-primary" type="submit">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-new-work_permit" uk-modal>
+    <div class="uk-modal-dialog">
+        <form method="post" class="uk-form-horizontal" action="{% url 'new_work_permit' %}">
+            {% csrf_token %}
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Add work permit country</h2>
+            </div>
+            <div class="uk-modal-body">
+                {% form form=work_permit_form %}{% endform %}
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button-small uk-button uk-button-default uk-modal-close"
+                        type="reset">
+                    Cancel
+                </button>
+                <button class="uk-button-small uk-button uk-button-primary" type="submit">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 
 
 
@@ -179,10 +282,6 @@
 {% endfor %}
 
 {% if role_object.contract_address %}
-    {% get_facts role_object %}
-    {% if role_object|is_oracle_agent %}
-        {% include 'jobboard/include/add_fact.html' %}
-    {% endif %}
     {% get_candidate_vacancies role_object %}
 {% endif %}
 

@@ -190,13 +190,6 @@ def get_url_without(get_list, item=None):
     return urlencode(url_dict)
 
 
-@register.filter(name='is_oracle_agent')
-def is_oracle_agent(candidate):
-    # TODO change this
-    oracle = OracleHandler()
-    return oracle.is_owner(candidate.contract_address)
-
-
 @register.filter(name='get_blockies_png')
 def get_blockies_png(address):
     data = blockies.create(address.lower(), size=8, scale=16)

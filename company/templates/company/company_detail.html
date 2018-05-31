@@ -19,13 +19,36 @@
                 {{ company.legal_address.address_line }}.<br/>
                 <a class="uk-link-text" href="mailto:{{ company.email }}">{{ company.email }}</a>,
                 <a class="uk-link-text" href="tel:{{ company.phone }}">{{ company.phone }}</a>.<br/>
-                {% if company.social_links.all %}
-                    <div class="soclinks uk-padding-small uk-padding-remove-left">
-                        {% for soclink in company.social_links.all %}
-                            <a class="uk-link-text" href="{{ soclink.link }}">{{ soclink.link|icon_for_link }}</a>
-                        {% endfor %}
+
+                <div class="soclinks uk-padding-small uk-padding-remove-left">
+                    {% for soclink in company.social_links.all %}
+                        <a class="uk-link-text" href="{{ soclink.link }}">{{ soclink.link|icon_for_link }}</a>
+                    {% endfor %}
+                    <i uk-tooltip="Add social link" class="uk-margin-small uk-margin-small-left fa fa-plus fa-2x"
+                       area-hidden="true" uk-toggle="target: #modal-add_soclink"></i>
+                </div>
+                <div id="modal-add_soclink" uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body">
+                        <form method="post" action="{% url 'new_social_link' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="company" value="{{ company.pk }}">
+                            <h2 class="uk-modal-title">Add social link</h2>
+                            <div class="uk-margin">
+                                <label for="id_new_soclink" class="uk-form-label">Social url</label>
+                                <div class="uk-form-controls">
+                                    <input name="link" class="uk-input" type="text" id="id_new_soclink"/>
+                                </div>
+                            </div>
+                            <p class="uk-text-right">
+                                <button class="uk-button-small uk-button uk-button-default uk-modal-close"
+                                        type="reset">Cancel
+                                </button>
+                                <button class="uk-button-small uk-button uk-button-primary" type="submit">Save</button>
+                            </p>
+                        </form>
                     </div>
-                {% endif %}
+                </div>
+
             </div>
         </div>
         <p class="uk-dropcap">{{ company.description|safe }}</p>

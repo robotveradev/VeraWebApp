@@ -1,4 +1,5 @@
 import os
+
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -149,3 +150,36 @@ class CompleteProfileView(OnlyCandidateMixin, CreateView):
 
     def get_success_url(self):
         return reverse('profile')
+
+
+class NewLanguageView(OnlyCandidateMixin, CreateView):
+    form_class = LanguageItemForm
+
+    def get_success_url(self):
+        return reverse('profile')
+
+    def form_valid(self, form):
+        form.instance.profile = self.request.role_object.profile
+        return super().form_valid(form)
+
+
+class NewCitizenshipView(OnlyCandidateMixin, CreateView):
+    form_class = CitizenshipForm
+
+    def get_success_url(self):
+        return reverse('profile')
+
+    def form_valid(self, form):
+        form.instance.profile = self.request.role_object.profile
+        return super().form_valid(form)
+
+
+class NewWorkPermitView(OnlyCandidateMixin, CreateView):
+    form_class = WorkPermitForm
+
+    def get_success_url(self):
+        return reverse('profile')
+
+    def form_valid(self, form):
+        form.instance.profile = self.request.role_object.profile
+        return super().form_valid(form)

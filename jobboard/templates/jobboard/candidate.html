@@ -148,35 +148,41 @@
         {% for item in object.profile.specialisations.all %}
             <div class="chip">{{ item }}</div>
         {% endfor %}
-
         {% if not user.is_authenticated %}
             {% include 'jobboard/include/login_modal.html' %}
         {% elif role == 'employer' %}
-            <button class="uk-button uk-button-default uk-button-small uk-align-right" uk-toggle="target: #offer_modal">
-                Offer a vacancy
-            </button>
-
-            <div id="offer_modal" uk-modal>
-                <div class="uk-modal-dialog">
-                    <button class="uk-modal-close-default" type="button" uk-close></button>
-                    <div class="uk-modal-header">
-                        <h2 class="uk-modal-title">Select vacancy</h2>
-                    </div>
-                    <div>
-                        {% for com in role_object.companies.all %}
-                            {% for vac in com.vacancies.all %}
+            <div class="uk-clearfix"></div>
+            {% if role_object.vacancies.count > 0 %}
+                <button class="uk-button uk-button-default uk-button-small uk-align-right"
+                        uk-toggle="target: #offer_modal">
+                    Offer a vacancy
+                </button>
+                <div id="offer_modal" uk-modal>
+                    <div class="uk-modal-dialog">
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
+                        <div class="uk-modal-header">
+                            <h2 class="uk-modal-title">Select vacancy</h2>
+                        </div>
+                        <div>
+                            {% for vac in role_object.vacancies %}
                                 {% include 'vacancy/vacancy_short.html' with item=vac selectable=True cv=object.profile %}
                             {% endfor %}
-                        {% endfor %}
-                    </div>
-                    <div class="uk-modal-footer uk-text-right">
-                        <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">
-                            Cancel
-                        </button>
+                        </div>
+                        <div class="uk-modal-footer uk-text-right">
+                            <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">
+                                Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% else %}
+                <a href="{% url 'new_vacancy' %}" class="uk-button uk-button-primary uk-button-small uk-align-right">
+                    Create vacancy
+                </a>
+            {% endif %}
         {% endif %}
 
     </div>
 {% endblock %}
+
+

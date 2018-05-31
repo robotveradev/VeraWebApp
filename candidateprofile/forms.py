@@ -3,7 +3,7 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from company.widgets import AddressWidget
-from .models import CandidateProfile, Position, Education, Experience
+from .models import CandidateProfile, Position, Education, Experience, LanguageItem, Citizenship, WorkPermit
 
 
 class CandidateProfileForm(forms.ModelForm):
@@ -77,3 +77,21 @@ class ExperienceForm(forms.ModelForm):
             raise forms.ValidationError(_(
                 "You must specify an end year if experience is finished."))
         return data
+
+
+class LanguageItemForm(forms.ModelForm):
+    class Meta:
+        model = LanguageItem
+        fields = ['language', 'level', ]
+
+
+class CitizenshipForm(forms.ModelForm):
+    class Meta:
+        model = Citizenship
+        fields = ['country', ]
+
+
+class WorkPermitForm(forms.ModelForm):
+    class Meta:
+        model = WorkPermit
+        fields = ['country', ]
