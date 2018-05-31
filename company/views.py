@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views import View
@@ -7,7 +7,7 @@ from django.views.generic import ListView, CreateView, DetailView, DeleteView
 
 from jobboard.mixins import OnlyEmployerMixin
 from .forms import CompanyForm, OfficeForm
-from .models import Company, Address, Office
+from .models import Company, Address, Office, SocialLink
 
 
 class CompaniesView(OnlyEmployerMixin, ListView):
@@ -78,3 +78,11 @@ class CompanyNewOfficeView(OnlyEmployerMixin, View):
         if request.is_ajax():
             return JsonResponse({'id': office.pk, 'label': str(office)})
         return HttpResponseRedirect(reverse('company', kwargs={'pk': company.pk}))
+
+
+class NewSocialLink(OnlyEmployerMixin, CreateView):
+    model = SocialLink
+    fields = ['company', 'link', ]
+
+    def get_success_url(self):
+        return self.object.company.get_absolute_url()

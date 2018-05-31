@@ -7,6 +7,8 @@ from django.db import models
 from django.urls import reverse
 from web3 import Web3
 
+from vacancy.models import Vacancy
+
 
 class Keyword(models.Model):
     word = models.CharField(max_length=32)
@@ -88,6 +90,10 @@ class Employer(models.Model):
     @property
     def contract_id(self):
         return Web3.toBytes(hexstr=Web3.sha3(text=self.full_name + self.tax_number))
+
+    @property
+    def vacancies(self):
+        return Vacancy.objects.filter(company__employer=self)
 
 
 class Transaction(models.Model):

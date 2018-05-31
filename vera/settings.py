@@ -181,7 +181,7 @@ CHAT_WS_SERVER_PROTOCOL = 'ws'
 ACCOUNT_OPEN_SIGNUP = True
 
 # Hints settings
-HINTS_ENABLED = True
+HINTS_ENABLED = False
 
 # Google address settings
 GOOGLE_ADDRESS = {

@@ -4,7 +4,8 @@ $(document).ready(function () {
             title: 'index_candidate',
             steps: [
                 {
-                    'next [data-hint=post_cv]': 'Here you can add Curriculum Vitae',
+                    'next #vacancies': 'Here you can <span class="hint-green">find a job</span><br>' +
+                    'Click <span class="hint-green">NEXT</span>',
                     showSkip: false
                 },
                 {

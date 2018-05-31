@@ -52,6 +52,9 @@ candidate_urlpatterns = [
     path('profile/complete/', cp_views.CompleteProfileView.as_view(), name='complete_profile'),
     path('profile/', jobboard_views.ProfileView.as_view(), name='profile'),
     path('profile/id/<slug:username>/', jobboard_views.CandidateProfileView.as_view(), name='candidate_profile'),
+    path('profile/new/language/', cp_views.NewLanguageView.as_view(), name='new_language'),
+    path('profile/new/citizenship/', cp_views.NewCitizenshipView.as_view(), name='new_citizenship'),
+    path('profile/new/workpermit/', cp_views.NewWorkPermitView.as_view(), name='new_work_permit'),
 ]
 
 curriculum_vitae_urlpatterns = [
@@ -102,6 +105,7 @@ employer_urlpatterns = [
     path('company/<int:pk>', company_views.CompanyDetailsView.as_view(), name='company'),
     path('company/<int:pk>/delete/', company_views.CompanyDeleteView.as_view(), name='delete_company'),
     path('company/<int:pk>/office/new/', company_views.CompanyNewOfficeView.as_view(), name='new_office'),
+    path('soclink/new/', company_views.NewSocialLink.as_view(), name='new_social_link'),
 ]
 
 statistic_urlpatterns = [

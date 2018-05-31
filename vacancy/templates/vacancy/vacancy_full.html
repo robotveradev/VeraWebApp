@@ -62,7 +62,7 @@
             <div>
                 {% if vacancy.office.all %}
                     Office{{ vacancy.office.count|pluralize }}:
-                    <ol class="uk-list uk-padding-small uk-margin-remove-bottom">
+                    <ol class="uk-list uk-padding-small uk-list-bullet uk-margin-remove-bottom">
                         {% for office in vacancy.office.all %}
                             <li>{{ office.address.address_line|title }}</li>
                         {% endfor %}

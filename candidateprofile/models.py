@@ -38,10 +38,10 @@ WEIGHTS = (
 
 LANGUAGE_LEVELS = (
     ('NOT', _("Notion")),
-    ('BAS', _('basic')),
-    ('ADV', _('advanced')),
-    ('PRO', _('professional')),
-    ('BIL', _('bilingual')),
+    ('BAS', _('Basic')),
+    ('ADV', _('Advanced')),
+    ('PRO', _('Professional')),
+    ('BIL', _('Bilingual')),
 )
 
 
@@ -187,7 +187,8 @@ class Education(models.Model):
 
 class Language(models.Model):
     name = models.CharField(max_length=50, primary_key=True, unique=True, verbose_name=_("name"))
-    description = models.TextField(max_length=2000, blank=True, verbose_name=_("description"))
+    code = models.CharField(max_length=5, unique=True, verbose_name=_("language code"))
+    native_name = models.TextField(max_length=2000, blank=True, verbose_name=_("native name"))
 
     class Meta:
         ordering = ('name',)
@@ -197,9 +198,9 @@ class Language(models.Model):
 
 
 class LanguageItem(models.Model):
-    resume = models.ForeignKey(CandidateProfile,
-                               related_name='languages',
-                               on_delete=models.CASCADE)
+    profile = models.ForeignKey(CandidateProfile,
+                                related_name='languages',
+                                on_delete=models.CASCADE)
     language = models.ForeignKey(Language,
                                  'name',
                                  related_name='items')
@@ -209,7 +210,46 @@ class LanguageItem(models.Model):
                              verbose_name=_('level'))
 
     class Meta:
-        unique_together = ('language', 'resume')
+        unique_together = ('language', 'profile')
 
     def __str__(self):
         return self.language.name
+
+
+class Country(models.Model):
+    name = models.CharField(max_length=31,
+                            null=False,
+                            blank=False)
+
+    def __str__(self):
+        return self.name
+
+
+class Citizenship(models.Model):
+    profile = models.ForeignKey(CandidateProfile,
+                                on_delete=models.CASCADE,
+                                null=False,
+                                blank=False,
+                                related_name='citizenship')
+    country = models.ForeignKey(Country,
+                                on_delete=models.CASCADE,
+                                null=False,
+                                blank=False)
+
+    def __str__(self):
+        return '{}: {}'.format(self.profile, self.country.name)
+
+
+class WorkPermit(models.Model):
+    profile = models.ForeignKey(CandidateProfile,
+                                on_delete=models.CASCADE,
+                                null=False,
+                                blank=False,
+                                related_name='work_permit')
+    country = models.ForeignKey(Country,
+                                on_delete=models.CASCADE,
+                                null=False,
+                                blank=False)
+
+    def __str__(self):
+        return '{}: {}'.format(self.profile, self.country.name)

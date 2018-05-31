@@ -12,6 +12,7 @@ from django.views import View
 from django.views.generic import TemplateView, DetailView, RedirectView, ListView
 from web3.utils.validation import validate_address
 
+from candidateprofile.forms import LanguageItemForm, CitizenshipForm, WorkPermitForm
 from candidateprofile.models import CandidateProfile
 from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm
 from jobboard.handlers.coin import CoinHandler
@@ -212,6 +213,9 @@ class ProfileView(ChooseRoleMixin, TemplateView):
             data['learning_form'] = LearningForm()
             data['worked_form'] = WorkedForm()
             data['certificate_form'] = CertificateForm()
+            data['language_form'] = LanguageItemForm()
+            data['citizenship_form'] = CitizenshipForm()
+            data['work_permit_form'] = WorkPermitForm()
         return data
 
 
