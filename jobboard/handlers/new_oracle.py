@@ -113,9 +113,9 @@ class OracleHandler(object):
 
     def fact(self, candidate_address, uuid):
         if uuid in self.facts_keys(candidate_address):
-            return self.contract.call().get_fact(force_text(Web3.toBytes(hexstr=uuid)))
+            return self.contract.call().get_fact(candidate_address, force_text(Web3.toBytes(hexstr=uuid)))
         else:
-            raise TypeError('Invalid FactUUID')
+            raise TypeError('InvalidFactUUID')
 
     def new_cv(self, candidate_address, uuid):
         validate_address(candidate_address)

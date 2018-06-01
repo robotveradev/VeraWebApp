@@ -1,5 +1,5 @@
 {% extends 'jobboard/base.html' %}
-
+{% load jobboard_tags w3_tags static %}
 {% load jobboard_tags %}
 
 {% block head_title %}Vera Oracle - User transactions{% endblock %}
@@ -39,3 +39,6 @@
         {% endif %}
     </div>
 {% endblock %}
+{% block extra_js %}
+            <script src="{% static 'js/hints/transactions.js' %}"></script>
+    {% endblock %}

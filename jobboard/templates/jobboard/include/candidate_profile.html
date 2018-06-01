@@ -113,7 +113,7 @@
                 <p>Career objective information is not available </p>
             </div>
             <a href="{% url 'new_position' %}"
-               class="uk-button uk-button-default uk-align-right uk-button-small">Add career objective</a>
+               class="uk-button uk-button-default uk-align-right uk-button-small" id="career_objective">Add career objective</a>
             <div class="clearfix"></div>
             <br/>
         {% endif %}
@@ -134,7 +134,7 @@
                 </div>
             {% endif %}
             <a href="{% url 'new_experience' %}"
-               class="uk-button uk-button-default uk-align-right uk-button-small">Add
+               class="uk-button uk-button-default uk-align-right uk-button-small" id="add_experience_info">Add
                 experience info</a>
             <div class="uk-clearfix"></div>
         {% endwith %}
@@ -155,7 +155,7 @@
                 </div>
             {% endif %}
             <a href="{% url 'new_education' %}"
-               class="uk-button uk-button-default uk-align-right uk-button-small">Add education info</a>
+               class="uk-button uk-button-default uk-align-right uk-button-small" id="add_education_info">Add education info</a>
             <div class="uk-clearfix"></div>
         {% endwith %}
         <hr class="uk-divider-icon">

@@ -145,3 +145,8 @@
         {% endif %}
     </div>
 {% endblock %}
+{% if hints_enablet %}
+    {% block extra_js %}
+        <script src="{% static 'js/hints/vacancy_full.js' %}"></script>
+    {% endblock %}
+{% endif %}

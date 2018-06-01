@@ -1,7 +1,7 @@
 $(document).ready(function () {
     if (typeof hint_set !== "undefined") {
         let candidate_profile1 = {
-            title: 'candidate_profile1',
+            title: 'candidate_profile',
             steps: [
                 {
                     'next [data-hint=main_info]': 'You can see main profile info, like <span class="hint-green">first name, ' +
@@ -17,15 +17,20 @@ $(document).ready(function () {
                 {
                     'next [data-hint=balance]': 'And <span class="hint-green">your balance</span> in  <span class="hint-green">Vera Coin</span> here',
                     showSkip: false,
-                },
+                }
+            ]
+    };
+        let career_objective = {
+            title: 'career_objective',
+            steps: [
                 {
                     'click #career_objective': 'Go at <span class="hint-green">career objective</span> page right now.',
                     showSkip: false
                 }
             ]
-    };
-        let candidate_profile2 = {
-            title: 'candidate_profile2',
+        };
+        let add_experience_info = {
+            title: 'add_experience_info',
             steps: [
                 {
                     'click #add_experience_info': 'Go at <span class="hint-green">experience info</span> page right now.',
@@ -33,8 +38,8 @@ $(document).ready(function () {
                 }
             ]
     };
-        let candidate_profile3 = {
-            title: 'candidate_profile3',
+        let add_education_info = {
+            title: 'add_education_info',
             steps: [
                 {
                     'click #add_education_info': 'Go at <span class="hint-green">education info</span> page right now.',
@@ -42,8 +47,8 @@ $(document).ready(function () {
                 }
             ]
     };
-         let candidate_profile4 = {
-            title: 'candidate_profile4',
+         let vacancies = {
+            title: 'vacancies',
             steps: [
                 {
                     'click #vacancies': 'Go at <span class="hint-green">VACANCIES</span> page right now.',
@@ -51,7 +56,12 @@ $(document).ready(function () {
                 }
             ]
     };
-         hint_set.push(candidate_profile1, candidate_profile2, candidate_profile3, candidate_profile4);
+         hint_set.push(candidate_profile1);
+         if(document.career_objective){
+             console.log(document.career_objective);
+            hint_set.push(career_objective);
+        }
+        hint_set.push(add_experience_info, add_education_info, vacancies);
     }
 });
 
