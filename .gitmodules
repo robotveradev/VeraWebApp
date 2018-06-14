@@ -1,0 +1,3 @@
+[submodule "dapp"]
+	path = dapp
+	url = git://github.com/robotveradev/SmartContracts.git

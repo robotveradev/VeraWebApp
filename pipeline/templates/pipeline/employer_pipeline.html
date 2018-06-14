@@ -1,0 +1,49 @@
+{#{{ actions }}#}
+<div class="pipLineContainer" uk-grid>
+    <ul class="pipline uk-grid-small  uk-text-center uk-width-2-3" uk-sortable="handle: .sort" uk-grid>
+
+    </ul>
+    <div class="circle uk-position-relative" uk-toggle="target: #modal_add_pip">
+        <span class="plus uk-position-center" uk-icon="icon:  plus-circle; ratio: 3"></span>
+    </div>
+</div>
+
+<div id="modal_add_pip" uk-modal>
+    <div class="uk-modal-dialog">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+            <h2 class="uk-modal-title">New action</h2>
+        </div>
+        <form action="{% url 'new_pipeline_action' pk=vacancy.pipeline.pk %}" id="add_pip" method="post" class="uk-form-horizontal">
+            <div class="uk-modal-body">
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="pipType">Type</label>
+                    <div class="uk-form-controls">
+                        <select class="uk-select" id="pipType">
+                            <option value="1">Exam</option>
+                            <option value="2">Interview</option>
+                            <option value="3">Wait</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="fee">Fee</label>
+                    <div class="uk-form-controls">
+                        <input class="uk-input" id="fee" type="number">
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    <div class="uk-form-label">Approvable</div>
+                    <div class="uk-form-controls uk-form-controls-text">
+                        <input id="approveable" value="off" class="uk-checkbox" type="checkbox">
+                    </div>
+                </div>
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button type="reset" class="uk-button-small uk-button uk-button-default uk-modal-close">Cancel</button>
+                <button id="apply" class="uk-button-small uk-button uk-button-primary" type="submit">Save</button>
+            </div>
+        </form>
+
+    </div>
+</div>

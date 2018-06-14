@@ -80,42 +80,42 @@ class CandidateExaminingView(TemplateView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.action_exam = None
-        self.cv = None
+        self.profile = None
         self.request = None
         self.already_pass_exam = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.already_pass_exam:
-            context['exam_passed'] = ExamPassed.objects.filter(cv=self.cv,
+            context['exam_passed'] = ExamPassed.objects.filter(profile=self.profile,
                                                                exam=self.action_exam).first()
         else:
-            context['cv'] = self.cv
+            context['profile'] = self.profile
             context['exam'] = self.action_exam
         context['action'] = self.action_exam.action
         return context
 
     def get(self, request, *args, **kwargs):
-        self.cv = get_object_or_404(CandidateProfile, pk=kwargs.get('cv_id'))
+        self.profile = get_object_or_404(CandidateProfile, pk=kwargs.get('profile_id'))
         self.action_exam = get_object_or_404(ActionExam, pk=kwargs.get('pk'))
         self.check_candidate()
         return super().get(self, request, *args, **kwargs)
 
     def check_candidate(self):
-        self.already_pass_exam = ExamPassed.objects.filter(cv=self.cv,
+        self.already_pass_exam = ExamPassed.objects.filter(profile=self.profile,
                                                            exam=self.action_exam).exists()
 
     def post(self, request, *args, **kwargs):
         self.process_request(request)
         return HttpResponseRedirect(
-            reverse('candidate_examining', kwargs={'pk': self.action_exam.pk, 'cv_id': self.cv.id}))
+            reverse('candidate_examining', kwargs={'pk': self.action_exam.pk, 'profile_id': self.profile.id}))
 
     def process_request(self, request):
         self.action_exam = get_object_or_404(ActionExam, pk=request.POST.get('exam_id', None))
-        self.cv = get_object_or_404(CandidateProfile, pk=request.POST.get('cv_id', None))
+        self.profile = get_object_or_404(CandidateProfile, pk=request.POST.get('profile_id', None))
         answers = {key: value[0] if len(value) == 1 else value for key, value in dict(request.POST).items() if
                    key.startswith('question_') and value[0] != ''}
-        ExamPassed.objects.create(cv=self.cv, exam=self.action_exam, answers=answers)
+        ExamPassed.objects.create(profile=self.profile, exam=self.action_exam, answers=answers)
 
 
 class QuizIndexPage(TemplateView):

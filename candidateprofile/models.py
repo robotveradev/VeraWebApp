@@ -17,7 +17,7 @@ DAYS = [(i, i) for i in range(1, 32)]
 
 MONTHS = (
     (1, _('january')),
-    (2, _('febuary')),
+    (2, _('february')),
     (3, _('march')),
     (4, _('april')),
     (5, _('may')),
@@ -73,9 +73,6 @@ class CandidateProfile(models.Model):
                                      related_name='profile')
     photo = models.ImageField(null=True,
                               blank=True)
-    uuid = models.CharField(max_length=64,
-                            blank=False,
-                            null=False)
     birth_date = models.DateField(blank=True,
                                   null=True,
                                   default=None)
@@ -98,7 +95,6 @@ class CandidateProfile(models.Model):
                               on_delete=models.SET_NULL,
                               null=True,
                               blank=True)
-    published = models.BooleanField(default=False)
     enabled = models.NullBooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -114,7 +110,7 @@ class CandidateProfile(models.Model):
 
     @property
     def title(self):
-        return self.position.title if self.position is not None else 'Unpublished CV'
+        return self.position.title if hasattr(self, 'position') else self.candidate.user.username
 
     @property
     def salary_from(self):
@@ -160,7 +156,7 @@ class Experience(models.Model):
         return 'Experience {}'.format(self.position)
 
     def get_absolute_url(self):
-        return reverse('cv', kwargs={'pk': self.curriculumvitae_set.first().pk})
+        return reverse('candidate_profile', kwargs={'pk': self.candidateprofile_set.first().pk})
 
 
 class EducationLevel(models.Model):
@@ -182,7 +178,7 @@ class Education(models.Model):
         return self.institute or '-'
 
     def get_absolute_url(self):
-        return reverse('cv', kwargs={'pk': self.curriculumvitae_set.first().pk})
+        return reverse('candidate_profile', kwargs={'pk': self.candidateprofile_set.first().pk})
 
 
 class Language(models.Model):

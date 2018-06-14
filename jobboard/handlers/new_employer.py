@@ -1,3 +1,4 @@
+from django.conf import settings
 from web3 import Web3, RPCProvider
 import json
 
@@ -7,7 +8,7 @@ class EmployerHandler(object):
         self.web3 = Web3(RPCProvider(host='localhost', port=8545))
         self.account = account
         self.contract_address = contract_address
-        self.__password = 'onGridTest_lGG%tts%QP'
+        self.__password = settings.COINBASE_PASSWORD_SECRET
         with open('jobboard/handlers/new_employer_abi.json', 'r') as ad:
             self.abi = json.load(ad)
         self.contract = self.web3.eth.contract(self.abi, self.contract_address)
@@ -26,9 +27,9 @@ class EmployerHandler(object):
         self.unlockAccount()
         return self.contract.transact({'from': self.account}).unpause_vac(vac_uuid)
 
-    def approve_level_up(self, vac_uuid, cv_uuid):
+    def approve_level_up(self, vac_uuid, can_address):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).approve_level_up(vac_uuid, cv_uuid)
+        return self.contract.transact({'from': self.account}).approve_level_up(vac_uuid, can_address)
 
     def approve_money(self, amount):
         self.unlockAccount()

@@ -13,7 +13,7 @@
                 <fieldset class="uk-fieldset">
                     {% csrf_token %}
                     <input type="hidden" name="exam_id" value="{{ exam.id }}">
-                    <input type="hidden" name="cv_id" value="{{ cv.id }}">
+                    <input type="hidden" name="profile_id" value="{{ profile.id }}">
                     {% with exam.questions.all as questions %}
                         {% for question in questions %}
                             <div class="uk-box-shadow-small uk-padding-small uk-margin-small">

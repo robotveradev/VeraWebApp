@@ -10,7 +10,7 @@
 
 {% block content %}
     {{ block.super }}
-    <div class="uk-container uk-align-center uk-offcanvas-content">
+    <div class="uk-container uk-align-center">
         <h4>{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.company.name|title }}</small>
             {% if vacancy.employer == role_object %}
                 <a href="{% url 'vacancy_edit' pk=vacancy.id %}" uk-icon="file-edit"></a>
@@ -20,7 +20,7 @@
         {% if role_object == vacancy.employer %}
             {% with vacancy.enabled as en %}
                 <div class="uk-align-right">
-                    {% if en != None %}
+                    {% if vacancy.published %}
                         <a class="uk-button-text uk-button uk-text-capitalize"
                            href="{% url 'change_vacancy_status' pk=vacancy.id %}">
                             {% if en is True %}
@@ -138,10 +138,13 @@
             {% include 'jobboard/include/login_modal.html' with button_text='Subscribe' %}
         {% else %}
             {% if role_object == vacancy.employer %}
-                {% vacancy_employer_pipeline vacancy %}
-            {% elif role == 'candidate' %}
-                {% vacancy_candidate_pipeline vacancy role_object %}
+                {% employer_pipeline_for_vacancy vacancy %}
             {% endif %}
         {% endif %}
     </div>
+    {% csrf_token %}
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/pipeline.js' %}"></script>
 {% endblock %}

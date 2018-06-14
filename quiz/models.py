@@ -94,10 +94,10 @@ class ActionExam(models.Model):
 
 
 class ExamPassed(models.Model):
-    cv = models.ForeignKey('candidateprofile.CandidateProfile',
-                           on_delete=models.SET_NULL,
-                           null=True,
-                           related_name='exams')
+    profile = models.ForeignKey('candidateprofile.CandidateProfile',
+                                on_delete=models.SET_NULL,
+                                null=True,
+                                related_name='exams')
     exam = models.ForeignKey(ActionExam,
                              on_delete=models.SET_NULL,
                              null=True)
@@ -108,7 +108,7 @@ class ExamPassed(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return '{}'.format(self.cv.uuid)
+        return '{}'.format(self.profile.candidate.contract_address)
 
     def get_absolute_url(self):
         return reverse('exam_results', kwargs={'pk': self.id})

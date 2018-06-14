@@ -22,7 +22,7 @@ from jobboard.tasks import save_txn_to_history, save_txn
 from vacancy.models import Vacancy
 from .decorators import choose_role_required
 from .filters import VacancyFilter, CPFilter
-from .handlers.new_oracle import OracleHandler
+from .handlers.oracle import OracleHandler
 from .models import Employer, TransactionHistory, InviteCode, Candidate
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
@@ -71,7 +71,7 @@ class FindJobView(TemplateView):
 
     def set_filter_for_relevant_vacancies(self):
         if self.request.role == _CANDIDATE:
-            cvs = self.cvs.filter(candidate=self.request.role_object, published=True)
+            cvs = self.cvs.filter(candidate=self.request.role_object, enabled=True)
             specs_list = list(set([item['specialisations__id'] for item in cvs.values('specialisations__id') if
                                    item['specialisations__id'] is not None]))
             keywords_list = list(
@@ -98,13 +98,13 @@ class FindJobView(TemplateView):
         self.vacancies_filter = self.vacancies_filter.order_by(sort_by['order'])
 
 
-class FindCVView(TemplateView):
-    template_name = 'jobboard/find_cv.html'
+class FindProfilesView(TemplateView):
+    template_name = 'jobboard/find_profiles.html'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
-        self.cps = CandidateProfile.objects.filter(published=True, candidate__enabled=True)
+        self.cps = CandidateProfile.objects.filter(candidate__enabled=True)
         self.cps_filter = None
         self.vacs = Vacancy.objects.filter(enabled=True)
         self.context = {}
@@ -203,6 +203,8 @@ class ProfileView(ChooseRoleMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         if request.role is not None:
+            if request.role == _CANDIDATE and not hasattr(request.role_object, 'profile'):
+                return redirect('complete_profile')
             context.update(self.get_current_object_data(request))
         return self.render_to_response(context)
 

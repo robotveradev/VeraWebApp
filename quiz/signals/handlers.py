@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, pre_save, m2m_changed
 from django.dispatch import receiver
 
-from jobboard.handlers.new_oracle import OracleHandler
+from jobboard.handlers.oracle import OracleHandler
 from jobboard.tasks import save_txn_to_history
 from quiz.models import ExamPassed, AnswerForVerification, ActionExam
 from quiz.tasks import ProcessExam, VerifyAnswer

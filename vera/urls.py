@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include, re_path
+from django.urls import path, include
 from django.views.generic import TemplateView
 
 from candidateprofile import views as cp_views
@@ -35,7 +35,7 @@ basic = [
     path('account/signup/', jobboard_views.SignupInviteView.as_view(), name="account_signup"),
     path('account/', include("account.urls")),
     path('vacancies/', jobboard_views.FindJobView.as_view(), name='find_job'),
-    path('profiles/', jobboard_views.FindCVView.as_view(), name='find_cv'),
+    path('profiles/', jobboard_views.FindProfilesView.as_view(), name='find_profiles'),
     path('help/', TemplateView.as_view(template_name='jobboard/user_help.html'), name='user_help'),
     path('contract/status/change/', jobboard_views.ChangeContractStatus.as_view(), name='change_contract_status'),
     path('transactions/', jobboard_views.TransactionsView.as_view(), name='transactions'),
@@ -58,22 +58,22 @@ candidate_urlpatterns = [
 ]
 
 curriculum_vitae_urlpatterns = [
-    path('profile/edit/', cp_views.CvEditView.as_view(), name='cv_edit'),
+    path('profile/edit/', cp_views.ProfileEditView.as_view(), name='cp_edit'),
     path('position/new/', cp_views.NewPositionView.as_view(), name='new_position'),
     path('position/edit/', cp_views.PositionEditView.as_view(), name='position_edit'),
     path('education/new/', cp_views.NewEducationView.as_view(), name='new_education'),
     path('education/<int:pk>/edit/', cp_views.EducationEditView.as_view(), name='education_edit'),
     path('experience/new/', cp_views.NewExperienceView.as_view(), name='new_experience'),
     path('experience/<int:pk>/edit/', cp_views.ExperienceEditView.as_view(), name='experience_edit'),
-    path('cv/offer/', cp_views.VacancyOfferView.as_view(), name='offers'),
+    path('offer/', cp_views.VacancyOfferView.as_view(), name='offers'),
     path('hide/offer/<int:pk>', cp_views.HideOfferView.as_view(), name='hide_offer'),
 ]
 
 vacancy_urlpatterns = [
     path('vacancy/new/', vacancy_views.CreateVacancyView.as_view(), name='new_vacancy'),
-    path('vacancy/<int:vacancy_id>/offer/<int:cv_id>/', vacancy_views.OfferVacancyView.as_view(),
+    path('vacancy/<int:vacancy_id>/offer/<int:profile_id>/', vacancy_views.OfferVacancyView.as_view(),
          name='offer_vacancy'),
-    path('vacancy/<int:vacancy_id>/subscribe/<int:cv_id>/', vacancy_views.SubscribeToVacancyView.as_view(),
+    path('vacancy/<int:vacancy_id>/subscribe/<int:profile_id>/', vacancy_views.SubscribeToVacancyView.as_view(),
          name='subscribe_to_vacancy'),
     path('vacancy/<int:pk>/', vacancy_views.VacancyView.as_view(), name='vacancy'),
     path('vacancy/<int:pk>/edit/', vacancy_views.VacancyEditView.as_view(), name='vacancy_edit'),
@@ -88,7 +88,8 @@ quiz_urlpatterns = [
     path('quiz/category/new/', quiz_views.NewCategoryView.as_view(), name='new_category'),
     path('quiz/category/<int:category_id>/question/new/', quiz_views.NewQuestionView.as_view(), name='new_question'),
     path('quiz/question/<int:question_id>/answer/new/', quiz_views.NewAnswerView.as_view(), name='new_answer'),
-    path('quiz/<int:pk>/exam/<int:cv_id>', quiz_views.CandidateExaminingView.as_view(), name='candidate_examining'),
+    path('quiz/<int:pk>/exam/<int:profile_id>', quiz_views.CandidateExaminingView.as_view(),
+         name='candidate_examining'),
     path('quiz/<int:pk>/questions/add/', quiz_views.ActionAddQuestionsView.as_view(), name='action_exam_new'),
     path('quiz/<int:pk>/update/kind/', quiz_views.QuestionUpdateKindView.as_view(), name='update_question_kind'),
     path('quiz/exam/<int:pk>/update/grade/', quiz_views.ExamUpdateGradeView.as_view(), name='exam_update_grade'),
@@ -110,17 +111,18 @@ employer_urlpatterns = [
 
 statistic_urlpatterns = [
     path('vacancy/<int:pk>/statistic/', statistic_views.StatisticView.as_view(), name='vacancystatistic'),
-    path('cv/<int:pk>/statistic/', statistic_views.StatisticView.as_view(), name='cvstatistic'),
+    # TODO change for profiles
+    # path('cv/<int:pk>/statistic/', statistic_views.StatisticView.as_view(), name='cvstatistic'),
 ]
 
 pipeline_urlpatterns = [
-    path('vacancy/<int:pk>/pipeline/', pipeline_views.PipelineConstructorView.as_view(), name='pipeline_constructor'),
-    path('vacancy/<int:vacancy_id>/approve/<int:cv_id>/', pipeline_views.ApproveActionEmployerView.as_view(),
+    path('vacancy/<int:vacancy_id>/approve/<int:profile_id>/', pipeline_views.ApproveActionEmployerView.as_view(),
          name='employer_approve_action'),
-    path('vacancy/<int:vacancy_id>/revoke/<int:cv_id>/', pipeline_views.RevokeCvEmployerView.as_view(),
+    path('vacancy/<int:vacancy_id>/revoke/<int:profile_id>/', pipeline_views.RevokeCandidateView.as_view(),
          name='employer_revoke'),
     path('vacancy/<int:pk>/action/<int:action_id>/details/', pipeline_views.ActionDetailView.as_view(),
          name='action_details'),
+    path('pipeline/<int:pk>/action/new/', pipeline_views.NewActionView.as_view(), name='new_pipeline_action')
 ]
 
 interview_urlpatterns = [

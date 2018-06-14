@@ -1,21 +1,23 @@
 from __future__ import absolute_import, unicode_literals
 
+import json
+import logging
 import os
 
 from celery import shared_task
 from celery.app.task import Task
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from solc import compile_source
+from solc import compile_files
 from web3 import Web3, HTTPProvider
-
-from candidateprofile.models import CandidateProfile
-from jobboard.handlers.new_oracle import OracleHandler
+from jobboard.handlers.oracle import OracleHandler
 from jobboard.models import Transaction, Employer, Candidate, TransactionHistory
 from vacancy.models import Vacancy
 from vera.celery import app
 
 DELETE_ONLY_TXN = ['subscribe', 'empanswer', 'withdraw', 'tokenapprove', ]
+
+logger = logging.getLogger(__name__)
 
 
 class CheckTransaction(Task):
@@ -44,7 +46,6 @@ class CheckTransaction(Task):
         return receipt['status']
 
     def handle_txn(self, txn):
-        print(txn)
         if txn.txn_type.lower() in DELETE_ONLY_TXN:
             self.delete_txn(txn)
             return True
@@ -73,7 +74,7 @@ class CheckTransaction(Task):
             self.delete_txn(txn)
             add_to_oracle_tnx_hash = self.oracle.new_employer(tnx_receipt['contractAddress'])
             save_txn.delay(add_to_oracle_tnx_hash, 'EmployerAdded', emp_o.user.id, emp_o.id)
-            print("NewEmployerContract: " + emp_o.organization + ' ' + tnx_receipt['contractAddress'])
+            print("NewEmployerContract: " + emp_o.full_name + ' ' + tnx_receipt['contractAddress'])
 
     def newcandidate(self, txn):
         try:
@@ -99,17 +100,6 @@ class CheckTransaction(Task):
             vac_o.save()
             self.delete_txn(txn)
             print("NewVacancy: " + vac_o.title + ' ' + vac_o.uuid)
-
-    def newcv(self, txn):
-        try:
-            cv_o = CandidateProfile.objects.get(id=txn.obj_id)
-        except CandidateProfile.DoesNotExist:
-            pass
-        else:
-            cv_o.published = True
-            cv_o.save()
-            self.delete_txn(txn)
-            print("NewCv: " + cv_o.uuid)
 
     def vacancychange(self, txn):
         try:
@@ -180,21 +170,20 @@ def new_role_instance(instance_id, role):
     else:
         instance = role_class.model_class().objects.get(pk=instance_id)
         oracle = OracleHandler()
-        with open('jobboard/contracts/' + role + '.sol', 'r') as file:
-            source_code = file.read()
         web3 = Web3(Web3.HTTPProvider(settings.NODE_URL))
-        compile_sol = compile_source(source_code)
+        contract_file = 'dapp/contracts/' + role + '.sol'
+        compile_sol = compile_files([contract_file, ], output_values=("abi", "ast", "bin", "bin-runtime",))
+        create_abi(compile_sol[contract_file + ':' + role]['abi'], role)
         obj = web3.eth.contract(
-            abi=compile_sol['<stdin>:' + role]['abi'],
-            bytecode=compile_sol['<stdin>:' + role]['bin'],
-            bytecode_runtime=compile_sol['<stdin>:' + role]['bin-runtime'],
+            abi=compile_sol[contract_file + ':' + role]['abi'],
+            bytecode=compile_sol[contract_file + ':' + role]['bin'],
+            bytecode_runtime=compile_sol[contract_file + ':' + role]['bin-runtime'],
         )
         args = [web3.toHex(os.urandom(15)), ]
         if isinstance(instance, Employer):
             args.append(settings.VERA_COIN_CONTRACT_ADDRESS)
         args.append(settings.VERA_ORACLE_CONTRACT_ADDRESS)
-
-        oracle.unlockAccount()
+        logger.info('Try to unlock account: {}.'.format(oracle.unlockAccount()))
         txn_hash = obj.deploy(transaction={'from': oracle.account}, args=args)
         if txn_hash:
             save_txn.delay(txn_hash, 'New' + role, instance.user.id, instance.id)
@@ -203,3 +192,10 @@ def new_role_instance(instance_id, role):
                                       'Creation of a new {} contract'.format(role))
         else:
             instance.delete()
+
+
+def create_abi(abi, role):
+    abi_file = settings.ABI_PATH + role + '.abi.json'
+    if not os.path.exists(abi_file):
+        with open(abi_file, 'w+') as f:
+            f.write(json.dumps(abi))

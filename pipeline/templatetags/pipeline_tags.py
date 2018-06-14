@@ -1,10 +1,9 @@
-import itertools
 from django import template
 from django.urls import reverse
-from candidateprofile.models import CandidateProfile
+
 from interview.forms import ActionInterviewForm
 from interview.models import ActionInterview
-from jobboard.handlers.new_oracle import OracleHandler
+from jobboard.handlers.oracle import OracleHandler
 from pipeline.models import Action
 from quiz.models import ExamPassed
 from vacancy.models import Vacancy
@@ -35,14 +34,6 @@ def get_action(pipeline, index):
 
 
 @register.filter
-def cv_by_uuid(cv_uuid):
-    try:
-        return CandidateProfile.objects.get(uuid=cv_uuid)
-    except CandidateProfile.DoesNotExist:
-        return None
-
-
-@register.filter
 def vacancy_by_uuid(vac_uuid):
     try:
         return Vacancy.objects.get(uuid=vac_uuid)
@@ -60,63 +51,10 @@ def process_action(action):
         return action.interview.exists()
 
 
-@register.filter(name='pipeline_max_length')
-def pipeline_max_length(i):
-    oracle = OracleHandler()
-    return range(oracle.pipeline_max_length - 1)
-
-
-@register.inclusion_tag('pipeline/line.html')
-def vacancy_employer_pipeline(vacancy):
-    context = pipeline_context(vacancy)
-    return context
-
-
 @register.filter
-def candidate_cvs_on_vacancy(vacancy, candidate):
-    cvs = []
+def pipeline_max_length(a=None):
     oracle = OracleHandler()
-    current_action = oracle.current_cv_action_on_vacancy(vacancy.uuid, candidate.profile.uuid)
-    if not is_empty_action(current_action):
-        cvs.append({'cv_object': candidate.profile, 'current_action': current_action})
-    return cvs
-
-
-def is_empty_action(action):
-    return action['title'] == '' and action['id'] == 0
-
-
-@register.inclusion_tag('pipeline/candidate_line.html')
-def vacancy_candidate_pipeline(vacancy, candidate):
-    context = pipeline_context(vacancy)
-    context['candidate'] = candidate
-    context['cvs'] = candidate_cvs_on_vacancy(vacancy, candidate)
-    return context
-
-
-@register.filter
-def cvs_on_vacancy_per_stage(vac_uuid):
-    oracle = OracleHandler()
-    cvs = oracle.cvs_on_vacancy(vac_uuid)
-    cvs_per_stages = {}
-    for item in cvs:
-        stage = oracle.current_cv_action_on_vacancy(vac_uuid, item)
-        if stage['id'] not in cvs_per_stages:
-            cvs_per_stages[stage['id']] = []
-        cvs_per_stages[stage['id']].append(item)
-    return cvs_per_stages
-
-
-def pipeline_context(vacancy):
-    oracle = OracleHandler()
-    pipeline = []
-    pipeline_len = oracle.get_vacancy_pipeline_length(vacancy.uuid)
-    for i in range(pipeline_len):
-        action = oracle.get_action(vacancy.uuid, i)
-        action.update({'last': action['id'] == pipeline_len - 1})
-        action['db_action'] = get_action(vacancy.pipeline, i)
-        pipeline.append(action)
-    return {'pipeline': pipeline, 'vacancy': vacancy}
+    return range(oracle.pipeline_max_length)
 
 
 @register.filter
@@ -124,36 +62,15 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
-@register.filter
-def get_passed_cvs_by(dictionary, key):
-    return list(itertools.chain(*[v for k, v in dictionary.items() if k > key]))
-
-
-@register.inclusion_tag('pipeline/next_action.html')
-def next_action_condition(pipeline, cv):
-    context = {}
-    action = get_action(pipeline, cv['current_action']['id'])
-    if action:
-        action_type = action.type.condition_of_passage
-        context['action'] = action
-        context['next_approvable'] = cv['current_action']['approvable']
-        if action_type == 'quiz':
-            context['url'] = reverse('candidate_examining',
-                                     kwargs={'pk': action.exam.first().id, 'cv_id': cv['cv_object'].pk})
-        elif action_type == 'interview':
-            context['url'] = reverse('interview',
-                                     kwargs={'pk': action.interview.first().id, 'cv_id': cv['cv_object'].pk})
-    return context
-
-
 @register.inclusion_tag("pipeline/candidate_action_results_link.html")
-def results_with_link(action, cv):
+def results_with_link(action, profile):
+    # TODO change for cv -> candidate
     context = {}
     if hasattr(action, 'type'):
         context = {'type': action.type.condition_of_passage}
         if context['type'] == 'quiz':
             try:
-                exam_passed = ExamPassed.objects.get(cv=cv, exam__action=action)
+                exam_passed = ExamPassed.objects.get(profile=profile, exam__action=action)
             except ExamPassed.DoesNotExist:
                 context['not_passed'] = True
                 context['message'] = 'Candidate doesnt pass exam yet'
@@ -189,3 +106,11 @@ def get_interview(action):
     else:
         context['interview'] = action_interview
     return context
+
+
+@register.inclusion_tag('pipeline/employer_pipeline.html')
+def employer_pipeline_for_vacancy(vacancy):
+    oracle = OracleHandler()
+    pipeline_length = oracle.get_vacancy_pipeline_length(vacancy.uuid)
+    actions = [oracle.get_action(vacancy.uuid, i) for i in range(pipeline_length)]
+    return {'actions': actions, 'vacancy': vacancy}

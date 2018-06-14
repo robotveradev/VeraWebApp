@@ -10,16 +10,16 @@ from django.shortcuts import get_object_or_404
 from candidateprofile.models import CandidateProfile
 from jobboard import blockies
 from jobboard.handlers.coin import CoinHandler
-from jobboard.handlers.new_oracle import OracleHandler
+from jobboard.handlers.oracle import OracleHandler
 from jobboard.models import Transaction
 from quiz.models import ActionExam
-from vacancy.models import Vacancy, CVOnVacancy, VacancyOffer
+from vacancy.models import Vacancy, ProfileOnVacancy, VacancyOffer
 
 register = template.Library()
 
 
-@register.filter(name='has_cv')
-def has_cv(user_id):
+@register.filter(name='has_profile')
+def has_profile(user_id):
     return CandidateProfile.objects.filter(candidate__user_id=user_id).count() > 0
 
 
@@ -29,7 +29,8 @@ def allowance_rest(vacancy_id):
     if not vac.published:
         return 0
     oracle = OracleHandler()
-    return oracle.get_vacancy_allowed_rest(vac.uuid) / 10 ** 18
+    vacancy = oracle.vacancy(vac.uuid)
+    return vacancy['allowed_amount'] / 10 ** 18
 
 
 def get_coin_symbol(id):
@@ -39,7 +40,7 @@ def get_coin_symbol(id):
 
 @register.inclusion_tag("jobboard/tags/candidates.html")
 def get_candidates(vacancy):
-    args = {'vacancy': vacancy, 'cvs': CVOnVacancy.objects.filter(vacancy=vacancy)}
+    args = {'vacancy': vacancy, 'profiles': ProfileOnVacancy.objects.filter(vacancy=vacancy)}
     return args
 
 
@@ -102,9 +103,9 @@ def get_vacancy(vac_uuid):
 def get_candidate_vacancies(context, candidate):
     vac_set = set()
     oracle = OracleHandler()
-    count = oracle.vacancies_on_cv_length(candidate.profile.uuid)
+    count = oracle.candidate_vacancies_length(candidate.contract_address)
     for i in range(count):
-        vac_uuid = oracle.vacancy_on_cv_by_index(candidate.profile.uuid, i)
+        vac_uuid = oracle.candidate_vacancy_by_index(candidate.contract_address, i)
         vac_set.add(vac_uuid)
     vacancies = Vacancy.objects.filter(uuid__in=vac_set)
     return {'vacancies': vacancies,
@@ -198,7 +199,7 @@ def get_blockies_png(address):
 
 @register.filter(name='offers_count')
 def offers_count(candidate):
-    return VacancyOffer.objects.filter(cv__candidate=candidate, is_active=True).count()
+    return VacancyOffer.objects.filter(profile__candidate=candidate, is_active=True).count()
 
 
 @register.simple_tag
