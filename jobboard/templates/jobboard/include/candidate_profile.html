@@ -35,7 +35,7 @@
                         <td>
                             {% if role_object == profile.candidate %}
                                 <a class="uk-align-right uk-margin-remove-bottom"
-                                   href="{% url 'cv_edit' %}"
+                                   href="{% url 'cp_edit' %}"
                                    uk-icon="icon: file-edit; ratio: 0.6"></a>
                             {% endif %}
                             <div>
@@ -52,52 +52,47 @@
                             </div>
                         </td>
                     </tr>
+                    <tr>
+                        <td>Languages:</td>
+                        <td>{% with profile.languages.all as langs %}
+                            {% for lang in langs %}
+                                <span class="uk-badge"
+                                      uk-tooltip="{{ lang.get_level_display }}">{{ lang.language.name|title }}</span>
+                            {% endfor %}
+                        {% endwith %}
+                            <a class="uk-link-text" href="#modal-new-language" uk-toggle><span class="uk-badge"
+                                                                                               uk-tooltip="new language"
+                                                                                               uk-icon="plus"></span></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Citizenship:</td>
+                        <td>
+                            {% with profile.citizenship.all as citiz %}
+                                {% for cit in citiz %}
+                                    <span class="uk-badge">{{ cit.country.name|title }}</span>
+                                {% endfor %}
+                            {% endwith %}
+                            <a class="uk-link-text" href="#modal-new-citizenship" uk-toggle><span class="uk-badge"
+                                                                                                  uk-tooltip="new language"
+                                                                                                  uk-icon="plus"></span></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Work permit:</td>
+                        <td>
+                            {% with profile.work_permit.all as permits %}
+                                {% for permit in permits %}
+                                    <span class="uk-badge">{{ permit.country.name|title }}</span>
+                                {% endfor %}
+                            {% endwith %}
+                            <a class="uk-link-text" href="#modal-new-work_permit" uk-toggle><span class="uk-badge"
+                                                                                                  uk-tooltip="new language"
+                                                                                                  uk-icon="plus"></span></a>
+                        </td>
+                    </tr>
                 {% endif %}
             {% endwith %}
-            <tr>
-                <td>Languages:</td>
-                <td>{% with role_object.profile.languages.all as langs %}
-                    {% for lang in langs %}
-                        <span class="uk-badge"
-                              uk-tooltip="{{ lang.get_level_display }}">{{ lang.language.name|title }}</span>
-                    {% endfor %}
-                {% endwith %}
-                    <a class="uk-link-text" href="#modal-new-language" uk-toggle><span class="uk-badge"
-                                                                                       uk-tooltip="new language"
-                                                                                       uk-icon="plus"></span></a></td>
-            </tr>
-            <tr>
-                <td>Citizenship:</td>
-                <td>
-                    {% with role_object.profile.citizenship.all as citiz %}
-                        {% for cit in citiz %}
-                            <span class="uk-badge">{{ cit.country.name|title }}</span>
-                        {% endfor %}
-                    {% endwith %}
-                    <a class="uk-link-text" href="#modal-new-citizenship" uk-toggle><span class="uk-badge"
-                                                                                          uk-tooltip="new language"
-                                                                                          uk-icon="plus"></span></a>
-                </td>
-            </tr>
-            <tr>
-                <td>Work permit:</td>
-                <td>
-                    {% with role_object.profile.work_permit.all as permits %}
-                        {% for permit in permits %}
-                            <span class="uk-badge">{{ permit.country.name|title }}</span>
-                        {% endfor %}
-                    {% endwith %}
-                    <a class="uk-link-text" href="#modal-new-work_permit" uk-toggle><span class="uk-badge"
-                                                                                          uk-tooltip="new language"
-                                                                                          uk-icon="plus"></span></a>
-                </td>
-            </tr>
-            {% if role_object.profile %}
-                <tr>
-                    <td>Profile uuid:</td>
-                    <td>{{ role_object.profile.uuid }}</td>
-                </tr>
-            {% endif %}
             <tr data-hint="contract_address">
                 <td>Contract address:</td>
                 <td>
@@ -120,8 +115,10 @@
         </table>
     </div>
 </div>
-{% get_facts role_object %}
-{% include 'jobboard/include/add_fact.html' %}
+{% if role_object.contract_address %}
+    {% get_facts role_object %}
+    {% include 'jobboard/include/add_fact.html' %}
+{% endif %}
 <br/>
 <hr class="uk-divider-icon">
 <div>
@@ -201,6 +198,7 @@
         <hr class="uk-divider-icon">
     {% endwith %}
 </div>
+
 <div id="modal-new-language" uk-modal>
     <div class="uk-modal-dialog">
         <form method="post" class="uk-form-horizontal" action="{% url 'new_language' %}">
@@ -284,5 +282,3 @@
 {% if role_object.contract_address %}
     {% get_candidate_vacancies role_object %}
 {% endif %}
-
-

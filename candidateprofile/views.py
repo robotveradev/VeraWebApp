@@ -17,12 +17,12 @@ class VacancyOfferView(OnlyCandidateMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['vac_offers'] = VacancyOffer.objects.filter(cv__candidate=request.role_object, is_active=True).order_by(
+        context['vac_offers'] = VacancyOffer.objects.filter(profile__candidate=request.role_object, is_active=True).order_by(
             '-created_at')
         return self.render_to_response(context)
 
 
-class NewCVFragmentMixin:
+class NewProfileFragmentMixin:
     def __init__(self):
         self.cp = None
         self.object = None
@@ -40,7 +40,7 @@ class NewCVFragmentMixin:
         return context
 
 
-class NewPositionView(NewCVFragmentMixin, OnlyCandidateMixin, CreateView):
+class NewPositionView(NewProfileFragmentMixin, OnlyCandidateMixin, CreateView):
     model = Position
     form_class = PositionForm
     template_name = 'candidateprofile/new_position.html'
@@ -53,7 +53,7 @@ class NewPositionView(NewCVFragmentMixin, OnlyCandidateMixin, CreateView):
         return HttpResponseRedirect(reverse('profile'))
 
 
-class NewEducationView(NewCVFragmentMixin, OnlyCandidateMixin, CreateView):
+class NewEducationView(NewProfileFragmentMixin, OnlyCandidateMixin, CreateView):
     model = Education
     form_class = EducationForm
     template_name = 'candidateprofile/new_education.html'
@@ -65,7 +65,7 @@ class NewEducationView(NewCVFragmentMixin, OnlyCandidateMixin, CreateView):
         return HttpResponseRedirect(reverse('profile'))
 
 
-class NewExperienceView(NewCVFragmentMixin, OnlyCandidateMixin, CreateView):
+class NewExperienceView(NewProfileFragmentMixin, OnlyCandidateMixin, CreateView):
     model = Experience
     form_class = ExperienceForm
     template_name = 'candidateprofile/new_experience.html'
@@ -77,10 +77,10 @@ class NewExperienceView(NewCVFragmentMixin, OnlyCandidateMixin, CreateView):
         return HttpResponseRedirect(reverse('profile'))
 
 
-class CvEditView(OnlyCandidateMixin, UpdateView):
+class ProfileEditView(OnlyCandidateMixin, UpdateView):
     model = CandidateProfile
     form_class = CandidateProfileForm
-    template_name = 'candidateprofile/cv_edit.html'
+    template_name = 'candidateprofile/cp_edit.html'
 
     def get_object(self, queryset=None):
         return self.request.role_object.profile
@@ -120,7 +120,7 @@ class HideOfferView(OnlyCandidateMixin, RedirectView):
     pattern_name = 'offers'
 
     def get_redirect_url(self, *args, **kwargs):
-        offer_o = get_object_or_404(VacancyOffer, id=kwargs['pk'], cv__candidate=self.request.role_object)
+        offer_o = get_object_or_404(VacancyOffer, id=kwargs['pk'], profile__candidate=self.request.role_object)
         offer_o.refuse()
         return super().get_redirect_url()
 

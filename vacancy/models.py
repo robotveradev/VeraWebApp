@@ -62,9 +62,9 @@ class Vacancy(models.Model):
         ordering = ('-updated_at',)
 
 
-class CVOnVacancy(models.Model):
-    cv = models.ForeignKey('candidateprofile.CandidateProfile',
-                           on_delete=models.CASCADE)
+class ProfileOnVacancy(models.Model):
+    profile = models.ForeignKey('candidateprofile.CandidateProfile',
+                                on_delete=models.CASCADE)
     vacancy = models.ForeignKey(Vacancy,
                                 on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -73,9 +73,9 @@ class CVOnVacancy(models.Model):
 class VacancyOffer(models.Model):
     vacancy = models.ForeignKey('vacancy.Vacancy',
                                 on_delete=models.CASCADE)
-    cv = models.ForeignKey('candidateprofile.CandidateProfile',
-                           on_delete=models.CASCADE,
-                           related_name='offers')
+    profile = models.ForeignKey('candidateprofile.CandidateProfile',
+                                on_delete=models.CASCADE,
+                                related_name='offers')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
@@ -84,7 +84,7 @@ class VacancyOffer(models.Model):
                                    default='')
 
     class Meta:
-        unique_together = (("vacancy", "cv"),)
+        unique_together = (("vacancy", "profile"),)
 
     def __str__(self):
         return 'Vacancy offer'

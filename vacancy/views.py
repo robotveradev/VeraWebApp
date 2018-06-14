@@ -3,7 +3,7 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
@@ -12,19 +12,21 @@ from web3 import Web3
 
 from candidateprofile.models import CandidateProfile
 from jobboard.handlers.coin import CoinHandler
-from jobboard.handlers.new_oracle import OracleHandler
+from jobboard.handlers.oracle import OracleHandler
 from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
 from statistic.decorators import statistical
 from vacancy.forms import VacancyForm, EditVacancyForm
-from vacancy.models import Vacancy, CVOnVacancy, VacancyOffer
+from vacancy.models import Vacancy, ProfileOnVacancy, VacancyOffer
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
 MESSAGES = {'allow': _('You must approve the tokens for the oracle.'),
             'empty_exam': _('One or more actions do not have an exam.'),
             'empty_interview': _('One or more actions do not have an interview.'),
-            'disabled_cv': _('Your profile has no position. You must set position it for subscribe.'),
-            'disabled_vacancy': _('Vacancy {} now disabled. You cannot subscribe to disabled vacancy.')}
+            'disabled_profile': _('Your profile has no position. You must set position it for subscribe.'),
+            'disabled_vacancy': _('Vacancy {} now disabled. You cannot subscribe to disabled vacancy.'),
+            'pipeline_doesnot_exist': 'You must add pipeline to enable vacancy',
+            'need_more_actions': 'You must add more actions for pipeline', }
 
 
 class CreateVacancyView(OnlyEmployerMixin, CreateView):
@@ -36,13 +38,18 @@ class CreateVacancyView(OnlyEmployerMixin, CreateView):
         self.object = None
         self.request = None
 
+    def get(self, request, *args, **kwargs):
+        if not request.role_object.companies.exists():
+            return redirect('new_company')
+        return super().get(request, *args, **kwargs)
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update({'employer': self.request.role_object})
         return kwargs
 
     def get_success_url(self):
-        return reverse('pipeline_constructor', kwargs={'pk': self.object.id})
+        return reverse('vacancy', kwargs={'pk': self.object.id})
 
     def form_valid(self, form):
         return self.process_form_instance(form)
@@ -86,7 +93,7 @@ class SubscribeToVacancyView(OnlyCandidateMixin, RedirectView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.cv = None
+        self.candidate_profile = None
         self.vacancy = None
         self.request = None
 
@@ -94,22 +101,24 @@ class SubscribeToVacancyView(OnlyCandidateMixin, RedirectView):
         return reverse('vacancy', kwargs={'pk': kwargs.get('vacancy_id')})
 
     def get(self, request, *args, **kwargs):
-        self.cv = get_object_or_404(CandidateProfile, id=kwargs.get('cv_id'), candidate=request.role_object)
+        self.candidate_profile = get_object_or_404(CandidateProfile,
+                                                   id=kwargs.get('profile_id'),
+                                                   candidate=request.role_object)
         self.vacancy = get_object_or_404(Vacancy, id=kwargs.get('vacancy_id'))
-        return self.check_vac_cv(*args, **kwargs)
+        return self.check_vac_profile(*args, **kwargs)
 
-    def check_vac_cv(self, *args, **kwargs):
+    def check_vac_profile(self, *args, **kwargs):
         if not self.vacancy.enabled:
             messages.error(self.request, MESSAGES['disabled_vacancy'].format(self.vacancy.title))
-        elif not self.cv.enabled:
-            messages.error(self.request, MESSAGES['disabled_cv'].format(self.cv.title))
-        if not self.vacancy.enabled or not self.cv.enabled:
+        elif not self.candidate_profile.enabled:
+            messages.error(self.request, MESSAGES['disabled_profile'].format(self.candidate_profile.title))
+        if not self.vacancy.enabled or not self.candidate_profile.enabled:
             return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
         else:
             return self.subscribe(*args, **kwargs)
 
     def subscribe(self, *args, **kwargs):
-        CVOnVacancy.objects.create(cv=self.cv, vacancy=self.vacancy)
+        ProfileOnVacancy.objects.create(profile=self.candidate_profile, vacancy=self.vacancy)
         return super().get(self.request, *args, **kwargs)
 
 
@@ -125,8 +134,11 @@ class ChangeVacancyStatus(OnlyEmployerMixin, RedirectView):
 
     def get(self, request, *args, **kwargs):
         self.object = get_object_or_404(Vacancy, pk=kwargs.get('pk', None), company__employer=request.role_object)
-        self.check_employer()
-        self.check_actions()
+        if not hasattr(self.object, 'pipeline'):
+            self.errors.append('pipeline_doesnot_exist')
+        else:
+            self.check_employer()
+            self.check_actions()
         if not self.errors:
             if self.object.enabled is not None:
                 self.object.enabled = None
@@ -139,22 +151,23 @@ class ChangeVacancyStatus(OnlyEmployerMixin, RedirectView):
     def check_employer(self):
         oracle = OracleHandler()
         coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
-        vac_allowance = oracle.get_vacancy(self.object.uuid)[2]
+        vac_allowance = oracle.vacancy(self.object.uuid)['allowed_amount']
         oracle_allowance = coin_h.allowance(self.object.company.employer.contract_address, oracle.contract_address)
         if oracle_allowance < vac_allowance:
             self.errors.append('allow')
 
     def check_actions(self):
-        for action in self.object.pipeline.actions.all():
-            if action.type.condition_of_passage:
-                method = getattr(self, 'check_' + action.type.condition_of_passage)
-                method(action)
+        if hasattr(self.object, 'pipeline'):
+            if not self.object.pipeline.actions.exists():
+                self.errors.append('need_more_actions')
+            for action in self.object.pipeline.actions.all():
+                if action.type.condition_of_passage:
+                    method = getattr(self, 'check_' + action.type.condition_of_passage)
+                    method(action)
 
     def check_quiz(self, action):
         if not action.exam.exists():
             self.errors.append('empty_exam')
-        else:
-            print('VOT: {}'.format(action.exam.all()))
 
     def check_interview(self, action):
         if not action.interview.exists():
@@ -176,8 +189,8 @@ class VacanciesListView(OnlyEmployerMixin, ListView):
 class OfferVacancyView(OnlyEmployerMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         vac_o = get_object_or_404(Vacancy, id=kwargs['vacancy_id'], company__employer=self.request.role_object)
-        cp_o = get_object_or_404(CandidateProfile, id=kwargs['cv_id'])
-        VacancyOffer.objects.get_or_create(vacancy=vac_o, cv=cp_o)
+        cp_o = get_object_or_404(CandidateProfile, id=kwargs['profile_id'])
+        VacancyOffer.objects.get_or_create(vacancy=vac_o, profile=cp_o)
         return reverse('candidate_profile', kwargs={'username': cp_o.candidate.user.username})
 
 

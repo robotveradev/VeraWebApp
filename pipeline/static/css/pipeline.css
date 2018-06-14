@@ -1,181 +1,70 @@
-.ban-action {
+.pipLineContainer {
+    padding: 5%;
+}
+
+.pipline {
+    padding: 15px;
+}
+
+.pipElement {
+    padding: 0;
+}
+
+.circle {
+    min-width: 100px;
+    min-height: 100px;
+    box-sizing: border-box;
+    border: 1px dashed grey;
+    border-radius: 50%;
+    display: inline-block;
+    float: left;
+}
+
+.circle:hover {
+    border: 1px dashed green;
+}
+
+.plus:hover {
+    color: green;
+}
+
+.sort:hover {
+    border: 1px solid blue;
+}
+
+.circle span {
+    font-size: smaller;
     cursor: pointer;
 }
 
-.ban-action:hover {
-    color: red;
+.circle span.plus {
+    font-size: smaller;
 }
 
-/*.disabled > div > div {*/
-/*background: rgba(238, 238, 238, .5);*/
-/*}*/
-
-.disabled > div > div {
-    background: linear-gradient(45deg, rgba(0, 0, 0, 0) 49.9%, lightgray 49.9%, lightgray 60%, rgba(0, 0, 0, 0) 60%) fixed,
-    linear-gradient(45deg, lightgray 10%, rgba(0, 0, 0, 0) 10%) fixed;
-    background-size: 0.5em 0.5em;
+.line {
+    float: left;
 }
 
-.no-action {
-    background: linear-gradient(45deg, rgba(0, 0, 0, 0) 49.9%, lightblue 49.9%, lightblue 60%, rgba(0, 0, 0, 0) 60%) fixed,
-    linear-gradient(45deg, lightblue 10%, rgba(0, 0, 0, 0) 10%) fixed;
-    background-size: 0.5em 0.5em;
-}
-
-.uk-sortable-handle:hover {
-    color: blue;
-}
-
-.action {
-    display: inline-block;
-    width: 75px;
-    height: 75px;
-    border: 1px dashed grey;
-    margin-left: 10em;
-    border-radius: 50%;
-}
-
-.action:first-of-type {
-    margin-left: 0;
-}
-
-.action:before {
-    content: '';
-    width: 10em;
-    border-bottom: 1px dashed;
-    position: absolute;
-    top: 50%;
-}
-
-.action:after {
-    left: 100%;
-}
-
-.action:before {
-    right: 100%;
-}
-
-.action:first-of-type:before,
-.action:last-of-type:after {
-    display: none;
-}
-
-.transference {
-    content: '';
-    height: 140px;
-    width: 70px;
-    border: 1px dashed grey;
-    border-left: transparent;
-    border-bottom-right-radius: 140px;
-    border-top-right-radius: 140px;
-}
-
-.pulse {
-    overflow: visible;
-    position: relative;
-}
-
-.pulse::before {
-    content: '';
-    display: block;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    border-radius: inherit;
-    -webkit-transition: opacity .3s, -webkit-transform .3s;
-    transition: opacity .3s, -webkit-transform .3s;
-    transition: opacity .3s, transform .3s;
-    transition: opacity .3s, transform .3s, -webkit-transform .3s;
-    -webkit-animation: pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
-    animation: pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
-    z-index: -1
-}
-
-.pulse-green.pulse::before {
-    border: 1px solid green;
-}
-
-.pulse-red.pulse::before {
-    border: 1px solid red;
-}
-.pulse-amber.pulse::before {
-    border: 1px solid #ffc107;
-}
-.pulse-teal.pulse::before {
-    border: 1px solid #009688;
-}
-.pulse-indigo.pulse::before {
-    border: 1px solid #3f51b5;
-}
-
-.pulse-purple.pulse::before {
-    border: 1px solid #9c27b0;
-}
-
-
-@-webkit-keyframes pulse-animation {
-    0% {
-        opacity: 1;
-        -webkit-transform: scale(1);
-        transform: scale(1)
+@media screen and (max-width: 974px) {
+    .line {
+        margin-top: 100px;
+        width: 3%;
     }
 
-    50% {
-        opacity: 0;
-        -webkit-transform: scale(1.5);
-        transform: scale(1.5)
-    }
-
-    100% {
-        opacity: 0;
-        -webkit-transform: scale(1.5);
-        transform: scale(1.5)
+    .circle {
+        margin-left: 2%;
+        margin-bottom: 2%;
     }
 }
 
-@keyframes pulse-animation {
-    0% {
-        opacity: 1;
-        -webkit-transform: scale(1);
-        transform: scale(1)
-    }
-
-    50% {
-        opacity: 0;
-        -webkit-transform: scale(1.5);
-        transform: scale(1.5)
-    }
-
-    100% {
-        opacity: 0;
-        -webkit-transform: scale(1.5);
-        transform: scale(1.5)
+@media only screen and (max-width: 730px) and (min-width: 652px) {
+    .line {
+        display: none;
     }
 }
 
-.overlay {
-    width: 75px;
-    height: 75px;
-    border-radius: 50%;
-    position: absolute;
-    left: -1px;
-    top: -1px;
-}
-
-.action-badge {
-    position: absolute;
-    text-wrap: none;
-    top: -25px;
-    left: 19px;
-    text-align: right;
-    color: white;
-    padding: 0 3px;
-    font-size: 0.75em;
-}
-
-.action-badge span {
-    padding: 1px 3px;
-    border-radius: 4px;
+@media screen and (max-width: 413px) {
+    .circle {
+        float: none;
+    }
 }

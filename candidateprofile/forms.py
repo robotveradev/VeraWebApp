@@ -9,7 +9,7 @@ from .models import CandidateProfile, Position, Education, Experience, LanguageI
 class CandidateProfileForm(forms.ModelForm):
     class Meta:
         exclude = (
-            'candidate', 'experience', 'education', 'created_at', 'updated_at', 'published', 'uuid',
+            'candidate', 'experience', 'education', 'created_at', 'updated_at', 'uuid',
             'enabled',)
         model = CandidateProfile
         labels = {

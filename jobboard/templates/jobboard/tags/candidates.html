@@ -1,5 +1,5 @@
 {% load jobboard_tags %}
-{% if cvs %}
+{% if profiles %}
     <h5>Job seekers who subscribe to a job offer</h5>
     <table class="uk-table uk-table-divider uk-table-small">
         <thead>
@@ -10,12 +10,12 @@
         </tr>
         </thead>
         <tbody>
-        {% for cv in cvs %}
-            {% with vacancy|candidate_state:cv.cv.candidate as st %}
+        {% for cp in profiles %}
+            {% with vacancy|candidate_state:cp.profile.candidate as st %}
                 <tr>
                     <td>
-                        <a href="{% url 'candidateprofile' pk=cv.cv.id %}">{{ cv.cv.candidate.first_name }} {{ cv.cv.candidate.last_name }}
-                            - {{ cv.cv.position.title }}</a>
+                        <a href="{% url 'candidateprofile' pk=cp.profile.id %}">{{ cp.profile.candidate.full_name }}
+                            - {{ cp.profile.title }}</a>
                     </td>
                     <td class="uk-text-center
                             {% if st == 'wait' %}
@@ -29,7 +29,7 @@
                     </td>
                     <td class="uk-text-right">
                         {% if st == 'wait' %}
-                            {% if cv.cv.candidate.id|employer_answered:vacancy.id %}
+                            {% if cp.profile.candidate.id|employer_answered:vacancy.id %}
                                 <div uk-spinner="ratio: 0.7"></div>
                             {% else %}
                                 <form class="uk-inline" action="{% url 'access_candidate' %}" method="post">

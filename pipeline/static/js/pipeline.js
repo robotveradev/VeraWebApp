@@ -1,67 +1,139 @@
 $(document).ready(function () {
-    $('#alert_increase').hide().find('a').on('click', function () {
-        $(this).closest('#alert_increase').hide();
-    });
-    $('.ban-action').on('click', function () {
-        $(this).closest('li').toggleClass('disabled');
-    });
+    !function () {
+        $(document).on('click', '#apply', pipAdd);
+        var piplineElements = [];
+        var viewState = [];
+        createLines(piplineElements);
+        UIkit.util.on($('.pipline'), 'moved', function (e, sortable, el) {
+            console.log(e, sortable, el);
+            $('.line').hide();
+            var currentId = parseInt($(el).attr('data-id'));
+            UIkit.modal.confirm('<p>Are you shore you want to change position of element ' + (currentId + 1) + ' to position ' + ($(el).index() + 1) + '</p><p>All other elements will be shifted</p>').then(function () {
+                var removedEl = viewState.splice(currentId, 1);
+                viewState.splice($(el).index(), 0, removedEl[0]);
+                sendChanges('#', {
+                    lastId: $(el).attr('data-id'),
+                    newId: $(el).index(),
+                    csrfmiddlewaretoken: $.cookie("csrftoken")
+                }, newElementhendler, errorHandler);
+                render(viewState);
+                $('.pipLineContainer').addClass('uk-disabled')
+            }, function () {
+                render(piplineElements)
+            });
+        });
 
-    $('#pipeline-constructor select').on('change', function () {
-        let fee_item = $(this).closest('div').find('input[name="fee"]');
-        if ($(this).find(":selected").data('fee')) {
-            fee_item.show();
-        } else {
-            fee_item.hide();
-        }
-    });
-
-    $('#pipeline_form_submit').on('click', function (e) {
-        e.preventDefault();
-        let totalFee = 0;
-        let allowed_amount = Number($('#allowed').text());
-        let lis = $('ul#pipeline-constructor').find('li');
-        lis.map(function (i, item) {
-            let select = $(item).find('div > div > select');
-            if ($(select).val() === null || $(item).hasClass('disabled')) {
-                $(item).remove();
-            } else {
-                let approve = $(item).find('input[type=checkbox]')[0];
-                let approve_input = $(item).find('input[name="approve"]')[0];
-                let fee = $(item).find('input[name="fee"]')[0];
-                $(fee).val($(fee).val() > 0 ? $(fee).val() : 0);
-                totalFee += Number($(fee).val());
-                if (approve.checked) {
-                    $(approve_input).val('True');
-                } else {
-                    $(approve_input).val('False');
-                }
+        function createLines(elements) {
+            if (elements.length < 2) {
+                return
             }
-        });
-        if (totalFee > allowed_amount) {
-            $('#alert_increase').show();
-            $('#new_allowed').attr('min', totalFee)
-        } else {
-            $('#pipeline_form').submit();
+            for (var i = 0; i < $('.pipElement').length - 1; i++) {
+                $('.pipElement:eq(' + i + ')').append('<canvas width="100px" height="100px" class="line uk-animation-scale-up uk-transform-origin-top-center"></canvas>');
+                var line = $('.line')[i].getContext('2d');
+                line.beginPath();
+                line.setLineDash([5, 10]);
+                line.moveTo(0, 50);
+                line.lineTo(100, 50);
+                line.stroke();
+            }
         }
-    });
 
-    $('#increase_allowed_form').on('submit', function (e) {
+        function PiplineElement(type, fee, approveable, id) {
+            this.id = id;
+            this.type = type;
+            this.fee = fee;
+            this.approveable = approveable;
+            this.toHtml = function () {
+                return '<li class="pipElement" data-id="' + this.id + '">' +
+                    '<div class="circle sort">' +
+                    '<span class="uk-text-meta uk-text-small">' + this.type + '</span>' +
+                    '</div>' +
+                    '</li>';
+            }
+        }
 
-        e.preventDefault();
-
-        $.ajax({
-            type: $(this).attr('method'),
-            url: $(this).attr('action'),
-            data: $(this).serialize(),
-            success: function (data) {
-                console.log('Submission was successful.');
-                UIkit.modal('#increase').hide();
-                $('#pipeline_form').submit();
-            },
-            error: function (data) {
-                console.log('An error occurred.');
-                console.log(data);
-            },
+        $('#add_pip').on('submit', function (event) {
+            event.preventDefault()
         });
-    });
+
+        function sendChanges(url, data, callback, handler) {
+            $.post(url, {
+                ...data,
+                csrfmiddlewaretoken: getCookie('csrftoken')
+            }).then(
+                function (data, response) {
+                    return callback(data, response);
+                },
+                function (error) {
+                    return handler(error);
+                }
+            );
+        }
+
+        function errorHandler(error) {
+            UIkit.modal.alert('<p><span style="color:red">Error: </span>' + error.status + '</p><p>' + error.statusText + '</p>').then(function () {
+                $('.pipLineContainer').removeClass('uk-disabled');
+                render(piplineElements);
+            });
+        }
+
+        function newElementhendler(response) {
+            var timer = setInterval(function () {
+                function applyChanges(response) {
+                    if (response) {
+                        clearInterval(timer);
+                        piplineElements = viewState;
+                        for (var i = 0; i < piplineElements.length; i++) {
+                            piplineElements[i].id = i;
+                            $('.pipElement:eq(' + i + ')').attr('data-id', i)
+                        }
+                        render(piplineElements);
+                        $('.pipLineContainer').removeClass('uk-disabled uk-grid-stack');
+                    }
+                }
+
+                sendChanges('#', response, applyChanges, errorHandler)
+            }, 10000);
+        }
+
+        function render(array) {
+            var pipline = $('.pipline');
+            $('.pipElement').remove();
+            for (var i = 0; i < array.length; i++) {
+                $(pipline).append(array[i].toHtml());
+            }
+            createLines(array);
+        }
+
+        function pipAdd() {
+            console.log(getCookie('csrftoken'));
+            var pip = new PiplineElement($('#pipType').val(), $('#fee').val(), $('#approveable')[0].checked, piplineElements.length);
+            UIkit.modal('#modal_add_pip').hide();
+            sendChanges($('#add_pip')[0].action, {
+                actionType: pip.type,
+                fee: pip.fee < 0 || !pip.fee ? 0 : pip.fee,
+                approveable: pip.approveable
+            }, newElementhendler, errorHandler);
+            viewState.push(pip);
+            render(viewState);
+            $('.pipLineContainer').addClass('uk-disabled')
+        }
+
+    }()
 });
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
