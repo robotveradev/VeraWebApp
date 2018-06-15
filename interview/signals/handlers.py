@@ -15,9 +15,9 @@ def candidate_pass_interview(sender, instance, created, **kwargs):
             txn_hash = employer.approve_level_up(vacancy.uuid, instance.cv.uuid)
         elif instance.type == 'revoke':
             txn_hash = employer.revoke_cv(vacancy.uuid, instance.cv.uuid)
-        save_txn_to_history.delay(instance.cv.candidate.user.id, txn_hash,
+        save_txn_to_history.delay(instance.cv.candidate.user.id, txn_hash.hex(),
                                   '{}d on vacancy {}'.format(instance.type.capitalize(),
                                                              instance.action_interview.action.pipeline.vacancy.title))
-        save_txn_to_history.delay(vacancy.employer.user.id, txn_hash,
-                                  'CV {} {}d on vacancy {}'.format(instance.cv.uuid, instance.type,
+        save_txn_to_history.delay(vacancy.employer.user.id, txn_hash.hex(),
+                                  'Candidate {} {}d on vacancy {}'.format(instance.cv.uuid, instance.type,
                                                                    instance.action_interview.action.pipeline.vacancy.title))

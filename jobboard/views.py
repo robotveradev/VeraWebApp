@@ -276,11 +276,11 @@ def withdraw(request):
                 return HttpResponse('You do not have so many coins', status=200)
             else:
                 txn_hash = oracle.withdraw(request.role_object.contract_address, address, int(float(amount) * 10 ** 18))
-                save_txn_to_history.delay(request.role_object.user_id, txn_hash,
+                save_txn_to_history.delay(request.role_object.user_id, txn_hash.hex(),
                                           'Withdraw {} Vera token from {} to {}'.format(amount,
                                                                                         request.role_object.contract_address,
                                                                                         address))
-                save_txn.delay(txn_hash, 'Withdraw', request.user.id, request.role_object.id)
+                save_txn.delay(txn_hash.hex(), 'Withdraw', request.user.id, request.role_object.id)
     return redirect('profile')
 
 
@@ -324,7 +324,7 @@ class GrantRevokeAgentView(ChooseRoleMixin, View):
                         txn_hash = oracle.revoke_agent(request.role_object.contract_address, address)
                     else:
                         txn_hash = oracle.grant_agent(request.role_object.contract_address, address)
-                    save_txn_to_history.delay(request.user.id, txn_hash,
+                    save_txn_to_history.delay(request.user.id, txn_hash.hex(),
                                               'Revoke access for agent {}'.format(address))
         return redirect('profile')
 
@@ -348,7 +348,7 @@ class NewFactView(OnlyCandidateMixin, View):
                 oracle = OracleHandler()
                 oracle.unlockAccount()
                 txn_hash = oracle.new_fact(request.role_object.contract_address, fact)
-                save_txn_to_history.delay(request.role_object.user_id, txn_hash, 'New "{}" fact added'.format(f_type))
+                save_txn_to_history.delay(request.role_object.user_id, txn_hash.hex(), 'New "{}" fact added'.format(f_type))
         return redirect('profile')
 
 
@@ -382,8 +382,8 @@ class ApproveTokenView(OnlyEmployerMixin, RedirectView):
     def approve_money(self, amount):
         tnx_hash = self.employer_h.approve_money(int(amount) * 10 ** 18)
         user_id = self.request.role_object.user.id
-        save_txn.delay(tnx_hash, 'tokenApprove', user_id, self.request.role_object.id)
-        save_txn_to_history.delay(user_id, tnx_hash, 'Money approved for oracle')
+        save_txn.delay(tnx_hash.hex(), 'tokenApprove', user_id, self.request.role_object.id)
+        save_txn_to_history.delay(user_id, tnx_hash.hex(), 'Money approved for oracle')
 
 
 class SignupInviteView(SignupView):
@@ -423,7 +423,7 @@ class GetFreeCoinsView(ChooseRoleMixin, RedirectView):
         coin_h = CoinHandler()
         OracleHandler().unlockAccount()
         txn_hash = coin_h.transfer(request.role_object.contract_address, 1000 * 10 ** 18)
-        save_txn_to_history.delay(request.user.id, txn_hash, 'Free coins added.')
+        save_txn_to_history.delay(request.user.id, txn_hash.hex(), 'Free coins added.')
         return super().get(request, *args, **kwargs)
 
 

@@ -1,5 +1,6 @@
 amqp==2.2.2
 appnope==0.1.0
+attrdict==2.0.0
 billiard==3.5.0.3
 celery==4.1.0
 certifi==2018.1.18
@@ -16,11 +17,17 @@ django-google-address==1.1.0
 django-model-utils==3.1.1
 django-private-chat==0.1.8
 django-user-accounts==2.0.3
-eth-abi==0.5.0
-eth-keys==0.1.0b4
-eth-tester==0.1.0b11
-eth-utils==0.8.1
+djangorestframework==3.8.2
+eth-abi==1.1.1
+eth-account==0.2.3
+eth-hash==0.1.4
+eth-keyfile==0.5.1
+eth-keys==0.2.0b3
+eth-rlp==0.1.2
+eth-tester==0.1.0b27
+eth-utils==1.0.3
 gunicorn==19.7.1
+hexbytes==0.1.0
 idna==2.6
 ipython==6.2.1
 ipython-genutils==0.2.0
@@ -31,6 +38,7 @@ kombu==4.1.0
 lru-dict==1.1.6
 nltk==3.2.5
 numpy==1.14.2
+parsimonious==0.8.0
 parso==0.1.1
 pexpect==4.4.0
 pickleshare==0.7.4
@@ -38,6 +46,7 @@ Pillow==5.0.0
 prompt-toolkit==1.0.15
 ptyprocess==0.5.2
 py-solc==3.1.0
+pycryptodome==3.6.1
 Pygments==2.2.0
 pysha3==1.0.2
 pytz==2018.3
@@ -56,5 +65,6 @@ urllib3==1.22
 uvloop==0.9.1
 vine==1.1.4
 wcwidth==0.1.7
-web3==3.16.5
-websockets==3.2
+web3==4.3.0
+websockets==5.0.1
+

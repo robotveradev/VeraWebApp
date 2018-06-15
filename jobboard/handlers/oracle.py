@@ -2,15 +2,17 @@ import json
 
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from eth_utils import force_text, force_bytes
 from solc import compile_files
-from web3 import Web3, RPCProvider
+from solc.utils.string import force_bytes
+from web3 import Web3, HTTPProvider
+from web3.middleware import geth_poa_middleware
 from web3.utils.validation import validate_address
 
 
 class OracleHandler(object):
     def __init__(self):
-        self.web3 = Web3(RPCProvider(host='localhost', port=8545))
+        self.web3 = Web3(HTTPProvider('http://localhost:8545'))
+        self.web3.middleware_stack.inject(geth_poa_middleware, layer=0)
         self.account = self.web3.eth.coinbase
         self.contract_address = settings.VERA_ORACLE_CONTRACT_ADDRESS
         try:
@@ -24,7 +26,7 @@ class OracleHandler(object):
                 ad.write(json.dumps(compiled[path + ':Oracle']['abi']))
                 self.abi = compiled[path + ':Oracle']['abi']
         self.__password = settings.COINBASE_PASSWORD_SECRET
-        self.contract = self.web3.eth.contract(self.abi, self.contract_address)
+        self.contract = self.web3.eth.contract(abi=self.abi, address=self.contract_address)
         self.state = ['not exist', 'enabled', 'disabled']
 
     def trim0x(self, text):
@@ -120,7 +122,7 @@ class OracleHandler(object):
 
     def fact(self, candidate_address, uuid):
         if uuid in self.facts_keys(candidate_address):
-            return self.contract.call().get_fact(candidate_address, force_text(Web3.toBytes(hexstr=uuid)))
+            return self.contract.call().get_fact(candidate_address, uuid)
         else:
             raise TypeError('Invalid FactUUID')
 

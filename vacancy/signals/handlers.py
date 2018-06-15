@@ -23,7 +23,7 @@ def new_subscribe(sender, instance, created, **kwargs):
         txn_hash = candidate_h.subscribe(instance.vacancy.uuid, instance.cv.uuid)
         if txn_hash:
             user_id = instance.cv.candidate.user.id
-            save_txn.delay(txn_hash, 'Subscribe', user_id, instance.vacancy.id)
-            save_txn_to_history.delay(user_id, txn_hash, 'Subscribe to vacancy {}'.format(instance.vacancy.title))
+            save_txn.delay(txn_hash.hex(), 'Subscribe', user_id, instance.vacancy.id)
+            save_txn_to_history.delay(user_id, txn_hash.hex(), 'Subscribe to vacancy {}'.format(instance.vacancy.title))
         else:
             instance.delete()
