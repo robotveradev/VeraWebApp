@@ -17,6 +17,6 @@ def new_vacancy(vacancy_id):
                                       vacancy.uuid,
                                       int(vacancy.allowed_amount) * 10 ** 18)
         if txn_hash:
-            save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash,
+            save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
                                                   'Creation of a new vacancy: {}'.format(vacancy.title)), countdown=2)
-            save_txn.apply_async(args=(txn_hash, 'NewVacancy', vacancy.employer.user.id, vacancy.id), countdown=2)
+            save_txn.apply_async(args=(txn_hash.hex(), 'NewVacancy', vacancy.employer.user.id, vacancy.id), countdown=2)

@@ -1,4 +1,4 @@
-from web3 import Web3, RPCProvider
+from web3 import Web3, HTTPProvider
 import json
 from web3.utils.validation import validate_address
 from django.conf import settings
@@ -6,12 +6,12 @@ from django.conf import settings
 
 class CoinHandler(object):
     def __init__(self, contract_address=None, account=None):
-        self.web3 = Web3(RPCProvider(host='localhost', port=8545))
+        self.web3 = Web3(HTTPProvider('http://localhost:8545'))
         self.contract_address = contract_address or settings.VERA_COIN_CONTRACT_ADDRESS
         self.account = account
         with open('jobboard/handlers/coin_abi.json', 'r') as ad:
             self.abi = json.load(ad)
-        self.contract = self.web3.eth.contract(self.abi, self.contract_address)
+        self.contract = self.web3.eth.contract(abi=self.abi, address=self.contract_address)
 
     def owner(self):
         return self.contract.call().owner()

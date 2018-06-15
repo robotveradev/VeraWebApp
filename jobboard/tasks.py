@@ -73,7 +73,7 @@ class CheckTransaction(Task):
             emp_o.save()
             self.delete_txn(txn)
             add_to_oracle_tnx_hash = self.oracle.new_employer(tnx_receipt['contractAddress'])
-            save_txn.delay(add_to_oracle_tnx_hash, 'EmployerAdded', emp_o.user.id, emp_o.id)
+            save_txn.delay(add_to_oracle_tnx_hash.hex(), 'EmployerAdded', emp_o.user.id, emp_o.id)
             print("NewEmployerContract: " + emp_o.full_name + ' ' + tnx_receipt['contractAddress'])
 
     def newcandidate(self, txn):
@@ -87,7 +87,7 @@ class CheckTransaction(Task):
             can_o.save()
             self.delete_txn(txn)
             add_to_oracle_tnx_hash = self.oracle.new_candidate(tnx_receipt['contractAddress'])
-            save_txn.delay(add_to_oracle_tnx_hash, 'CandidateAdded', can_o.user.id, can_o.id)
+            save_txn.delay(add_to_oracle_tnx_hash.hex(), 'CandidateAdded', can_o.user.id, can_o.id)
             print("NewCandidateContract: " + can_o.first_name + ' ' + tnx_receipt['contractAddress'])
 
     def newvacancy(self, txn):
@@ -186,9 +186,9 @@ def new_role_instance(instance_id, role):
         logger.info('Try to unlock account: {}.'.format(oracle.unlockAccount()))
         txn_hash = obj.deploy(transaction={'from': oracle.account}, args=args)
         if txn_hash:
-            save_txn.delay(txn_hash, 'New' + role, instance.user.id, instance.id)
+            save_txn.delay(txn_hash.hex(), 'New' + role, instance.user.id, instance.id)
 
-            save_txn_to_history.delay(instance.user.id, txn_hash,
+            save_txn_to_history.delay(instance.user.id, txn_hash.hex(),
                                       'Creation of a new {} contract'.format(role))
         else:
             instance.delete()

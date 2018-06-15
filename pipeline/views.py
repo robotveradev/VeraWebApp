@@ -36,11 +36,11 @@ class ApproveActionEmployerView(OnlyEmployerMixin, RedirectView):
 
     def approve_candidate(self):
         txn_hash = self.employer_h.approve_level_up(self.vacancy.uuid, self.profile.candidate.contract_address)
-        save_txn.delay(txn_hash, 'EmpAnswer', self.request.user.id, self.profile.id, self.vacancy.id)
-        save_txn_to_history.delay(self.request.user.id, txn_hash,
+        save_txn.delay(txn_hash.hex(), 'EmpAnswer', self.request.user.id, self.profile.id, self.vacancy.id)
+        save_txn_to_history.delay(self.request.user.id, txn_hash.hex(),
                                   'Candidate {} transferred to the next level.'.format(
                                       self.profile.candidate.contract_address))
-        save_txn_to_history.delay(self.profile.candidate.user.id, txn_hash,
+        save_txn_to_history.delay(self.profile.candidate.user.id, txn_hash.hex(),
                                   'Candidate {} level up on vacancy {}.'.format(self.profile.candidate.contract_address,
                                                                                 self.vacancy.uuid))
 
@@ -68,10 +68,10 @@ class RevokeCandidateView(OnlyEmployerMixin, RedirectView):
 
     def reset_candidate(self):
         txn_hash = self.employer_h.reset_candidate(self.vacancy.uuid, self.profile.candidate.contract_address)
-        save_txn.delay(txn_hash, 'EmpAnswer', self.request.user.id, self.profile.id, self.vacancy.id)
-        save_txn_to_history.delay(self.request.user.id, txn_hash,
+        save_txn.delay(txn_hash.hex(), 'EmpAnswer', self.request.user.id, self.profile.id, self.vacancy.id)
+        save_txn_to_history.delay(self.request.user.id, txn_hash.hex(),
                                   'Candidate {} revoked.'.format(self.profile.candidate.contract_address))
-        save_txn_to_history.delay(self.profile.candidate.user.id, txn_hash,
+        save_txn_to_history.delay(self.profile.candidate.user.id, txn_hash.hex(),
                                   'Candidate {} revoked on vacancy {}.'.format(self.profile.candidate.contract_address,
                                                                                self.vacancy.uuid))
 

@@ -1,17 +1,20 @@
 from django.conf import settings
-from web3 import Web3, RPCProvider
+from web3 import Web3, HTTPProvider
 import json
+
+from web3.middleware import geth_poa_middleware
 
 
 class EmployerHandler(object):
     def __init__(self, account, contract_address):
-        self.web3 = Web3(RPCProvider(host='localhost', port=8545))
+        self.web3 = Web3(HTTPProvider('http://localhost:8545'))
+        self.web3.middleware_stack.inject(geth_poa_middleware, layer=0)
         self.account = account
         self.contract_address = contract_address
         self.__password = settings.COINBASE_PASSWORD_SECRET
         with open('jobboard/handlers/new_employer_abi.json', 'r') as ad:
             self.abi = json.load(ad)
-        self.contract = self.web3.eth.contract(self.abi, self.contract_address)
+        self.contract = self.web3.eth.contract(abi=self.abi, address=self.contract_address)
 
     def unlockAccount(self):
         self.web3.personal.unlockAccount(self.account, self.__password)

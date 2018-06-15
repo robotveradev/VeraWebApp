@@ -158,7 +158,7 @@ VERA_COIN_CONTRACT_ADDRESS = '0xD1d0cb0eC75F005B54984B94bA7EC45857Df81Ea'  # Rin
 
 VERA_COIN_PRESALE_CONTRACT_ADDRESS = '0x11535d665C841b9A067EDbBBDEcD81E091f442f2'  # Rinkeby
 
-VERA_ORACLE_CONTRACT_ADDRESS = '0xc4c81cfac43401d4a60eed5c187f9686aa2b2809'  # Rinkeby
+VERA_ORACLE_CONTRACT_ADDRESS = '0xC4c81cFac43401D4a60EEd5C187F9686aA2b2809'  # Rinkeby
 
 WEB_ETH_COINBASE = '0x8dC270b448958fEd366E0eDfb28B335Bf84fCA91'  # Rinkeby
 
@@ -196,7 +196,7 @@ GOOGLE_ADDRESS = {
 GOOGLE_JS_MAP_KEY = ''
 
 # Social icons
-# icon name on fontawesome, exm: 'www.<ok>.ru' -> <i class="fa fa-<odnoklassniki>"></i>
+# icon name on fontawesome, exm: 'www.<ok>.ru' -> <i class="fa fa-<odnoklassniki-square>"></i>
 SOCIAL_ICONS = {
     'ok': 'odnoklassniki-square',
     'facebook': 'facebook-official',
