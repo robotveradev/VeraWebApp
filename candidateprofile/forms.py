@@ -50,6 +50,16 @@ class EducationForm(forms.ModelForm):
             ),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if not cleaned_data.get('start') or not cleaned_data.get('end'):
+            raise forms.ValidationError(_(
+                "You must specify an start date and end date."))
+        if cleaned_data.get('start') > cleaned_data.get('end'):
+            raise forms.ValidationError(_(
+                "Start date must be less than end date"
+            ))
+
 
 class ExperienceForm(forms.ModelForm):
     class Meta:

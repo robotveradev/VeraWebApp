@@ -2,13 +2,16 @@ import os
 
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, RedirectView, CreateView, UpdateView
 from web3 import Web3
 
+from candidateprofile.tasks import change_candidate_status
 from google_address.models import Address
+from jobboard.forms import AchievementForm
+from jobboard.handlers.oracle import OracleHandler
 from jobboard.mixins import OnlyCandidateMixin
-from vacancy.models import VacancyOffer
+from vacancy.models import VacancyOffer, Vacancy
 from .forms import *
 
 
@@ -17,7 +20,8 @@ class VacancyOfferView(OnlyCandidateMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['vac_offers'] = VacancyOffer.objects.filter(profile__candidate=request.role_object, is_active=True).order_by(
+        context['vac_offers'] = VacancyOffer.objects.filter(profile__candidate=request.role_object,
+                                                            is_active=True).order_by(
             '-created_at')
         return self.render_to_response(context)
 
@@ -145,7 +149,7 @@ class CompleteProfileView(OnlyCandidateMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.candidate = self.request.role_object
-        form.instance.uuid = Web3.toHex(os.urandom(15))
+        form.instance.uuid = Web3.toHex(os.urandom(32))
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -182,4 +186,52 @@ class NewWorkPermitView(OnlyCandidateMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.profile = self.request.role_object.profile
+        return super().form_valid(form)
+
+
+class ChangeStatusView(OnlyCandidateMixin, RedirectView):
+
+    def post(self, request, *args, **kwargs):
+        oracle = OracleHandler()
+        old_status = oracle.candidate_status(request.role_object.contract_address, only_index=True)
+        new_status = request.POST.get('status')
+        if new_status != old_status:
+            change_candidate_status.delay(request.role_object.id, new_status)
+        return super().post(request, *args, **kwargs)
+
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('profile')
+
+
+class CandidateVacanciesView(OnlyCandidateMixin, TemplateView):
+    template_name = 'candidateprofile/vacancies.html'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        vac_set = set()
+        oracle = OracleHandler()
+        count = oracle.candidate_vacancies_length(self.request.role_object.contract_address)
+        for i in range(count):
+            vac_uuid = oracle.candidate_vacancy_by_index(self.request.role_object.contract_address, i)
+            vac_set.add(vac_uuid)
+        vacancies = Vacancy.objects.filter(uuid__in=vac_set)
+        context.update({'vacancies': vacancies})
+        return context
+
+
+class NewAchievementView(OnlyCandidateMixin, CreateView):
+    form_class = AchievementForm
+    template_name = 'candidateprofile/new_achievement.html'
+    success_url = reverse_lazy('profile')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+
+    def form_valid(self, form):
+        form.instance.candidate = self.request.role_object
         return super().form_valid(form)

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Specialisation, Keyword, Candidate, Employer, Transaction, TransactionHistory, InviteCode
+from .models import Specialisation, Keyword, Candidate, Employer, Transaction, TransactionHistory
 
 
 class AdminSpecialisation(admin.ModelAdmin):
@@ -50,4 +50,3 @@ admin.site.register(Candidate, AdminCandidate)
 admin.site.register(Employer, AdminEmployer)
 admin.site.register(Transaction, AdminTxn)
 admin.site.register(TransactionHistory, AdminTransactionHistory)
-admin.site.register(InviteCode)
