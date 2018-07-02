@@ -1,70 +1,163 @@
-.pipLineContainer {
-    padding: 5%;
+
+.uk-border-green {
+    border: 1px solid #cacaca;
+    border-top: 2px solid green;
 }
 
-.pipline {
-    padding: 15px;
+.uk-border-warning {
+    border: 1px solid #cacaca;
+    border-top: 2px solid tomato;
 }
 
-.pipElement {
-    padding: 0;
+.uk-border-info {
+    border: 1px solid #cacaca;
+    border-top: 2px solid #ffc107;
 }
 
-.circle {
-    min-width: 100px;
-    min-height: 100px;
-    box-sizing: border-box;
-    border: 1px dashed grey;
+.action {
+    border: 1px dotted #9e9e9e;
+    width: 85px;
+    height: 85px;
     border-radius: 50%;
-    display: inline-block;
-    float: left;
+    background: white;
+    z-index: 2;
 }
 
-.circle:hover {
-    border: 1px dashed green;
+.next-right {
+    margin-top: 53px;
+    height: 96px;
+    width: 48px;
+    border: 1px dotted grey;
+    border-left-width: 1px;
+    border-left-style: dashed;
+    border-left-color: grey;
+    border-left: transparent;
+    border-bottom-right-radius: 140px;
+    border-top-right-radius: 140px;
 }
 
-.plus:hover {
-    color: green;
-}
-
-.sort:hover {
-    border: 1px solid blue;
-}
-
-.circle span {
-    font-size: smaller;
-    cursor: pointer;
-}
-
-.circle span.plus {
-    font-size: smaller;
+.next-left {
+    margin-top: 53px;
+    margin-left: 78px;
+    height: 96px;
+    width: 48px;
+    border: 1px dotted grey;
+    border-right-width: 1px;
+    border-right-style: dashed;
+    border-right-color: grey;
+    border-right: transparent;
+    border-bottom-left-radius: 140px;
+    border-top-left-radius: 140px;
 }
 
 .line {
-    float: left;
+    border-bottom: 1px dotted #9e9e9e;
+    width: 335px;
+    margin-left: 87px;
+    margin-top: 43px;
+    z-index: 0;
 }
 
-@media screen and (max-width: 974px) {
-    .line {
-        margin-top: 100px;
-        width: 3%;
+.pulse {
+    overflow: visible;
+    position: relative;
+}
+
+.pulse::before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border-radius: inherit;
+    -webkit-transition: opacity .3s, -webkit-transform .3s;
+    transition: opacity .3s, -webkit-transform .3s;
+    transition: opacity .3s, transform .3s;
+    transition: opacity .3s, transform .3s, -webkit-transform .3s;
+    -webkit-animation: pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    animation: pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    z-index: -1
+}
+
+.pulse-green.pulse::before {
+    border: 1px solid green;
+}
+
+.pulse-red.pulse::before {
+    border: 1px solid red;
+}
+
+.pulse-amber.pulse::before {
+    border: 1px solid #ffc107;
+}
+
+.pulse-teal.pulse::before {
+    border: 1px solid #009688;
+}
+
+.pulse-indigo.pulse::before {
+    border: 1px solid #3f51b5;
+}
+
+.pulse-purple.pulse::before {
+    border: 1px solid #9c27b0;
+}
+
+@-webkit-keyframes pulse-animation {
+    0% {
+        opacity: 1;
+        -webkit-transform: scale(1);
+        transform: scale(1)
     }
 
-    .circle {
-        margin-left: 2%;
-        margin-bottom: 2%;
+    50% {
+        opacity: 0;
+        -webkit-transform: scale(1.5);
+        transform: scale(1.5)
+    }
+
+    100% {
+        opacity: 0;
+        -webkit-transform: scale(1.5);
+        transform: scale(1.5)
     }
 }
 
-@media only screen and (max-width: 730px) and (min-width: 652px) {
-    .line {
-        display: none;
+@keyframes pulse-animation {
+    0% {
+        opacity: 1;
+        -webkit-transform: scale(1);
+        transform: scale(1)
+    }
+
+    50% {
+        opacity: 0;
+        -webkit-transform: scale(1.5);
+        transform: scale(1.5)
+    }
+
+    100% {
+        opacity: 0;
+        -webkit-transform: scale(1.5);
+        transform: scale(1.5)
     }
 }
 
-@media screen and (max-width: 413px) {
-    .circle {
-        float: none;
-    }
+.overlay {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    position: absolute;
+    left: -1px;
+    top: -1px;
+}
+.action-price-badge{
+    font-size: .5rem;
+    z-index:200;
+}
+
+.passed {
+    text-decoration: line-through;
 }

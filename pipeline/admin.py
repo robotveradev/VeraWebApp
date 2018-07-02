@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import *
 
 
@@ -16,6 +17,14 @@ class ActionTypeAdmin(admin.ModelAdmin):
         model = ActionType
 
 
+class ActionAdmin(admin.ModelAdmin):
+    list_display = [f.name for f in Action._meta.fields]
+    list_filter = ['pipeline', 'action_type']
+
+    class Meta:
+        model = Action
+
+
 admin.site.register(Pipeline, PipelineAdmin)
-admin.site.register(Action)
+admin.site.register(Action, ActionAdmin)
 admin.site.register(ActionType, ActionTypeAdmin)
