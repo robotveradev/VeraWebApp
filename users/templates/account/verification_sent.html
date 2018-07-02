@@ -1,0 +1,26 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Verify Your E-mail Address" %}{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <div class="uk-container uk-align-center uk-text-center">
+        <h3 class="uk-text-bold blue-text text-lighten-1 uk-text-uppercase">{% trans "Verify Your E-mail Address" %}</h3>
+        <div class="uk-width-1-4 uk-align-center">
+            <div class="white uk-box-shadow-small uk-padding-small uk-text-center uk-margin-large-bottom vr-auth">
+                <p>{% blocktrans %}We have sent an e-mail to you for verification. Follow the link provided to finalize
+                    the
+                    signup process.{% endblocktrans %}</p>
+                <p class="uk-text-meta">
+                    Please contact us if you do not receive it within a few
+                    minutes.
+                </p>
+                <div class="uk-clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from django.urls import reverse_lazy
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
@@ -36,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users',
     'jobboard',
     'candidateprofile',
     'vacancy',
@@ -177,13 +180,29 @@ W2V_API_URL = 'http://52.166.10.44:3000/getvecw2v'
 
 SESSION_SAVE_EVERY_REQUEST = True
 
-CHAT_WS_SERVER_HOST = '192.168.254.240'
-
-CHAT_WS_SERVER_PORT = 5002
-
-CHAT_WS_SERVER_PROTOCOL = 'ws'
+# Account allauth settings
 
 ACCOUNT_OPEN_SIGNUP = True
+
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+
+ACCOUNT_EMAIL_REQUIRED = True
+
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
+ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
+
+ACCOUNT_FORMS = {'signup': 'users.forms.CustomSignupForm'}
+
+SOCIALACCOUNT_FORMS = {'signup': 'users.forms.CustomSocialSignupForm'}
+
+ACCOUNT_ADAPTER = 'users.adapter.CustomAccountAdapter'
+
+ACCOUNT_SESSION_REMEMBER = False
+
+SOCIALACCOUNT_AUTO_SIGNUP = False
+
+LOGIN_REDIRECT_URL = reverse_lazy('profile')
 
 # Hints settings
 HINTS_ENABLED = False

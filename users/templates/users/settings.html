@@ -1,0 +1,95 @@
+{% extends 'jobboard/base.html' %}
+
+{% load account socialaccount i18n %}
+
+{% block head_title %}
+    Vera Oracle - Profile settings
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        <h4 class="uk-text-bold">Settings</h4>
+        <div class="uk-border uk-padding-small white">
+            <h5 class="uk-legend uk-margin-remove-bottom uk-position-relative">
+                Emails
+                <a href="#" class="uk-position-center-right toggle-icon" type="button"
+                   data-uk-toggle="target: #email-list; animation: uk-animation-slide-top-small"
+                   data-uk-icon="chevron-down"></a>
+            </h5>
+            <div id="email-list" class="uk-margin-top">
+                {% if user.emailaddress_set.all %}
+                    <p>{% trans 'The following e-mail addresses are associated with your account:' %}</p>
+                    <ul class="uk-list">
+                        {% for emailaddress in user.emailaddress_set.all %}
+                            <li>
+                                {% if emailaddress.primary %}
+                                    <span data-uk-icon="check" class="green-text"></span>
+                                {% endif %}
+                                {{ emailaddress.email }}
+                                {% if not emailaddress.verified %}
+                                    <span class="uk-text-meta">(Unverified)</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>
+                        <strong>{% trans 'Warning:' %}</strong> {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}
+                    </p>
+                {% endif %}
+                <a href="{% url 'account_email' %}"
+                   class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">Manage
+                    emails</a>
+                <div class="uk-clearfix"></div>
+            </div>
+        </div>
+        <br>
+        <div class="uk-border uk-padding-small white">
+            <h5 class="uk-legend uk-position-relative">
+                Social accounts
+                <a href="#" class="uk-position-center-right toggle-icon" type="button"
+                   data-uk-toggle="target: #social_account-list; animation: uk-animation-slide-top-small"
+                   data-uk-icon="chevron-down"></a>
+            </h5>
+            <div id="social_account-list" class="uk-margin-top">
+                <ul class="uk-list uk-list-bullet">
+                    {% for base_account in user.socialaccount_set.all %}
+                        {% with base_account.get_provider_account as account %}
+                            <li>{{ account.get_brand.name }}</li>
+                        {% endwith %}
+                    {% empty %}
+                        <li>You have no social apps added.</li>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'socialaccount_connections' %}"
+                   class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">Manage
+                    social accounts</a>
+                <div class="uk-clearfix"></div>
+            </div>
+        </div>
+        <br>
+        <div class="uk-border uk-padding-small white">
+            <h5 class="uk-legend uk-margin-remove-bottom uk-position-relative">
+                Password management
+                <a href="#" class="uk-position-center-right toggle-icon" type="button"
+                   data-uk-toggle="target: #password; animation: uk-animation-slide-top-small"
+                   data-uk-icon="chevron-down"></a>
+            </h5>
+            <div id="password" class="uk-margin-top">
+                <div class="uk-align-right uk-margin-remove-bottom">
+                    {% if user.has_usable_password %}
+                        <a href="{% url 'account_change_password' %}"
+                           class="uk-button uk-button-small uk-button-primary">Change password</a>
+                    {% else %}
+                        <a href="{% url 'account_set_password' %}"
+                           class="uk-button uk-button-small uk-button-primary">Set password</a>
+                    {% endif %}
+                    <a href="{% url 'account_reset_password' %}"
+                       class="uk-button uk-button-small uk-button-default">Reset password</a>
+                </div>
+                <div class="uk-clearfix"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

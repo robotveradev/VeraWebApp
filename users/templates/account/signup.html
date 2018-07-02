@@ -1,0 +1,31 @@
+{% extends "account/base.html" %}
+
+{% load material_form i18n %}
+
+{% block head_title %}{% trans "Signup" %}{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+
+    </div>
+
+    <div class="uk-container uk-align-center uk-text-center">
+        <h4 class="uk-text-bold blue-text text-lighten-1 uk-text-uppercase">{% trans "Sign Up" %}</h4>
+        <div class="uk-width-1-4 uk-align-center">
+            <div class="white uk-padding-small uk-text-center uk-margin-large-bottom vr-auth">
+                <form class="uk-text-left" id="signup_form" method="post"
+                      action="{% url 'account_signup' %}">
+                    {% csrf_token %}
+                    {% form form=form %}{% endform %}
+                    {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                    {% endif %}
+                    <button class="uk-button uk-button-small uk-button-primary uk-align-center uk-margin-remove-bottom"
+                            type="submit">{% trans "Sign Up" %}</button>
+                </form>
+                <div class="uk-clearfix"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

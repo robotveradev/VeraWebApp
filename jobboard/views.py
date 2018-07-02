@@ -1,7 +1,6 @@
-from account.decorators import login_required
-from account.views import SignupView
 from django.conf import settings as django_settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
@@ -14,16 +13,16 @@ from web3.utils.validation import validate_address
 
 from candidateprofile.forms import LanguageItemForm, CitizenshipForm, WorkPermitForm
 from candidateprofile.models import CandidateProfile
-from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm
+from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm, AchievementForm
 from jobboard.handlers.coin import CoinHandler
-from jobboard.handlers.new_employer import EmployerHandler
+from jobboard.handlers.employer import EmployerHandler
 from jobboard.mixins import ChooseRoleMixin, OnlyEmployerMixin, OnlyCandidateMixin
 from jobboard.tasks import save_txn_to_history, save_txn
 from vacancy.models import Vacancy
 from .decorators import choose_role_required
 from .filters import VacancyFilter, CPFilter
 from .handlers.oracle import OracleHandler
-from .models import Employer, TransactionHistory, InviteCode, Candidate
+from .models import Employer, TransactionHistory, Candidate
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
@@ -218,6 +217,7 @@ class ProfileView(ChooseRoleMixin, TemplateView):
             data['language_form'] = LanguageItemForm()
             data['citizenship_form'] = CitizenshipForm()
             data['work_permit_form'] = WorkPermitForm()
+            data['achievement_form'] = AchievementForm()
         return data
 
 
@@ -243,6 +243,10 @@ class TransactionsView(ChooseRoleMixin, ListView):
     paginate_by = 25
     template_name = 'jobboard/transactions.html'
     ordering = '-created_at'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
 
     def get_queryset(self):
         qu = super().get_queryset()
@@ -295,7 +299,7 @@ def check_agent(request):
             except ValueError:
                 return HttpResponse('Invalid address', status=400)
             else:
-                emp_h = EmployerHandler(django_settings.WEB_ETH_COINBASE, request.role_object.contract_address)
+                emp_h = EmployerHandler(contract_address=request.role_object.contract_address)
                 if agent_address.casefold() == django_settings.WEB_ETH_COINBASE.casefold():
                     return HttpResponse('oracle', status=200)
                 return HttpResponse(emp_h.is_agent(agent_address), status=200)
@@ -348,7 +352,8 @@ class NewFactView(OnlyCandidateMixin, View):
                 oracle = OracleHandler()
                 oracle.unlockAccount()
                 txn_hash = oracle.new_fact(request.role_object.contract_address, fact)
-                save_txn_to_history.delay(request.role_object.user_id, txn_hash.hex(), 'New "{}" fact added'.format(f_type))
+                save_txn_to_history.delay(request.role_object.user_id, txn_hash.hex(),
+                                          'New "{}" fact added'.format(f_type))
         return redirect('profile')
 
 
@@ -357,12 +362,13 @@ class ApproveTokenView(OnlyEmployerMixin, RedirectView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.request = None
         self.already_approved = 0
         self.coin = CoinHandler()
-        self.employer_h = EmployerHandler
+        self.employer_h = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.employer_h = self.employer_h(django_settings.WEB_ETH_COINBASE, request.role_object.contract_address)
+        self.employer_h = EmployerHandler(contract_address=request.role_object.contract_address)
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -377,40 +383,13 @@ class ApproveTokenView(OnlyEmployerMixin, RedirectView):
                                                     django_settings.VERA_ORACLE_CONTRACT_ADDRESS)
 
     def set_already_to_0(self):
-        self.employer_h.approve_money(0)
+        self.employer_h.approve_money(amount=0)
 
     def approve_money(self, amount):
-        tnx_hash = self.employer_h.approve_money(int(amount) * 10 ** 18)
+        tnx_hash = self.employer_h.approve_money(amount=int(amount) * 10 ** 18)
         user_id = self.request.role_object.user.id
         save_txn.delay(tnx_hash.hex(), 'tokenApprove', user_id, self.request.role_object.id)
         save_txn_to_history.delay(user_id, tnx_hash.hex(), 'Money approved for oracle')
-
-
-class SignupInviteView(SignupView):
-
-    def generate_username(self, form):
-        return form.cleaned_data["email"].strip()
-
-    def get_code(self):
-        return self.request.COOKIES.get('invtoken')
-
-
-class InviteLinkView(RedirectView):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.code = None
-
-    def get(self, request, *args, **kwargs):
-        try:
-            self.code = InviteCode.objects.get(code=kwargs.get('code'), expired=False)
-        except InviteCode.DoesNotExist:
-            return HttpResponse('Invalid code')
-        else:
-            self.code.expire()
-            hrr = HttpResponseRedirect(reverse('account_signup'))
-            hrr.set_cookie('invtoken', self.code.signup_code.code)
-            return hrr
 
 
 class GetFreeCoinsView(ChooseRoleMixin, RedirectView):
