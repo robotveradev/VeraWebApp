@@ -148,11 +148,9 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-DEFAULT_FROM_EMAIL = 'you@domain.com'
+DEFAULT_FROM_EMAIL = 'vera@job.pro'
 
 THEME_CONTACT_EMAIL = 'VeraOracle@email.com'
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 VERA_COIN_CONTRACT_ADDRESS = '0xD1d0cb0eC75F005B54984B94bA7EC45857Df81Ea'  # Rinkeby
 
@@ -218,6 +216,13 @@ SOCIAL_ICONS = {
     't': 'telegram',
     'steamcommunity': 'steam-square',
 }
+
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
 
 if DEBUG:
     try:
