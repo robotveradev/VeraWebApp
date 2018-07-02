@@ -12,6 +12,7 @@ from interview.forms import ActionInterviewForm, ScheduleMeetingForm
 from interview.models import ActionInterview, ScheduledMeeting
 from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
 from pipeline.models import Action
+from .zoomus import ZoomusApi
 
 
 class NewActionInterviewView(OnlyEmployerMixin, CreateView):
@@ -126,9 +127,12 @@ class CandidateInterviewScheduleView(OnlyCandidateMixin, CreateView):
         form.instance.candidate = self.candidate
         date = form.cleaned_data['date']
         time = form.cleaned_data['time']
+        zoom = ZoomusApi(settings.ZOOMUS_API_KEY, settings.ZOOMUS_API_SECRET, settings.ZOOMUS_USER_ID)
         try:
-            # TODO schedule metting
-            scheduled = "{}"
+            scheduled = zoom.schedule_meeting(topic='Vacancy {} interview'.format(self.action_interview.vacancy.title),
+                                              start_time='{}T{}'.format(date, time),
+                                              duration=self.action_interview.duration,
+                                              timezone=settings.TIME_ZONE)
         except ValueError:
             messages.error(self.request, 'Error during scheduling meeting')
             return super().form_invalid(form)
