@@ -30,6 +30,7 @@ def allowance_rest(vacancy_id):
         return 0
     oracle = OracleHandler()
     vacancy = oracle.vacancy(vac.uuid)
+
     return vacancy['allowed_amount'] / 10 ** 18
 
 

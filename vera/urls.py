@@ -88,7 +88,7 @@ quiz_urlpatterns = [
     path('quiz/category/new/', quiz_views.NewCategoryView.as_view(), name='new_category'),
     path('quiz/category/<int:category_id>/question/new/', quiz_views.NewQuestionView.as_view(), name='new_question'),
     path('quiz/question/<int:question_id>/answer/new/', quiz_views.NewAnswerView.as_view(), name='new_answer'),
-    path('quiz/<int:pk>/exam/<int:profile_id>', quiz_views.CandidateExaminingView.as_view(),
+    path('quiz/<int:pk>/exam/', quiz_views.CandidateExaminingView.as_view(),
          name='candidate_examining'),
     path('quiz/<int:pk>/questions/add/', quiz_views.ActionAddQuestionsView.as_view(), name='action_exam_new'),
     path('quiz/<int:pk>/update/kind/', quiz_views.QuestionUpdateKindView.as_view(), name='update_question_kind'),
@@ -125,6 +125,11 @@ pipeline_urlpatterns = [
     path('pipeline/<int:pk>/action/new/', pipeline_views.NewActionView.as_view(), name='new_pipeline_action')
 ]
 
+api_urls = [
+    path('api/v1/', include('vera.api_urls')),
+    path('api/auth/', include('rest_framework.urls')),
+]
+
 interview_urlpatterns = [
     # path('interview/', TemplateView.as_view(template_name='interview/interview_page.html')),
 ]
@@ -138,4 +143,5 @@ urlpatterns = basic + \
               statistic_urlpatterns + \
               pipeline_urlpatterns + \
               interview_urlpatterns + \
+              api_urls + \
               static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

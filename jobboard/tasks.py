@@ -10,6 +10,8 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from solc import compile_files
 from web3 import Web3, HTTPProvider
+from web3.middleware import geth_poa_middleware
+
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.models import Transaction, Employer, Candidate, TransactionHistory
 from vacancy.models import Vacancy
@@ -171,6 +173,7 @@ def new_role_instance(instance_id, role):
         instance = role_class.model_class().objects.get(pk=instance_id)
         oracle = OracleHandler()
         web3 = Web3(Web3.HTTPProvider(settings.NODE_URL))
+        web3.middleware_stack.inject(geth_poa_middleware, layer=0)
         contract_file = 'dapp/contracts/' + role + '.sol'
         compile_sol = compile_files([contract_file, ], output_values=("abi", "ast", "bin", "bin-runtime",))
         create_abi(compile_sol[contract_file + ':' + role]['abi'], role)

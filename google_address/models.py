@@ -117,3 +117,4 @@ class Address(models.Model):
         if self.address_line:
             return self.address_line
         return ""
+

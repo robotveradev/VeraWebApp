@@ -7,7 +7,7 @@ from django.views.generic import TemplateView, CreateView, DetailView, ListView,
 from django.views.generic.edit import BaseUpdateView
 
 from candidateprofile.models import CandidateProfile
-from jobboard.mixins import OnlyEmployerMixin
+from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
 from pipeline.models import Action
 from quiz.forms import CategoryForm
 from quiz.models import ActionExam, Category, Question, Answer, QuestionKind, ExamPassed, AnswerForVerification
@@ -74,7 +74,7 @@ class ActionAddQuestionsView(ListView):
         return redirect('action_exam', pk=action.id)
 
 
-class CandidateExaminingView(TemplateView):
+class CandidateExaminingView(OnlyCandidateMixin, TemplateView):
     template_name = 'quiz/candidate_examining.html'
 
     def __init__(self, **kwargs):
@@ -96,7 +96,7 @@ class CandidateExaminingView(TemplateView):
         return context
 
     def get(self, request, *args, **kwargs):
-        self.profile = get_object_or_404(CandidateProfile, pk=kwargs.get('profile_id'))
+        self.profile = get_object_or_404(CandidateProfile, pk=self.request.role_object.profile.id)
         self.action_exam = get_object_or_404(ActionExam, pk=kwargs.get('pk'))
         self.check_candidate()
         return super().get(self, request, *args, **kwargs)
@@ -108,7 +108,7 @@ class CandidateExaminingView(TemplateView):
     def post(self, request, *args, **kwargs):
         self.process_request(request)
         return HttpResponseRedirect(
-            reverse('candidate_examining', kwargs={'pk': self.action_exam.pk, 'profile_id': self.profile.id}))
+            reverse('candidate_examining', kwargs={'pk': self.action_exam.pk}))
 
     def process_request(self, request):
         self.action_exam = get_object_or_404(ActionExam, pk=request.POST.get('exam_id', None))
