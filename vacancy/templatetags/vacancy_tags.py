@@ -2,6 +2,7 @@ from django import template
 from candidateprofile.models import Schedule, Busyness, CandidateProfile
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.models import Specialisation, Keyword
+from vacancy.models import CandidateOnVacancy
 
 register = template.Library()
 
@@ -162,3 +163,13 @@ def get_interview_fee(uuid):
 def is_already_offer(vacancy, cp):
     # TODO
     return True
+
+
+@register.filter
+def may_apply_vacancy(candidate, vacancy):
+    if not candidate.contract_address:
+        return False
+    oracle = OracleHandler()
+    current_action_index = oracle.get_candidate_current_action_index(vacancy.uuid, candidate.contract_address)
+    already_subscribed = CandidateOnVacancy.objects.filter(candidate=candidate, vacancy=vacancy).exists()
+    return hasattr(candidate.profile, 'position') and current_action_index == -1 and not already_subscribed

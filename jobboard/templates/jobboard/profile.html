@@ -4,28 +4,30 @@
 
 {% block content %}
     {{ block.super }}
+    {{ achievement_form.media }}
     {% if hints_enabled %}
         <script src="{% static 'js/hints/profile.js' %}"></script>
     {% endif %}
     <div class="uk-container uk-align-center">
-        <h2 data-hint="profile_head">{{ role|title }} personal office</h2>
-        {% with role_object.enabled as en %}
-            <div data-hint="status_change" class="uk-align-right">
-                {% if en != None %}
-                    <a class="uk-button-text uk-button uk-text-capitalize"
-                       href="{% url 'change_contract_status' %}">
-                        {% if en is True %}
-                            Disable contract
-                        {% elif en is False %}
-                            Enable contract
-                        {% endif %}
-                    </a>
-                {% else %}
-                    <div uk-spinner="ratio: 0.5"></div>
-                {% endif %}
-            </div>
-        {% endwith %}
-        <div class="uk-clearfix"></div>
+        <h4 data-hint="uk-text-bold">{{ role|title }} profile</h4>
+
+{#    TODO move change status link #}
+{#        {% with role_object.enabled as en %}#}
+{#            <div data-hint="status_change" class="uk-align-right">#}
+{#                {% if en != None %}#}
+{#                    <a class="uk-button-text uk-button uk-text-capitalize"#}
+{#                       href="{% url 'change_contract_status' %}">#}
+{#                        {% if en is True %}#}
+{#                            Disable contract#}
+{#                        {% elif en is False %}#}
+{#                            Enable contract#}
+{#                        {% endif %}#}
+{#                    </a>#}
+{#                {% else %}#}
+{#                    <div data-uk-spinner="ratio: 0.5"></div>#}
+{#                {% endif %}#}
+{#            </div>#}
+{#        {% endwith %}#}
         {% if role == 'candidate' %}
             {% include 'jobboard/include/candidate_profile.html' %}
         {% elif role == 'employer' %}
@@ -33,13 +35,13 @@
         {% endif %}
     </div>
 {% endblock %}
-
-{% if hints_enabled %}
-    {% block extra_js %}
+{% block extra_js %}
+    <script type="text/javascript" src="{% static 'js/script.js' %}"></script>
+    {% if hints_enabled %}
         {% if role == 'candidate' %}
             <script src="{% static 'js/hints/candidate_profile.js' %}"></script>
         {% elif role == 'employer' %}
             <script src="{% static 'js/hints/employer_profile.js' %}"></script>
         {% endif %}
-    {% endblock %}
-{% endif %}
+    {% endif %}
+{% endblock %}

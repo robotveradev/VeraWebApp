@@ -1,50 +1,84 @@
 {% load jobboard_tags static %}
 
-<table data-hint="main_info" class="uk-table uk-table-divider uk-table-small" width="100%">
-    <colgroup>
-        <col width="20%">
-        <col width="80%">
-    </colgroup>
-    <tr>
-        <td>Name:</td>
-        <td>{{ role_object.full_name }}</td>
-    </tr>
-    <tr>
-        <td>Tax number:</td>
-        <td>{{ role_object.tax_number }}</td>
-    </tr>
-    <tr data-hint="contract_address">
-        <td>Contract address:</td>
-        <td>
-            {% if role_object.contract_address is not None %}
-                <img style="width: 16px; height: 16px;"
-                     src="{{ role_object.contract_address|get_blockies_png }}" alt="">
-                <a class="uk-link-reset" target="_blank"
-                   href="https://rinkeby.etherscan.io/address/{{ role_object.contract_address }}">{{ role_object.contract_address }}</a>
-            {% else %}
-                <div uk-spinner="ratio: 0.7"></div>
-            {% endif %}
-        </td>
-    </tr>
-    <tr data-hint="balance">
-        <td>Balance:</td>
-        <td>
-            {% get_balance role_object.user role_object.contract_address role %}
-        </td>
-    </tr>
-    <tr data-hint="approved_balance">
-        <td>Approved for oracle:</td>
-        <td>
-            {% oracle_allowance role_object.contract_address user.id %}
-        </td>
-    </tr>
-</table>
 
-{% if role_object.companies.all %}
-    {% for company in role_object.companies.all %}
-        {% include 'company/include/company_short.html' %}
-    {% endfor %}
-{% endif %}
+<div class="uk-margin-large-top" data-uk-grid>
+    <div class="uk-width-3-4">
+        <ul data-uk-tab="#profile_container">
+            <li class="uk-active"><a class="uk-text-capitalize" href="#">Profile</a></li>
+            <li><a class="uk-text-capitalize" href="#">Companies</a></li>
+        </ul>
+    </div>
+</div>
+<div class="uk-margin-top-small uk-margin-large-bottom" data-uk-grid>
+    <div class="uk-width-3-4">
+        <div class="vr-window white uk-padding-small">
+            <ul id="profile_container" class="uk-switcher">
+                <li>
+                    <table data-hint="main_info" class="uk-table uk-table-divider uk-table-small" width="100%">
+                        <colgroup>
+                            <col width="30%">
+                            <col width="70%">
+                        </colgroup>
+                        <tr>
+                            <td>Name:</td>
+                            <td>{{ role_object.full_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Tax number:</td>
+                            <td>{{ role_object.tax_number }}</td>
+                        </tr>
+                        <tr data-hint="contract_address">
+                            <td>Contract address:</td>
+                            <td>
+                                {% if role_object.contract_address is not None %}
+                                    <img style="width: 16px; height: 16px;"
+                                         src="{{ role_object.contract_address|get_blockies_png }}" alt="">
+                                    <a class="uk-link-reset" target="_blank"
+                                       href="https://rinkeby.etherscan.io/address/{{ role_object.contract_address }}">{{ role_object.contract_address }}</a>
+                                {% else %}
+                                    <div data-uk-spinner="ratio: 0.7"></div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if role_object.contract_address is not None %}
+                            <tr data-hint="balance">
+                                <td>Balance:</td>
+                                <td>
+                                    {% get_balance role_object.user role_object.contract_address role %}
+                                </td>
+                            </tr>
+                            <tr data-hint="approved_balance">
+                                <td>Approved for oracle:</td>
+                                <td>
+                                    {% oracle_allowance role_object.contract_address user.id %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </table>
+                </li>
+                <li>
+                    {% if role_object.companies.all %}
+                        {% for company in role_object.companies.all %}
+                            {% include 'company/include/company_short.html' %}
+                        {% endfor %}
+                    {% else %}
+                        No companies added.
+                    {% endif %}
+                    <a class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom"
+                       href="{% url 'new_company' %}">New company</a>
+                    <div class="uk-clearfix"></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="uk-width-1-4">
+        <div class="uk-window uk-padding-small white">
+            <h5>Additional</h5>
+            {% lorem %}
+        </div>
+    </div>
+</div>
+
 
 {% if hints_enabled %}
     <script type="text/javascript" src="{% static 'js/hints/employer_profile.js' %}"></script>

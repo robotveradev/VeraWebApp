@@ -6,14 +6,29 @@
 
 {% block content %}
     {{ block.super }}
+
     <div class="uk-container uk-align-center">
-        <h4>Exam result for {{ object.cv.candidate.user.username }}</h4>
+        <h4>Exam result for {{ candidate.user.username }}</h4>
         {% for question in object.exam.questions.all %}
             {% with object.answers|question_result:question.id as answers %}
                 <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
                     {% include "quiz/question_kinds/"|add:question.kind.template_name|add:'_question.html' with answers=answers %}
                 </div>
             {% endwith %}
+        {% empty %}
+            {% if not_yet %}
+                Candidate doesn't pass this exam yet.
+            {% else %}
+                There is no results for {{ candidate.user.username }}. Perhaps you transferred the candidate to the next
+                level yourself?
+            {% endif %}
         {% endfor %}
+        <div class="uk-clearfix"></div>
+        <div class="uk-align-right">
+            <a href="{% url 'vacancy' pk=action.pipeline.vacancy.id %}"
+               class="uk-button uk-button-small uk-button-default">Back to vacancy</a>
+            <a class="uk-button uk-button-small uk-button-primary"
+               href="{% url 'action_details' pk=action.id %}">Back to action</a>
+        </div>
     </div>
 {% endblock %}

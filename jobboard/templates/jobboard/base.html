@@ -23,24 +23,16 @@
     </script>
 {% endif %}
 <body>
-<nav class="uk-navbar-container">
-    <div class="uk-navbar-left">
-        <a class="uk-navbar-item uk-logo" href="{% url 'index' %}">Vera Oracle</a>
-    </div>
-</nav>
-<nav class="uk-navbar-container" uk-navbar uk-sticky>
-    <div class="uk-navbar-left">
-        {% with role as role %}
+<div class="uk-container">
+    <nav class="uk-navbar-container white" data-uk-navbar>
+        <div class="uk-navbar-left">
+            <a href="/" class="uk-text-bold uk-text-large blue-text text-lighten-2 uk-link-reset">Vera</a>
+        </div>
+        <div class="uk-navbar-right">
             <ul class="uk-navbar-nav">
-                <li>
-                    <a id="home" href="{% url 'index' %}">Home</a>
-                </li>
-                <li>
-                    <a id="vacancies" href="{% url 'find_job' %}">Vacancies</a>
-                </li>
-                <li>
-                    <a href="{% url 'find_profiles' %}">Profiles</a>
-                </li>
+                <li><a id="home" href="{% url 'index' %}">Home</a></li>
+                <li><a id="vacancies" href="{% url 'find_job' %}">Vacancies</a></li>
+                <li><a href="{% url 'find_profiles' %}">Profiles</a></li>
                 {% if role == 'employer' %}
                     <li>
                         <a id="new_vacancy" href="{% url 'new_vacancy' %}">Post a job</a>
@@ -55,99 +47,140 @@
                         </a>
                     </li>
                 {% endif %}
+                <li>
+                    <a id="help" href="{% url 'user_help' %}">Help</a>
+                </li>
+                <li><a href="#">|</a></li>
                 {% if user.is_authenticated %}
                     <li>
-                        <a data-hint="profile_drop" href="#">Profile</a>
-                        <div class="uk-navbar-dropdown" uk-dropdown="mode: click">
+                        <a id="logout" class="uk-text-capitalize uk-text-bold">
+                            <i class="fa fa-user-circle-o blue-text text-lighten-2" aria-hidden="true"></i>
+                            &emsp;{{ user.username }}&emsp;
+                            <i data-uk-icon="icon:chevron-down;ratio:0.7"></i>
+                        </a>
+                        <div class="uk-navbar-dropdown uk-padding-small" data-uk-dropdown="mode: click; offset:0">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
-                                <li><a data-hint="profile" href="{% url 'profile' %}">Profile</a></li>
+                                <li>
+                                    <a data-hint="profile" href="{% url 'profile' %}">Profile</a>
+                                </li>
+                                <li class="uk-nav-divider"></li>
+                                <li><a data-hint="settings" href="{% url 'settings_page' %}">Settings</a></li>
                                 {% if role == 'employer' %}
+                                    <li class="uk-nav-divider"></li>
                                     <li><a data-hint="companies" href="{% url 'companies' %}">Companies</a></li>
+                                    <li class="uk-nav-divider"></li>
                                     <li><a href="{% url 'vacancy_all' %}">Vacancies</a></li>
-                                    <li><a data-hint="quiz_link" href="{% url 'quiz_index' %}">Quiz</a></li>
+                                    <li class="uk-nav-divider"></li>
+                                    <li><a data-hint="quiz_link" href="{% url 'quiz_index' %}">Quiz app</a></li>
+                                {% elif role == 'candidate' %}
+                                    <li class="uk-nav-divider"></li>
+                                    <li><a href="{% url 'candidate_vacancies' %}">My jobs</a></li>
                                 {% endif %}
-                                <li><a href="{% url 'transactions' %}">Transactions</a></li>
+                                {% if role is not None %}
+                                    <li class="uk-nav-divider"></li>
+                                    <li><a href="{% url 'transactions' %}">Transactions</a></li>
+                                {% endif %}
+                                <li class="uk-nav-divider"></li>
+                                <li><a href="{% url 'account_logout' %}">
+                                    Logout <i data-uk-icon="icon:sign-out;"
+                                              class="uk-align-right uk-margin-remove-bottom uk-margin-right-small"></i>
+                                </a></li>
+                            </ul>
+                        </div>
+                    </li>
+                {% else %}
+                    <li>
+                        <a class="uk-text-capitalize uk-text-bold" id="login" href="#">
+                            <i class="fa fa-user-circle-o blue-text text-lighten-2" aria-hidden="true"></i>
+                            &emsp;login&emsp;
+                            <i data-uk-icon="icon:chevron-down;ratio:0.7"></i>
+                        </a>
+                        <div class="uk-navbar-dropdown uk-padding-small" data-uk-dropdown="mode: click; offset:0">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li><a href="{% url 'account_login' %}">Login</a></li>
+                                <li class="uk-nav-divider"></li>
+                                <li><a href="{% url 'account_signup' %}">Sign up</a></li>
                             </ul>
                         </div>
                     </li>
                 {% endif %}
-                <li>
-                    <a id="help" href="{% url 'user_help' %}">Help</a>
-                </li>
             </ul>
-        {% endwith %}
-    </div>
-    <div class="uk-navbar-right">
-        <ul class="uk-navbar-nav">
-            {% if user.is_authenticated %}
-                <li>
-                    <a id="logout" href="{% url 'account_logout' %}">Logout&nbsp;({{ user }})</a>
-                </li>
-            {% else %}
-                <li>
-                    <a id="register" href="{% url 'account_signup' %}">register</a>
-                </li>
-                <li>
-                    <a id="login" href="{% url 'account_login' %}">login</a>
-                </li>
-            {% endif %}
-        </ul>
-    </div>
-</nav>
+        </div>
+    </nav>
+</div>
+
+{% if user.is_authenticated %}
+    {% if not user.phone_number_verified %}
+        <div class="uk-alert-warning" data-uk-alert style="margin: 0!important;">
+            <a class="uk-alert-close" data-uk-close></a>
+            <p><a class="vr-link uk-link-text" href="{% url 'phone_verify' %}">Verify</a> phone number!</p>
+        </div>
+    {% endif %}
+{% endif %}
 {% include 'jobboard/include/messages.html' %}
-<div uk-height-viewport="expand: true">
+<div data-uk-height-viewport="expand: true" class="content">
     {% block content %}
         <div class="uk-clearfix"></div>
     {% endblock %}
 </div>
-<div class="uk-container">
-    <div class="uk-child-width-expand@s uk-text-center" uk-grid>
-        <div>
-            <h5>About Us</h5>
-            <ul class="uk-list">
-                <li><a class="uk-button uk-button-text" href="#">About Oracle</a></li>
-                <li><a class="uk-button uk-button-text" href="#">Terms & Conditions</a></li>
-                <li><a class="uk-button uk-button-text" href="#">International Partners</a></li>
-                <li><a class="uk-button uk-button-text" href="#">Privacy Policy</a></li>
-                <li><a class="uk-button uk-button-text" href="#">Feedback</a></li>
-                <li><a class="uk-button uk-button-text" href="#">Contact Us</a></li>
-            </ul>
+<div class="uk-container uk-margin-large-top white">
+    <div class="uk-child-width-expand@s uk-text-left" data-uk-grid>
+        <div class="uk-width-2-3">
+            <div data-uk-grid>
+                <div class="uk-width-1-3">
+                    <h5 class="uk-text-bold">About Us</h5>
+                    <ul class="uk-list">
+                        <li><a class="uk-button uk-button-text" href="#">About Oracle</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">Terms & Conditions</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">International Partners</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">Privacy Policy</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">Feedback</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="uk-width-1-3">
+                    <h5 class="uk-text-bold">Job Seekers</h5>
+                    <ul class="uk-list">
+                        <li><a class="uk-button uk-button-text" href="#">Create Account</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">Career Counseling</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">My Bdjobs</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">FAQ</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">Video Guides</a></li>
+                    </ul>
+                </div>
+                <div class="uk-width-1-3">
+                    <h5 class="uk-text-bold">Employers</h5>
+                    <ul class="uk-list">
+                        <li><a class="uk-button uk-button-text" href="#">Create Account</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">Products/Service</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">Post a Job</a></li>
+                        <li><a class="uk-button uk-button-text" href="#">FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div>
-            <h5>Job Seekers</h5>
-            <ul class="uk-list">
-                <li><a class="uk-button uk-button-text" href="#">Create Account</a></li>
-                <li><a class="uk-button uk-button-text" href="#">Career Counseling</a></li>
-                <li><a class="uk-button uk-button-text" href="#">My Bdjobs</a></li>
-                <li><a class="uk-button uk-button-text" href="#">FAQ</a></li>
-                <li><a class="uk-button uk-button-text" href="#">Video Guides</a></li>
-            </ul>
-        </div>
-        <div>
-            <h5>Employers</h5>
-            <ul class="uk-list">
-                <li><a class="uk-button uk-button-text" href="#">Create Account</a></li>
-                <li><a class="uk-button uk-button-text" href="#">Products/Service</a></li>
-                <li><a class="uk-button uk-button-text" href="#">Post a Job</a></li>
-                <li><a class="uk-button uk-button-text" href="#">FAQ</a></li>
-            </ul>
-        </div>
-        <div>
-            <h5>Newsletter</h5>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-            <form action="#">
-                <input class="uk-input uk-form-small" type="email" name="email" id="email"
-                       placeholder="Enter your email">
-                <button type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right uk-margin-top">
-                    Sign Up
-                </button>
+        <div class="uk-width-1-3">
+            <h5 class="uk-text-bold">Newsletter</h5>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing.</p>
+            <form>
+                <div data-uk-grid>
+                    <div class="uk-width-expand">
+                        <div class="uk-margin">
+                            <input class="uk-input" type="email" placeholder="Enter your email">
+                        </div>
+                    </div>
+                    <div class="uk-width-auto">
+                        <button type="submit" class="uk-button uk-button-primary">Sign Up</button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
 </div>
-
-<div class="uk-container uk-align-center">
-    Copyright © 2017 OnGrid.pro. All rights reserved.
+<div class="grey darken-3 white-text uk-margin-large-top">
+    <div class="uk-container uk-text-center uk-padding-small">
+        Copyright © 2017 OnGrid.pro. All rights reserved.
+    </div>
 </div>
 </body>
 <!-- UIkit JS -->
@@ -159,11 +192,9 @@
 <script src="{% static 'js/script.js' %}"></script>
 {% block extra_js %}{% endblock %}
 </html>
-
 {% if hints_enabled %}
     <script type="text/javascript">
         $(document).ready(function () {
-                console.log(hint_set);
                 let hint_instance_set = [];
                 let tuts_count = hint_set.length;
 

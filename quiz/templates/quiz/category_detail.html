@@ -9,7 +9,7 @@
 {% block content %}
     {{ block.super }}
     <div data-hint="main" class="uk-container uk-align-center">
-        <h3>{{ object.title|title }}</h3>
+        <h4 class="uk-text-bold">{{ object.title|title }}</h4>
         {% if object.sub_categories %}
             {% for category in object.sub_categories.all %}
                 {% include 'quiz/include/category.html' with item=category %}
@@ -17,23 +17,30 @@
         {% else %}
             {% include 'quiz/include/category.html' with item=object %}
         {% endif %}
-        <h4>Category questions</h4>
-        {% if object.questions.all %}
-            {% for question in object.questions.all %}
-                {% include 'quiz/include/question.html' with item=question %}
-            {% endfor %}
-            <a data-hint="add_link" href="{% url 'new_question' category_id=object.id %}"
-               class="uk-button uk-button-default uk-button-small uk-align-right">Add new question</a>
-        {% else %}
-            You have no one question in category.
-            <a data-hint="add_link" href="{% url 'new_question' category_id=object.id %}" class="uk-link-muted">Add
-                first one right now!</a>
-        {% endif %}
+        <h5>Category questions</h5>
+        <div class="uk-margin-large-bottom">
+            {% if object.questions.all %}
+                {% for question in object.questions.all %}
+                    {% include 'quiz/include/question.html' with item=question %}
+                {% endfor %}
+                <a data-hint="add_link" href="{% url 'new_question' category_id=object.id %}"
+                   class="uk-button uk-button-primary uk-button-small uk-align-right">Add new question</a>
+                <div class="uk-clearfix"></div>
+            {% else %}
+                You have no one question in category.
+                <a data-hint="add_link" href="{% url 'new_question' category_id=object.id %}"
+                   class="uk-link-muted vr-link">Add
+                    first one right now!</a>
+            {% endif %}
+        </div>
+
     </div>
 {% endblock %}
 
-{% if hints_enabled %}
-    {% block extra_js %}
+
+{% block extra_js %}
+    {% if hints_enabled %}
         <script src="{% static 'js/hints/category_details.js' %}"></script>
-    {% endblock %}
-{% endif %}
+    {% endif %}
+{% endblock %}
+

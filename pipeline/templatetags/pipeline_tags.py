@@ -1,27 +1,24 @@
 from django import template
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
-from interview.forms import ActionInterviewForm
-from interview.models import ActionInterview
 from jobboard.handlers.oracle import OracleHandler
-from pipeline.models import Action
-from quiz.models import ExamPassed
+from jobboard.models import Candidate, Transaction
+from pipeline.models import Action, ActionType
 from vacancy.models import Vacancy
 
 register = template.Library()
 
 
 @register.filter(name='resort_pipeline')
-def resort_pipeline(actions):
-    return actions[:5], actions[5:][::-1]
-
-
-@register.filter(name='check_action')
-def check_action(action, vacancy):
-    action = get_action(vacancy.pipeline, action['id'])
-    if action is not None:
-        return process_action(action)
-    return True
+def resort_pipeline(actions, size):
+    arrs = []
+    while len(actions) > size:
+        piece = actions[:size]
+        arrs.append(piece)
+        actions = actions[size:]
+    arrs.append(actions)
+    return {'resorted': arrs, 'count': range(len(arrs))}
 
 
 def get_action(pipeline, index):
@@ -41,20 +38,10 @@ def vacancy_by_uuid(vac_uuid):
         return None
 
 
-def process_action(action):
-    condition = action.type.condition_of_passage
-    if condition is None:
-        return True
-    elif condition == 'quiz':
-        return action.exam.exists()
-    elif condition == 'interview':
-        return action.interview.exists()
-
-
 @register.filter
 def pipeline_max_length(a=None):
     oracle = OracleHandler()
-    return range(oracle.pipeline_max_length)
+    return oracle.pipeline_max_length
 
 
 @register.filter
@@ -62,55 +49,156 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
-@register.inclusion_tag("pipeline/candidate_action_results_link.html")
-def results_with_link(action, profile):
-    # TODO change for cv -> candidate
-    context = {}
-    if hasattr(action, 'type'):
-        context = {'type': action.type.condition_of_passage}
-        if context['type'] == 'quiz':
-            try:
-                exam_passed = ExamPassed.objects.get(profile=profile, exam__action=action)
-            except ExamPassed.DoesNotExist:
-                context['not_passed'] = True
-                context['message'] = 'Candidate doesnt pass exam yet'
-            else:
-                context['url'] = exam_passed.get_absolute_url()
-                context['exam_passed'] = exam_passed
-        elif action.type.condition_of_passage == 'interview':
-            action_interview = ActionInterview.objects.get(action=action)
-            context['url'] = reverse('interview', kwargs={'pk': action_interview.id, 'cv_id': cv.id})
-    return context
-
-
 @register.filter
 def question_result(answers, question_id):
     try:
-        context = []
-        try:
-            context = [int(i) for i in answers['question_' + str(question_id)]]
-        except ValueError:
-            context.append(answers['question_' + str(question_id)])
+        context = [int(answers['question_' + str(question_id)])]
         return context
     except KeyError:
         return []
 
 
-@register.inclusion_tag('pipeline/interview_chooser.html')
-def get_interview(action):
-    context = {'action': action}
-    try:
-        action_interview = ActionInterview.objects.get(action=action)
-    except ActionInterview.DoesNotExist:
-        context['form'] = ActionInterviewForm()
-    else:
-        context['interview'] = action_interview
-    return context
-
-
-@register.inclusion_tag('pipeline/employer_pipeline.html')
-def employer_pipeline_for_vacancy(vacancy):
+def vacancy_actions(vacancy):
     oracle = OracleHandler()
     pipeline_length = oracle.get_vacancy_pipeline_length(vacancy.uuid)
     actions = [oracle.get_action(vacancy.uuid, i) for i in range(pipeline_length)]
-    return {'actions': actions, 'vacancy': vacancy}
+    db_actions = Action.objects.filter(pipeline__vacancy=vacancy)
+    res = [{**i, 'db': j} for i in actions for j in db_actions if i['id'] == j.index]
+    return res
+
+
+@register.inclusion_tag('pipeline/employer_pipeline.html')
+def employer_pipeline_for_vacancy(vacancy, user):
+    oracle = OracleHandler()
+    cands_on_action = oracle.get_candidates_on_vacancy_by_action_count(vacancy.uuid)
+    vac_actions = vacancy_actions(vacancy)
+    cont_actions = [{**i, 'cans': i['id'] in cands_on_action and cands_on_action[i['id']] or 0} for i in vac_actions]
+    return {'actions': cont_actions,
+            'vacancy': vacancy,
+            'types': ActionType.objects.all(),
+            'user': user}
+
+
+@register.filter
+def set_action_status_color(action):
+    if action.action_type.condition_of_passage:
+        return hasattr(action, action.action_type.condition_of_passage) and 'green' or 'warning'
+    return 'green'
+
+
+@register.filter
+def employer_pipeline_action_config_link(action):
+    return reverse('action_details', kwargs={'pk': action.id})
+
+
+@register.inclusion_tag('pipeline/include/actions_handler.html')
+def actions_handler(action):
+    cond = action['db'].action_type.condition_of_passage
+    context = {'type': cond or None, 'action': action}
+    if cond:
+        if hasattr(action['db'], cond):
+            context.update({cond: getattr(action['db'], cond, None)})
+    return context
+
+
+@register.inclusion_tag('pipeline/include/result.html')
+def get_result_link(candidate, action):
+    context = {}
+    cond = action.action_type.condition_of_passage
+    if cond is None:
+        context['no_action_provided'] = True
+    elif hasattr(action, action.action_type.condition_of_passage):
+        action_handler = getattr(action, action.action_type.condition_of_passage)
+        url = action_handler.get_result_url(candidate_id=candidate.id)
+        context['url'] = url
+    return context
+
+
+@register.filter
+def blocked(action):
+    return Transaction.objects.filter(obj_id=action.id, txn_type='ActionChanged').exists()
+
+
+@register.filter
+def candidates_on_vacancy_count(actions):
+    return sum([len(actions['pass']), len(actions['now']), len(actions['rest'])])
+
+
+@register.inclusion_tag('pipeline/include/candidate_pipeline_for_vacancy.html')
+def candidate_pipeline_for_vacancy(vacancy, candidate):
+    actions = vacancy_actions(vacancy)
+    oracle = OracleHandler()
+    candidate_current_action_index = oracle.get_candidate_current_action_index(vacancy.uuid, candidate.contract_address)
+    if not oracle.candidate_passed(vacancy.uuid, candidate.contract_address):
+        return {
+            'actions': actions,
+            'candidate_current_action_index': candidate_current_action_index,
+            'candidate': candidate,
+            'vacancy': vacancy
+        }
+    else:
+        return {'pass': True, 'vacancy': vacancy}
+
+
+@register.filter
+def get(arr, i):
+    return arr[i]
+
+
+@register.filter
+def get_candidate(candidate_contract_address):
+    try:
+        return Candidate.objects.get(contract_address=candidate_contract_address)
+    except Candidate.DoesNotExist:
+        return None
+
+
+@register.filter
+def action_passed(action, candidate):
+    cond = action.action_type.condition_of_passage
+    if cond is None:
+        return False
+    if hasattr(action, cond):
+        handler = getattr(action, cond)
+        try:
+            model = ContentType.objects.get(model=cond + 'passed')
+        except ContentType.DoesNotExist:
+            return False
+        else:
+            filt = {cond: handler.id}
+            return model.model_class().objects.filter(candidate=candidate, **filt).exists()
+
+
+@register.filter
+def vacancy_candidates(vacancy_uuid):
+    oracle = OracleHandler()
+    candidates = oracle.get_candidates_on_vacancy(vacancy_uuid, True, True)
+    return candidates
+
+
+@register.filter
+def passed(candidates):
+    return [i for i in candidates if i['passed']]
+
+
+@register.filter
+def on_action(candidates, action_index):
+    return [i for i in candidates if i['action_index'] == action_index]
+
+
+@register.filter
+def get_pending_actions_count(vacancy_id):
+    return range(Transaction.objects.filter(txn_type='NewAction', vac_id=vacancy_id).count())
+
+
+@register.filter
+def full_payment(actions):
+    return sum([i['fee'] for i in actions])
+
+
+@register.filter
+def get_max_candidates_count(allowed, pay):
+    try:
+        return int(allowed) // int(pay)
+    except:
+        return 0

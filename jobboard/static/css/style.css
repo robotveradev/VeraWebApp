@@ -1,3 +1,17 @@
+@font-face {
+    font-family: 'Montserrat Regular';
+    src: url('../fonts/Montserrat-Regular.eot');
+    src: url('../fonts/Montserrat-Regular.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/Montserrat-Regular.woff') format('woff'),
+    url('../fonts/Montserrat-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+*:not(.fa) {
+    font-family: 'Montserrat Regular', serif !important;
+}
+
 .border {
     border: 1px solid red;
 }
@@ -8,10 +22,13 @@ body {
 }
 
 .jHtml-textarea {
-    border: 2px solid #bababa;
+    border: 1px solid #aad9fd;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
     padding: 10px;
+    background: white;
 }
-
 
 a.uk-button {
     text-transform: capitalize;
@@ -19,7 +36,7 @@ a.uk-button {
 
 .uk-border {
     border: 1px solid #cacaca;
-    border-radius: 3px;
+    border-top: 2px solid #64B5F6;
 }
 
 .uk-alert-error {
@@ -27,9 +44,10 @@ a.uk-button {
     color: #f0506e
 }
 
-.uk-navbar-item, .uk-navbar-nav>li>a, .uk-navbar-toggle {
-    height: 40px;
+.error {
+    color: red;
 }
+
 .enjoyhint_next_btn, .enjoyhint_skip_btn {
     left: auto !important;
     top: auto !important;
@@ -59,7 +77,8 @@ a.uk-button {
 .pac-container {
     z-index: 2000;
 }
-.company:hover .delete-icon{
+
+.company:hover .delete-icon {
     opacity: 1;
 }
 
@@ -76,10 +95,60 @@ a.uk-button {
     border: 1px solid red;
 }
 
-.uk-navbar-item, .uk-navbar-nav>li>a, .uk-navbar-toggle {
-    height: 40px;
-}
-
 .uk-input, .uk-select, .uk-textarea {
     border: 2px solid #bababa;
+}
+
+.toggle-icon {
+    cursor: pointer;
+}
+
+.vr-link {
+    text-decoration: underline;
+}
+
+.uk-dropdown {
+    min-width: 165px;
+
+}
+
+.uk-navbar-dropdown {
+    width: 165px;
+    border-radius: 3px;
+}
+
+.uk-overlay-vera {
+    background: rgba(34, 34, 34, .5);
+}
+
+.uk-card-primary.uk-card-body .uk-input::placeholder, .uk-card-primary > :not([class*="uk-card-media"]) .uk-input::placeholder, .uk-card-secondary.uk-card-body .uk-input::placeholder, .uk-card-secondary > :not([class*="uk-card-media"]) .uk-input::placeholder, .uk-light .uk-input::placeholder, .uk-offcanvas-bar .uk-input::placeholder, .uk-overlay-primary .uk-input::placeholder, .uk-section-primary:not(.uk-preserve-color) .uk-input::placeholder, .uk-section-secondary:not(.uk-preserve-color) .uk-input::placeholder, .uk-tile-primary:not(.uk-preserve-color) .uk-input::placeholder, .uk-tile-secondary:not(.uk-preserve-color) .uk-input::placeholder {
+    color: rgba(0, 0, 0, .5);
+}
+
+.content {
+    background: #f6f6f6;
+}
+
+.vr-auth, .vr-window {
+    border-radius: 3px;
+}
+
+.vr-desc {
+    border-left: 1px solid #eee;
+}
+
+.uk-badge {
+    background: #64B5F6;
+}
+
+.uk-input[type=text], .uk-input[type=password], .uk-input[type=number], .uk-input[type=date], .uk-input[type=email], .uk-select {
+    border: 1px solid #aad9fd;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.vr-chip-border {
+    border: 1px solid #64b5f6;
+    border-radius: 25px;
 }

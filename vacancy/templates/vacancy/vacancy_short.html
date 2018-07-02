@@ -1,7 +1,7 @@
 {% load jobboard_tags vacancy_tags statistic_tags %}
 {% with item.company.employer|is_owner:role_object as owner %}
-    <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
-        <div uk-grid>
+    <div class="uk-box-shadow-medium uk-border uk-padding-small uk-margin-small white">
+        <div data-uk-grid>
             <div class="{% if not selectable %}uk-width-2-3{% endif %}">
                 <div>
                     {% if selectable %}
@@ -15,7 +15,7 @@
                            href="{% url 'vacancy' pk=item.id %}"> <span class="uk-text-bold">{{ item.company.name }}</span>: {{ item.title }}</a>
                     {% endif %}
                     {% if owner and editable %}
-                        <a href="{% url 'vacancy_edit' pk=item.id %}" uk-icon="icon: file-edit"></a>
+                        <a href="{% url 'vacancy_edit' pk=item.id %}" data-uk-icon="icon: file-edit"></a>
                     {% endif %}
                 </div>
                 <span class="uk-text-small">created {{ item.created_at|date }}
@@ -29,10 +29,10 @@
                         {% endif %}
                         {% if item.published %}
                             {% if owner %}
-                                {{ item.id|allowance_rest }} Vera
+                                {{ item.allowed_amount }} Vera
                             {% endif %}
                         {% else %}
-                            <div uk-spinner="ratio:0.4"></div>
+                            <div data-uk-spinner="ratio:0.4"></div>
                         {% endif %}
                         {% if owner and editable %}
                             {% if item.published %}
@@ -46,10 +46,10 @@
                                     </a>
                                 {% else %}
                                     Renewal vacancy status
-                                    <div uk-spinner="ratio:0.4"></div>
+                                    <div data-uk-spinner="ratio:0.4"></div>
                                 {% endif %}
                             {% else %}
-                                <div uk-spinner="ratio:0.4"></div>
+                                <div data-uk-spinner="ratio:0.4"></div>
                             {% endif %}
                         {% endif %}
                     </span>

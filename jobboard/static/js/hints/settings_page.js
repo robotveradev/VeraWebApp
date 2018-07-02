@@ -1,5 +1,10 @@
 $(document).ready(function () {
     let $ul = $('#hints_list');
+    if (localStorage.length === 0) {
+        $ul.append(
+            '<li>No one tutorial passed yet.</li>'
+        )
+    }
     for (let i = 0; i < localStorage.length; i++) {
         let $li = $('<li></li>');
         let name = localStorage.key(i).replace(/_/g, ' ');

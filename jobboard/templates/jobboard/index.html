@@ -5,39 +5,36 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-position-relative uk-visible-toggle"
-         uk-slideshow="animation: scale; min-height: 300; max-height:400; autoplay: true">
+         data-uk-slideshow="animation: scale; min-height: 400; max-height:500">
         <ul class="uk-slideshow-items">
             <li>
-                <img src="http://demo.minimalthemes.net/jobboard-static/images/upload/dummy-slide-1.jpg"
-                     uk-cover>
-                <div class="uk-overlay uk-overlay-primary uk-position-bottom uk-text-center">
-                    <h3 class="uk-margin-remove">Easiest Way To Find Your Dream Job</h3>
-                    <p class="uk-margin-remove">It is a long established fact that a reader will be
-                        distracted by the readable content of a page when looking at its layout. The point of
-                        using.</p>
-                    <a href="{% url 'find_job' %}" class="uk-button uk-button-text">Find a job</a>
-                </div>
-            </li>
-            <li>
-                <img src="http://demo.minimalthemes.net/jobboard-static/images/upload/dummy-slide-2.jpg" alt=""
-                     uk-cover>
-                <div class="uk-overlay uk-overlay-primary uk-position-bottom uk-text-center">
-                    <h4 class="uk-margin-remove">Hire Skilled People, best of them</h4>
-                    <p class="uk-margin-remove">It is a long established fact that a reader will be
-                        distracted by the readable content of a page when looking at its layout. The point of
-                        using.</p>
-                    <a href="{% url 'new_vacancy' %}" class="uk-button uk-button-text">Post a job</a>
+                <img src="{% static 'img/logo.jpg' %}" data-uk-cover>
+                <div class="uk-overlay-vera uk-position-cover"></div>
+                <div class="uk-overlay uk-position-center uk-light">
+                    <div class="uk-width-1-2 uk-align-center uk-text-center">
+                        <h2 class="uk-margin-remove uk-text-bold">Easiest Way To Find Your Dream Job</h2>
+                        <p>It is a long established fact that a reader will be
+                            distracted by the readable content of a page when looking at its layout.
+                            The point of using.</p>
+
+                        <div data-uk-grid>
+                            <div class="uk-width-expand">
+                                <div class="uk-margin">
+                                    <input class="uk-input white black-text" type="text" placeholder="Search for a vacancy">
+                                </div>
+                            </div>
+                            <div class="uk-width-auto">
+                                <button class="uk-button uk-button-default blue white-text">Find a job</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </li>
         </ul>
-        <div class="uk-light">
-            <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous
-               uk-slideshow-item="previous"></a>
-            <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next
-               uk-slideshow-item="next"></a>
-        </div>
     </div>
 {% endblock %}
+
+
 {% block extra_js %}
     {% if not user.is_authenticated %}
         <script src="{% static 'js/hints/index_unauth.js' %}"></script>
@@ -45,7 +42,7 @@
         {% if role == 'candidate' %}
             <script src="{% static 'js/hints/index_candidate.js' %}"></script>
         {% elif role == 'employer' %}
-            pass
+            {#            # TODO pass#}
         {% elif role is None %}
             <script src="{% static 'js/hints/index_choose_role.js' %}"></script>
         {% endif %}

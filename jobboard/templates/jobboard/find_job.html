@@ -1,6 +1,6 @@
 {% extends 'jobboard/base.html' %}
 
-{% block head_title %}VeraOracle - Find a job{% endblock %}
+{% block head_title %}VeraOracle - Vacancies{% endblock %}
 
 {% load jobboard_tags vacancy_tags static %}
 
@@ -8,18 +8,19 @@
     {{ block.super }}
     <div class="uk-container uk-align-center">
         <h3>Find a dream job!</h3>
-        <div uk-grid>
+        <div class="uk-margin-large-bottom" data-uk-grid>
             <div class="uk-width-1-5">
-                <div class="uk-box-shadow-small uk-padding-small grey lighten-4">
+                <div class="uk-box-shadow-small uk-padding-small white">
                     {% get_filter %}
                 </div>
             </div>
             <div class="uk-width-4-5">
-                <div class="uk-box-shadow-small uk-padding-small grey lighten-4">
-                    <div uk-grid>
+                <div class="uk-box-shadow-small uk-padding-small white">
+                    <div data-uk-grid>
                         <div class="uk-width-expand">
-                            <button data-hint="sort" class="uk-button uk-button-primary" type="button">{{ selected_sort.title }}</button>
-                            <div uk-dropdown="mode: click">
+                            <button data-hint="sort" class="uk-button uk-button-primary"
+                                    type="button">{{ selected_sort.title }}</button>
+                            <div data-uk-dropdown="mode: click">
                                 <ul id="sort_select" class="uk-nav uk-dropdown-nav">
                                     {% for item in sorts %}
                                         <li><a href="{{ request.GET|get_custom_url:item }}">{{ item.title }}</a></li>
@@ -29,13 +30,14 @@
                         </div>
                         <div class="uk-width-auto uk-inline">
                             <div class="uk-position-center-right">
-                                <a data-hint="reset" class="" href="{% url 'find_job' %}" uk-close></a>
+                                <a data-hint="reset" class="" href="{% url 'find_job' %}" data-uk-close></a>
                             </div>
                         </div>
                     </div>
                 </div>
                 {% for vacancy in vacancies %}
-                    <div data-hint="filtered" class="uk-box-shadow-small uk-padding-small uk-margin-top">
+                    <div data-hint="filtered"
+                         class="uk-box-shadow-medium uk-border uk-padding-small uk-margin-top white uk-border">
                         <p class="text-lead">
                             <a class="uk-button uk-button-text uk-text-uppercase uk-text-bold"
                                href="{% url 'vacancy' pk=vacancy.id %}">{{ vacancy.title }}</a>
@@ -71,7 +73,7 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div data-hint="filtered" class="uk-box-shadow-small uk-padding-small uk-margin-top">
+                    <div data-hint="filtered" class="uk-box-shadow-small uk-padding-small uk-margin-top white">
                         <h6 class="center">Vacancies by conditions not found</h6>
                     </div>
                 {% endfor %}
@@ -84,6 +86,8 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/hints/vacancies.js' %}"></script>
+    {% if hints_enabled %}
+        <script src="{% static 'js/hints/vacancies.js' %}"></script>
+    {% endif %}
 {% endblock %}
 

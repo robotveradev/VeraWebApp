@@ -18,11 +18,13 @@
         <div class="uk-clearfix">
         </div>
         <a data-hint="new_cat" href="{% url 'new_category' %}"
-           class="uk-button uk-button-default uk-button-small uk-align-right">New
+           class="uk-button uk-button-primary uk-button-small uk-align-right">New
             category</a>
     </div>
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/hints/quiz.js' %}"></script>
+    {% if hints_enabled %}
+        <script src="{% static 'js/hints/quiz.js' %}"></script>
+    {% endif %}
 {% endblock %}

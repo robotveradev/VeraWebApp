@@ -7,63 +7,89 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h2>Инструкция</h2>
-        <h4>1. Регистрация в Rinkeby Testnet</h4>
-            Зайдите на <a href="https://www.ethereum.org/">ethereum.org</a>
-            Скачайте актуальную версию приложения Ethereum Wallet.
-            При установке необходимо выбрать сеть Rinkeby Testnet.
-            Дождаться окончания синхронизации (может занять от нескольких минут до нескольких часов в зависимости от
-            интернет соеденения).
-            По окончании запустите приложение и создайте новый Account (если вы его еще не создали). Указать нужно
-            только
-            пароль.
-        <h4>2. Получение Эфира</h4>
-            Для того чтобы пополнить свой счет необходимо разместить адрес вашего аккаунта и запостить на одном из
-            сервисов:
+        <h4 class="uk-text-bold">Инструкция</h4>
+        <div class="uk-border white uk-padding-small">
+            <h5>1. Регистрация в Rinkeby Testnet</h5>
+            <p class="uk-text-justify">Зайдите на <a href="https://www.ethereum.org/">ethereum.org</a>
+                Скачайте актуальную версию приложения Ethereum Wallet.
+                При установке необходимо выбрать сеть Rinkeby Testnet.
+                Дождаться окончания синхронизации (может занять от нескольких минут до нескольких часов в зависимости от
+                интернет соеденения).
+                По окончании запустите приложение и создайте новый Account (если вы его еще не создали). Указать нужно
+                только пароль.</p>
+        </div>
+        <div class="uk-border white uk-padding-small uk-margin-small-top">
+            <h5>2. Получение Эфира</h5>
+            <p class="uk-text-justify">Для того чтобы пополнить свой счет необходимо разместить адрес вашего аккаунта и
+                запостить на одном из
+                сервисов:</p>
             <ul class="browser-default">
                 <li>Twitter</li>
                 <li>Facebook</li>
                 <li>Google+</li>
             </ul>
-            Пост должен быть публичный и доступен для просмотра всем. Пример:
-            <a target="_blank" href="https://plus.google.com/104143092173669955154/posts/bkAkrmtukQ5">https://plus.google.com/104143092173669955154/posts/bkAkrmtukQ5</a>
-            Далее идем на сайт <a target="_blank" href="https://www.rinkeby.io/">rinkeby.io/</a>
-            Заходим в раздел Crypto Faucet.
-            Введите в поле ввода ссылку на ваш пост и выберите сколько эфира желаете получить.
-            Счет должен пополнится в течении нескольких секунд.
-        <h4>3. Покупка VeraCoin</h4>
-            В приложени Ethereum Wallet зайдите во вкладку Send.
-            В поле To введите адрес:
-            <b>0x775F41E0B129F724fF5C399E9750817827fBF6D3</b><br>
-            В поле AMOUNT введите количество эфира которое желаете потратить на покупку VeraCoin. Текущая стоимость
-            VeraCoin: 250 токенов за 1 ETH.
-            В поле SELECT FEE можете выбрать стоимость транзакции. Не рекомендуется указывать нулевую стоимость, т.к. в
-            этом случае транзакция будет иметь низший приоритет и может занять длительное время.
-            Теперь идем во вкладку CONTRACTS и нажимаем кнопку WATCH TOCKEN
-            В поле CONTRACT ADDRESS вводим адрес контракта:
-            <b>0xcae393a1892dc3aaf4c19a0f76ccbd8ae5bbe482</b>
-            И нажать OK, после чего появится поле с суммой начисленных на ваш счет VeraCoin.
-        <h4>4. Регистрация соискателя/работодателя</h4>
-            После регистрации на сайте необходимо зайти в PROFILE и выбрать свою “роль”: Employer - Работодатель или
-            Candidate - Соискатель. <br>
-            Если вы зарегистрировали себя как работодателя, то перед созданием вакансии вам необходимо пополнить счет
-            вашего контракта. Номер контракта и баланс всегда будут отображаться в разделе PROFILE.
-            Чтобы создать вакансию нужно сперва пополнить счет. Для этого зайдите в Ethereum Wallet в закладку SEND
-            Введите в поле To номер вашего контракта, а в поле AMOUNT желаемое количество VeraCoin. Убедитесь что вы
-            выбрали именно VeraCoin, а не эфир. Вскоре после отправки ваш баланс пополнится и вы сможете создать
-            вакансию в разделе POST A JOB.
-            <br>
-            Если вы соискатель, то вам так же будет создан адрес контракта. Но для просмотра вакансий вам нет
-            необходимости приобретать валюту. Пользование сайтом для вас бесплатно.
+            <p>
+                Пост должен быть публичный и доступен для просмотра всем. Пример:
+                <a target="_blank" href="https://plus.google.com/104143092173669955154/posts/bkAkrmtukQ5">https://plus.google.com/104143092173669955154/posts/bkAkrmtukQ5</a>
+                Далее идем на сайт <a target="_blank" href="https://www.rinkeby.io/">rinkeby.io/</a>
+                Заходим в раздел Crypto Faucet.
+                Введите в поле ввода ссылку на ваш пост и выберите сколько эфира желаете получить.
+                Счет должен пополнится в течении нескольких секунд.
+            </p>
+        </div>
+        <div class="uk-border white uk-padding-small uk-margin-small-top">
+            <h5>3. Покупка VeraCoin</h5>
+            <p class="uk-text-justify">
+                В приложени Ethereum Wallet зайдите во вкладку Send.
+                В поле To введите адрес:
+                <b>0x11535d665C841b9A067EDbBBDEcD81E091f442f2</b><br>
+                В поле AMOUNT введите количество эфира которое желаете потратить на покупку VeraCoin. Текущая стоимость
+                VeraCoin: 250 токенов за 1 ETH.
+                В поле SELECT FEE можете выбрать стоимость транзакции. Не рекомендуется указывать нулевую стоимость,
+                т.к. в
+                этом случае транзакция будет иметь низший приоритет и может занять длительное время.
+                Теперь идем во вкладку CONTRACTS и нажимаем кнопку WATCH TOCKEN
+                В поле CONTRACT ADDRESS вводим адрес контракта:
+                <b>0xD1d0cb0eC75F005B54984B94bA7EC45857Df81Ea</b>
+                И нажать OK, после чего появится поле с суммой начисленных на ваш счет VeraCoin.
+            </p>
+        </div>
+        <div class="uk-border white uk-padding-small uk-margin-small-top">
+            <h5>4. Регистрация соискателя/работодателя</h5>
+            <p class="uk-text-justify">
+                После регистрации на сайте необходимо зайти в PROFILE и выбрать свою “роль”: Employer - Работодатель или
+                Candidate - Соискатель. <br>
+                Если вы зарегистрировали себя как работодателя, то перед созданием вакансии вам необходимо пополнить
+                счет
+                вашего контракта. Номер контракта и баланс всегда будут отображаться в разделе PROFILE.
+                Чтобы создать вакансию нужно сперва пополнить счет. Для этого зайдите в Ethereum Wallet в закладку SEND
+                Введите в поле To номер вашего контракта, а в поле AMOUNT желаемое количество VeraCoin. Убедитесь что вы
+                выбрали именно VeraCoin, а не эфир. Вскоре после отправки ваш баланс пополнится и вы сможете создать
+                вакансию в разделе POST A JOB.
+                <br>
+                Если вы соискатель, то вам так же будет создан адрес контракта. Но для просмотра вакансий вам нет
+                необходимости приобретать валюту. Пользование сайтом для вас бесплатно.
+            </p>
+        </div>
     </div>
     <div class="uk-container uk-align-center">
-        <h4>Training</h4>
-    <p class="uk-text-meta">
-        Here you can turn off training on each of the sections of the site, or start learning.
-    </p>
-    <ul id="hints_list" class="uk-list uk-padding uk-padding-remove-top">
-
-    </ul>
+        <div class="uk-margin-large-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    <h5 class="uk-text-bold">Training</h5>
+                    <p class="uk-text-meta">
+                        Here you can turn off training on each of the sections of the site, or start learning.
+                    </p>
+                    <ul id="hints_list" class="uk-list uk-padding uk-padding-remove-top"></ul>
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h5 class="uk-text-bold">Training description</h5>
+                    <p>{% lorem  %}</p>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 {% block extra_js %}

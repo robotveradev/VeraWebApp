@@ -1,0 +1,168 @@
+{% load pipeline_tags vacancy_tags static %}
+{% if vacancy.enabled and vacancy.published or pass %}
+    <div class="uk-margin-large-bottom" data-uk-grid>
+        {% if not pass %}
+            <div class="uk-width-2-3">
+                <div class="uk-padding-small uk-border white">
+                    <h3 class="uk-legend uk-margin-remove-bottom uk-position-relative">
+                        Vacancy pipeline
+                        <a href="#" class="uk-position-center-right toggle-icon" type="button"
+                           data-uk-toggle="target: #pipeline; animation: uk-animation-slide-top-small"
+                           data-uk-icon="chevron-down"></a>
+                    </h3>
+                    <div class="uk-padding-small" id="pipeline">
+                        {% with actions|resort_pipeline:3 as res_actions %}
+                            <div data-uk-grid>
+                                {% for i in res_actions.count %}
+                                    <div class="uk-width-1-6 uk-padding-remove-left uk-margin-remove-top">
+                                        {% if not i|divisibleby:2 and i < res_actions.resorted|length|add:"-1" %}
+                                            <div class="next-left uk-position-absolute uk-align-right"></div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="uk-width-2-3 uk-margin-small-top uk-padding-remove-left">
+                                        <div class="uk-flex uk-flex-between{% if not i|divisibleby:2 %} uk-flex-row-reverse{% endif %} actions">
+                                            {% for action in res_actions.resorted|get:i %}
+                                                <div class="uk-position-relative action
+                                            {% if candidate_current_action_index > action.id %} green lighten-5{% endif %}">
+                                                    {% if candidate_current_action_index == action.id %}
+                                                        <div class="overlay pulse pulse-amber"></div>
+                                                    {% endif %}
+                                                    <span class="uk-position-center">
+                                                        {% if candidate_current_action_index == action.id %}
+                                                            <a class="vr-link uk-text-meta" href="{% url 'process_action' pk=action.db.id %}">
+                                                                {{ action.title }}
+                                                            </a>
+                                                        {% else %}
+                                                            {{ action.title }}
+                                                        {% endif %}
+
+                                                        </span>
+                                                    {% if action.fee > 0 %}
+                                                        <span class="uk-badge green uk-position-top-right action-price-badge">{{ action.fee|floatformat }}vc</span>
+                                                    {% endif %}
+                                                </div>
+
+                                                {% if actions|length|add:"-1" > action.id %}
+                                                    <div class="line uk-position-absolute"></div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="uk-width-1-6 uk-padding-remove-left uk-margin-remove-top">
+                                        {% if i|divisibleby:2 and res_actions.resorted|length|add:"-1" > i %}
+                                            <div class="next-right uk-position-absolute"></div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            <div class="uk-width-1-3">
+                <div class="uk-border uk-padding-small white">
+                    <h3 class="uk-legend uk-margin-remove-bottom uk-position-relative">
+                    {% if candidate_current_action_index == -1 %}
+                        Pipeline info
+                    {% else %}
+                        {% for item in actions %}
+                            {% if item.id == candidate_current_action_index %}
+                                {{ item.title }}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                        <a href="#" class="uk-position-center-right toggle-icon" type="button"
+                           data-uk-toggle="target: #step-info; animation: uk-animation-slide-top-small"
+                           data-uk-icon="chevron-down"></a>
+                    </h3>
+                    <div class="uk-padding-small" id="step-info">
+                        {% if candidate_current_action_index == -1 %}
+                            <p>{{ actions|length }} action{{ actions|length|pluralize }} vacancy pipeline.</p>
+                            <p>Complete all the pipeline steps to get this vacancy.</p>
+                            <p>Good luck!</p>
+                            {% if not candidate.profile.position %}
+                                <p class="uk-text-meta">
+                                    First you need to <a class="vr-link" href="{% url 'new_position' %}">fill in career
+                                    objective position</a>.
+                                </p>
+                            {% endif %}
+                            {% if candidate|may_apply_vacancy:vacancy %}
+                                <a class="uk-button uk-button-small uk-button-primary uk-align-center uk-margin-remove-bottom"
+                                   href="{% url 'subscribe_to_vacancy' vacancy_id=vacancy.id candidate_id=candidate.id %}">Apply</a>
+                            {% endif %}
+                        {% else %}
+                            {% for item in actions %}
+                                {% if item.id == candidate_current_action_index %}
+                                    <p>Pipeline {{ item.title|lower }}
+                                        action, {{ item.approvable|yesno:"approvable, not approvable" }}.</p>
+                                    <p>{% if item.fee == 0 %}Not paid{% else %}{{ item.fee }} VeraCoin{% endif %}.</p>
+                                    <h4>
+                                        What's next?
+                                    </h4>
+                                    <ul class="uk-list uk-list-bullet">
+
+                                        {% if item.db|action_passed:candidate %}
+                                            <li class="passed">Pass the {{ item.db.action_type.condition_of_passage }}.
+                                            </li>
+                                        {% else %}
+                                            {% if item.db.action_type.condition_of_passage %}
+                                                <li>Pass the <a class="uk-link-muted"
+                                                                href="{% url 'process_action' pk=item.db.id %}">{{ item.db.action_type.condition_of_passage }}</a>.
+                                                </li>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if item.approvable %}
+                                            <li>Wait employer's approval.</li>
+                                        {% endif %}
+                                    </ul>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="uk-width-2-3">
+                <div class="uk-padding-small uk-border white">
+                    <h3 class="uk-legend uk-margin-remove-bottom uk-position-relative">
+                        Next action
+                        <a href="#" class="uk-position-center-right toggle-icon" type="button"
+                           data-uk-toggle="target: #next-action; animation: uk-animation-slide-top-small"
+                           data-uk-icon="chevron-down"></a>
+                    </h3>
+                    <div id="next-action" class="uk-padding-small">
+                        <p>
+                            You have successfully passed all the stages of the vacancy, a representative of the company
+                            will
+                            contact you in the near future.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-width-1-3">
+                <div class="uk-border uk-padding-small uk-position-relative">
+                    <div class="uk-overlay-default uk-position-cover"></div>
+                    <div class="uk-overlay uk-position-center uk-dark">
+                        <img src="{% static 'img/stamp.png' %}" alt="">
+                    </div>
+                    <div>
+                        <h3 class="uk-legend uk-margin-remove-bottom">
+                            Step info
+                        </h3>
+                        <div class="uk-padding-small">
+                            <p>Pipeline action, not approvable.</p>
+                            <p>Many coins.</p>
+                            <h4>
+                                Next action condition
+                            </h4>
+                            <ul class="uk-list">
+                                <li>What's the difference...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
