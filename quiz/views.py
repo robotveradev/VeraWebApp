@@ -1,13 +1,13 @@
-from django.contrib import messages
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic import TemplateView, CreateView, DetailView, ListView, UpdateView
 from django.views.generic.edit import BaseUpdateView
 
-from candidateprofile.models import CandidateProfile
+from jobboard.handlers.oracle import OracleHandler
 from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
+from jobboard.models import Candidate
 from pipeline.models import Action
 from quiz.forms import CategoryForm
 from quiz.models import ActionExam, Category, Question, Answer, QuestionKind, ExamPassed, AnswerForVerification
@@ -27,7 +27,7 @@ class ActionExamView(OnlyEmployerMixin, ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.action.exam.first()
+        return hasattr(self.action, 'exam') and self.action.exam or None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -41,6 +41,7 @@ class ActionAddQuestionsView(ListView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.action = None
+        self.request = None
 
     def dispatch(self, request, *args, **kwargs):
         self.action = get_object_or_404(Action, id=kwargs.get('pk'))
@@ -52,26 +53,23 @@ class ActionAddQuestionsView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['action'] = self.action
-        context['selected'] = self.get_seleted_exam_questions()
+        if hasattr(self.action, 'exam'):
+            context['selected'] = self.get_seleted_exam_questions()
         return context
 
     def get_seleted_exam_questions(self):
-        exam = self.action.exam.first()
-        if exam is not None:
-            return [qe.id for qe in exam.questions.all()]
-        return []
+        return [qe.id for qe in self.action.exam.questions.all()]
 
     def post(self, request, *args, **kwargs):
-        action = get_object_or_404(Action, pipeline__vacancy__company__employer=request.role_object,
+        action = get_object_or_404(Action,
                                    id=request.POST.get('action'))
+        if not action.owner == request.user:
+            raise Http404
         question_ids = request.POST.getlist('questions')
-        if question_ids:
-            action_exam, _ = ActionExam.objects.get_or_create(action=action)
-            action_exam.questions.set(Question.objects.filter(id__in=question_ids))
-            action_exam.save()
-        else:
-            messages.error(request, 'You cannot delete all questions from exam.')
-        return redirect('action_exam', pk=action.id)
+        action_exam, _ = ActionExam.objects.get_or_create(action=action)
+        action_exam.questions.set(Question.objects.filter(id__in=question_ids))
+        action_exam.save()
+        return redirect('action_details', pk=action.id)
 
 
 class CandidateExaminingView(OnlyCandidateMixin, TemplateView):
@@ -87,22 +85,21 @@ class CandidateExaminingView(OnlyCandidateMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.already_pass_exam:
-            context['exam_passed'] = ExamPassed.objects.filter(profile=self.profile,
+            context['exam_passed'] = ExamPassed.objects.filter(candidate=self.request.role_object,
                                                                exam=self.action_exam).first()
         else:
-            context['profile'] = self.profile
+            context['candidate'] = self.request.role_object
             context['exam'] = self.action_exam
         context['action'] = self.action_exam.action
         return context
 
     def get(self, request, *args, **kwargs):
-        self.profile = get_object_or_404(CandidateProfile, pk=self.request.role_object.profile.id)
         self.action_exam = get_object_or_404(ActionExam, pk=kwargs.get('pk'))
         self.check_candidate()
         return super().get(self, request, *args, **kwargs)
 
     def check_candidate(self):
-        self.already_pass_exam = ExamPassed.objects.filter(profile=self.profile,
+        self.already_pass_exam = ExamPassed.objects.filter(candidate=self.request.role_object,
                                                            exam=self.action_exam).exists()
 
     def post(self, request, *args, **kwargs):
@@ -112,10 +109,9 @@ class CandidateExaminingView(OnlyCandidateMixin, TemplateView):
 
     def process_request(self, request):
         self.action_exam = get_object_or_404(ActionExam, pk=request.POST.get('exam_id', None))
-        self.profile = get_object_or_404(CandidateProfile, pk=request.POST.get('profile_id', None))
         answers = {key: value[0] if len(value) == 1 else value for key, value in dict(request.POST).items() if
                    key.startswith('question_') and value[0] != ''}
-        ExamPassed.objects.create(profile=self.profile, exam=self.action_exam, answers=answers)
+        ExamPassed.objects.create(candidate=request.role_object, exam=self.action_exam, answers=answers)
 
 
 class QuizIndexPage(TemplateView):
@@ -136,14 +132,15 @@ class NewCategoryView(CreateView):
     form_class = CategoryForm
     success_url = reverse_lazy('quiz_index')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+        self.object = None
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['employer'] = self.request.role_object
         return kwargs
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.object = None
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -265,7 +262,7 @@ class ExamUpdateGradeView(BaseUpdateView):
         return HttpResponse(True, status=200)
 
     def form_invalid(self, form):
-        return HttpResponse(False, status=403)
+        return HttpResponse(False, status=400)
 
 
 class ProcessAnswerView(View):
@@ -282,5 +279,34 @@ class ProcessAnswerView(View):
         return HttpResponse('ok', status=200)
 
 
-class ExamResultsView(DetailView):
+class ExamPassedView(OnlyEmployerMixin, DetailView):
     model = ExamPassed
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.action_exam = None
+        self.candidate = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.action_exam = get_object_or_404(ActionExam, pk=kwargs.get('exam_id'))
+        if self.action_exam.action.owner != request.user:
+            raise Http404
+        self.candidate = get_object_or_404(Candidate, pk=kwargs.get('candidate_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        try:
+            results = ExamPassed.objects.get(exam=self.action_exam, candidate=self.candidate)
+        except ExamPassed.DoesNotExist:
+            results = {}
+        return results
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['action'] = self.action_exam.action
+        context['candidate'] = self.candidate
+        oracle = OracleHandler()
+        cci = oracle.get_candidate_current_action_index(self.action_exam.action.pipeline.vacancy.uuid,
+                                                        self.candidate.contract_address)
+        cci == self.action_exam.action.index and context.update({'not_yet': True})
+        return context

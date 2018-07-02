@@ -2,23 +2,25 @@ from django.db.models.signals import post_save, pre_save, m2m_changed
 from django.dispatch import receiver
 
 from jobboard.handlers.oracle import OracleHandler
-from jobboard.tasks import save_txn_to_history
 from quiz.models import ExamPassed, AnswerForVerification, ActionExam
 from quiz.tasks import ProcessExam, VerifyAnswer
+from pipeline.tasks import candidate_level_up
 
 
 @receiver(post_save, sender=ExamPassed)
 def candidate_pass_exam(sender, instance, created, **kwargs):
-    if created:
+    if created or not instance.processed:
         pr = ProcessExam()
         pr.delay(instance.id)
     else:
         if instance.processed and instance.points >= instance.exam.passing_grade:
             oracle = OracleHandler()
-            print(oracle.current_cv_action_on_vacancy(instance.exam.action.pipeline.vacancy.uuid, instance.cv.uuid))
-            txn_hash = oracle.level_up(instance.exam.action.pipeline.vacancy.uuid, instance.cv.uuid)
-            save_txn_to_history.delay(instance.cv.candidate.user.id, txn_hash.hex(),
-                                      'Level up on vacancy {}'.format(instance.exam.action.pipeline.vacancy.title))
+            cci = oracle.get_candidate_current_action_index(instance.exam.action.pipeline.vacancy.uuid,
+                                                            instance.candidate.contract_address)
+            if cci == instance.exam.action.index:
+                action_bch = oracle.get_action(instance.exam.action.pipeline.vacancy.uuid, cci)
+                if not action_bch['approvable']:
+                    candidate_level_up.delay(instance.exam.action.pipeline.vacancy.id, instance.candidate.id)
 
 
 @receiver(pre_save, sender=AnswerForVerification)
