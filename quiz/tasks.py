@@ -81,6 +81,7 @@ class VeraW2V(object):
         self.corrector.LoadLangModel('en.bin')
 
     def run(self):
+
         if not self.candidate_sentence or not self.right_sentence:
             return False
         self.get_similarity_euql()
@@ -95,7 +96,10 @@ class VeraW2V(object):
 
     def get_similarity_euql(self):
         for i in self.right_sentence:
-            first_vector = requests.post(self.api_url, data={"word": i}).text
+            try:
+                first_vector = requests.post(self.api_url, data={"word": i}, timeout=5).text
+            except Exception:
+                return 0.01
             try:
                 first_vector = np.asarray(eval(first_vector), dtype=np.float32)
             except SyntaxError:
