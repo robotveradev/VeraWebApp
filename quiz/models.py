@@ -1,7 +1,10 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Max, Sum
 from django.urls import reverse
 from jsonfield import JSONField
+
+from jobboard.helpers import BaseAction
 
 
 class Category(models.Model):
@@ -57,17 +60,20 @@ class Question(models.Model):
 
     @property
     def max_points(self):
-        if self.kind.one_right_answer:
-            max_points = self.answers.all().aggregate(max=Max('weight'))['max'] * self.weight
-        else:
-            max_points = self.answers.filter(weight__gt=0).aggregate(sum=Sum('weight'))['sum'] * self.weight
-        return max_points
+        if self.kind:
+            if self.kind.one_right_answer:
+                max_points = self.answers.all().aggregate(max=Max('weight'))['max'] * self.weight
+            else:
+                max_points = self.answers.filter(weight__gt=0).aggregate(sum=Sum('weight'))['sum'] * self.weight
+            return max_points
+        return 0
 
 
 class Answer(models.Model):
     text = models.TextField(verbose_name=u'Answer\'s text')
     weight = models.SmallIntegerField(default=1,
-                                      help_text=u'Value from -100 to 100')
+                                      help_text=u'Value from -100 to 100',
+                                      validators=[MinValueValidator(-100), MaxValueValidator(100)])
     question = models.ForeignKey(Question,
                                  related_name='answers',
                                  on_delete=models.CASCADE)
@@ -79,11 +85,11 @@ class Answer(models.Model):
         ordering = ('?',)
 
 
-class ActionExam(models.Model):
+class ActionExam(BaseAction, models.Model):
     action = models.OneToOneField('pipeline.Action',
-                               on_delete=models.SET_NULL,
-                               null=True,
-                               related_name='exam')
+                                  on_delete=models.CASCADE,
+                                  null=False,
+                                  related_name='exam')
     questions = models.ManyToManyField(Question)
     max_attempts = models.PositiveIntegerField(default=3)
     passing_grade = models.PositiveIntegerField(default=0)
@@ -92,15 +98,28 @@ class ActionExam(models.Model):
     def __str__(self):
         return 'Exam for "{}"'.format(self.action)
 
-    def get_absolute_url(self):
+    def get_candidate_url(self):
         return reverse('candidate_examining', kwargs={'pk': self.pk})
+
+    def get_result_url(self, **kwargs):
+        return reverse('exam_result', kwargs={'exam_id': self.id, 'candidate_id': kwargs.get('candidate_id')})
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        if self.id:
+            if self.questions.count() == 0:
+                return self.delete()
+        super().save(force_insert, force_update, using, update_fields)
+
+    class Meta:
+        abstract = False
 
 
 class ExamPassed(models.Model):
-    profile = models.ForeignKey('candidateprofile.CandidateProfile',
-                                on_delete=models.SET_NULL,
-                                null=True,
-                                related_name='exams')
+    candidate = models.ForeignKey('jobboard.Candidate',
+                                  on_delete=models.SET_NULL,
+                                  null=True,
+                                  related_name='exams')
     exam = models.ForeignKey(ActionExam,
                              on_delete=models.SET_NULL,
                              null=True)
@@ -111,10 +130,7 @@ class ExamPassed(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return '{}'.format(self.profile.candidate.contract_address)
-
-    def get_absolute_url(self):
-        return reverse('exam_results', kwargs={'pk': self.id})
+        return '{} exam result'.format(self.candidate.contract_address)
 
 
 class AnswerForVerification(models.Model):
