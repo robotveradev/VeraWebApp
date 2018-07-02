@@ -66,12 +66,15 @@ class Vacancy(models.Model):
         ordering = ('-updated_at',)
 
 
-class ProfileOnVacancy(models.Model):
-    profile = models.ForeignKey('candidateprofile.CandidateProfile',
-                                on_delete=models.CASCADE)
+class CandidateOnVacancy(models.Model):
+    candidate = models.ForeignKey('jobboard.Candidate',
+                                  on_delete=models.CASCADE)
     vacancy = models.ForeignKey(Vacancy,
                                 on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = (('candidate', 'vacancy'), )
 
 
 class VacancyOffer(models.Model):

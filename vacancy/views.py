@@ -14,9 +14,10 @@ from candidateprofile.models import CandidateProfile
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
+from jobboard.models import Candidate
 from statistic.decorators import statistical
 from vacancy.forms import VacancyForm, EditVacancyForm
-from vacancy.models import Vacancy, ProfileOnVacancy, VacancyOffer
+from vacancy.models import Vacancy, CandidateOnVacancy, VacancyOffer
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
@@ -56,7 +57,7 @@ class CreateVacancyView(OnlyEmployerMixin, CreateView):
 
     def process_form_instance(self, form):
         form.instance.allowed_amount = form.cleaned_data['allowed_amount']
-        form.instance.uuid = Web3.toHex(os.urandom(15))
+        form.instance.uuid = Web3.toHex(os.urandom(32))
         return super().form_valid(form)
 
 
@@ -93,7 +94,6 @@ class SubscribeToVacancyView(OnlyCandidateMixin, RedirectView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.candidate_profile = None
         self.vacancy = None
         self.request = None
 
@@ -101,24 +101,21 @@ class SubscribeToVacancyView(OnlyCandidateMixin, RedirectView):
         return reverse('vacancy', kwargs={'pk': kwargs.get('vacancy_id')})
 
     def get(self, request, *args, **kwargs):
-        self.candidate_profile = get_object_or_404(CandidateProfile,
-                                                   id=kwargs.get('profile_id'),
-                                                   candidate=request.role_object)
         self.vacancy = get_object_or_404(Vacancy, id=kwargs.get('vacancy_id'))
         return self.check_vac_profile(*args, **kwargs)
 
     def check_vac_profile(self, *args, **kwargs):
         if not self.vacancy.enabled:
             messages.error(self.request, MESSAGES['disabled_vacancy'].format(self.vacancy.title))
-        elif not self.candidate_profile.enabled:
-            messages.error(self.request, MESSAGES['disabled_profile'].format(self.candidate_profile.title))
-        if not self.vacancy.enabled or not self.candidate_profile.enabled:
+        elif not self.request.role_object.enabled:
+            messages.error(self.request, MESSAGES['disabled_profile'].format(self.request.role_object.profile.title))
+        if not self.vacancy.enabled or not self.request.role_object.enabled:
             return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
         else:
             return self.subscribe(*args, **kwargs)
 
     def subscribe(self, *args, **kwargs):
-        ProfileOnVacancy.objects.create(profile=self.candidate_profile, vacancy=self.vacancy)
+        CandidateOnVacancy.objects.create(candidate=self.request.role_object, vacancy=self.vacancy)
         return super().get(self.request, *args, **kwargs)
 
 
@@ -142,6 +139,7 @@ class ChangeVacancyStatus(OnlyEmployerMixin, RedirectView):
         if not self.errors:
             if self.object.enabled is not None:
                 self.object.enabled = None
+                self.object.change_status = True
                 self.object.save()
         else:
             for error in set(self.errors):
@@ -161,16 +159,16 @@ class ChangeVacancyStatus(OnlyEmployerMixin, RedirectView):
             if not self.object.pipeline.actions.exists():
                 self.errors.append('need_more_actions')
             for action in self.object.pipeline.actions.all():
-                if action.type.condition_of_passage:
-                    method = getattr(self, 'check_' + action.type.condition_of_passage)
+                if action.action_type.condition_of_passage:
+                    method = getattr(self, 'check_' + action.action_type.condition_of_passage)
                     method(action)
 
-    def check_quiz(self, action):
-        if not action.exam.exists():
+    def check_exam(self, action):
+        if not hasattr(action, 'exam'):
             self.errors.append('empty_exam')
 
     def check_interview(self, action):
-        if not action.interview.exists():
+        if not hasattr(action, 'interview'):
             self.errors.append('empty_interview')
 
 
@@ -199,9 +197,12 @@ class UpdateAllowedView(OnlyEmployerMixin, UpdateView):
     fields = ('allowed_amount',)
 
     def post(self, request, *args, **kwargs):
-        get_object_or_404(Vacancy, pk=kwargs.get('pk'), employer=request.role_object)
+        vacancy = get_object_or_404(Vacancy, pk=kwargs.get('pk'))
+        if vacancy.owner != request.user:
+            return HttpResponse(status=403)
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
+        form.instance.allowed_changed = True
         form.save()
         return HttpResponse('ok', status=200)
