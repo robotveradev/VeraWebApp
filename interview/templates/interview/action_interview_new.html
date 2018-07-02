@@ -1,0 +1,20 @@
+{% extends 'jobboard/base.html' %}
+
+{% load material_form %}
+
+{% block head_title %}
+    Vera Oracle - New interview action
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        <form method="post" class="uk-form-horizontal">
+            {% csrf_token %}
+            {% form form=form %}{% endform %}
+            <button type="submit"
+                    class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">Save
+            </button>
+        </form>
+    </div>
+{% endblock %}

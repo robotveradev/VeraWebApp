@@ -1,70 +1,141 @@
+from datetime import datetime, timedelta
+
+import date_converter
 from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.db.models import Q
-from django.http import Http404, HttpResponse
+from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import ListView, TemplateView, CreateView
-from candidateprofile.models import CandidateProfile
-from interview import utils
-from interview.forms import ActionInterviewForm
-from interview.models import *
-from jobboard.mixins import ChooseRoleMixin, OnlyEmployerMixin
+from django.views.generic import CreateView, FormView
+
+from interview.forms import ActionInterviewForm, ScheduleMeetingForm
+from interview.models import ActionInterview, ScheduledMeeting
+from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
+from pipeline.models import Action
 
 
-class InterviewView(ChooseRoleMixin, TemplateView):
-    template_name = 'interview/dialogs.html'
+class NewActionInterviewView(OnlyEmployerMixin, CreateView):
+    template_name = 'interview/action_interview_new.html'
+    form_class = ActionInterviewForm
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.action = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.action = get_object_or_404(Action, pk=kwargs.get('pk'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.action = self.action
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('action_details', kwargs={'pk': self.action.pk})
+
+
+class CandidateInterviewScheduleView(OnlyCandidateMixin, CreateView):
+    form_class = ScheduleMeetingForm
+
+    template_name = 'interview/schedule.html'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
+        self.date = None
         self.action_interview = None
-        self.interview = None
-        self.cv = None
+        self.candidate = None
+        self.meeting = None
+        self.employer = None
+
+    def get_initial(self):
+        self.employer = self.action_interview.employer
+        meetings = ScheduledMeeting.objects.filter(
+            action_interview__action__pipeline__vacancy__company__employer=self.employer,
+            date__gte=self.date,
+            date__lt=self.date + timedelta(days=1)).order_by('time')
+        duration = self.action_interview.duration
+        a = []
+        time_n = None
+        find = False
+        for item in meetings:
+            bla = datetime.now()
+            bla = bla.replace(hour=item.time.hour, minute=item.time.minute, second=0)
+            if bla >= datetime.now() - timedelta(minutes=duration):
+                a.append(item)
+        if a:
+            next_far = datetime.now()
+            next_far = next_far.replace(hour=a[0].time.hour, minute=a[0].time.minute)
+            if next_far > datetime.now() + timedelta(minutes=duration):
+                time_n = datetime.now()
+                find = True
+        if not find:
+            for i in range(len(a) - 1):
+                if a[i].time.replace(minute=a[i].time.minute + duration) < a[i + 1].time:
+                    time_n = a[i].time.replace(minute=a[i].time.minute + duration)
+                    find = True
+        if not find and a:
+            next_applied = datetime.now()
+            next_applied = next_applied.replace(hour=a[-1].time.hour, minute=a[-1].time.minute, second=0) + timedelta(
+                minutes=duration)
+            time_n = next_applied
+            find = True
+        if not find:
+            time_n = datetime.now()
+        return {'date': self.date, 'time': time_n}
+
+    def get_success_url(self):
+        return reverse('candidate_interviewing', kwargs={'pk': self.action_interview.pk})
 
     def dispatch(self, request, *args, **kwargs):
         self.action_interview = get_object_or_404(ActionInterview, pk=kwargs.get('pk'))
-        self.cv = get_object_or_404(CandidateProfile, pk=kwargs.get('cv_id'))
-        self.interview, _ = Interview.objects.get_or_create(action_interview=self.action_interview, cv=self.cv)
-        return self.check_interview(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        context['active_dialog'] = self.interview
-
-        if self.request.role_object == self.action_interview.action.pipeline.vacancy.employer:
-            context['opponent_uuid'] = context['active_dialog'].cv.uuid
+        if 'date' not in request.POST:
+            self.date = datetime.now()
         else:
-            context['opponent_uuid'] = self.action_interview.action.pipeline.vacancy.uuid
-
-        context['ws_server_path'] = '{}://{}:{}/'.format(
-            settings.CHAT_WS_SERVER_PROTOCOL,
-            settings.CHAT_WS_SERVER_HOST,
-            settings.CHAT_WS_SERVER_PORT,
-        )
-        return context
-
-    def post(self, request, *args, **kwargs):
-        self.interview.closed = True
-        self.interview.type = request.POST.get('type')
-        self.interview.save()
-        return super().get(request, *args, **kwargs)
-
-    def check_interview(self, request, *args, **kwargs):
-        vac = self.action_interview.action.pipeline.vacancy
-        if vac.employer != self.request.role_object and self.interview.cv.candidate != self.request.role_object:
-            raise Http404
-        if request.method == 'POST':
-            vac_uuid = request.POST.get('vac_uuid')
-            cv_uuid = request.POST.get('cv_uuid')
-            if vac.uuid != vac_uuid or self.interview.cv.uuid != cv_uuid:
-                raise Http404
+            self.date = date_converter.string_to_datetime(request.POST.get('date'), '%Y-%m-%d')
+        if datetime.combine(self.action_interview.end_date, datetime.max.time()) < datetime.now():
+            messages.warning(request, 'Interview period is over.')
+            return HttpResponseRedirect(
+                reverse('vacancy', kwargs={'pk': self.action_interview.action.pipeline.vacancy.id}))
+        self.candidate = request.role_object
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['action_interview'] = self.action_interview
+        try:
+            self.meeting = ScheduledMeeting.objects.get(action_interview=self.action_interview,
+                                                        candidate=self.candidate)
+        except ScheduledMeeting.DoesNotExist:
+            self.meeting = None
+        context.update({'meeting': self.meeting})
+        return context
 
-class NewInterviewerView(OnlyEmployerMixin, CreateView):
-    model = ActionInterview
-    fields = ('action', 'interviewer', )
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if 'data' in kwargs:
+            data = kwargs['data'].copy()
+            data.update({'employer': self.employer})
+            data.update({'action_interview': self.action_interview})
+            kwargs['data'] = data
+        return kwargs
 
-    def get_success_url(self):
-        return reverse('vacancy', kwargs={'pk': self.object.action.pipeline.vacancy.id})
+    def form_valid(self, form):
+
+        form.instance.action_interview = self.action_interview
+        form.instance.candidate = self.candidate
+        date = form.cleaned_data['date']
+        time = form.cleaned_data['time']
+        try:
+            # TODO schedule metting
+            scheduled = "{}"
+        except ValueError:
+            messages.error(self.request, 'Error during scheduling meeting')
+            return super().form_invalid(form)
+        else:
+            res = scheduled.json()
+            form.instance.link_start = res['start_url']
+            form.instance.link_join = res['join_url']
+            form.instance.conf_id = res['id']
+            form.instance.uuid = res['uuid']
+            return super().form_valid(form)
