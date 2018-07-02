@@ -8,16 +8,18 @@ from celery import shared_task
 from celery.app.task import Task
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import F
 from solc import compile_files
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
 
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.models import Transaction, Employer, Candidate, TransactionHistory
+from pipeline.models import Action
 from vacancy.models import Vacancy
 from vera.celery import app
 
-DELETE_ONLY_TXN = ['subscribe', 'empanswer', 'withdraw', 'tokenapprove', ]
+DELETE_ONLY_TXN = ['subscribe', 'empanswer', 'withdraw', 'tokenapprove', 'actionchanged', 'changestatus']
 
 logger = logging.getLogger(__name__)
 
@@ -103,18 +105,29 @@ class CheckTransaction(Task):
             self.delete_txn(txn)
             print("NewVacancy: " + vac_o.title + ' ' + vac_o.uuid)
 
+    def newaction(self, txn):
+        try:
+            act_o = Action.objects.get(pk=txn.obj_id)
+        except Action.DoesNotExist:
+            pass
+        else:
+            act_o.published = True
+            act_o.save()
+            self.delete_txn(txn)
+            print("New action added: {}".format(act_o.id))
+
     def vacancychange(self, txn):
         try:
             vac_o = Vacancy.objects.get(pk=txn.obj_id)
         except Vacancy.DoesNotExist:
             pass
         else:
-            vac_o.enabled = not self.oracle.get_vacancy_paused(vac_o.uuid)
+            vac_o.enabled = self.oracle.vacancy(vac_o.uuid)['enabled']
             vac_o.save()
             txn.delete()
-            print('Employer ({}) change vacancy ({}) paused to: {}'.format(vac_o.employer.contract_address,
-                                                                           vac_o.uuid,
-                                                                           not vac_o.enabled))
+            print('Employer ({}) change vacancy ({}) enabled to: {}'.format(vac_o.employer.contract_address,
+                                                                            vac_o.uuid,
+                                                                            vac_o.enabled))
 
     def employeradded(self, txn):
         try:
@@ -134,6 +147,16 @@ class CheckTransaction(Task):
         else:
             can_o.enabled = True
             can_o.save()
+        self.delete_txn(txn)
+
+    def actiondeleted(self, txn):
+        try:
+            act_o = Action.objects.get(pk=txn.obj_id)
+        except Action.DoesNotExist:
+            pass
+        else:
+            Action.objects.filter(pipeline=act_o.pipeline, index__gt=act_o.index).update(index=F('index') - 1)
+            act_o.delete()
         self.delete_txn(txn)
 
 

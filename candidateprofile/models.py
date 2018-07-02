@@ -137,7 +137,8 @@ class Position(models.Model):
     def __str__(self):
         return self.title
 
-    def get_absolute_url(self):
+    @staticmethod
+    def get_absolute_url():
         return reverse('profile')
 
 
@@ -171,8 +172,8 @@ class Education(models.Model):
     institute = models.CharField(max_length=127, blank=True, null=True)
     faculty = models.CharField(max_length=127, blank=True, null=True)
     profession = models.CharField(max_length=127, blank=True, null=True)
-    education_from = models.DateField()
-    education_to = models.DateField()
+    start = models.DateField()
+    end = models.DateField()
 
     def __str__(self):
         return self.institute or '-'
@@ -249,3 +250,17 @@ class WorkPermit(models.Model):
 
     def __str__(self):
         return '{}: {}'.format(self.profile, self.country.name)
+
+
+class Achievement(models.Model):
+    candidate = models.ForeignKey('jobboard.Candidate',
+                                  related_name='achievements',
+                                  on_delete=models.CASCADE)
+    title = models.CharField(max_length=255,
+                             blank=False,
+                             null=False)
+    text = models.TextField(blank=False,
+                            null=False)
+
+    def __str__(self):
+        return self.candidate.full_name + ' achievement'

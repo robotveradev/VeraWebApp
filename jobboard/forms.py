@@ -1,5 +1,7 @@
 from django import forms
 from django.utils import timezone
+
+from candidateprofile.models import Achievement
 from jobboard.models import Candidate, Employer
 
 YEARS = [i for i in range(1950, timezone.now().year + 1)][::-1]
@@ -37,3 +39,12 @@ class WorkedForm(forms.Form):
     date_from = forms.DateField(widget=forms.SelectDateWidget(years=YEARS), required=True)
     date_up_to = forms.DateField(widget=forms.SelectDateWidget(years=YEARS), required=True)
     position = forms.CharField(label='Position', max_length=255, required=True)
+
+
+class AchievementForm(forms.ModelForm):
+    class Meta:
+        model = Achievement
+        fields = ('title', 'text', )
+        labels = {
+            'text': 'Achievement description',
+        }

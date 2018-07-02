@@ -1,13 +1,11 @@
-import random
-import string
-
-from account.models import SignupCode
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from web3 import Web3
 
 from vacancy.models import Vacancy
+
+User = get_user_model()
 
 
 class Keyword(models.Model):
@@ -121,24 +119,3 @@ class TransactionHistory(models.Model):
 
     class Meta:
         ordering = ('-created_at',)
-
-
-def random_string():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=32))
-
-
-class InviteCode(models.Model):
-    code = models.CharField("code",
-                            default=random_string,
-                            max_length=32,
-                            unique=True)
-    expired = models.BooleanField(default=False)
-    signup_code = models.ForeignKey(SignupCode,
-                                    on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.code
-
-    def expire(self):
-        self.expired = True
-        self.save()
