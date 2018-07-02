@@ -1,209 +1,288 @@
 {% load jobboard_tags material_form %}
 
-<div uk-grid>
-    <div class="uk-width-1-5">
-        <div>
-            {% with role_object.profile.photo as photo %}
-                {% if photo %}
-                    <img class="uk-border-rounded" style="width: 100%" src="{{ photo.url }}"/>
-                {% else %}
-                    <img class="uk-border-rounded" style="width: 100%;"
-                         src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
-                         alt="">
-                {% endif %}
-            {% endwith %}
+<div class="uk-margin-large-top" data-uk-grid>
+    <div class="uk-width-3-4">
+        <ul data-uk-tab="connect: #profile_contrainer">
+            <li class="uk-active"><a class="uk-text-capitalize" href="#">Profile</a></li>
+            <li><a class="uk-text-capitalize" href="#">Facts</a></li>
+            <li><a class="uk-text-capitalize" href="#">Achievements</a></li>
+            <li><a class="uk-text-capitalize" href="#">Position</a></li>
+            <li><a class="uk-text-capitalize" href="#">Experience</a></li>
+            <li><a class="uk-text-capitalize" href="#">Education</a></li>
+        </ul>
+    </div>
+</div>
+<div class="uk-margin-top-small uk-margin-large-bottom" data-uk-grid>
+    <div class="uk-width-3-4">
+        <div class="vr-window white uk-padding-small">
+            <ul id="profile_contrainer" class="uk-switcher">
+                <li>
+                    <div data-uk-grid>
+                        <div class="uk-width-1-5">
+                            {% with role_object.profile.photo as photo %}
+                                {% if photo %}
+                                    <img class="uk-border-rounded" style="width: 100%"
+                                         src="{{ photo.url }}"/>
+                                {% else %}
+                                    <img class="uk-border-rounded" width="100%"
+                                         src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png">
+                                {% endif %}
+                            {% endwith %}
+                            <h5>Extra links</h5>
+                            <ul class="uk-nav uk-nav-default">
+                                <li><a href="#"><span class="uk-margin-small-right" data-uk-icon="icon: world"></span>
+                                    Some </a></li>
+                                <li><a href="#"><span class="uk-margin-small-right" data-uk-icon="icon: grid"></span>
+                                    Useful </a></li>
+                                <li><a href="#"><span class="uk-margin-small-right" data-uk-icon="icon: users"></span>
+                                    Links</a></li>
+                                <li><a href="#"><span class="uk-margin-small-right"
+                                                      data-uk-icon="icon: play-circle"></span>
+                                    May be </a></li>
+                                <li><a href="#"><span class="uk-margin-small-right" data-uk-icon="icon: hashtag"></span>
+                                    Here </a></li>
+                            </ul>
+                        </div>
+                        <div class="uk-width-4-5">
+                            <table data-hint="main_info" class="uk-table uk-table-divider uk-table-small" width="100%">
+                                <colgroup>
+                                    <col width="30%">
+                                    <col width="70%">
+                                </colgroup>
+                                <tr>
+                                    <td>Name:</td>
+                                    <td>{{ role_object.full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tax number:</td>
+                                    <td>{{ role_object.tax_number }}</td>
+                                </tr>
+                                {% with role_object.profile as profile %}
+                                    {% if profile %}
+                                        <tr>
+                                            <td>Info:</td>
+                                            <td>
+                                                {% if role_object == profile.candidate %}
+                                                    <a class="uk-align-right uk-margin-remove-bottom"
+                                                       href="{% url 'cp_edit' %}"
+                                                       data-uk-icon="icon: file-edit; ratio: 0.6"></a>
+                                                {% endif %}
+                                                <div>
+                                                    {{ profile.sex|title }}{% if profile.birth_date %},
+                                                        {{ profile.birth_date|date:'d E Y' }}
+                                                        year of
+                                                        birth{% endif %}{% if profile.level %}, education level:
+                                                        {{ profile.level.title|lower }}{% endif %}
+                                                </div>
+                                                <div>
+                                                    {{ profile.address|title }}{% if profile.relocation %},
+                                                        ready for transfer{% endif %}{% if profile.official_journey %},
+                                                        ready
+                                                        for official
+                                                        journey{% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Languages:</td>
+                                            <td>{% with profile.languages.all as langs %}
+                                                {% for lang in langs %}
+                                                    <span class="uk-badge"
+                                                          data-uk-tooltip="{{ lang.get_level_display }}">{{ lang.language.name|title }}</span>
+                                                {% endfor %}
+                                            {% endwith %}
+                                                <a class="uk-link-text" href="#modal-new-language" data-uk-toggle><span
+                                                        class="uk-badge"
+                                                        data-uk-tooltip="new language"
+                                                        data-uk-icon="plus"></span></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Citizenship:</td>
+                                            <td>
+                                                {% with profile.citizenship.all as citiz %}
+                                                    {% for cit in citiz %}
+                                                        <span class="uk-badge">{{ cit.country.name|title }}</span>
+                                                    {% endfor %}
+                                                {% endwith %}
+                                                <a class="uk-link-text" href="#modal-new-citizenship"
+                                                   data-uk-toggle><span
+                                                        class="uk-badge"
+                                                        data-uk-tooltip="add citizenship entry"
+                                                        data-uk-icon="plus"></span></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Work permit:</td>
+                                            <td>
+                                                {% with profile.work_permit.all as permits %}
+                                                    {% for permit in permits %}
+                                                        <span class="uk-badge">{{ permit.country.name|title }}</span>
+                                                    {% endfor %}
+                                                {% endwith %}
+                                                <a class="uk-link-text" href="#modal-new-work_permit"
+                                                   data-uk-toggle><span
+                                                        class="uk-badge"
+                                                        data-uk-tooltip="add work permit entry"
+                                                        data-uk-icon="plus"></span></a>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endwith %}
+                                <tr data-hint="contract_address">
+                                    <td>Contract address:</td>
+                                    <td>
+                                        {% if role_object.contract_address is not None %}
+                                            <img style="width: 16px; height: 16px;"
+                                                 src="{{ role_object.contract_address|get_blockies_png }}" alt="">
+                                            <a class="uk-link-reset" target="_blank"
+                                               href="https://rinkeby.etherscan.io/address/{{ role_object.contract_address }}">{{ role_object.contract_address }}</a>
+                                        {% else %}
+                                            <div data-uk-spinner="ratio: 0.7"></div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr data-hint="balance">
+                                    <td>Balance:</td>
+                                    <td>
+                                        {% get_balance role_object.user role_object.contract_address role %}
+                                    </td>
+                                </tr>
+                            </table>
+                            {% for item in role_object.profile.specialisations.all %}
+                                <div class="chip white blue-text text-lighten-2 vr-chip-border">{{ item }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    {% if role_object.contract_address %}
+                        {% get_facts role_object %}
+                        <br/>
+                        {% include 'jobboard/include/add_fact.html' %}
+                    {% endif %}
+                </li>
+                <li>
+                    {% with role_object.achievements.all as achievements %}
+                        {% if achievements %}
+                            <ul data-uk-accordion="multiple: true">
+                                {% for achievement in achievements %}
+                                    <li class="uk-border uk-padding-small">
+                                        <a class="uk-accordion-title" href="#">{{ achievement.title }}</a>
+                                        <div class="uk-accordion-content">
+                                            {{ achievement.text|safe }}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>You have no achievements added.</p>
+                        {% endif %}
+                    {% endwith %}
+                    <br/>
+                    <a href="{% url 'new_achievement' %}"
+                       class="uk-button uk-button-small uk-align-right uk-button-default uk-margin-remove-bottom">New
+                        achievement entry</a>
+                    <div class="uk-clearfix"></div>
+                </li>
+
+                {% with role_object.profile as profile %}
+                    <li>
+                        {% if profile.position %}
+                            <div class="uk-article">
+                                <p class="uk-text-lead">{{ profile.position.title }}
+                                    {% if role_object == profile.candidate %}
+                                        <a href="{% url 'position_edit' %}"
+                                           data-uk-icon="icon: file-edit"></a>
+                                    {% endif %}
+                                </p>
+                                Salary from: {{ profile.position.salary_from }}$
+                                <ul class="uk-list uk-list-bullet">
+                                    <li>{{ profile.position.busyness.all|join:', ' }}</li>
+                                    <li>{{ profile.position.schedule.all|join:', ' }}</li>
+                                </ul>
+                                {% if profile.position.description %}
+                                    <p>
+                                        {{ profile.position.description|safe }}
+                                    </p>
+                                {% endif %}
+                                {% if profile.position.carier_start %}
+                                    <div class="chip blue white-text uk-align-right">Career start</div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div>
+                                <p>Career objective information is not available </p>
+                            </div>
+                            <a href="{% url 'new_position' %}"
+                               class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">Add
+                                career
+                                objective</a>
+                            <div class="clearfix"></div>
+                            <br/>
+                        {% endif %}
+                    </li>
+                    <li>
+                        {% with profile.experience.all as experiences %}
+                            {% if experiences %}
+                                <div>
+                                    <p class="uk-text-lead">Experience</p>
+                                    {% for experience in experiences %}
+                                        {% include 'candidateprofile/include/experience.html' %}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div>
+                                    <div>
+                                        <p>Experience information is not available </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'new_experience' %}"
+                               class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">Add
+                                experience info</a>
+                            <div class="uk-clearfix"></div>
+                        {% endwith %}
+                    </li>
+                    <li>
+                        {% with profile.education.all as educations %}
+                            {% if educations %}
+                                <div>
+                                    <p class="uk-text-lead">Education</p>
+                                    {% for education in educations %}
+                                        {% include 'candidateprofile/include/education.html' %}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div>
+                                    <div>
+                                        <p>Education information is not available</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <a href="{% url 'new_education' %}"
+                               class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">Add
+                                education
+                                info</a>
+                            <div class="uk-clearfix"></div>
+                        {% endwith %}
+                    </li>
+                {% endwith %}
+            </ul>
         </div>
     </div>
-    <div class="uk-width-4-5">
-        <table data-hint="main_info" class="uk-table uk-table-divider uk-table-small" width="100%">
-            <colgroup>
-                <col width="20%">
-                <col width="80%">
-            </colgroup>
-            <tr>
-                <td>Name:</td>
-                <td>{{ role_object.full_name }}</td>
-            </tr>
-            <tr>
-                <td>Tax number:</td>
-                <td>{{ role_object.tax_number }}</td>
-            </tr>
-            {% with role_object.profile as profile %}
-                {% if profile %}
-                    <tr>
-                        <td>Info:</td>
-                        <td>
-                            {% if role_object == profile.candidate %}
-                                <a class="uk-align-right uk-margin-remove-bottom"
-                                   href="{% url 'cp_edit' %}"
-                                   uk-icon="icon: file-edit; ratio: 0.6"></a>
-                            {% endif %}
-                            <div>
-                                {{ profile.sex|title }}{% if profile.birth_date %},
-                                    {{ profile.birth_date|date:'d E Y' }}
-                                    year of
-                                    birth{% endif %}{% if profile.level %}, education level:
-                                    {{ profile.level.title|lower }}{% endif %}
-                            </div>
-                            <div>
-                                {{ profile.address|title }}{% if profile.relocation %},
-                                    ready for transfer{% endif %}{% if profile.official_journey %}, ready for official
-                                    journey{% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Languages:</td>
-                        <td>{% with profile.languages.all as langs %}
-                            {% for lang in langs %}
-                                <span class="uk-badge"
-                                      uk-tooltip="{{ lang.get_level_display }}">{{ lang.language.name|title }}</span>
-                            {% endfor %}
-                        {% endwith %}
-                            <a class="uk-link-text" href="#modal-new-language" uk-toggle><span class="uk-badge"
-                                                                                               uk-tooltip="new language"
-                                                                                               uk-icon="plus"></span></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Citizenship:</td>
-                        <td>
-                            {% with profile.citizenship.all as citiz %}
-                                {% for cit in citiz %}
-                                    <span class="uk-badge">{{ cit.country.name|title }}</span>
-                                {% endfor %}
-                            {% endwith %}
-                            <a class="uk-link-text" href="#modal-new-citizenship" uk-toggle><span class="uk-badge"
-                                                                                                  uk-tooltip="new language"
-                                                                                                  uk-icon="plus"></span></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Work permit:</td>
-                        <td>
-                            {% with profile.work_permit.all as permits %}
-                                {% for permit in permits %}
-                                    <span class="uk-badge">{{ permit.country.name|title }}</span>
-                                {% endfor %}
-                            {% endwith %}
-                            <a class="uk-link-text" href="#modal-new-work_permit" uk-toggle><span class="uk-badge"
-                                                                                                  uk-tooltip="new language"
-                                                                                                  uk-icon="plus"></span></a>
-                        </td>
-                    </tr>
-                {% endif %}
-            {% endwith %}
-            <tr data-hint="contract_address">
-                <td>Contract address:</td>
-                <td>
-                    {% if role_object.contract_address is not None %}
-                        <img style="width: 16px; height: 16px;"
-                             src="{{ role_object.contract_address|get_blockies_png }}" alt="">
-                        <a class="uk-link-reset" target="_blank"
-                           href="https://rinkeby.etherscan.io/address/{{ role_object.contract_address }}">{{ role_object.contract_address }}</a>
-                    {% else %}
-                        <div uk-spinner="ratio: 0.7"></div>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr data-hint="balance">
-                <td>Balance:</td>
-                <td>
-                    {% get_balance role_object.user role_object.contract_address role %}
-                </td>
-            </tr>
-        </table>
+    <div class="uk-width-1-4">
+        <div class="vr-window white uk-padding-small">
+            {% job_status role_object False %}
+        </div>
     </div>
 </div>
-{% if role_object.contract_address %}
-    {% get_facts role_object %}
-    {% include 'jobboard/include/add_fact.html' %}
-{% endif %}
-<br/>
-<hr class="uk-divider-icon">
-<div>
-    {% with role_object.profile as profile %}
-        {% if profile.position %}
-            <div class="uk-article">
-                <p class="uk-text-lead">{{ profile.position.title }}
-                    {% if role_object == profile.candidate %}
-                        <a href="{% url 'position_edit' %}"
-                           uk-icon="icon: file-edit"></a>
-                    {% endif %}
-                </p>
-                Salary from: {{ profile.position.salary_from }}$
-                <ul class="uk-list uk-list-bullet">
-                    <li>{{ profile.position.busyness.all|join:', ' }}</li>
-                    <li>{{ profile.position.schedule.all|join:', ' }}</li>
-                </ul>
-                {% if profile.position.description %}
-                    <p>
-                        {{ profile.position.description|safe }}
-                    </p>
-                {% endif %}
-                {% if profile.position.carier_start %}
-                    <div class="chip blue white-text uk-align-right">Career start</div>
-                {% endif %}
-            </div>
-        {% else %}
-            <div>
-                <p>Career objective information is not available </p>
-            </div>
-            <a href="{% url 'new_position' %}"
-               class="uk-button uk-button-default uk-align-right uk-button-small">Add career objective</a>
-            <div class="clearfix"></div>
-            <br/>
-        {% endif %}
-        <hr class="uk-divider-icon">
-        {% with profile.experience.all as experiences %}
-            {% if experiences %}
-                <div>
-                    <p class="uk-text-lead">Experience</p>
-                    {% for experience in experiences %}
-                        {% include 'candidateprofile/include/experience.html' %}
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div>
-                    <div>
-                        <p>Experience information is not available </p>
-                    </div>
-                </div>
-            {% endif %}
-            <a href="{% url 'new_experience' %}"
-               class="uk-button uk-button-default uk-align-right uk-button-small">Add
-                experience info</a>
-            <div class="uk-clearfix"></div>
-        {% endwith %}
-        <hr class="uk-divider-icon">
-        {% with profile.education.all as educations %}
-            {% if educations %}
-                <div>
-                    <p class="uk-text-lead">Education</p>
-                    {% for education in educations %}
-                        {% include 'candidateprofile/include/education.html' %}
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div>
-                    <div>
-                        <p>Education information is not available</p>
-                    </div>
-                </div>
-            {% endif %}
-            <a href="{% url 'new_education' %}"
-               class="uk-button uk-button-default uk-align-right uk-button-small">Add education info</a>
-            <div class="uk-clearfix"></div>
-        {% endwith %}
-        <hr class="uk-divider-icon">
-    {% endwith %}
-</div>
 
-<div id="modal-new-language" uk-modal>
+<div id="modal-new-language" data-uk-modal>
     <div class="uk-modal-dialog">
         <form method="post" class="uk-form-horizontal" action="{% url 'new_language' %}">
             {% csrf_token %}
-            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <button class="uk-modal-close-default" type="button" data-uk-close></button>
             <div class="uk-modal-header">
                 <h2 class="uk-modal-title">Add language</h2>
             </div>
@@ -223,11 +302,11 @@
     </div>
 </div>
 
-<div id="modal-new-citizenship" uk-modal>
+<div id="modal-new-citizenship" data-uk-modal>
     <div class="uk-modal-dialog">
         <form method="post" class="uk-form-horizontal" action="{% url 'new_citizenship' %}">
             {% csrf_token %}
-            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <button class="uk-modal-close-default" type="button" data-uk-close></button>
             <div class="uk-modal-header">
                 <h2 class="uk-modal-title">Add citizenship country</h2>
             </div>
@@ -247,11 +326,11 @@
     </div>
 </div>
 
-<div id="modal-new-work_permit" uk-modal>
+<div id="modal-new-work_permit" data-uk-modal>
     <div class="uk-modal-dialog">
         <form method="post" class="uk-form-horizontal" action="{% url 'new_work_permit' %}">
             {% csrf_token %}
-            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <button class="uk-modal-close-default" type="button" data-uk-close></button>
             <div class="uk-modal-header">
                 <h2 class="uk-modal-title">Add work permit country</h2>
             </div>
@@ -270,15 +349,3 @@
         </form>
     </div>
 </div>
-
-
-
-
-
-{% for item in role_object.profile.specialisations.all %}
-    <div class="chip">{{ item }}</div>
-{% endfor %}
-
-{% if role_object.contract_address %}
-    {% get_candidate_vacancies role_object %}
-{% endif %}

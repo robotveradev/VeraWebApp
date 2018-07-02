@@ -1,13 +1,13 @@
 {% if item %}
-    <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
+    <div class="uk-box-shadow-small uk-padding-small uk-margin-small white uk-border">
         <a class="uk-button uk-button-text" href="{% url 'category' pk=item.id %}">{{ item.title }}</a>
         <div class="uk-accordion-content">
-            <div class="uk-grid-small" uk-grid>
-                <div class="uk-width-expand" uk-leader>Sub categories</div>
+            <div class="uk-grid-small" data-uk-grid>
+                <div class="uk-width-expand" data-uk-leader>Sub categories</div>
                 <div>{{ item.sub_categories.count }}</div>
             </div>
-            <div class="uk-grid-small" uk-grid>
-                <div class="uk-width-expand" uk-leader>Questions</div>
+            <div class="uk-grid-small" data-uk-grid>
+                <div class="uk-width-expand" data-uk-leader>Questions</div>
                 <div>{{ item.questions.count }}</div>
             </div>
         </div>

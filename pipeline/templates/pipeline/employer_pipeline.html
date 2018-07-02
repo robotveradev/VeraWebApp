@@ -1,49 +1,145 @@
-{#{{ actions }}#}
-<div class="pipLineContainer" uk-grid>
-    <ul class="pipline uk-grid-small  uk-text-center uk-width-2-3" uk-sortable="handle: .sort" uk-grid>
+{% load pipeline_tags %}
+<h2>Vacancy pipeline</h2>
+<div class="uk-margin-large-bottom" data-uk-grid>
+    <div class="uk-width-2-3">
+        <ul data-uk-accordion="multiple: true">
+            {% for item in actions %}
+                <li class="uk-border uk-padding-small uk-box-shadow-medium white uk-position-relative uk-border-{{ item.db|set_action_status_color }}">
+                    {% if not item.db.published %}
+                        <div class="uk-overlay-default uk-position-cover"></div>
+                        <div class="uk-overlay uk-position-center uk-dark">
+                            <p data-uk-spinner="ratio: 0.4">Apply action changes </p>
+                        </div>
+                    {% endif %}
+                    <a class="uk-accordion-title" href="#">{{ item.title }}</a>
+                    <div class="uk-accordion-content">
+                        <article class="uk-article">
+                            <p class="uk-article-meta">{{ item.approvable|yesno:'Approvable, Not approvable' }} pipeline
+                                action, fee: {{ item.fee }} Vera Coin
+                                <a class="uk-align-right" href="{{ item.db|employer_pipeline_action_config_link }}">Config</a>
+                            </p>
+                            <p>Now at action - {{ item.cans }} candidate{{ item.cans|pluralize }}.</p>
+                            <div class="uk-grid-small uk-child-width-auto" data-uk-grid>
+                                <div>
+                                    <a class="uk-button uk-button-text"
+                                       href="{{ item.db|employer_pipeline_action_config_link }}">Read more</a>
+                                </div>
+                                <div>
+                                    <a class="uk-button uk-button-text" href="#">5 Comments</a>
+                                </div>
+                            </div>
 
-    </ul>
-    <div class="circle uk-position-relative" uk-toggle="target: #modal_add_pip">
-        <span class="plus uk-position-center" uk-icon="icon:  plus-circle; ratio: 3"></span>
+                        </article>
+                    </div>
+                </li>
+            {% endfor %}
+            {% with vacancy.id|get_pending_actions_count as pending_actions %}
+                {% for i in pending_actions %}
+                    <li class="uk-border-info uk-padding-small uk-box-shadow-medium uk-position-relative">
+                        <div class="uk-overlay-default uk-position-cover"></div>
+                        <div class="uk-overlay uk-position-center uk-dark">
+                            <p data-uk-spinner="ratio: 0.4">Apply action creating </p>
+                        </div>
+                        <a class="uk-accordion-title" href="#">Pending action...</a>
+
+                    </li>
+                {% endfor %}
+                {% if vacancy.enabled is False %}
+                    {% with actions|length as al %}
+                        {% with pending_actions|length as pal %}
+                            {% with al|add:pal as count %}
+                                {% if 2|pipeline_max_length > count %}
+                                    <li class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
+                                        <a class="uk-accordion-title" href="#">New action</a>
+                                        <div class="uk-accordion-content">
+                                            <form class="uk-form-horizontal" action="{% url 'new_pipeline_action' %}"
+                                                  method="post">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="pipeline" value="{{ vacancy.pipeline.id }}">
+                                                <div class="uk-margin">
+                                                    <label class="uk-form-label"
+                                                           for="form-horizontal-select">Select</label>
+                                                    <div class="uk-form-controls">
+                                                        <select name="action_type" class="uk-select"
+                                                                id="form-horizontal-select">
+                                                            {% for type_item in types %}
+                                                                <option data-appr="{{ type_item.must_approvable|yesno:'true,false' }}"
+                                                                        value="{{ type_item.id }}">{{ type_item.title }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="uk-margin">
+                                                    <label class="uk-form-label" for="form-horizontal-text">Fee</label>
+                                                    <div class="uk-form-controls">
+                                                        <input value="0" class="uk-input" id="form-horizontal-text"
+                                                               type="text"
+                                                               placeholder="Fee" name="fee">
+                                                    </div>
+                                                </div>
+
+                                                <div class="uk-margin">
+                                                    <div class="uk-form-label">Approvable</div>
+                                                    <div class="uk-form-controls uk-form-controls-text">
+                                                        <label><input class="uk-checkbox" type="checkbox"
+                                                                      name="approvable"></label><br>
+                                                    </div>
+                                                </div>
+                                                <button class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
+                                                    Save
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            {% endwith %}
+                        {% endwith %}
+                    {% endwith %}
+                {% else %}
+                    <p class="uk-text-meta">To add new pipeline action you have to disable vacancy.</p>
+                {% endif %}
+            {% endwith %}
+        </ul>
     </div>
-</div>
-
-<div id="modal_add_pip" uk-modal>
-    <div class="uk-modal-dialog">
-        <button class="uk-modal-close-default" type="button" uk-close></button>
-        <div class="uk-modal-header">
-            <h2 class="uk-modal-title">New action</h2>
+    <div class="uk-width-1-3">
+        <div class="uk-padding-small uk-box-shadow-medium uk-border white">
+            <h3 class="uk-legend uk-margin-remove-bottom uk-position-relative">
+                Pipeline info
+                <a href="#" class="uk-position-center-right toggle-icon" type="button"
+                   data-uk-toggle="target: #info; animation: uk-animation-slide-top-small"
+                   data-uk-icon="chevron-down"></a>
+            </h3>
+            <div id="info" class="uk-margin-top">
+                {% with vacancy.uuid|vacancy_candidates as candidates %}
+                    <ul class="uk-list uk-list-bullet">
+                        <li>Applied the vacancy: {{ candidates|length }}</li>
+                        <li>Passed the pipeline: {{ candidates|passed|length }}</li>
+                        {% with actions|full_payment as full_pay %}
+                            <li>
+                                Max payment: {{ full_pay }} Vera Coin
+                            </li>
+                            {% if user == vacancy.employer and full_pay > 0 %}
+                                {% with vacancy.allowed_amount|get_max_candidates_count:full_pay as max_candidates %}
+                                    <li>Max candidates: {{ max_candidates }} </li>
+                                    {% if max_candidates < 5 %}
+                                        <p class="uk-text-meta" style="font-size: .7rem">
+                                            It seems that with a fixed number of tokens
+                                            ({{ vacancy.allowed_amount }} Vera Coin) and a fee for the complete
+                                            passage of pipeline ({{ full_pay }} Vera Coin), the maximum number of
+                                            candidates who can pass the entire
+                                            pipeline - {{ max_candidates }}.
+                                            You can <a class="vr-link" href="#increase" data-uk-toggle>increase allowed
+                                            amount</a>
+                                            right now.
+                                        </p>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endwith %}
+                    </ul>
+                {% endwith %}
+            </div>
         </div>
-        <form action="{% url 'new_pipeline_action' pk=vacancy.pipeline.pk %}" id="add_pip" method="post" class="uk-form-horizontal">
-            <div class="uk-modal-body">
-                <div class="uk-margin">
-                    <label class="uk-form-label" for="pipType">Type</label>
-                    <div class="uk-form-controls">
-                        <select class="uk-select" id="pipType">
-                            <option value="1">Exam</option>
-                            <option value="2">Interview</option>
-                            <option value="3">Wait</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="uk-margin">
-                    <label class="uk-form-label" for="fee">Fee</label>
-                    <div class="uk-form-controls">
-                        <input class="uk-input" id="fee" type="number">
-                    </div>
-                </div>
-                <div class="uk-margin">
-                    <div class="uk-form-label">Approvable</div>
-                    <div class="uk-form-controls uk-form-controls-text">
-                        <input id="approveable" value="off" class="uk-checkbox" type="checkbox">
-                    </div>
-                </div>
-            </div>
-            <div class="uk-modal-footer uk-text-right">
-                <button type="reset" class="uk-button-small uk-button uk-button-default uk-modal-close">Cancel</button>
-                <button id="apply" class="uk-button-small uk-button uk-button-primary" type="submit">Save</button>
-            </div>
-        </form>
-
     </div>
 </div>

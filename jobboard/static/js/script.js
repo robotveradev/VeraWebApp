@@ -107,41 +107,10 @@ $(document).ready(function () {
 
     $('.select-all').on('click', function () {
         $(this).closest('li').find('input').each(function (i, item) {
-            console.log($(item));
             if (!$(item).is(':disabled')) {
                 $(item).attr('checked', true);
             }
         });
-    });
-
-    $('input[type=range]').on('change', function () {
-        $.ajax({
-            url: '/quiz/exam/' + $('input[name=e_id]').val() + '/update/grade/',
-            type: 'POST',
-            data: {
-                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
-                passing_grade: $(this).val()
-            },
-            success: function (data) {
-                if (data === 'True') {
-                    UIkit.notification({
-                        message: 'Passing grade successfully updated!',
-                        status: 'success',
-                        pos: 'top-right',
-                        timeout: 3000
-                    });
-                } else {
-                    UIkit.notification({
-                        message: 'Some problems while update passing grade...',
-                        status: 'danger',
-                        pos: 'top-right',
-                        timeout: 3000
-                    });
-                }
-            }
-        });
-    }).on('input', function () {
-        $('#passing_grade').text($(this).val());
     });
 
     $('input[name="test_answer"]').closest('div').find('a').on('click', function () {
@@ -149,7 +118,7 @@ $(document).ready(function () {
         var answer = $(this).closest('div').find('input').val();
         if (answer === '') {
             UIkit.notification({
-                message: 'Please specify the text answer',
+                message: 'Please specify the answer text',
                 status: 'primary',
                 pos: 'top-right',
                 timeout: 3000
@@ -170,6 +139,11 @@ $(document).ready(function () {
             })
         }
         return false;
+    });
+
+    $('.toggle-icon').on('click', function () {
+
+        "chevron-down" === $(this).attr("data-uk-icon") ? $(this).attr("data-uk-icon", "chevron-up") : $(this).attr("data-uk-icon", "chevron-down");
     })
 });
 

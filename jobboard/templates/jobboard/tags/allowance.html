@@ -3,15 +3,15 @@
 <span>{{ allowance }} Vera</span>
 {% with user_id|approve_pending as pending %}
     {% if pending %}
-        <span class="amber-text">Pending...<div uk-spinner="ratio: 0.4"></div></span>
+        <span class="amber-text">Pending...<div data-uk-spinner="ratio: 0.4"></div></span>
     {% else %}
-        <a class="uk-link-muted" href="#approve-modal" uk-toggle>Approve</a>
+        <a class="uk-link-muted" href="#approve-modal" data-uk-toggle>Approve</a>
     {% endif %}
 {% endwith %}
 
-<div id="approve-modal" uk-modal>
+<div id="approve-modal" data-uk-modal>
     <div class="uk-modal-dialog">
-        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <button class="uk-modal-close-default" type="button" data-uk-close></button>
         <form action="{% url 'approve' %}" method="post">
             {% csrf_token %}
             <div class="uk-modal-header">
@@ -21,7 +21,7 @@
                 <p>Please indicate amount of coins for approve</p>
                 <div class="uk-margin">
                     <div class="uk-inline uk-display-block">
-                        <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                        <span class="uk-form-icon" data-uk-icon="icon: file-edit"></span>
                         <input class="uk-input" type="number" step="0.001" name="approved_amount" maxlength="30"
                                required
                                id="approved_amount"

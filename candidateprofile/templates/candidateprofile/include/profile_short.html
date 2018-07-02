@@ -1,9 +1,9 @@
 {% load statistic_tags %}
 
 {% if cp %}
-    <div class="uk-box-shadow-small uk-padding-small uk-margin-small uk-box-shadow-hover-medium">
+    <div class="uk-box-shadow-small uk-padding-small uk-margin-small uk-box-shadow-hover-medium white uk-border">
         <article class="uk-comment">
-            <header class="uk-comment-header uk-flex-middle" uk-grid>
+            <header class="uk-comment-header uk-flex-middle" data-uk-grid>
                 <div class="uk-width-auto">
                     {% if cp.photo %}
                         <img class="uk-comment-avatar" src="{{ cp.photo.url }}" width="80" height="80" alt="">

@@ -6,7 +6,7 @@
         {% part field label %}
             <label{% attrs bound_field 'label' %}
                 for="{{ bound_field.id_for_label }}"
-                class="uk-form-label{% if bound_field.value %} active{% endif %}"
+                class="uk-form-label"
             {% endattrs %}>{{ bound_field.label }}</label>
         {% endpart %}
         <div class="uk-form-controls">
@@ -24,12 +24,13 @@
                     {% endif %}
                 {% endattrs %}>
             {% endpart %}
+
+            {% part field help_text %}{% if field.help_text %}
+                <div class="help-block uk-text-meta">{{ bound_field.help_text|safe }}</div>
+            {% endif %}
+            {% endpart %}{% part field errors %}
+                {% if bound_field.errors %}
+                    {% include  'material/field_errors.html' %}
+                {% endif %}{% endpart %}{{ hidden_initial }}
         </div>
-        {% part field help_text %}{% if field.help_text %}
-            <div class="help-block">{{ bound_field.help_text|safe }}</div>
-        {% endif %}
-        {% endpart %}{% part field errors %}
-            {% if bound_field.errors %}
-                {% include  'material/field_errors.html' %}
-            {% endif %}{% endpart %}{{ hidden_initial }}
     </div>{% endpart %}

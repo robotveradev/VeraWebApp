@@ -13,25 +13,14 @@ from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.models import Transaction
 from quiz.models import ActionExam
-from vacancy.models import Vacancy, ProfileOnVacancy, VacancyOffer
+from vacancy.models import Vacancy, CandidateOnVacancy, VacancyOffer
 
 register = template.Library()
 
 
 @register.filter(name='has_profile')
 def has_profile(user_id):
-    return CandidateProfile.objects.filter(candidate__user_id=user_id).count() > 0
-
-
-@register.filter(name='allowance_rest')
-def allowance_rest(vacancy_id):
-    vac = Vacancy.objects.get(id=vacancy_id)
-    if not vac.published:
-        return 0
-    oracle = OracleHandler()
-    vacancy = oracle.vacancy(vac.uuid)
-
-    return vacancy['allowed_amount'] / 10 ** 18
+    return CandidateProfile.objects.filter(candidate__user_id=user_id).exists()
 
 
 def get_coin_symbol(id):
@@ -41,7 +30,7 @@ def get_coin_symbol(id):
 
 @register.inclusion_tag("jobboard/tags/candidates.html")
 def get_candidates(vacancy):
-    args = {'vacancy': vacancy, 'profiles': ProfileOnVacancy.objects.filter(vacancy=vacancy)}
+    args = {'vacancy': vacancy, 'profiles': CandidateOnVacancy.objects.filter(vacancy=vacancy)}
     return args
 
 
@@ -100,34 +89,21 @@ def get_vacancy(vac_uuid):
         return None
 
 
-@register.inclusion_tag('jobboard/tags/vacancies.html', takes_context=True)
-def get_candidate_vacancies(context, candidate):
-    vac_set = set()
-    oracle = OracleHandler()
-    count = oracle.candidate_vacancies_length(candidate.contract_address)
-    for i in range(count):
-        vac_uuid = oracle.candidate_vacancy_by_index(candidate.contract_address, i)
-        vac_set.add(vac_uuid)
-    vacancies = Vacancy.objects.filter(uuid__in=vac_set)
-    return {'vacancies': vacancies,
-            'request': context.request,
-            'candidate': candidate}
-
-
 @register.inclusion_tag('jobboard/tags/facts.html')
 def get_facts(candidate):
-    oracle = OracleHandler()
-    fact_keys = oracle.facts_keys(candidate.contract_address)
     args = {}
-    facts = []
-    for item in fact_keys:
-        fact = oracle.fact(candidate.contract_address, item)
-        facts.append({'id': item,
-                      'from': fact[0],
-                      'date': datetime.datetime.fromtimestamp(int(fact[1])),
-                      'fact': json.loads(fact[2])})
-    args['facts'] = facts
-    args['candidate'] = candidate
+    if candidate.contract_address:
+        oracle = OracleHandler()
+        fact_keys = oracle.facts_keys(candidate.contract_address)
+        facts = []
+        for item in fact_keys:
+            fact = oracle.fact(candidate.contract_address, item)
+            facts.append({'id': item,
+                          'from': fact[0],
+                          'date': datetime.datetime.fromtimestamp(int(fact[1])),
+                          'fact': json.loads(fact[2])})
+        args['facts'] = facts
+        args['candidate'] = candidate
     return args
 
 
@@ -211,3 +187,15 @@ def net_url():
 @register.filter(name='approve_pending')
 def approve_pending(user_id):
     return Transaction.objects.filter(user_id=user_id, txn_type='tokenApprove').exists()
+
+
+@register.inclusion_tag('jobboard/include/candidate_status.html')
+def job_status(candidate, only_status=True):
+    oracle = OracleHandler()
+    status = oracle.candidate_status(candidate.contract_address)
+    return {
+        'statuses': [{'id': i, 'status': v} for i, v in enumerate(oracle.statuses)],
+        'status': status,
+        'only_status': only_status,
+        'now_pending': Transaction.objects.filter(user=candidate.user, txn_type='ChangeStatus').exists()
+    }

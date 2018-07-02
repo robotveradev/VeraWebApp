@@ -8,18 +8,18 @@
     {{ block.super }}
     <div class="uk-container uk-align-center">
         <h3>Find an employee for your tasks!</h3>
-        <div uk-grid>
+        <div class="uk-margin-large-bottom" data-uk-grid>
             <div class="uk-width-1-5">
-                <div class="uk-box-shadow-small uk-padding-small grey lighten-4">
+                <div class="uk-box-shadow-small uk-padding-small white">
                     {% get_filter %}
                 </div>
             </div>
             <div class="uk-width-4-5">
-                <div class="uk-box-shadow-small uk-padding-small grey lighten-4 uk-margin-bottom">
-                    <div uk-grid>
+                <div class="uk-box-shadow-small uk-padding-small white uk-margin-bottom">
+                    <div data-uk-grid>
                         <div class="uk-width-expand">
                             <button class="uk-button uk-button-primary" type="button">{{ selected_sort.title }}</button>
-                            <div uk-dropdown="mode: click">
+                            <div data-uk-dropdown="mode: click">
                                 <ul id="sort_select" class="uk-nav uk-dropdown-nav">
                                     {% for item in sorts %}
                                         <li><a href="{{ request.GET|get_custom_url:item }}">{{ item.title }}</a></li>
@@ -29,7 +29,7 @@
                         </div>
                         <div class="uk-width-auto uk-inline">
                             <div class="uk-position-center-right">
-                                <a class="" href="{% url 'find_profiles' %}" uk-close></a>
+                                <a class="" href="{% url 'find_profiles' %}" data-uk-close></a>
                             </div>
                         </div>
                     </div>
@@ -38,7 +38,9 @@
                     {% for cp in cps %}
                         {% include 'candidateprofile/include/profile_short.html' with candidate_info=True %}
                     {% empty %}
-                        <h6 class="center">Profiles by conditions not found</h6>
+                        <div data-hint="filtered" class="uk-box-shadow-small uk-padding-small uk-margin-top white">
+                            <h6 class="center">Profiles by conditions not found</h6>
+                        </div>
                     {% endfor %}
                 </div>
             </div>

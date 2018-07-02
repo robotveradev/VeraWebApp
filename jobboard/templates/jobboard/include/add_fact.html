@@ -1,15 +1,15 @@
 {% load jobboard_tags material_form %}
 
-<a class="uk-button uk-button-default uk-button-small uk-align-right" href="#add_fact_modal" uk-toggle>Add fact</a>
-
-<div id="add_fact_modal" uk-modal>
+<a class="uk-button uk-button-default uk-button-small uk-align-right uk-margin-remove-bottom" href="#add_fact_modal" data-uk-toggle>Add fact</a>
+<div class="uk-clearfix"></div>
+<div id="add_fact_modal" data-uk-modal>
     <div class="uk-modal-dialog">
-        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <button class="uk-modal-close-default" type="button" data-uk-close></button>
         <div class="uk-modal-header">
             <h2 class="uk-modal-title">Fact adding</h2>
         </div>
         <div class="">
-            <ul class="uk-child-width-expand uk-margin-remove-bottom" uk-tab="{connect: '#add_fact_container'}">
+            <ul class="uk-child-width-expand uk-margin-remove-bottom" data-uk-tab="{connect: '#add_fact_container'}">
                 <li class="uk-active"><a href="#">Learning</a></li>
                 <li><a href="#">Have worked</a></li>
                 <li><a href="#">Certificate</a></li>

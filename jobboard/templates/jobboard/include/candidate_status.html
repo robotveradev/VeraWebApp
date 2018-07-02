@@ -1,0 +1,28 @@
+{% if only_status %}
+    {{ status }}
+{% else %}
+    <div class="uk-position-relative">
+        {% if now_pending %}
+            <div class="uk-overlay-default uk-position-cover"></div>
+            <div class="uk-overlay uk-position-center uk-dark">
+                <p data-uk-spinner="ratio: 0.4">Apply changes </p>
+            </div>
+        {% endif %}
+        <h5 class="uk-text-bold uk-margin-remove-top">My status on the site</h5>
+        {% for item in statuses %}
+            <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                <label class="uk-text-bold"><input class="uk-radio" type="radio" name="status"
+                                                   {% if status == item.status %}checked{% endif %}> {{ item.status }}
+                </label>
+                <div style="margin-left: 22px !important;" class="uk-margin-small-right vr-desc">
+                    <p class="uk-text-meta" style="font-size: 0.7rem;">
+                        Lorem ipsum dolor sit amet, cons ecte tur adipisicing elit.
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+
+

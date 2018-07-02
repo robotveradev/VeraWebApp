@@ -6,125 +6,70 @@
 
 {% block content %}
     {{ block.super }}
-    <div class="uk-container uk-align-center">
-        <fieldset class="uk-fieldset uk-margin-bottom">
-            <legend class="uk-legend">
-                {% trans "Choose your role" %}
-            </legend>
-            {% if errors %}{{ errors }}{% endif %}
-            <ul data-hint="roles" class="uk-child-width-expand" uk-tab="{connect: '#choose_role_contrainer'}">
-                <li data-role="candidate" class="uk-active"><a href="#">Candidate</a></li>
-                <li data-role="employer"><a href="#">Employer</a></li>
-            </ul>
-            <ul id="choose_role_contrainer" class="uk-switcher">
-                <li data-hint="fields_candidate" class="uk-animation-slide-right-small">
-                    <form action="{% url 'choose_role' %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="role" value="candidate">
-                        <input type="hidden" name="next" value="{{ request.GET.next }}">
+    <div class="uk-container uk-text-center uk-margin-large-top">
+        <h4 class="uk-text-bold blue-text text-lighten-1 uk-text-uppercase">{% trans "Choose role" %}</h4>
+        <div class="uk-width-1-4 uk-align-center">
+            <div class="white uk-padding-small uk-margin-large-bottom vr-auth">
+                <div class="uk-text-danger">{{ form.non_field_errors }}</div>
+                {% if error %}
+                    <div class="uk-text-danger">{{ error }}</div>
+                {% endif %}
+                <form class="uk-text-left" method="POST" action="{% url 'account_login' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
 
-                        <div class="uk-margin">
-                            <div class="uk-inline" style="display: block;">
-                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
-                                <input type="text" class="uk-input" name="first_name" id="first_name" required
-                                       placeholder="First name">
-                            </div>
-                        </div>
-                        <div class="uk-margin">
-                            <div class="uk-inline" style="display: block;">
-                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
-                                <input type="text" class="uk-input" name="last_name" id="last_name" required
-                                       placeholder="Last name">
-                            </div>
-                        </div>
-                        <div class="uk-margin">
-                            <div class="uk-inline" style="display: block;">
-                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
-                                <input type="text" class="uk-input" name="middle_name" id="middle_name"
-                                       placeholder="Middle name">
-                            </div>
-                        </div>
-                        <div class="uk-margin">
-                            <div class="uk-inline" style="display: block;">
-                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
-                                <input type="text" class="uk-input" name="tax_number" id="tax_number" required
-                                       placeholder="Tax number">
-                            </div>
-                        </div>
+                    <div class="uk-margin uk-flex uk-flex-around uk-align-center">
+                        <label><input class="uk-radio" type="radio" value="employer" name="role" checked>
+                            Employer</label>
+                        <label><input class="uk-radio" type="radio" value="candidate" name="role"> Candidate</label>
+                    </div>
 
-                        <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
-                            <label data-hint="personal_data_candidate">
-                                <input class="uk-checkbox" type="checkbox" id="personal_data_candidate" required/>
-                                I agree with processing of my personal data
-                            </label>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="first_name">First name</label>
+                        <div class="uk-form-controls uk-margin-small-top">
+                            <input name="first_name" class="uk-input" id="first_name" type="text" required/>
                         </div>
-                        {% if redirect_field_value %}
-                            <input type="hidden" name="{{ redirect_field_name }}"
-                                   value="{{ redirect_field_value }}"/>
-                        {% endif %}
-                        <button data-hint="send_but_candidate" type="submit"
-                                class="uk-button uk-button-primary uk-align-right uk-button-small">Send
-                        </button>
-                    </form>
-                </li>
-                <li data-hint="fields_employer" class="uk-animation-slide-left-small">
-                    <form action="{% url 'choose_role' %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="role" value="employer">
-                        <input type="hidden" name="next" value="{{ request.GET.next }}">
+                    </div>
 
-                        <div class="uk-margin">
-                            <div class="uk-inline" style="display: block;">
-                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
-                                <input type="text" class="uk-input" name="first_name" id="first_name_employer" required
-                                       placeholder="First name">
-                            </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="last_name">Last name</label>
+                        <div class="uk-form-controls uk-margin-small-top">
+                            <input type="text" class="uk-input" name="last_name" id="last_name" required/>
                         </div>
-                        <div class="uk-margin">
-                            <div class="uk-inline" style="display: block;">
-                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
-                                <input type="text" class="uk-input" name="last_name" id="last_name_employer" required
-                                       placeholder="Last name">
-                            </div>
+                    </div>
+                    <div class="uk-margin">
+                        <label for="middle_name" class="uk-form-label">Middle name</label>
+                        <div class="uk-form-controls uk-margin-small-top">
+                            <input type="text" class="uk-input" name="middle_name" id="middle_name"/>
                         </div>
-                        <div class="uk-margin">
-                            <div class="uk-inline" style="display: block;">
-                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
-                                <input type="text" class="uk-input" name="middle_name" id="middle_name_employer"
-                                       placeholder="Middle name">
-                            </div>
+                    </div>
+                    <div class="uk-margin">
+                        <label for="tax_number" class="uk-form-label">Tax number</label>
+                        <div class="uk-form-controls uk-margin-small-top">
+                            <input type="text" class="uk-input" name="tax_number" id="tax_number" required/>
                         </div>
-                        <div class="uk-margin">
-                            <div class="uk-inline" style="display: block;">
-                                <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
-                                <input type="text" class="uk-input" name="tax_number" id="tax_number_employer" required
-                                       placeholder="Tax number">
-                            </div>
-                        </div>
-                        <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
-                            <label data-hint="personal_data_employer">
-                                <input class="uk-checkbox" type="checkbox" id="personal_data_employer" required/>
-                                I agree with processing of my personal data
-                            </label>
-                        </div>
-                        {% if redirect_field_value %}
-                            <input type="hidden" name="{{ redirect_field_name }}"
-                                   value="{{ redirect_field_value }}"/>
-                        {% endif %}
-                        <button data-hint="send_but_employer" type="submit" class="uk-button uk-button-primary uk-align-right uk-button-small">Send
-                        </button>
-                    </form>
-                </li>
-            </ul>
-        </fieldset>
-        <div class="uk-text-danger">{{ form.non_field_errors }}</div>
-        {% if error %}
-            <div class="uk-text-danger">{{ error }}</div>{% endif %}
+                    </div>
+
+                    <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                        <label data-hint="personal_data_candidate">
+                            <input class="uk-checkbox" type="checkbox" id="personal_data_candidate" required/>
+                            I agree with processing of my personal data
+                        </label>
+                    </div>
+
+
+                    <div class="uk-clearfix"></div>
+                    <button class="uk-button uk-button-small uk-button-primary uk-align-center uk-margin-remove-bottom uk-margin-small-top"
+                            type="submit">{% trans "Next" %}</button>
+                </form>
+                <div class="uk-clearfix"></div>
+            </div>
+        </div>
     </div>
 {% endblock %}
+
 {% block extra_js %}
-    <script src="{% static 'js/hints/choose_role.js' %}"></script>
+    {% if hints_enabled %}
+        <script src="{% static 'js/hints/choose_role.js' %}"></script>
+    {% endif %}
 {% endblock %}
-
-
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus architecto autem consectetur, cumque deserunt dolor dolores ea eum excepturi iste modi neque nostrum officia quas quos repudiandae soluta temporibus velit.

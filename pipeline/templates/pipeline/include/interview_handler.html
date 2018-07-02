@@ -1,0 +1,95 @@
+{% load interview_tags material_form static %}
+
+{% if not action.db.interview %}
+    <form class="uk-form-horizontal" action="{% url 'action_interview_new' pk=action.db.id %}" method="post">
+        <legend class="uk-legend">
+            Complete fields below to config interview
+        </legend>
+        {% csrf_token %}
+        {% with 2|get_interview_form as form %}
+            {% form form=form %}{% endform %}
+            <button type="submit"
+                    class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">Save
+            </button>
+            <div class="uk-clearfix"></div>
+        {% endwith %}
+    </form>
+{% else %}
+    <h3 class="uk-legend uk-margin-remove-bottom uk-position-relative">
+        Action interview
+        <a class="uk-position-center-right toggle-icon" type="button"
+           data-uk-toggle="target: #interview; animation: uk-animation-slide-top-small"
+           data-uk-icon="chevron-down"></a>
+    </h3>
+    <div id="interview" class="uk-margin-top">
+        <div data-uk-grid>
+            <div class="uk-width-3-4">
+                {% if action.db.interview.end_date %}
+                    <div class="uk-margin-bottom" data-uk-grid>
+                        <div class="uk-width-1-6">
+                            <p class="uk-text-center">
+                                {{ action.db.interview.start_date }}
+                            </p>
+                        </div>
+                        <div class="uk-width-2-3">
+                            <progress id="interview-progress" class="uk-progress"
+                                      value="{{ 1|get_diff_2:action.db.interview.start_date }}"
+                                      max="{{ action.db.interview.end_date|get_diff_2:action.db.interview.start_date }}"></progress>
+                        </div>
+                        <div class="uk-width-1-6">
+                            <p class="uk-text-center">
+                                {{ action.db.interview.end_date }}
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="uk-margin-bottom">
+                    <h4>Scheduled meetings</h4>
+                    {% for meeting in action.db.interview.scheduled_meetings.all %}
+                        {{ meeting }}
+                    {% empty %}
+                        No interviews assigned yet.
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="uk-border uk-padding-small">
+                    <h5>Options</h5>
+                    {% with action.db.interview as interview %}
+                        <ul class="uk-list">
+                            <li>Start date: {{ interview.start_date }}</li>
+                            <li>Start time: {{ interview.start_time }}</li>
+                            {% if interview.end_date %}
+                                <li>End date: {{ interview.end_date }}</li>
+                            {% endif %}
+                            {% if interview.end_time %}
+                                <li>End time: {{ interview.end_time }}</li>
+                            {% endif %}
+                        </ul>
+                        <a href="#" class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
+                            Edit
+                        </a>
+                        <div class="uk-clearfix"></div>
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<script>
+
+    $(document).ready(function () {
+        let bar = document.getElementById('interview-progress');
+        if (bar) {
+            let animate = setInterval(function () {
+                bar.value += 1;
+                if (bar.value >= bar.max) {
+                    clearInterval(animate);
+                }
+            }, 1000);
+        }
+    });
+
+</script>
+

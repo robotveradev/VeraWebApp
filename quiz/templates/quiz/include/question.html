@@ -1,20 +1,20 @@
 {% load quiz_tags %}
 {% if item %}
-    <div data-hint="question" class="uk-box-shadow-small uk-padding-small uk-margin-small">
+    <div data-hint="question" class="uk-box-shadow-small uk-padding-small uk-margin-small white">
         {% if item.kind %}
             <div class="uk-align-right amber-text uk-text-small">
                 <span>Max points: <span class="uk-text-muted">{{ item.max_points }}</span></span>
                 <span>
                 Question kind:
-                        <a class="uk-link-muted" href="#question_{{ item.id }}" uk-toggle>{{ item.kind }}</a>
-                    {% if item.kind.w2v %}<sup uk-tooltip="The question is estimated with the help of AI"
+                        <a class="uk-link-muted" href="#question_{{ item.id }}" data-uk-toggle>{{ item.kind }}</a>
+                    {% if item.kind.w2v %}<sup data-uk-tooltip="The question is estimated with the help of AI"
                                                class="green-text">AI</sup>{% endif %}
-                    <span class="uk-text-meta" uk-tooltip="Question type can be changed" uk-icon="question"></span>
+                    <span class="uk-text-meta" data-uk-tooltip="Question type can be changed" data-uk-icon="question"></span>
             </span>
             </div>
-            <div id="question_{{ item.id }}" uk-modal>
+            <div id="question_{{ item.id }}" data-uk-modal>
                 <div class="uk-modal-dialog">
-                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <button class="uk-modal-close-default" type="button" data-uk-close></button>
                     <form action="{% url 'update_question_kind' pk=item.id %}" method="post">
                         {% csrf_token %}
                         <div class="uk-modal-header">
@@ -26,9 +26,9 @@
                             {% get_questions_kinds item %}
                         </div>
                         <div class="uk-modal-footer uk-text-right">
-                            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel
+                            <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">Cancel
                             </button>
-                            <button type="submit" class="uk-button uk-button-primary">Save</button>
+                            <button type="submit" class="uk-button uk-button-small uk-button-primary">Save</button>
                         </div>
                     </form>
                 </div>
@@ -48,7 +48,6 @@
                         </li>
                     {% endif %}
                 </ul>
-
                 <a href="{% url 'new_answer' question_id=item.id %}" class="uk-align-right uk-link-muted">Add answer</a>
             {% else %}
                 <span class="uk-text-warning">Question have no one answer! <a

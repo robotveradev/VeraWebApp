@@ -7,20 +7,37 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h3>New question for {{ category }} category</h3>
-        <form class="uk-form-horizontal" method="post">
-            {% csrf_token %}
-            {% form form=form %}{% endform %}
-            <div class="uk-align-right">
-                <button type="submit" name="_addanother"
-                        class="uk-button uk-button-small uk-button-default">Save and add another
-                </button>
-                <button type="submit" name="_addanswers"
-                        class="uk-button uk-button-small uk-button-default">Save and add answers
-                </button>
-                <button id="save" type="submit" class="uk-button uk-button-small uk-button-primary">Save</button>
+        <h4 class="uk-text-bold">New question for {{ category.title }} category</h4>
+        <div class="uk-margin-medium-top uk-margin-large-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    <form class="uk-form-horizontal" method="post">
+                        {% csrf_token %}
+                        {% form form=form %}{% endform %}
+                        <div class="uk-align-right uk-margin-remove-bottom">
+                            <button type="submit" name="_addanother"
+                                    class="uk-button uk-button-small uk-button-default">Save and add another
+                            </button>
+                            <button type="submit" name="_addanswers"
+                                    class="uk-button uk-button-small uk-button-default">Save and add answers
+                            </button>
+                            <button id="save" type="submit" class="uk-button uk-button-small uk-button-primary">Save
+                            </button>
+                        </div>
+                    <div class="uk-clearfix"></div>
+                    </form>
+                </div>
             </div>
-        </form>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">
+                        Question description
+                    </h4>
+                    <p>{% lorem %}</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 {% endblock %}
 

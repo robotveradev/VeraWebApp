@@ -8,21 +8,23 @@ register = template.Library()
 
 
 @register.filter
-def icon_for_link(link, size=None):
+def icon_for_link(link, size=2):
     parsed = urlparse(link).netloc
     if parsed.startswith('www'):
         parsed = parsed[4:]
     if parsed.startswith('plus'):
         parsed = parsed[5:]
-    parsed = get_correct_icon_name(parsed[:parsed.index('.')])
-    return mark_safe(
-        '<i class="uk-margin-small uk-margin-small-left fa fa-{} fa-{}x" area-hidden="true"></i>'.format(parsed,
-                                                                                                         2 if size is
-                                                                                                         None
-                                                                                                         else size))
+    name = get_correct_icon_name(parsed[:parsed.index('.')])
+    return get_icon_for_name(name, size)
 
 
 def get_correct_icon_name(soc):
     if soc not in settings.SOCIAL_ICONS:
         return soc
     return settings.SOCIAL_ICONS[soc]
+
+
+@register.filter
+def get_icon_for_name(name, size=2):
+    return mark_safe(
+        '<i class="fa fa-{} fa-{}x blue-text text-lighten-2" area-hidden="true"></i>'.format(name, size))
