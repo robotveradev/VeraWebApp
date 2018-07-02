@@ -1,4 +1,7 @@
 from django.db import models
+from django.urls import reverse
+
+from quiz.models import ActionExam
 
 
 class Pipeline(models.Model):
@@ -13,6 +16,10 @@ class Pipeline(models.Model):
     def __str__(self):
         return 'Pipeline for {}'.format(self.vacancy.title)
 
+    @property
+    def owner(self):
+        return self.vacancy.employer
+
 
 class ActionType(models.Model):
     title = models.CharField(max_length=64)
@@ -20,7 +27,8 @@ class ActionType(models.Model):
                                             null=True,
                                             blank=True,
                                             default=None)
-    fee = models.BooleanField(default=False)
+    must_fee = models.BooleanField(default=False)
+    must_approvable = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
@@ -36,15 +44,22 @@ class Action(models.Model):
                                     null=True,
                                     related_name='actions')
     index = models.SmallIntegerField(default=0)
+    published = models.BooleanField(default=False)
 
     def __str__(self):
-        return '{}: {}'.format(self.pipeline.vacancy.title if self.pipeline and self.pipeline.vacancy else '',
-                               self.action_type.title)
+        return '{} action'.format(self.pipeline.vacancy.title if self.pipeline and self.pipeline.vacancy else '')
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
-        self.index = Action.objects.values('id').filter(pipeline=self.pipeline).count()
+        if not self.id:
+            self.index = Action.objects.values('id').filter(pipeline=self.pipeline).count()
         super().save(force_insert, force_update, using, update_fields)
+
+    def get_absolute_url(self):
+        return reverse('action_details', kwargs={'pk': self.id})
+
+    def new_exam(self):
+        ActionExam.objects.create(action=self)
 
     @property
     def owner(self):

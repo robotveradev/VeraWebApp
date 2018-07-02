@@ -6,4 +6,4 @@ from pipeline.models import ActionType
 class ActionTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActionType
-        fields = ('id', 'title', 'condition_of_passage', 'fee')
+        fields = ('id', 'title', 'fee')
