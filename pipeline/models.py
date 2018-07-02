@@ -31,12 +31,24 @@ class Action(models.Model):
                                  on_delete=models.SET_NULL,
                                  null=True,
                                  related_name='actions')
-    type = models.ForeignKey(ActionType,
-                             on_delete=models.SET_NULL,
-                             null=True,
-                             related_name='actions')
+    action_type = models.ForeignKey(ActionType,
+                                    on_delete=models.SET_NULL,
+                                    null=True,
+                                    related_name='actions')
     index = models.SmallIntegerField(default=0)
 
     def __str__(self):
         return '{}: {}'.format(self.pipeline.vacancy.title if self.pipeline and self.pipeline.vacancy else '',
-                               self.type.title)
+                               self.action_type.title)
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.index = Action.objects.values('id').filter(pipeline=self.pipeline).count()
+        super().save(force_insert, force_update, using, update_fields)
+
+    @property
+    def owner(self):
+        return self.pipeline.vacancy.employer.user
+
+    class Meta:
+        ordering = ('index',)

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'pipeline',
     'company',
     'google_address',
+    'rest_framework',
 ]
 
 SITE_ID = 1

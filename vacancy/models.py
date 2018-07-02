@@ -55,6 +55,10 @@ class Vacancy(models.Model):
         return self.company.employer
 
     @property
+    def owner(self):
+        return self.company.employer.user
+
+    @property
     def user_field_name(self):
         return 'company.employer'
 

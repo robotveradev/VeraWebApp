@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from model_utils.models import TimeStampedModel, SoftDeletableModel
 from django.template.defaultfilters import date as dj_date
 from django.utils.timezone import localtime
+from django.utils.translation import ugettext_lazy as _
+from model_utils.models import TimeStampedModel, SoftDeletableModel
 
 INTERVIEWER = (
     ('me', 'Me'),
@@ -12,10 +12,10 @@ INTERVIEWER = (
 
 
 class ActionInterview(models.Model):
-    action = models.ForeignKey('pipeline.Action',
-                               on_delete=models.SET_NULL,
-                               null=True,
-                               related_name='interview')
+    action = models.OneToOneField('pipeline.Action',
+                                  on_delete=models.SET_NULL,
+                                  null=True,
+                                  related_name='interview')
     interviewer = models.CharField(max_length=64,
                                    choices=INTERVIEWER)
 

@@ -80,7 +80,7 @@ class Answer(models.Model):
 
 
 class ActionExam(models.Model):
-    action = models.ForeignKey('pipeline.Action',
+    action = models.OneToOneField('pipeline.Action',
                                on_delete=models.SET_NULL,
                                null=True,
                                related_name='exam')
@@ -91,6 +91,9 @@ class ActionExam(models.Model):
 
     def __str__(self):
         return 'Exam for "{}"'.format(self.action)
+
+    def get_absolute_url(self):
+        return reverse('candidate_examining', kwargs={'pk': self.pk})
 
 
 class ExamPassed(models.Model):
