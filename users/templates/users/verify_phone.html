@@ -1,0 +1,20 @@
+{% extends 'jobboard/base.html' %}
+
+{% load material_form %}
+
+{% block head_title %}Vera Oracle - Phone verify{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        <h3>Phone verification</h3>
+
+        <form method="post" class="uk-form-horizontal">
+            {% csrf_token %}
+            {% form form=form %}{% endform %}
+            <button class="uk-button uk-button-small uk-button-primary uk-align-right">
+                Send
+            </button>
+        </form>
+    </div>
+{% endblock %}

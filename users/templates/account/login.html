@@ -1,0 +1,37 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load account socialaccount material_form %}
+
+{% block head_title %}{% trans "Sign In" %}{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-text-center uk-margin-large-top">
+        <h4 class="uk-text-bold blue-text text-lighten-1 uk-text-uppercase">{% trans "Sign In" %}</h4>
+        <div class="uk-width-1-4 uk-align-center">
+            <div class="white uk-padding-small uk-margin-large-bottom vr-auth">
+                <form class="uk-text-left" method="POST" action="{% url 'account_login' %}">
+                    {% csrf_token %}
+                    {% form form=form %}{% endform %}
+                    {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                    {% endif %}
+                    <a class="uk-link-muted uk-align-right uk-margin-remove-bottom"
+                       href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+                    <div class="uk-clearfix"></div>
+                    {% get_providers as socialaccount_providers %}
+                    {% if socialaccount_providers %}
+                        <div>
+                            {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+                        </div>
+                        {% include "socialaccount/snippets/login_extra.html" %}
+                    {% endif %}
+                    <button class="uk-button uk-button-small uk-button-primary uk-align-center uk-margin-remove-bottom uk-margin-small-top"
+                            type="submit">{% trans "Sign In" %}</button>
+                </form>
+                <div class="uk-clearfix"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
