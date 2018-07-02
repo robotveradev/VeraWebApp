@@ -1,15 +1,14 @@
-from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import RedirectView, DetailView, CreateView
+from django.views.generic import RedirectView, DetailView, CreateView, UpdateView
 
-from candidateprofile.models import CandidateProfile
-from jobboard.handlers.new_employer import EmployerHandler
 from jobboard.handlers.oracle import OracleHandler
-from jobboard.mixins import OnlyEmployerMixin
-from jobboard.tasks import save_txn, save_txn_to_history
+from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
+from jobboard.models import Candidate
+from pipeline.forms import ActionChangeForm
 from pipeline.models import Action, Pipeline
+from pipeline.tasks import action_with_candidate
 from vacancy.models import Vacancy
 
 
@@ -18,62 +17,39 @@ class ApproveActionEmployerView(OnlyEmployerMixin, RedirectView):
         super().__init__(**kwargs)
         self.request = None
         self.vacancy = None
-        self.profile = None
-        self.employer_h = None
+        self.candidate = None
 
     def get_redirect_url(self, *args, **kwargs):
         return reverse('vacancy', kwargs={'pk': self.vacancy.id})
 
     def dispatch(self, request, *args, **kwargs):
         self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('vacancy_id'), company__employer=request.role_object)
-        self.profile = get_object_or_404(CandidateProfile, pk=kwargs.get('profile_id'))
-        self.employer_h = EmployerHandler(settings.WEB_ETH_COINBASE, self.vacancy.employer.contract_address)
+        self.candidate = get_object_or_404(Candidate, pk=kwargs.get('candidate_id'))
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        self.approve_candidate()
+        action_with_candidate.delay(self.vacancy.id, self.candidate.id, 'approve')
         return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
 
-    def approve_candidate(self):
-        txn_hash = self.employer_h.approve_level_up(self.vacancy.uuid, self.profile.candidate.contract_address)
-        save_txn.delay(txn_hash.hex(), 'EmpAnswer', self.request.user.id, self.profile.id, self.vacancy.id)
-        save_txn_to_history.delay(self.request.user.id, txn_hash.hex(),
-                                  'Candidate {} transferred to the next level.'.format(
-                                      self.profile.candidate.contract_address))
-        save_txn_to_history.delay(self.profile.candidate.user.id, txn_hash.hex(),
-                                  'Candidate {} level up on vacancy {}.'.format(self.profile.candidate.contract_address,
-                                                                                self.vacancy.uuid))
 
-
-class RevokeCandidateView(OnlyEmployerMixin, RedirectView):
+class ResetCandidateView(OnlyEmployerMixin, RedirectView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
         self.vacancy = None
-        self.profile = None
-        self.employer_h = None
+        self.candidate = None
 
     def get_redirect_url(self, *args, **kwargs):
         return reverse('vacancy', kwargs={'pk': self.vacancy.id})
 
     def dispatch(self, request, *args, **kwargs):
         self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('vacancy_id'), company__employer=request.role_object)
-        self.profile = get_object_or_404(CandidateProfile, pk=kwargs.get('profile_id'))
-        self.employer_h = EmployerHandler(settings.WEB_ETH_COINBASE, self.vacancy.employer.contract_address)
+        self.candidate = get_object_or_404(Candidate, pk=kwargs.get('candidate_id'))
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        self.reset_candidate()
+        action_with_candidate.delay(self.vacancy.id, self.candidate.id, 'reset')
         return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
-
-    def reset_candidate(self):
-        txn_hash = self.employer_h.reset_candidate(self.vacancy.uuid, self.profile.candidate.contract_address)
-        save_txn.delay(txn_hash.hex(), 'EmpAnswer', self.request.user.id, self.profile.id, self.vacancy.id)
-        save_txn_to_history.delay(self.request.user.id, txn_hash.hex(),
-                                  'Candidate {} revoked.'.format(self.profile.candidate.contract_address))
-        save_txn_to_history.delay(self.profile.candidate.user.id, txn_hash.hex(),
-                                  'Candidate {} revoked on vacancy {}.'.format(self.profile.candidate.contract_address,
-                                                                               self.vacancy.uuid))
 
 
 class ActionDetailView(OnlyEmployerMixin, DetailView):
@@ -87,45 +63,95 @@ class ActionDetailView(OnlyEmployerMixin, DetailView):
         self.oracle = OracleHandler()
 
     def dispatch(self, request, *args, **kwargs):
-        self.vacancy = Vacancy.objects.get(pk=kwargs.get('pk'))
-        self.action = self.oracle.get_action(self.vacancy.uuid, kwargs.get('action_id'))
-        self.action['last'] = self.oracle.get_vacancy_pipeline_length(self.vacancy.uuid) - 1 == self.action['id']
-        self.set_db_action()
+        self.action = get_object_or_404(Action, pk=kwargs.get('pk', None))
+        self.vacancy = self.action.pipeline.vacancy
         return super().dispatch(request, *args, **kwargs)
-
-    def get_object(self, queryset=None):
-        return self.action
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['vacancy'] = self.vacancy
+        act = self.oracle.get_action(self.vacancy.uuid, self.action.index, candidates=True)
+        context['action'] = {**act, 'db': self.action}
+        context['change_form'] = ActionChangeForm(instance=self.action,
+                                                  initial={'fee': act['fee'],
+                                                           'approvable': act['approvable']})
         return context
-
-    def set_db_action(self):
-        try:
-            self.action.update(
-                {'db_action': Action.objects.get(pipeline__vacancy=self.vacancy, sort=self.action['id'])})
-        except Action.DoesNotExist:
-            pass
 
 
 class NewActionView(OnlyEmployerMixin, CreateView):
     model = Action
-    fields = ['type', 'pipeline', ]
+    fields = ['action_type', 'pipeline', ]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
-        self.pipeline = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.pipeline = get_object_or_404(Pipeline, pk=kwargs.get('pk'))
-        print(self.request.POST)
+        pipeline = get_object_or_404(Pipeline, pk=request.POST.get('pipeline', None))
+        assert pipeline.vacancy.owner == request.user, "User can\'t create action for this pipeline"
         return super().dispatch(request, *args, **kwargs)
 
+    def get_success_url(self):
+        return reverse('vacancy', kwargs={'pk': self.object.pipeline.vacancy.id})
+
     def form_valid(self, form):
-        print('here')
-        print(self.request.POST)
-        form.instance.type = self.request.POST.get('data')
-        form.instance.pipeline = self.pipeline
+        form.instance.fee = self.request.POST.get('fee', 0)
+        form.instance.approvable = form.instance.action_type.must_approvable or 'approvable' in self.request.POST
         return super().form_valid(form)
+
+
+class ChangeActionView(OnlyEmployerMixin, UpdateView):
+    form_class = ActionChangeForm
+    model = Action
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+
+    def form_valid(self, form):
+        form.instance.fee = self.request.POST.get('fee', 0)
+        form.instance.approvable = 'approvable' in self.request.POST
+        return super().form_valid(form)
+
+
+class DeleteActionView(OnlyEmployerMixin, RedirectView):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+        self.vacancy = None
+
+    def dispatch(self, request, *args, **kwargs):
+        action = get_object_or_404(Action, pk=kwargs.get('pk', None))
+        self.vacancy = action.pipeline.vacancy
+        if action.owner != request.user:
+            raise Http404
+        action.published = False
+        action.to_delete = True
+        action.save()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('vacancy', kwargs={'pk': self.vacancy.id})
+
+
+class CandidateProcessAction(OnlyCandidateMixin, RedirectView):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.action = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.action = get_object_or_404(Action, pk=kwargs.get('pk', None))
+        oracle = OracleHandler()
+        cci = oracle.get_candidate_current_action_index(self.action.pipeline.vacancy.uuid,
+                                                        request.role_object.contract_address)
+        if cci != self.action.index:
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_redirect_url(self, *args, **kwargs):
+        if self.action.action_type.condition_of_passage is None:
+            raise Http404
+        if hasattr(self.action, self.action.action_type.condition_of_passage):
+            handler = getattr(self.action, self.action.action_type.condition_of_passage)
+            return handler.get_candidate_url()
