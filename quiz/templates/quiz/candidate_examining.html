@@ -1,22 +1,23 @@
 {% extends 'jobboard/base.html' %}
 
-{% load quiz_tags i18n %}
+{% load quiz_tags i18n static %}
 
 {% block head_title %}VeraOracle - examining...{% endblock %}
 
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h4>{% trans 'Test for ' %} {{ action.pipeline.vacancy.title|title }}</h4>
+        <h4 data-hint="examining-head"
+            class="uk-text-bold">{% trans 'Test for ' %} {{ action.pipeline.vacancy.title|title }}</h4>
         {% if exam %}
-            <form method="post">
+            <form data-hint="questions" method="post">
                 <fieldset class="uk-fieldset">
                     {% csrf_token %}
                     <input type="hidden" name="exam_id" value="{{ exam.id }}">
                     <input type="hidden" name="profile_id" value="{{ profile.id }}">
                     {% with exam.questions.all as questions %}
                         {% for question in questions %}
-                            <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
+                            <div class="uk-box-shadow-small uk-padding-small uk-margin-small white uk-border">
                                 {% include "quiz/question_kinds/"|add:question.kind.template_name|add:'_question.html' %}
                             </div>
                         {% endfor %}
@@ -25,18 +26,27 @@
                 <button class="uk-button uk-button-primary uk-button-small uk-align-right">Continue</button>
             </form>
         {% elif exam_passed %}
-            <p class="uk-text-lead">
-                You already pass this exam.
-            </p>
-            {% if exam_passed.processed %}
-                <p>
-                    You scored {{ exam_passed.points }} points. Employer set passing grade
-                    {{ exam_passed.exam.passing_grade }} points.
+            <div data-hint="passed">
+                <p class="uk-text-lead">
+                    You already pass this exam.
                 </p>
-            {% else %}
-                <div uk-spinner="ratio: 0.4">The results of your exam are now being processed  </div>
-            {% endif %}
+                {% if exam_passed.processed %}
+                    <p>
+                        You scored {{ exam_passed.points }} points. Employer set passing grade
+                        {{ exam_passed.exam.passing_grade }} points.
+                    </p>
+                {% else %}
+                    <div data-uk-spinner="ratio: 0.4">The results of your exam are now being processed</div>
+                {% endif %}
+            </div>
         {% endif %}
-        <a class="uk-button uk-button-primary uk-button-small uk-align-right" href="{% url 'vacancy' pk=action.pipeline.vacancy.pk %}">Back to vacancy</a>
+        <a data-hint="to-vacancy" class="uk-button uk-button-primary uk-button-small uk-align-right"
+           href="{% url 'vacancy' pk=action.pipeline.vacancy.pk %}">Back to vacancy</a>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+    {% if hints_enabled %}
+        <script src="{% static 'js/hints/candidate_examining.js' %}"></script>
+    {% endif %}
 {% endblock %}

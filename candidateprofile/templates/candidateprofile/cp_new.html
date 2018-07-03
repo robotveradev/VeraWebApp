@@ -8,11 +8,11 @@
     {{ form.media }}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h4 class="center">Candidate profile</h4>
+        <h4 class="uk-text-bold">Candidate profile</h4>
         <form class="uk-form-horizontal" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {% form form=form %}{% endform %}
-            <button type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right">Save</button>
+            <button id="save" type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right">Save</button>
         </form>
     </div>
 {% endblock %}

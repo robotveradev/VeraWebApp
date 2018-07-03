@@ -8,31 +8,35 @@ $(document).ready(function () {
         });
         let enjoyhint_script_steps = [];
         if ($('[data-hint=filtered]').length > 0) {
-            enjoyhint_script_steps.push({
-                'next [data-hint=filtered]': 'Here you can see most relevant vacancies for you',
-                showSkip: false,
-            },)
+            enjoyhint_script_steps.push(
+                {
+                    'next [data-hint=filtered]': 'Here you can see most relevant vacancies for you',
+                    showSkip: false,
+                },
+                {
+                    'click [data-hint=filtered]': 'Choose <span class="hint-green">@HINTS_TUTORIAL_VACANCY</span>',
+                }
+            )
         }
-
 
         enjoyhint_script_steps.push(
             {
                 'next [data-hint=filters]': 'Using the filtering panel, you can find work on different parameters...',
                 showSkip: false
             }, {
-                'next [data-hint=industries]': 'Like <span class="light-green-text text-accent-3">industries</span>',
+                'next [data-hint=industries]': 'Like <span class="hint-green">industries</span>',
                 showSkip: false
             }, {
-                'next [data-hint=keywords]': '<span class="light-green-text text-accent-3">Keywords</span>',
+                'next [data-hint=keywords]': '<span class="hint-green">Keywords</span>',
                 showSkip: false
             }, {
-                'next [data-hint=salary]': '<span class="light-green-text text-accent-3">Salary</span>',
+                'next [data-hint=salary]': '<span class="hint-green">Salary</span>',
                 showSkip: false
             }, {
-                'next [data-hint=busyness]': '<span class="light-green-text text-accent-3">Busyness</span>',
+                'next [data-hint=busyness]': '<span class="hint-green">Busyness</span>',
                 showSkip: false
             }, {
-                'next [data-hint=schedule]': '<span class="light-green-text text-accent-3">Or schedule</span>',
+                'next [data-hint=schedule]': '<span class="hint-green">Or schedule</span>',
                 showSkip: false
             }, {
                 'next [data-hint=sort]': 'Also you can sort filtered vacancies',
@@ -40,10 +44,12 @@ $(document).ready(function () {
                 shape: 'circle',
                 radius: 80
             }, {
-                'custom [data-hint=reset]': 'Or reset all filters and sorts',
-                skipButton: {text: 'Done'},
-                shape: 'circle',
-                'radius': 20,
+                'next [data-hint=reset]': 'Or reset all filters and sorts',
+                showSkip: false,
+            },
+            {
+                'click [data-hint=keywords]': 'Choose <span class="hint-green">programming</span> keyword',
+                showSkip: false
 
             });
 

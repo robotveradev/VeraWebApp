@@ -14,11 +14,11 @@
                 {% if error %}
                     <div class="uk-text-danger">{{ error }}</div>
                 {% endif %}
-                <form class="uk-text-left" method="POST" action="{% url 'account_login' %}">
+                <form class="uk-text-left" method="POST" action="{% url 'choose_role' %}">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.GET.next }}">
 
-                    <div class="uk-margin uk-flex uk-flex-around uk-align-center">
+                    <div data-hint="role-chooser" class="uk-margin uk-flex uk-flex-around uk-align-center">
                         <label><input class="uk-radio" type="radio" value="employer" name="role" checked>
                             Employer</label>
                         <label><input class="uk-radio" type="radio" value="candidate" name="role"> Candidate</label>
@@ -49,17 +49,14 @@
                             <input type="text" class="uk-input" name="tax_number" id="tax_number" required/>
                         </div>
                     </div>
-
                     <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
-                        <label data-hint="personal_data_candidate">
-                            <input class="uk-checkbox" type="checkbox" id="personal_data_candidate" required/>
+                        <label data-hint="personal-data">
+                            <input class="uk-checkbox" type="checkbox" id="personal-data" required/>
                             I agree with processing of my personal data
                         </label>
                     </div>
-
-
                     <div class="uk-clearfix"></div>
-                    <button class="uk-button uk-button-small uk-button-primary uk-align-center uk-margin-remove-bottom uk-margin-small-top"
+                    <button data-hint="send-button" class="uk-button uk-button-small uk-button-primary uk-align-center uk-margin-remove-bottom uk-margin-small-top"
                             type="submit">{% trans "Next" %}</button>
                 </form>
                 <div class="uk-clearfix"></div>

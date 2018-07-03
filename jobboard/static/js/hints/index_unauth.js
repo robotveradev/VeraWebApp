@@ -4,7 +4,7 @@ $(document).ready(function () {
             title: 'index_unauth',
             steps: [
                 {
-                    'next a.uk-logo': '<span class="hint-green">Welcome</span> to the <span class="hint-green">first work site</span> built on <span class="hint-green">blockchain</span> technology.<br/>' +
+                    'next [data-hint=logo]': '<span class="hint-green">Welcome</span> to the <span class="hint-green">first work site</span> built on <span class="hint-green">blockchain</span> technology.<br/>' +
                     'This guide will show you everything that you need to work with the site, will acquaint ' +
                     'you with all the features of the system.<br/>' +
                     'Click <span class="hint-green">NEXT</span> button, located in the lower right corner to continue or <span class="hint-green">CLOSE</span> for close tutorial for this page',
@@ -17,13 +17,12 @@ $(document).ready(function () {
                     showSkip: false
                 },
                 {
-                    'next #login': 'By using the <span class="hint-green">LOGIN</span> button you can log in in the future.<br/>' +
-                    'Click <span class="hint-green">NEXT</span> button to continue.',
-                    'margin': 2,
+                    'click #auth_drop': 'Now click here <br/>' +
+                    'Click <span class="hint-green">Login link</span> to continue.',
                     showSkip: false
                 },
                 {
-                    'click #register': 'But for now go at <span class="hint-green">register page</span> for register.<br/>' +
+                    'click #register': 'And go at <span class="hint-green">register page</span> for register.<br/>' +
                     'Click <span class="hint-green">register</span> button to continue.',
                     'margin': 2,
                     showSkip: false

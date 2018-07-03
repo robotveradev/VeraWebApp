@@ -1,19 +1,16 @@
 {% extends "account/base.html" %}
 
-{% load material_form i18n %}
+{% load material_form i18n static %}
 
 {% block head_title %}{% trans "Signup" %}{% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <div class="uk-container uk-align-center">
-
-    </div>
 
     <div class="uk-container uk-align-center uk-text-center">
-        <h4 class="uk-text-bold blue-text text-lighten-1 uk-text-uppercase">{% trans "Sign Up" %}</h4>
+        <h4 data-hint="signup-head" class="uk-text-bold blue-text text-lighten-1 uk-text-uppercase">{% trans "Sign Up" %}</h4>
         <div class="uk-width-1-4 uk-align-center">
-            <div class="white uk-padding-small uk-text-center uk-margin-large-bottom vr-auth">
+            <div data-hint="signup-container" class="white uk-padding-small uk-text-center uk-margin-large-bottom vr-auth">
                 <form class="uk-text-left" id="signup_form" method="post"
                       action="{% url 'account_signup' %}">
                     {% csrf_token %}
@@ -28,4 +25,11 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+
+{% block extra_js %}
+    {% if hints_enabled %}
+        <script src="{% static 'js/hints/signup.js' %}"></script>
+    {% endif %}
 {% endblock %}

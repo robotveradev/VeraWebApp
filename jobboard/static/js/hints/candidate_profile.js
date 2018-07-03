@@ -1,7 +1,7 @@
 $(document).ready(function () {
     if (typeof hint_set !== "undefined") {
-        let candidate_profile1 = {
-            title: 'candidate_profile1',
+        let candidate_profile = {
+            title: 'candidate_profile',
             steps: [
                 {
                     'next [data-hint=main_info]': 'You can see main profile info, like <span class="hint-green">first name, ' +
@@ -19,39 +19,33 @@ $(document).ready(function () {
                     showSkip: false,
                 },
                 {
-                    'click #career_objective': 'Go at <span class="hint-green">career objective</span> page right now.',
+                    'click [data-hint=position]': 'Go at <span class="hint-green">career objective</span> page right now.',
                     showSkip: false
-                }
-            ]
-    };
-        let candidate_profile2 = {
-            title: 'candidate_profile2',
-            steps: [
+                },
                 {
-                    'click #add_experience_info': 'Go at <span class="hint-green">experience info</span> page right now.',
-                    showSkip: false
+                    'click [data-hint=new-position]': 'Click <span class="hint-green">Add career objective</span>',
+                    showSkip: false,
                 }
             ]
-    };
-        let candidate_profile3 = {
-            title: 'candidate_profile3',
-            steps: [
-                {
-                    'click #add_education_info': 'Go at <span class="hint-green">education info</span> page right now.',
-                    showSkip: false
-                }
-            ]
-    };
-         let candidate_profile4 = {
-            title: 'candidate_profile4',
+        };
+
+        let candidate_profile_vacancies = {
+            title: 'candidate_profile_vacancies',
             steps: [
                 {
                     'click #vacancies': 'Go at <span class="hint-green">VACANCIES</span> page right now.',
                     showSkip: false
                 }
             ]
-    };
-         hint_set.push(candidate_profile1, candidate_profile2, candidate_profile3, candidate_profile4);
+        };
+
+
+        let $no_pos = $('[data-hint=no-position]');
+        if ($no_pos.length > 0) {
+            hint_set.push(candidate_profile);
+        } else {
+            hint_set.push(candidate_profile_vacancies);
+        }
     }
 });
 

@@ -32,30 +32,33 @@
     </div>
 
     <div class="uk-container uk-align-center">
-        <h4 class="uk-text-bold">Scheduling meeting</h4>
+        <h4 data-hint="scheduling-main" class="uk-text-bold">Scheduling meeting</h4>
         <div class=" uk-margin-large-bottom" data-uk-grid>
             <div class="uk-width-2-3">
                 <div class="uk-border uk-padding-small white">
                     {% if not meeting %}
-                        <form method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="date" value="{{ form.initial.date|date:'Y-m-j' }}">
-                            <input type="hidden" name="time" value="{{ form.initial.time|date:'H:i:s' }}">
-                            <p>Closest meeting available in <span
-                                    class="green-text">{{ form.initial.date|date:'j F' }}, {{ form.initial.time|date:'H:i' }}</span>.
-                                Ok?</p>
-                            <div class="uk-align-right uk-margin-remove-bottom">
-                                <button type="submit"
-                                        class="uk-button uk-button-small uk-button-primary">Confirm
-                                </button>
-                                <a class="uk-button uk-button-small uk-button-default"
-                                   data-uk-toggle href="#change-datetime">Change date/time
-                                </a>
-                            </div>
-                        </form>
+                        <div data-hint="meeting-available">
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="date" value="{{ form.initial.date|date:'Y-m-j' }}">
+                                <input type="hidden" name="time" value="{{ form.initial.time|date:'H:i:s' }}">
+                                <p>Closest meeting available in <span
+                                        class="green-text">{{ form.initial.date|date:'j F' }}, {{ form.initial.time|date:'H:i' }}</span>.
+                                    Ok?</p>
+                                <div class="uk-align-right uk-margin-remove-bottom">
+                                    <button data-hint="confirm" type="submit"
+                                            class="uk-button uk-button-small uk-button-primary">Confirm
+                                    </button>
+                                    <a class="uk-button uk-button-small uk-button-default"
+                                       data-uk-toggle href="#change-datetime">Change date/time
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
                         <div class="uk-clearfix"></div>
+
                     {% else %}
-                        <h5 class="uk-text-bold">Meeting already scheduled</h5>
+                        <h5 data-hint="scheduled" class="uk-text-bold">Meeting already scheduled</h5>
                         <table class="uk-table uk-table-divider uk-table-small" width="100%">
                             <colgroup>
                                 <col width="30%">
@@ -77,7 +80,7 @@
                                 {% if now_time_hours >= meeting.time|date:'H' %}
                                     {% with meeting.time|date:'i'|add:'-10' as time %}
                                         {% if now_time_minutes|more_than_equal:time %}
-                                            <tr>
+                                            <tr data-hint="link-available">
                                                 <td>Link</td>
                                                 <td><a class="vr-link uk-text-meta"
                                                        target="_blank"
@@ -105,7 +108,10 @@
             </div>
         </div>
     </div>
-
-
 {% endblock %}
 
+{% block extra_js %}
+    {% if hints_enabled %}
+        <script src="{% static 'js/hints/candidate_interviewing.js' %}"></script>
+    {% endif %}
+{% endblock %}

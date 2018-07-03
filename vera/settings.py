@@ -198,7 +198,7 @@ SOCIALACCOUNT_AUTO_SIGNUP = False
 LOGIN_REDIRECT_URL = reverse_lazy('profile')
 
 # Hints settings
-HINTS_ENABLED = False
+HINTS_ENABLED = True
 
 # Google address settings
 GOOGLE_ADDRESS = {
