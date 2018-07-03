@@ -113,5 +113,30 @@ $(document).ready(function () {
         }
 
         hint_set.push(vacancy);
+
+        if ($('[data-hint=vacancy-pipeline-passed]').length > 0) {
+            let vacancy_pipeline_passed = {
+                title: 'vacancy_pipeline_passed',
+                steps: [
+                    {
+                        'next [data-hint=vacancy-pipeline-passed]': '<span class="hint-green">Congratulations!</span> <br/>' +
+                        'You have ' +
+                        '<span class="hint-green">successfully completed</span>' +
+                        ' all the stages of the vacancy pipeline<br/>!' +
+                        'Click <span class="hint-green">NEXT</span> button to continue.',
+                        showSkip: false
+                    },
+                    {
+                        'click [data-hint=profile-drop]': 'Now click <span class="hint-green">here</span>',
+                        showSkip: false,
+                    },
+                    {
+                        'click [data-hint=profile]': 'And go at <span class="hint-green">profile page!</span><br/>' +
+                        'There you will see the <span class="hint-green">tokens received</span> for the job.'
+                    }
+                ]
+            };
+            hint_set.push(vacancy_pipeline_passed);
+        }
     }
 });
