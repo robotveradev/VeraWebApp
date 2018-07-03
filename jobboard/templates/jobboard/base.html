@@ -26,7 +26,7 @@
 <div class="uk-container">
     <nav class="uk-navbar-container white" data-uk-navbar>
         <div class="uk-navbar-left">
-            <a href="/" class="uk-text-bold uk-text-large blue-text text-lighten-2 uk-link-reset">Vera</a>
+            <a data-hint="logo" href="/" class="uk-text-bold uk-text-large blue-text text-lighten-2 uk-link-reset">Vera</a>
         </div>
         <div class="uk-navbar-right">
             <ul class="uk-navbar-nav">
@@ -53,7 +53,7 @@
                 <li><a href="#">|</a></li>
                 {% if user.is_authenticated %}
                     <li>
-                        <a id="logout" class="uk-text-capitalize uk-text-bold">
+                        <a data-hint="profile-drop" class="uk-text-capitalize uk-text-bold">
                             <i class="fa fa-user-circle-o blue-text text-lighten-2" aria-hidden="true"></i>
                             &emsp;{{ user.username }}&emsp;
                             <i data-uk-icon="icon:chevron-down;ratio:0.7"></i>
@@ -90,16 +90,16 @@
                     </li>
                 {% else %}
                     <li>
-                        <a class="uk-text-capitalize uk-text-bold" id="login" href="#">
+                        <a class="uk-text-capitalize uk-text-bold" id="auth_drop" href="#">
                             <i class="fa fa-user-circle-o blue-text text-lighten-2" aria-hidden="true"></i>
                             &emsp;login&emsp;
                             <i data-uk-icon="icon:chevron-down;ratio:0.7"></i>
                         </a>
                         <div class="uk-navbar-dropdown uk-padding-small" data-uk-dropdown="mode: click; offset:0">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
-                                <li><a href="{% url 'account_login' %}">Login</a></li>
+                                <li><a id="login" href="{% url 'account_login' %}">Login</a></li>
                                 <li class="uk-nav-divider"></li>
-                                <li><a href="{% url 'account_signup' %}">Sign up</a></li>
+                                <li><a id="register" href="{% url 'account_signup' %}">Sign up</a></li>
                             </ul>
                         </div>
                     </li>

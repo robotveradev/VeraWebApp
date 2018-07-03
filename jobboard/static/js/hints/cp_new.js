@@ -72,25 +72,11 @@ $(document).ready(function () {
                     showSkip: false,
                 },
                 {
-
                     selector: '#save',
                     event: 'click',
                     description : '<span class="hint-green">Please</span> click <span class="hint-green">SAVE to continion</span>.<br/>' +
                     'Click <span class="hint-green">Save</span> button to continue or <span class="hint-green">CLOSE</span> for close tutorial for this page',
                     showSkip: false,
-                    onBeforeStart: function () {
-                                let form = $('[required]');
-                                for(let i of form){
-                                    if($(i).val().length<1){
-                                        this.selector = 'form';
-                                        this.event = 'key';
-                                        this.keyCode = 9;
-                                        this.description = '<span class="hint-green">Please</span> fill in <span class="hint-green">ALL FIELDS</span>.<br/>' +
-                                            'Then click SAVE to continion' +
-                    'Click <span class="hint-green">Tab</span> button to continue or <span class="hint-green">CLOSE</span> for close tutorial for this page';
-                                    }
-                                }
-                            }
                 }
             ],
         };

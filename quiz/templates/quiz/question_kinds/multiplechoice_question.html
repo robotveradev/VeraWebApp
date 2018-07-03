@@ -1,4 +1,4 @@
-<span class="uk-text-lead uk-text-background">{{ question.question_text }}</span>
+<span class="uk-text-lead uk-text-background">{{ question.question_text|safe }}</span>
 {% for answer in question.answers.all %}
     <div class="uk-margin uk-margin-left">
         <label><input
@@ -15,7 +15,7 @@
                 disabled
                 {% endif %}
                 value="{{ answer.id }}">
-            {{ answer.text }}
+            {{ answer.text|safe }}
         </label>
     </div>
 {% endfor %}

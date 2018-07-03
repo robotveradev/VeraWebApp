@@ -27,45 +27,18 @@ $(document).ready(function () {
 
         enjoyhint_script_steps.push(
             {
-                'next form': 'To <span class="hint-green">register</span> you must complete fields below.<br/>' +
+                'next [data-hint=signup-head]': 'For <span class="hint-green">register</span> you must complete fields below.<br/>' +
                 'Click <span class="hint-green">NEXT</span> to continue.',
                 showSkip: false
             },
             {
-                'key #id_username': 'Enter you <span class="hint-green">username.</span><br/>' +
-                'Click <span class="hint-green">TAB</span> button to continue.',
-                keyCode: 9,
-                showSkip: false,
-                onBeforeStart: function () {
-                    $('#id_username').focus();
-                }
-            },
-            {
-                'key #id_password': 'Enter you <span class="hint-green">password.</span><br/>' +
-                'Click <span class="hint-green">TAB</span> button to continue.',
-                keyCode: 9,
-                showSkip: false,
-            },
-            {
-                'key #id_password_confirm': 'Repeat you <span class="hint-green">password</span> one more time.<br/>' +
-                'Click <span class="hint-green">TAB</span> button to continue.',
-                keyCode: 9,
-                showSkip: false,
-            },
-            {
-                'key #id_email': 'And your <span class="hint-green">email.</span><br/>' +
-                'Click <span class="hint-green">TAB</span> button to continue.',
-                keyCode: 9,
-                showSkip: false,
-            },
-            {
-                'click [type=submit]': 'Click the button <span class="hint-green">SIGN UP</span> for register.',
+                ' [type=submit]': 'Then click <span class="hint-green">SIGN UP</span> to continue.',
                 shape: 'circle',
                 radius: 50,
-                showSkip: false
+                showNext: false,
+                skipButton: {text: 'Ok'}
             },
         );
-
         enjoyhint_instance.set(enjoyhint_script_steps);
         enjoyhint_instance.run();
     }

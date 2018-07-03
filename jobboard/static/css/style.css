@@ -30,6 +30,10 @@ body {
     background: white;
 }
 
+div.jHtmlArea .ToolBar {
+    max-width: 100%;
+}
+
 a.uk-button {
     text-transform: capitalize;
 }

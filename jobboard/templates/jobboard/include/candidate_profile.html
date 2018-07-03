@@ -6,7 +6,7 @@
             <li class="uk-active"><a class="uk-text-capitalize" href="#">Profile</a></li>
             <li><a class="uk-text-capitalize" href="#">Facts</a></li>
             <li><a class="uk-text-capitalize" href="#">Achievements</a></li>
-            <li><a class="uk-text-capitalize" href="#">Position</a></li>
+            <li><a data-hint="position" class="uk-text-capitalize" href="#">Position</a></li>
             <li><a class="uk-text-capitalize" href="#">Experience</a></li>
             <li><a class="uk-text-capitalize" href="#">Education</a></li>
         </ul>
@@ -211,13 +211,12 @@
                                 {% endif %}
                             </div>
                         {% else %}
-                            <div>
+                            <div data-hint="no-position">
                                 <p>Career objective information is not available </p>
                             </div>
-                            <a href="{% url 'new_position' %}"
-                               class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">Add
-                                career
-                                objective</a>
+                            <a data-hint="new-position" href="{% url 'new_position' %}"
+                               class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">
+                                Add career objective</a>
                             <div class="clearfix"></div>
                             <br/>
                         {% endif %}

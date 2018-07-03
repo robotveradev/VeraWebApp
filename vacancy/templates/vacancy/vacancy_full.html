@@ -11,9 +11,9 @@
 {% block content %}
     {{ block.super }}
 
-   {% if user == vacancy.owner %}
-       <form id="change_vacancy_status" action="{% url 'change_vacancy_status' pk=vacancy.id %}" method="get"></form>
-   {% endif %}
+    {% if user == vacancy.owner %}
+        <form id="change_vacancy_status" action="{% url 'change_vacancy_status' pk=vacancy.id %}" method="get"></form>
+    {% endif %}
 
     <div class="uk-container uk-align-center">
         <h4 data-hint="uk-text-bold">{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.company.name|title }}</small>
@@ -23,7 +23,7 @@
         </span></h4>
         <div class="uk-margin-large-top" data-uk-grid>
             <div class="uk-width-3-4">
-                <ul data-uk-tab="#profile_container">
+                <ul data-hint="vacancy-info" data-uk-tab="#profile_container">
                     <li class="uk-active"><a class="uk-text-capitalize" href="#">Main</a></li>
                     <li><a class="uk-text-capitalize" href="#">Working conditions</a></li>
                     <li><a class="uk-text-capitalize" href="#">Vacancy description</a></li>
@@ -35,8 +35,8 @@
             <div class="uk-width-3-4">
                 <div class="vr-window white uk-padding-small">
                     <ul id="profile_container" class="uk-switcher">
-                        <li>
-                            <table data-hint="main_info" class="uk-table uk-table-divider uk-table-small" width="100%">
+                        <li data-hint="main-info">
+                            <table class="uk-table uk-table-divider uk-table-small" width="100%">
                                 <colgroup>
                                     <col width="20%">
                                     <col width="80%">
@@ -66,7 +66,7 @@
                                 </tbody>
                             </table>
                             <h4 class="uk-text-bold">General vacancy info</h4>
-                            <table data-hint="main_info" class="uk-table uk-table-divider uk-table-small" width="100%">
+                            <table class="uk-table uk-table-divider uk-table-small" width="100%">
                                 <colgroup>
                                     <col width="20%">
                                     <col width="80%">
@@ -95,7 +95,7 @@
                             </table>
                         </li>
                         <li>
-                            <table data-hint="main_info" class="uk-table uk-table-divider uk-table-small" width="100%">
+                            <table class="uk-table uk-table-divider uk-table-small" width="100%">
                                 <colgroup>
                                     <col width="20%">
                                     <col width="80%">
@@ -254,4 +254,9 @@
 
 {% block extra_js %}
     <script src="{% static 'js/pipeline.js' %}"></script>
+    {% if hints_enabled %}
+        {% if role == 'candidate' %}
+            <script src="{% static 'js/hints/vacancy.js' %}"></script>
+        {% endif %}
+    {% endif %}
 {% endblock %}
