@@ -94,10 +94,11 @@ class CandidateInterviewScheduleView(OnlyCandidateMixin, CreateView):
             self.date = datetime.now()
         else:
             self.date = date_converter.string_to_datetime(request.POST.get('date'), '%Y-%m-%d')
-        if datetime.combine(self.action_interview.end_date, datetime.max.time()) < datetime.now():
-            messages.warning(request, 'Interview period is over.')
-            return HttpResponseRedirect(
-                reverse('vacancy', kwargs={'pk': self.action_interview.action.pipeline.vacancy.id}))
+        if self.action_interview.end_date:
+            if datetime.combine(self.action_interview.end_date, datetime.max.time()) < datetime.now():
+                messages.warning(request, 'Interview period is over.')
+                return HttpResponseRedirect(
+                    reverse('vacancy', kwargs={'pk': self.action_interview.action.pipeline.vacancy.id}))
         self.candidate = request.role_object
         return super().dispatch(request, *args, **kwargs)
 
