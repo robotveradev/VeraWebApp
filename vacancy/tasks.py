@@ -32,7 +32,7 @@ def change_status(vacancy_id):
     except Vacancy.DoesNotExist:
         print('Vacancy {} does not exist'.format(vacancy_id))
     else:
-        emp_h = EmployerHandler(vacancy.employer.contract_address)
+        emp_h = EmployerHandler(contract_address=vacancy.employer.contract_address)
         oracle = OracleHandler()
         bch_vacancy = oracle.vacancy(vacancy.uuid)
         if bch_vacancy['enabled']:
@@ -54,7 +54,7 @@ def change_vacancy_allowed_amount(vacancy_id):
     except Vacancy.DoesNotExist:
         pass
     else:
-        emp_h = EmployerHandler(vacancy.employer.contract_address)
+        emp_h = EmployerHandler(contract_address=vacancy.employer.contract_address)
         oracle = OracleHandler()
         old_vacancy = oracle.vacancy(vacancy.uuid)
         if old_vacancy['allowed_amount'] != int(vacancy.allowed_amount) * 10 ** 18:
