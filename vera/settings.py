@@ -12,7 +12,7 @@ SECRET_KEY = 'btcha4=9_!7*hhjka8b^m2cjih06y0amiin-ftcaweq$myl(g8_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS', '')]
 
 # Application definition
 
@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
 ]
 
-SITE_ID = 3
+SITE_ID = 1
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -88,13 +88,21 @@ WSGI_APPLICATION = 'vera.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'vera_db',
+        'USER': 'vera_admin' if 'DB_PASS' in os.environ.keys() else 'root',
+        'PASSWORD': os.getenv('DB_PASS', '123'),
+        'default-character-set': 'utf-8',
+        'HOST': os.getenv('DB_HOST', 'localhost'),
     },
     'statistic': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'statistic.sqlite3'),
-    }
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'vera_stat',
+        'USER': 'vera_admin' if 'DB_PASS' in os.environ.keys() else 'root',
+        'PASSWORD': os.getenv('DB_PASS', '123'),
+        'default-character-set': 'utf-8',
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+    },
 }
 
 DATABASE_ROUTERS = ['jobboard.database_router.DBRouter', 'jobboard.database_router.PrimaryRouter']
@@ -146,29 +154,29 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-DEFAULT_FROM_EMAIL = 'vera@job.pro'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '')
 
-THEME_CONTACT_EMAIL = 'VeraOracle@email.com'
+THEME_CONTACT_EMAIL = os.getenv('THEME_CONTACT_EMAIL', '')
 
-VERA_COIN_CONTRACT_ADDRESS = '0xD1d0cb0eC75F005B54984B94bA7EC45857Df81Ea'  # Rinkeby
+VERA_COIN_CONTRACT_ADDRESS = os.getenv('VERA_COIN_CONTRACT_ADDRESS', '')
 
-VERA_COIN_PRESALE_CONTRACT_ADDRESS = '0x11535d665C841b9A067EDbBBDEcD81E091f442f2'  # Rinkeby
+VERA_COIN_PRESALE_CONTRACT_ADDRESS = os.getenv('VERA_COIN_PRESALE_CONTRACT_ADDRESS', '')
 
-VERA_ORACLE_CONTRACT_ADDRESS = '0xC4c81cFac43401D4a60EEd5C187F9686aA2b2809'  # Rinkeby
+VERA_ORACLE_CONTRACT_ADDRESS = os.getenv('VERA_ORACLE_CONTRACT_ADDRESS', '')
 
-WEB_ETH_COINBASE = '0x8dC270b448958fEd366E0eDfb28B335Bf84fCA91'  # Rinkeby
+WEB_ETH_COINBASE = os.getenv('WEB_ETH_COINBASE', '')
 
 COINBASE_PASSWORD_SECRET = os.getenv('COINBASE_PASSWORD', '')
 
 ABI_PATH = 'jobboard/handlers/abi/'
 
-NODE_URL = 'http://localhost:8545'
+NODE_URL = 'http://' + os.getenv('NODE_URL', 'localhost') + ':8545'
 
-NET_URL = 'https://rinkeby.etherscan.io/'
+NET_URL = os.getenv('NET_URL', '')
 
 LOGIN_URL = '/accounts/login'
 
-W2V_API_URL = 'http://52.166.10.44:3000/getvecw2v'
+W2V_API_URL = os.getenv('W2V_API_URL', '')
 
 SESSION_SAVE_EVERY_REQUEST = True
 
@@ -196,15 +204,15 @@ SOCIALACCOUNT_AUTO_SIGNUP = False
 LOGIN_REDIRECT_URL = reverse_lazy('profile')
 
 # Hints settings
-HINTS_ENABLED = True
+HINTS_ENABLED = os.getenv('HINTS_ENABLED', True)
 
 # Google address settings
 GOOGLE_ADDRESS = {
-    'API_KEY': '',
+    'API_KEY': os.getenv('GOOGLE_ADDRESS_API_KEY', ''),
     'API_LANGUAGE': 'en_US'
 }
 
-GOOGLE_JS_MAP_KEY = ''
+GOOGLE_JS_MAP_KEY = os.getenv('GOOGLE_JS_MAP_KEY', '')
 
 # Social icons
 # icon name on fontawesome, exm: 'www.<ok>.ru' -> <i class="fa fa-<odnoklassniki-square>"></i>
@@ -215,12 +223,28 @@ SOCIAL_ICONS = {
     'steamcommunity': 'steam-square',
 }
 
+#  Twilio
+
+AUTH_TOKEN = os.getenv('AUTH_TOKEN', '')
+
+ACCOUNT_SID = os.getenv('ACCOUNT_SID', '')
+
+AUTHY_API_KEY = os.getenv('AUTHY_API_KEY', '')
+
+# Zoom.us account
+
+ZOOMUS_API_KEY = os.getenv('ZOOMUS_API_KEY', '')
+
+ZOOMUS_API_SECRET = os.getenv('ZOOMUS_API_SECRET', '')
+
+ZOOMUS_USER_ID = os.getenv('ZOOMUS_USER_ID', '')
+
+# email
 EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-
 
 if DEBUG:
     try:
