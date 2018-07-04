@@ -8,7 +8,7 @@ from django.conf import settings
 
 class CoinHandler(object):
     def __init__(self, contract_address=None, account=None):
-        self.web3 = Web3(HTTPProvider('http://localhost:8545'))
+        self.web3 = Web3(HTTPProvider(settings.NODE_URL))
         self.web3.middleware_stack.inject(geth_poa_middleware, layer=0)
         self.contract_address = contract_address or settings.VERA_COIN_CONTRACT_ADDRESS
         self.account = account or settings.WEB_ETH_COINBASE
