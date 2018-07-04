@@ -8,7 +8,7 @@ from vacancy.models import Vacancy, CandidateOnVacancy
 
 @shared_task
 def new_action(action):
-    emp_h = EmployerHandler(action['contract_address'])
+    emp_h = EmployerHandler(contract_address=action['contract_address'])
     txn_hash = emp_h.new_action(vac_uuid=action['vacancy_uuid'],
                                 title=action['title'],
                                 fee=action['fee'],
@@ -24,7 +24,7 @@ def new_action(action):
 
 @shared_task
 def changed_action(action):
-    emp_h = EmployerHandler(action['contract_address'])
+    emp_h = EmployerHandler(contract_address=action['contract_address'])
     txn_hash = emp_h.change_action(vac_uuid=action['vacancy_uuid'],
                                    index=action['index'],
                                    title=action['title'],
@@ -43,7 +43,7 @@ def changed_action(action):
 @shared_task
 def delete_action(action):
     vacancy = Vacancy.objects.get(id=action['vacancy_id'])
-    emp_h = EmployerHandler(vacancy.employer.contract_address)
+    emp_h = EmployerHandler(contract_address=vacancy.employer.contract_address)
     txn_hash = emp_h.delete_action(vacancy.uuid, action['index'])
     if txn_hash:
         save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
