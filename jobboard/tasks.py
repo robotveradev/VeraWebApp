@@ -245,8 +245,8 @@ class ProcessZoomusEvent(Task):
                 pass
             else:
                 if hasattr(self, event):
-                    method = getattr(self, event, meet)
-                    method(event)
+                    method = getattr(self, event)
+                    method(event, meet)
 
     def meeting_ended(self, event, meeting_object):
         passed = InterviewPassed()
