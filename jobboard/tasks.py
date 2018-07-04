@@ -13,6 +13,7 @@ from solc import compile_files
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
 
+from interview.models import ScheduledMeeting, InterviewPassed
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.models import Transaction, Employer, Candidate, TransactionHistory
 from pipeline.models import Action
@@ -225,3 +226,35 @@ def create_abi(abi, role):
     if not os.path.exists(abi_file):
         with open(abi_file, 'w+') as f:
             f.write(json.dumps(abi))
+
+
+class ProcessZoomusEvent(Task):
+    name = 'ProcessZoomusEvent'
+    soft_time_limit = 10 * 60
+
+    def run(self, event_dict, *args, **kwargs):
+        try:
+            meeting_id = event_dict['payload']['meeting']['id']
+            event = event_dict['event']
+        except KeyError:
+            pass
+        else:
+            try:
+                meet = ScheduledMeeting.objects.get(conf_id=meeting_id)
+            except ScheduledMeeting.DoesNotExist:
+                pass
+            else:
+                if hasattr(self, event):
+                    method = getattr(self, event)
+                    method(event, meet)
+
+    def meeting_ended(self, event, meeting_object):
+        passed = InterviewPassed()
+        passed.interview = meeting_object.action_interview
+        passed.candidate = meeting_object.candidate
+        passed.data = event
+        passed.save()
+        meeting_object.delete()
+
+
+app.register_task(ProcessZoomusEvent())
