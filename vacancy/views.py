@@ -148,7 +148,7 @@ class ChangeVacancyStatus(OnlyEmployerMixin, RedirectView):
 
     def check_employer(self):
         oracle = OracleHandler()
-        coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
+        coin_h = CoinHandler()
         vac_allowance = oracle.vacancy(self.object.uuid)['allowed_amount']
         oracle_allowance = coin_h.allowance(self.object.company.employer.contract_address, oracle.contract_address)
         if oracle_allowance < vac_allowance:

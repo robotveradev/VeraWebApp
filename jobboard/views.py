@@ -274,7 +274,7 @@ def withdraw(request):
             return HttpResponse('Invalid address')
         else:
             oracle = OracleHandler()
-            coin_h = CoinHandler(django_settings.VERA_COIN_CONTRACT_ADDRESS)
+            coin_h = CoinHandler()
             user_balance = coin_h.balanceOf(request.role_object.contract_address)
             if int(float(amount) * 10 ** 18) > user_balance:
                 return HttpResponse('You do not have so many coins', status=200)

@@ -38,10 +38,6 @@ class CustomSignupForm(SignupForm):
         model = CustomUser
         fields = ['username', 'country_code', 'phone_number', 'password1', 'password2', ]
 
-    def clean_username(self):
-        username = self.data.get('username')
-        return username
-
     def clean_password1(self):
         password = self.data.get('password1')
         validate_password(password)
@@ -55,6 +51,13 @@ class CustomSignupForm(SignupForm):
             raise forms.ValidationError(
                 _("Another user with this phone number already exists"))
         return phone_number
+
+    def clean_username(self):
+        username = self.data.get('username')
+        if CustomUser.objects.filter(username=username).exists():
+            raise forms.ValidationError(
+                _("Another user with this username already exists"))
+        return username
 
     def save(self, *args, **kwargs):
         user = super().save(*args, **kwargs)

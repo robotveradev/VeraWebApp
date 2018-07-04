@@ -24,7 +24,7 @@ def has_profile(user_id):
 
 
 def get_coin_symbol(id):
-    coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
+    coin_h = CoinHandler()
     return coin_h.symbol
 
 
@@ -63,7 +63,7 @@ def is_enabled_vacancy(vacancy_id):
 def get_balance(user, address, role):
     if address is None:
         return {'balance': None, 'user': user}
-    coin_h = CoinHandler(settings.VERA_COIN_CONTRACT_ADDRESS)
+    coin_h = CoinHandler()
     return {'balance': coin_h.balanceOf(address) / 10 ** 18, 'user': user,
             'test': settings.NET_URL.startswith('https://rinkeby'), 'role': role}
 

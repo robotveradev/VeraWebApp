@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
 ]
 
-SITE_ID = 1
+SITE_ID = 3
 
 AUTH_USER_MODEL = 'users.CustomUser'
 

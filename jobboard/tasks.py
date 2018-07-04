@@ -206,7 +206,7 @@ def new_role_instance(instance_id, role):
             bytecode=compile_sol[contract_file + ':' + role]['bin'],
             bytecode_runtime=compile_sol[contract_file + ':' + role]['bin-runtime'],
         )
-        args = [web3.toHex(os.urandom(15)), ]
+        args = [web3.toHex(os.urandom(32)), ]
         if isinstance(instance, Employer):
             args.append(settings.VERA_COIN_CONTRACT_ADDRESS)
         args.append(settings.VERA_ORACLE_CONTRACT_ADDRESS)
