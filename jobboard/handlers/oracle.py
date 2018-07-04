@@ -13,7 +13,7 @@ class OracleHandler(object):
     def __init__(self):
         self.web3 = Web3(HTTPProvider(settings.NODE_URL))
         self.web3.middleware_stack.inject(geth_poa_middleware, layer=0)
-        self.account = self.web3.eth.coinbase
+        self.account = settings.WEB_ETH_COINBASE
         self.contract_address = settings.VERA_ORACLE_CONTRACT_ADDRESS
         try:
             with open(settings.ABI_PATH + 'Oracle.abi.json', 'r') as ad:
