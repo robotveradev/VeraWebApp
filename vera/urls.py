@@ -23,6 +23,7 @@ from candidateprofile import views as cp_views
 from company import views as company_views
 from interview import views as interview_views
 from jobboard import views as jobboard_views
+from jobboard.zoomus_endpoint import ZoomusEndpointView
 from pipeline import views as pipeline_views
 from quiz import views as quiz_views
 from statistic import views as statistic_views
@@ -148,6 +149,10 @@ interview_urlpatterns = [
          name='candidate_interviewing'),
 ]
 
+zoomus_urlpatterns = [
+    path('zoomus/', ZoomusEndpointView.as_view(),)
+]
+
 urlpatterns = basic + \
               candidate_urlpatterns + \
               vacancy_urlpatterns + \
@@ -159,4 +164,5 @@ urlpatterns = basic + \
               interview_urlpatterns + \
               users_urlpatterns + \
               api_urls + \
+              zoomus_urlpatterns + \
               static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
