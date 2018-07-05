@@ -10,7 +10,7 @@ class Vacancy(models.Model):
                                 null=False,
                                 on_delete=models.CASCADE,
                                 related_name='vacancies')
-    uuid = models.CharField(max_length=64,
+    uuid = models.CharField(max_length=66,
                             blank=False,
                             null=False)
     title = models.CharField(max_length=255)
