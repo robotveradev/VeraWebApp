@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
+from model_utils.models import SoftDeletableModel
 
 from jobboard.helpers import BaseAction
 from jobboard.models import Candidate
@@ -48,7 +49,7 @@ class ActionInterview(BaseAction, models.Model):
         abstract = False
 
 
-class ScheduledMeeting(models.Model):
+class ScheduledMeeting(SoftDeletableModel):
     action_interview = models.ForeignKey(ActionInterview,
                                          on_delete=models.CASCADE,
                                          related_name='scheduled_meetings')

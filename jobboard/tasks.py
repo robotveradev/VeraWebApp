@@ -8,6 +8,7 @@ from celery import shared_task
 from celery.app.task import Task
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.mail import send_mail
 from django.db.models import F
 from solc import compile_files
 from web3 import Web3, HTTPProvider
@@ -233,6 +234,7 @@ class ProcessZoomusEvent(Task):
     soft_time_limit = 10 * 60
 
     def run(self, event_dict, *args, **kwargs):
+        event_dict = json.loads(event_dict)
         try:
             meeting_id = event_dict['payload']['meeting']['id']
             event = event_dict['event']
@@ -256,5 +258,45 @@ class ProcessZoomusEvent(Task):
         passed.save()
         meeting_object.delete()
 
+    def participant_joined(self, event, meeting_object):
+        employer = meeting_object.action_interview.employer
+        vacancy = meeting_object.action_interview.vacancy
+        candidate = meeting_object.candidate
+        message = 'Candidate {} for vacancy {} already started an interview. For join interview click link {}'.format(
+            candidate.full_name, vacancy.title, meeting_object.link_start
+        )
+        send_email.delay(message=message, to=employer.user.email)
+
+    def meeting_jbh(self, event, meeting_object):
+        employer = meeting_object.action_interview.employer
+        vacancy = meeting_object.action_interview.vacancy
+        candidate = meeting_object.candidate
+        message = 'Employer {} for vacancy {} already started an interview. For join interview click link {}'.format(
+            employer.full_name, vacancy.title, meeting_object.link_join
+        )
+        send_email.delay(message=message, to=candidate.user.email)
+
 
 app.register_task(ProcessZoomusEvent())
+
+
+@shared_task
+def send_email(**kwargs):
+    to_email = kwargs.get('to')
+    message = kwargs.get('message')
+    if to_email and message:
+        send_mail(subject='Vera interview platform',
+                  from_email=settings.DEFAULT_FROM_EMAIL,
+                  recipient_list=[to_email, ],
+                  message=message)
+    return True
+
+
+class CheckSoonMeetings(Task):
+    name = 'CheckSoonMeetings'
+
+    def run(self, *args, **kwargs):
+        pass
+
+
+app.register_task(CheckSoonMeetings())
