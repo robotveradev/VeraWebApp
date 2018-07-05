@@ -41,8 +41,7 @@ class OracleHandler(object):
         return dict(zip(['uuid', 'enabled', 'allowed_amount'], vac))
 
     def unlockAccount(self):
-
-        self.web3.personal.unlockAccount(self.account, self.__password)
+        return self.web3.personal.unlockAccount(self.account, self.__password)
 
     @property
     def service_fee(self):

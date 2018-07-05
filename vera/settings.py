@@ -197,6 +197,8 @@ SOCIALACCOUNT_FORMS = {'signup': 'users.forms.CustomSocialSignupForm'}
 
 ACCOUNT_ADAPTER = 'users.adapter.CustomAccountAdapter'
 
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
+
 ACCOUNT_SESSION_REMEMBER = False
 
 SOCIALACCOUNT_AUTO_SIGNUP = False
