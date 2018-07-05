@@ -19,11 +19,12 @@ class ZoomusEndpointView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        process_event = ProcessZoomusEvent()
-        process_event.delay(request.GET)
-        return HttpResponse('ok', status=200)
+        return self.process_event(request.body)
 
     def post(self, request, *args, **kwargs):
+        return self.process_event(request.body)
+
+    def process_event(self, data):
         process_event = ProcessZoomusEvent()
-        process_event.delay(request.POST)
+        process_event.delay(data)
         return HttpResponse('ok', status=200)
