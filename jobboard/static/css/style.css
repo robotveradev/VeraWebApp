@@ -145,7 +145,8 @@ a.uk-button {
     background: #64B5F6;
 }
 
-.uk-input[type=text], .uk-input[type=password], .uk-input[type=number], .uk-input[type=date], .uk-input[type=email], .uk-select {
+.uk-input[type=text], .uk-input[type=password], .uk-input[type=number],
+.uk-input[type=date], .uk-input[type=email], .uk-select, .uk-input[type=time] {
     border: 1px solid #aad9fd;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
