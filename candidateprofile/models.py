@@ -183,7 +183,7 @@ class Education(models.Model):
 
 
 class Language(models.Model):
-    name = models.CharField(max_length=50, primary_key=True, unique=True, verbose_name=_("name"))
+    name = models.CharField(max_length=255, primary_key=True, unique=True, verbose_name=_("name"))
     code = models.CharField(max_length=5, unique=True, verbose_name=_("language code"))
     native_name = models.TextField(max_length=2000, blank=True, verbose_name=_("native name"))
 
@@ -214,7 +214,7 @@ class LanguageItem(models.Model):
 
 
 class Country(models.Model):
-    name = models.CharField(max_length=31,
+    name = models.CharField(max_length=127,
                             null=False,
                             blank=False)
 
