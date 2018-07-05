@@ -61,7 +61,8 @@ class ScheduledMeeting(models.Model):
     conf_id = models.CharField(max_length=32,
                                blank=False,
                                null=False)
-    link_start = models.URLField(blank=False,
+    link_start = models.URLField(max_length=768,
+                                 blank=False,
                                  null=False)
     link_join = models.URLField(blank=False,
                                 null=False)
