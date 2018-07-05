@@ -45,11 +45,60 @@
                 {% endif %}
                 <div class="uk-margin-bottom">
                     <h4>Scheduled meetings</h4>
-                    {% for meeting in action.db.interview.scheduled_meetings.all %}
-                        {{ meeting }}
-                    {% empty %}
-                        No interviews assigned yet.
-                    {% endfor %}
+                    {% with action.db.interview.scheduled_meetings.all as meetings %}
+                        {% if meetings %}
+                            <table class="uk-table uk-table-divider uk-table-small" width="100%">
+                                <colgroup>
+                                    <col width="30%">
+                                    <col width="30%">
+                                    <col width="40%">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Date</th>
+                                    <th class="uk-text-right">Link</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for meeting in meetings %}
+                                    <tr>
+                                        <td>
+                                            <a class="uk-text-meta vr-link " href="{% url 'candidate_profile' username=meeting.candidate.user.username %}">
+                                                {{ meeting.candidate.full_name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ meeting.date|date:'Y-m-j' }} {{ meeting.time|date:'H:i:s' }}</td>
+                                        <td class="uk-text-right">
+                                            {% now 'Y-m-j' as now %}
+                                            {% if now == meeting.date|date:'Y-m-j' %}
+                                                {% now 'H' as now_time_hours %}
+                                                {% now 'i' as now_time_minutes %}
+                                                {% if now_time_hours >= meeting.time|date:'H' %}
+                                                    {% with meeting.time|date:'i'|add:'-10' as time %}
+                                                        {% if now_time_minutes|more_than_equal:time %}
+                                                            <a class="vr-link uk-text-meta"
+                                                               target="_blank"
+                                                               href="{{ meeting.link_start }}">Start interview!</a>
+                                                        {% else %}
+                                                            Not available yet.
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                {% else %}
+                                                    Not available yet.
+                                                {% endif %}
+                                            {% else %}
+                                                Not available yet.
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            No interviews assigned yet.
+                        {% endif %}
+                    {% endwith %}
                 </div>
             </div>
             <div class="uk-width-1-4">
@@ -66,7 +115,8 @@
                                 <li>End time: {{ interview.end_time }}</li>
                             {% endif %}
                         </ul>
-                        <a href="#" class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
+                        <a href="#"
+                           class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
                             Edit
                         </a>
                         <div class="uk-clearfix"></div>
