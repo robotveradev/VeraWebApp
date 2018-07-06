@@ -213,6 +213,7 @@ def new_role_instance(instance_id, role):
         args.append(settings.VERA_ORACLE_CONTRACT_ADDRESS)
         logger.info('Try to unlock account: {}.'.format(oracle.unlockAccount()))
         txn_hash = obj.deploy(transaction={'from': oracle.account}, args=args)
+        logger.info('Lock account: {}'.format(oracle.lockAccount()))
         if txn_hash:
             save_txn.delay(txn_hash.hex(), 'New' + role, instance.user.id, instance.id)
 
