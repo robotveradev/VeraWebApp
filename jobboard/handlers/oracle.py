@@ -43,6 +43,9 @@ class OracleHandler(object):
     def unlockAccount(self):
         return self.web3.personal.unlockAccount(self.account, self.__password)
 
+    def lockAccount(self):
+        return self.web3.personal.lockAccount(self.account)
+
     @property
     def service_fee(self):
         return self.contract.call().service_fee()
@@ -50,6 +53,7 @@ class OracleHandler(object):
     def new_service_fee(self, new_fee):
         self.unlockAccount()
         self.contract.transact({'from': self.account}).new_service_fee(new_fee)
+        self.lockAccount()
 
     @property
     def beneficiary(self):
@@ -58,6 +62,7 @@ class OracleHandler(object):
     def new_beneficiary(self, new_ben):
         self.unlockAccount()
         self.contract.transact({'from': self.account}).new_beneficiary(new_ben)
+        self.lockAccount()
 
     def is_owner(self, address):
         validate_address(address)
@@ -73,12 +78,16 @@ class OracleHandler(object):
 
     def new_pipeline_max_length(self, new_length):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).new_pipeline_max_length(new_length)
+        txn_hash = self.contract.transact({'from': self.account}).new_pipeline_max_length(new_length)
+        self.lockAccount()
+        return txn_hash
 
     def new_employer(self, address):
         validate_address(address)
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).new_employer(address)
+        txn_hash = self.contract.transact({'from': self.account}).new_employer(address)
+        self.lockAccount()
+        return txn_hash
 
     def get_employers(self):
         return self.contract.call().get_employers()
@@ -86,7 +95,9 @@ class OracleHandler(object):
     def new_candidate(self, address):
         validate_address(address)
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).new_candidate(address)
+        txn_hash = self.contract.transact({'from': self.account}).new_candidate(address)
+        self.lockAccount()
+        return txn_hash
 
     def get_candidates(self):
         return self.contract.call().get_candidates()
@@ -94,16 +105,21 @@ class OracleHandler(object):
     def new_vacancy(self, employer_address, uuid, allowed):
         validate_address(employer_address)
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).new_vacancy(employer_address,
-                                                                          uuid,
-                                                                          int(allowed))
+        txn_hash = self.contract.transact({'from': self.account}).new_vacancy(employer_address,
+                                                                              uuid,
+                                                                              int(allowed))
+        self.lockAccount()
+        return txn_hash
 
     def new_fact(self, candidate_address, fact):
         if not isinstance(fact, dict):
             raise TypeError('Fact must be dict')
         validate_address(candidate_address)
-        return self.contract.transact({'from': self.account}).new_fact(candidate_address,
-                                                                       json.dumps(fact, cls=DjangoJSONEncoder))
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).new_fact(candidate_address,
+                                                                           json.dumps(fact, cls=DjangoJSONEncoder))
+        self.lockAccount()
+        return txn_hash
 
     def facts_length(self, candidate_address):
         validate_address(candidate_address)
@@ -205,4 +221,6 @@ class OracleHandler(object):
     def change_candidate_status(self, contract_address, status):
         assert status != self.candidate_status(contract_address, only_index=True)
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).change_candidate_status(contract_address, status)
+        txn_hash = self.contract.transact({'from': self.account}).change_candidate_status(contract_address, status)
+        self.lockAccount()
+        return txn_hash
