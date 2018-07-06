@@ -51,11 +51,20 @@ def get_item(dictionary, key):
 
 @register.filter
 def question_result(answers, question_id):
+    context = []
     try:
-        context = [int(answers['question_' + str(question_id)])]
-        return context
+        ans = answers['question_' + str(question_id)]
     except KeyError:
-        return []
+        return context
+    else:
+        if isinstance(ans, list):
+            context = [int(i) for i in ans]
+        else:
+            try:
+                context = [int(ans), ]
+            except ValueError:
+                context = [ans, ]
+        return context
 
 
 def vacancy_actions(vacancy):
