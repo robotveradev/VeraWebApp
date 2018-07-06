@@ -52,7 +52,7 @@ class ProcessExam(Task):
     def process_w2w_question(self, question, candidate_answer):
         w2v_total = 0
         min_sim = 1
-        for answer in question.answers.all():
+        for answer in question.answers.all().order_by('-weight'):
             self.w2v_handler.set_answers(right_answer=answer.text, candidate_answer=candidate_answer)
             sim = self.w2v_handler.run()
             if sim < min_sim and isinstance(sim, float):
@@ -76,12 +76,12 @@ class VeraW2V(object):
         self.api_url = settings.W2V_API_URL
         self.candidate_sentence = None
         self.right_sentence = None
-        self.similarity = 0
+        self.similarity = None
         self.corrector = jamspell.TSpellCorrector()
         self.corrector.LoadLangModel('en.bin')
 
     def run(self):
-
+        self.similarity = None
         if not self.candidate_sentence or not self.right_sentence:
             return False
         self.get_similarity_euql()
@@ -92,14 +92,15 @@ class VeraW2V(object):
                                i not in self.stop]
         self.candidate_sentence = [self.corrector.FixFragment(i) for i in word_tokenize(candidate_answer.lower()) if
                                    i not in self.stop]
-        self.similarity = 0
+        self.similarity = None
 
     def get_similarity_euql(self):
         for i in self.right_sentence:
             try:
                 first_vector = requests.post(self.api_url, data={"word": i}, timeout=5).text
             except Exception:
-                return 0.01
+                self.similarity = 0.0
+                return
             try:
                 first_vector = np.asarray(eval(first_vector), dtype=np.float32)
             except SyntaxError:
