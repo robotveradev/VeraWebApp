@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ActionInterview, ScheduledMeeting
+from .models import ActionInterview, ScheduledMeeting, InterviewPassed
 
 
 class AdminActionInterview(admin.ModelAdmin):
@@ -19,3 +19,4 @@ class AdminScheduledMeeting(admin.ModelAdmin):
 
 admin.site.register(ActionInterview, AdminActionInterview)
 admin.site.register(ScheduledMeeting, AdminScheduledMeeting)
+admin.site.register(InterviewPassed)
