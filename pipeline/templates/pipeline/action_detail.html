@@ -64,7 +64,7 @@
                                     vacancy before you can change vacancy action properties.
                                 </p>
                             {% elif vacancy.enabled is False %}
-                                <form id="change-action" action="{% url 'change_pipeline_action' pk=action.db.id %}"
+                                <form id="change-action-form" action="{% url 'change_pipeline_action' pk=action.db.id %}"
                                       method="post"
                                       class="uk-form-horizontal">
                                     {% csrf_token %}
