@@ -21,13 +21,13 @@ from vacancy.models import Vacancy, CandidateOnVacancy, VacancyOffer
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
-MESSAGES = {'allow': _('You must approve the tokens for the oracle.'),
+MESSAGES = {'allow': _('You must approve tokens for platform.'),
             'empty_exam': _('One or more actions do not have an exam.'),
             'empty_interview': _('One or more actions do not have an interview.'),
             'disabled_profile': _('Your profile has no position. You must set position it for subscribe.'),
             'disabled_vacancy': _('Vacancy {} now disabled. You cannot subscribe to disabled vacancy.'),
-            'pipeline_doesnot_exist': 'You must add pipeline to enable vacancy',
-            'need_more_actions': 'You must add more actions for pipeline', }
+            'pipeline_doesnot_exist': 'You must add pipeline to enable vacancy.',
+            'need_more_actions': 'You must add more actions for pipeline.', }
 
 
 class CreateVacancyView(OnlyEmployerMixin, CreateView):

@@ -133,7 +133,7 @@ class VerifyAnswer(Task):
         return True
 
     def verify(self):
-        answers = self.instance.question.answers.all()
+        answers = self.instance.question.answers.all().order_by('-weight')
         min_sim = 1
         related_answer = None
         for answer in answers:
