@@ -6,10 +6,10 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import CreateView, FormView
+from django.views.generic import CreateView
 
 from interview.forms import ActionInterviewForm, ScheduleMeetingForm
-from interview.models import ActionInterview, ScheduledMeeting
+from interview.models import ActionInterview, ScheduledMeeting, InterviewPassed
 from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
 from pipeline.models import Action
 from .zoomus import ZoomusApi
@@ -106,11 +106,16 @@ class CandidateInterviewScheduleView(OnlyCandidateMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['action_interview'] = self.action_interview
         try:
-            self.meeting = ScheduledMeeting.objects.get(action_interview=self.action_interview,
-                                                        candidate=self.candidate)
-        except ScheduledMeeting.DoesNotExist:
-            self.meeting = None
-        context.update({'meeting': self.meeting})
+            passed = InterviewPassed.objects.get(interview=self.action_interview, candidate=self.candidate)
+        except InterviewPassed.DoesNotExist:
+            try:
+                self.meeting = ScheduledMeeting.objects.get(action_interview=self.action_interview,
+                                                            candidate=self.candidate)
+            except ScheduledMeeting.DoesNotExist:
+                self.meeting = None
+            context.update({'meeting': self.meeting})
+        else:
+            context.update({'passed': passed})
         return context
 
     def get_form_kwargs(self):
@@ -123,7 +128,6 @@ class CandidateInterviewScheduleView(OnlyCandidateMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-
         form.instance.action_interview = self.action_interview
         form.instance.candidate = self.candidate
         date = form.cleaned_data['date']
