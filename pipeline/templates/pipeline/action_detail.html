@@ -14,7 +14,7 @@
             {% endif %}
         </h5>
         <p class="uk-article-meta">{{ action.approvable|yesno:'Approvable, Not approvable' }} pipeline
-            action, fee: {{ action.fee }} Vera Coin
+            action, reward: {{ action.fee }} Vera Coin
         </p>
         <div data-uk-grid>
             <div class="uk-width-1-2">
@@ -67,14 +67,12 @@
                                 <form id="change-action" action="{% url 'change_pipeline_action' pk=action.db.id %}"
                                       method="post"
                                       class="uk-form-horizontal">
-
                                     {% csrf_token %}
                                     <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
                                     {% form form=change_form %}{% endform %}
                                     <button style="display: none;" id="save_action_changes"
                                             class="uk-button uk-button-small uk-button-default uk-align-right uk-margin-remove-bottom">
                                         save
-
                                     </button>
                                     <div class="uk-clearfix"></div>
                                 </form>

@@ -15,7 +15,7 @@
                     <div class="uk-accordion-content">
                         <article class="uk-article">
                             <p class="uk-article-meta">{{ item.approvable|yesno:'Approvable, Not approvable' }} pipeline
-                                action, fee: {{ item.fee }} Vera Coin
+                                action, reward: {{ item.fee }} Vera Coin
                                 <a class="uk-align-right" href="{{ item.db|employer_pipeline_action_config_link }}">Config</a>
                             </p>
                             <p>Now at action - {{ item.cans }} candidate{{ item.cans|pluralize }}.</p>
@@ -71,11 +71,11 @@
                                                 </div>
 
                                                 <div class="uk-margin">
-                                                    <label class="uk-form-label" for="form-horizontal-text">Fee</label>
+                                                    <label class="uk-form-label" for="form-horizontal-text">Reward</label>
                                                     <div class="uk-form-controls">
                                                         <input value="0" class="uk-input" id="form-horizontal-text"
                                                                type="text"
-                                                               placeholder="Fee" name="fee">
+                                                               placeholder="Reward" name="fee">
                                                     </div>
                                                 </div>
 
@@ -125,7 +125,7 @@
                                     {% if max_candidates < 5 %}
                                         <p class="uk-text-meta" style="font-size: .7rem">
                                             It seems that with a fixed number of tokens
-                                            ({{ vacancy.allowed_amount }} Vera Coin) and a fee for the complete
+                                            ({{ vacancy.allowed_amount }} Vera Coin) and a reward for complete
                                             passage of pipeline ({{ full_pay }} Vera Coin), the maximum number of
                                             candidates who can pass the entire
                                             pipeline - {{ max_candidates }}.
