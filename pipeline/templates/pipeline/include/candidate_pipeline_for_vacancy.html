@@ -29,17 +29,21 @@
                                                     {% endif %}
                                                     <span class="uk-position-center">
                                                         {% if candidate_current_action_index == action.id %}
-                                                            <a class="vr-link uk-text-meta"
-                                                               href="{% url 'process_action' pk=action.db.id %}">
+                                                            {% if action.db.action_type.condition_of_passage %}
+                                                                <a class="vr-link uk-text-meta"
+                                                                   href="{% url 'process_action' pk=action.db.id %}">
                                                                 {{ action.title }}
                                                             </a>
+                                                            {% else %}
+                                                                {{ action.title }}
+                                                            {% endif %}
                                                         {% else %}
                                                             {{ action.title }}
                                                         {% endif %}
 
                                                         </span>
                                                     {% if action.fee > 0 %}
-                                                        <span class="uk-badge green uk-position-top-right action-price-badge">{{ action.fee|floatformat }}vc</span>
+                                                        <span data-uk-tooltip="Reward" class="uk-badge green uk-position-top-right action-price-badge">{{ action.fee|floatformat }} &nbsp;VC</span>
                                                     {% endif %}
                                                 </div>
 
