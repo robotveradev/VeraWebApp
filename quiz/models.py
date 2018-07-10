@@ -11,7 +11,8 @@ class Category(models.Model):
     title = models.CharField(max_length=255)
     employer = models.ForeignKey('jobboard.Employer',
                                  on_delete=models.CASCADE,
-                                 null=True)
+                                 null=True,
+                                 related_name='categories')
     parent_category = models.ForeignKey('self',
                                         on_delete=models.SET_NULL,
                                         null=True,

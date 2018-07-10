@@ -1,26 +1,15 @@
 $(document).ready(function () {
 
-    var time_block = $("#time_to_block");
-    var time_per_block = time_block.data('per-block');
-    setInterval(function () {
-        var time = Number(time_block.text()) + 1;
-        if (time <= time_per_block - 1) {
-            time_block.text(time);
-        } else {
-            time_block.text(0);
-        }
-    }, 1000);
-
     $('.cv_switch').on('change', function () {
         $(this).parents('form').submit();
     });
 
     function hide_more(elem) {
-        var spec_list = $('#' + elem + ' ul');
-        var elem_count = spec_list.children('li').length;
+        let spec_list = $('#' + elem + ' ul');
+        let elem_count = spec_list.children('li').length;
         if (elem_count > 5) {
             $('#' + elem + '_less').remove();
-            for (var i = 5; i < elem_count; i++) {
+            for (let i = 5; i < elem_count; i++) {
                 spec_list.children('li').eq(i).hide();
             }
             spec_list.append('<li id="' + elem + '_more" class="spec-item"><span class="more-link">More</span></li>');
@@ -28,11 +17,11 @@ $(document).ready(function () {
     }
 
     function show_more(elem) {
-        var spec_list = $('#' + elem + ' ul');
-        var elem_count = spec_list.children('li').length;
+        let spec_list = $('#' + elem + ' ul');
+        let elem_count = spec_list.children('li').length;
         if (elem_count > 5) {
             $('#' + elem + '_more').remove();
-            for (var i = 5; i < elem_count; i++) {
+            for (let i = 5; i < elem_count; i++) {
                 spec_list.children('li').eq(i).show();
             }
             spec_list.append('<li id="' + elem + '_less" class="spec-item"><span class="hide-link">Less</span></li>');
@@ -51,8 +40,8 @@ $(document).ready(function () {
     });
 
     $('#check_agent').on('click', function (event) {
-        var address_input = $('#agent_address');
-        var agent_address = address_input.val();
+        let address_input = $('#agent_address');
+        let agent_address = address_input.val();
         if (agent_address === '') {
             address_input.focus();
             address_input.addClass('uk-form-danger');
@@ -73,10 +62,10 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     address_input.removeClass('uk-form-danger').addClass('uk-form-success');
-                    var link_item = $('#grant_revoke_link');
-                    var elem = '';
-                    var link = '';
-                    var action = '';
+                    let link_item = $('#grant_revoke_link');
+                    let elem = '';
+                    let link = '';
+                    let action = '';
                     link_item.show();
                     if (data === 'False') {
                         link = '/agent/grant/?address=';
@@ -114,8 +103,8 @@ $(document).ready(function () {
     });
 
     $('input[name="test_answer"]').closest('div').find('a').on('click', function () {
-        var question_id = $(this).data('question-id');
-        var answer = $(this).closest('div').find('input').val();
+        let question_id = $(this).data('question-id');
+        let answer = $(this).closest('div').find('input').val();
         if (answer === '') {
             UIkit.notification({
                 message: 'Please specify the answer text',

@@ -199,3 +199,11 @@ def job_status(candidate, only_status=True):
         'only_status': only_status,
         'now_pending': Transaction.objects.filter(user=candidate.user, txn_type='ChangeStatus').exists()
     }
+
+
+@register.filter
+def get_questions_count(employer):
+    count = 0
+    for item in employer.categories.all():
+        count += item.questions.count()
+    return count

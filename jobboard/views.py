@@ -240,7 +240,7 @@ class ChangeContractStatus(ChooseRoleMixin, RedirectView):
 
 class TransactionsView(ChooseRoleMixin, ListView):
     model = TransactionHistory
-    paginate_by = 25
+    paginate_by = 10
     template_name = 'jobboard/transactions.html'
     ordering = '-created_at'
 
@@ -251,6 +251,11 @@ class TransactionsView(ChooseRoleMixin, ListView):
     def get_queryset(self):
         qu = super().get_queryset()
         return qu.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.update({'count': self.get_queryset().count()})
+        return ctx
 
 
 def get_item(periods, f_id):

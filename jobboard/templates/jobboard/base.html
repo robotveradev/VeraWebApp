@@ -26,7 +26,8 @@
 <div class="uk-container">
     <nav class="uk-navbar-container white" data-uk-navbar>
         <div class="uk-navbar-left">
-            <a data-hint="logo" href="/" class="uk-text-bold uk-text-large blue-text text-lighten-2 uk-link-reset">Vera</a>
+            <a data-hint="logo" href="/"
+               class="uk-text-bold uk-text-large blue-text text-lighten-2 uk-link-reset">Vera</a>
         </div>
         <div class="uk-navbar-right">
             <ul class="uk-navbar-nav">
@@ -207,6 +208,20 @@
                     return false;
                 }
 
+                function make_additionals(adds) {
+                    for (let key in adds) {
+                        if (adds.hasOwnProperty(key)) {
+                            if (typeof adds[key] === 'string') {
+                                $('#' + adds[key]).attr(key, true);
+                            } else {
+                                adds[key].map((it) => {
+                                    $('#' + it).attr(key, true);
+                                })
+                            }
+                        }
+                    }
+                }
+
                 for (let i = 0; i < tuts_count; i++) {
                     let pass = localStorage.getItem(hint_set[i].title);
                     if (pass !== '0') {
@@ -225,12 +240,13 @@
                         let hint_object = {
                             config: config,
                             steps: hint_set[i].steps,
-                            start:
-                                function () {
-                                    this.instance = new EnjoyHint(this.config);
-                                    this.instance.set(typeof this.steps === 'function' ? this.steps() : this.steps);
-                                    this.instance.run();
-                                }
+                            start: function () {
+                                make_additionals(this.additional);
+                                this.instance = new EnjoyHint(this.config);
+                                this.instance.set(typeof this.steps === 'function' ? this.steps() : this.steps);
+                                this.instance.run();
+                            },
+                            additional: hint_set[i].additional
                         };
                         hint_instance_set.push(hint_object);
                     }

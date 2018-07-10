@@ -5,7 +5,6 @@ $(document).ready(function () {
                 return false;
             }
         });
-        $('#id_parent_category').attr('disabled', 'true');
         let new_category = {
             title: 'new_category',
             steps: [
@@ -39,6 +38,7 @@ $(document).ready(function () {
                     radius: 50
                 }
             ],
+            additional: {'disabled': 'id_parent_category'}
         };
         hint_set.push(new_category);
     }

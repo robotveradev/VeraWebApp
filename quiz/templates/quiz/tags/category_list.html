@@ -1,9 +1,9 @@
 {% load quiz_tags %}
 {% for item in categories %}
-    <li class="uk-border uk-padding-small">
+    <li class="uk-border white uk-padding-small">
         <a class="uk-accordion-title" href="#">{{ item }}</a>
         <div class="uk-accordion-content">
-            <ul class="uk-margin-small-left" uk-accordion="multiple: true">
+            <ul class="uk-margin-small-left" data-uk-accordion="multiple: true">
                 {% if item.sub_categories.all %}
                     {% category item selected %}
                 {% endif %}
@@ -20,7 +20,7 @@
                                             type="checkbox"
                                             {% if question.id in selected %} checked{% endif %}
                                             {% if question.answers.all|length < 1 %}disabled{% endif %}>
-                                        {{ question.question_text }}
+                                        {{ question.question_text|safe }}
                                     </label>
                                 </div>
                             {% endfor %}
@@ -33,7 +33,7 @@
                     </li>
                 {% endif %}
                 {% if not item.sub_categories.all and not item.questions.all %}
-                    <div class="uk-alert-danger" uk-alert>
+                    <div class="uk-alert-danger" data-uk-alert>
                         <p>Empty category</p>
                     </div>
                 {% endif %}
