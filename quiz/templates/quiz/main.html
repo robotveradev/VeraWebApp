@@ -1,25 +1,41 @@
 {% extends 'jobboard/base.html' %}
 
-{% load static %}
+{% load static jobboard_tags %}
 
-{% block head_title %} Vera Platform Quiz {% endblock %}
+{% block head_title %}Vera Platform Quiz{% endblock %}
 
 {% block content %}
     {{ block.super }}
     <div data-hint="quiz_main" class="uk-container uk-align-center">
-        <h3>Quiz</h3>
-        {% if categories %}
-            <div data-hint="categories">
-                {% for category in categories %}
-                    {% include 'quiz/include/category.html' with item=category %}
-                {% endfor %}
+        <h4 class="uk-text-bold">Quiz</h4>
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-4-5">
+                <div class="uk-padding-small vr-window white">
+                    {% if categories %}
+                        <div data-hint="categories">
+                            {% for category in categories %}
+                                {% include 'quiz/include/category.html' with item=category %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <a data-hint="new_cat" href="{% url 'new_category' %}"
+                       class="uk-button uk-button-primary uk-button-small uk-margin-remove-bottom uk-align-right">
+                        New category</a>
+                    <div class="uk-clearfix"></div>
+                </div>
             </div>
-        {% endif %}
-        <div class="uk-clearfix">
+            <div class="uk-width-1-5">
+                <div class="uk-padding-small vr-window white">
+                    <h5 class="uk-text-bold">
+                        Info
+                    </h5>
+                    <ul class="uk-list uk-list-bullet">
+                        <li>Categories: {{ role_object.categories.count }}&nbsp;pcs.</li>
+                        <li>Questions: {{ role_object|get_questions_count }}&nbsp;pcs.</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <a data-hint="new_cat" href="{% url 'new_category' %}"
-           class="uk-button uk-button-primary uk-button-small uk-align-right">New
-            category</a>
     </div>
 {% endblock %}
 

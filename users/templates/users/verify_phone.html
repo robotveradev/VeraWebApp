@@ -6,15 +6,18 @@
 
 {% block content %}
     {{ block.super }}
-    <div class="uk-container uk-align-center">
-        <h3>Phone verification</h3>
-
-        <form method="post" class="uk-form-horizontal">
-            {% csrf_token %}
-            {% form form=form %}{% endform %}
-            <button class="uk-button uk-button-small uk-button-primary uk-align-right">
-                Send
-            </button>
-        </form>
+    <div class="uk-container uk-text-center uk-margin-large-top">
+        <h4 class="uk-text-bold blue-text text-lighten-1 uk-text-uppercase">Phone verification</h4>
+        <div class="uk-width-1-4 uk-align-center">
+            <div class="white uk-padding-small uk-margin-large-bottom vr-auth">
+                <form class="uk-text-left" method="POST">
+                    {% csrf_token %}
+                    {% form form=form %}{% endform %}
+                    <button class="uk-button uk-button-small uk-button-primary uk-align-center uk-margin-remove-bottom uk-margin-small-top"
+                            type="submit">Send</button>
+                </form>
+                <div class="uk-clearfix"></div>
+            </div>
+        </div>
     </div>
 {% endblock %}

@@ -7,11 +7,11 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h4 class="center">{% trans 'Add exam for action' %}</h4>
+        <h4 class="uk-text-bold">{% trans 'Add exam for action' %}</h4>
         <form method="post" action="{% url 'action_exam_new' pk=action.id %}">
             {% csrf_token %}
             <input type="hidden" value="{{ action.id }}" name="action">
-            <ul uk-accordion="multiple: true">
+            <ul data-uk-accordion="multiple: true">
                 {% include 'quiz/tags/category_list.html' with categories=object_list %}
             </ul>
             <button type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right">Continue</button>
