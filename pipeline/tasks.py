@@ -17,9 +17,9 @@ def new_action(action):
         vacancy = Vacancy.objects.get(uuid=action['vacancy_uuid'])
         save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
                                               'Creation of a new action for vacancy: {}'.format(vacancy.title)),
-                                        countdown=1)
+                                        countdown=0.1)
         save_txn.apply_async(args=(txn_hash.hex(), 'NewAction', vacancy.employer.user.id, action['id'], vacancy.id),
-                             countdown=1)
+                             countdown=0.1)
 
 
 @shared_task
@@ -35,9 +35,9 @@ def changed_action(action):
         save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
                                               'Changed action {} on vacancy: {}'.format(action['index'],
                                                                                         vacancy.title)),
-                                        countdown=1)
+                                        countdown=0.1)
         save_txn.apply_async(args=(txn_hash.hex(), 'ActionChanged', vacancy.employer.user.id, action['id']),
-                             countdown=1)
+                             countdown=0.1)
 
 
 @shared_task
@@ -49,9 +49,9 @@ def delete_action(action):
         save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
                                               'Deleted action {} on vacancy: {}'.format(action['index'],
                                                                                         vacancy.title)),
-                                        countdown=1)
-        save_txn.apply_async(args=(txn_hash.hex(), 'ActionDeleted', vacancy.employer.user.id, action['id']),
-                             countdown=1)
+                                        countdown=0.1)
+        save_txn.apply_async(args=(txn_hash.hex(), 'ActionDeleted', vacancy.employer.user.id, action['id'], vacancy.id),
+                             countdown=0.1)
 
 
 @shared_task

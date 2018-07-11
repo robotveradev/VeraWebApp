@@ -45,6 +45,7 @@ class Action(models.Model):
                                     related_name='actions')
     index = models.SmallIntegerField(default=0)
     published = models.BooleanField(default=False)
+    to_delete = models.BooleanField(default=False)
 
     def __str__(self):
         return '{} action'.format(self.pipeline.vacancy.title if self.pipeline and self.pipeline.vacancy else '')
