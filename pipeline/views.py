@@ -125,7 +125,6 @@ class DeleteActionView(OnlyEmployerMixin, RedirectView):
         self.vacancy = action.pipeline.vacancy
         if action.owner != request.user:
             raise Http404
-        action.published = False
         action.to_delete = True
         action.save()
         return super().dispatch(request, *args, **kwargs)
