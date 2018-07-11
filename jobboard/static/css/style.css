@@ -48,6 +48,11 @@ a.uk-button {
     color: #f0506e
 }
 
+.uk-alert-info {
+    background: #64B5F6;
+    color: white
+}
+
 .error {
     color: red;
 }

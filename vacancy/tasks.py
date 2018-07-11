@@ -41,9 +41,9 @@ def change_status(vacancy_id):
             txn_hash = emp_h.enable_vac(vacancy.uuid)
         if txn_hash:
             save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
-                                                  'Vacancy status changed: {}'.format(vacancy.title)), countdown=1)
+                                                  'Vacancy status changed: {}'.format(vacancy.title)), countdown=0.5)
             save_txn.apply_async(args=(txn_hash.hex(), 'VacancyChange', vacancy.employer.user.id, vacancy.id),
-                                 countdown=1)
+                                 countdown=0.5)
     return True
 
 

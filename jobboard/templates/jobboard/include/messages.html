@@ -1,6 +1,6 @@
 {% if messages %}
     {% for message in messages %}
-        <div{% if message.tags %} class="uk-alert-{{ message.tags }}"{% endif %} uk-alert style="margin: 0!important;">
+        <div{% if message.tags %} class="uk-alert-{{ message.tags }}"{% endif %} data-uk-alert style="margin: 0!important;">
             <a class="uk-alert-close" data-uk-close></a>
             <p>{{ message }}</p>
         </div>

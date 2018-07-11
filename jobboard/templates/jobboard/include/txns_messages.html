@@ -1,0 +1,9 @@
+{% load jobboard_tags %}
+{% if txns.exists %}
+    {% for txn in txns %}
+        <div class="uk-alert-info"
+             data-uk-alert style="margin: 0!important;{% if txns.count >= 2 %} padding: 3px 29px 3px 15px;{% endif %}">
+            {{ txn|txn_message_with_link }}
+        </div>
+    {% endfor %}
+{% endif %}

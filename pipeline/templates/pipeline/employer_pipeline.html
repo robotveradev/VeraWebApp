@@ -1,4 +1,4 @@
-{% load pipeline_tags %}
+{% load pipeline_tags jobboard_tags %}
 <h2>Vacancy pipeline</h2>
 <div class="uk-margin-large-bottom" data-uk-grid>
     <div class="uk-width-2-3">
@@ -71,7 +71,8 @@
                                                 </div>
 
                                                 <div class="uk-margin">
-                                                    <label class="uk-form-label" for="form-horizontal-text">Reward</label>
+                                                    <label class="uk-form-label"
+                                                           for="form-horizontal-text">Reward</label>
                                                     <div class="uk-form-controls">
                                                         <input value="0" class="uk-input" id="form-horizontal-text"
                                                                type="text"
@@ -97,7 +98,9 @@
                         {% endwith %}
                     {% endwith %}
                 {% else %}
-                    <p class="uk-text-meta">To add new pipeline action you have to disable vacancy.</p>
+                    <div class="uk-padding-small white uk-border">
+                        {% check_txn txns 'VacancyChange' vacancy.id %}
+                    </div>
                 {% endif %}
             {% endwith %}
         </ul>

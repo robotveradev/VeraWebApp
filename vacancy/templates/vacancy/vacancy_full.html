@@ -160,10 +160,16 @@
                 </div>
             </div>
             <div class="uk-width-1-4">
-                <div class="uk-padding-small white vr-window">
+                <div class="uk-padding-small white vr-window uk-position-relative">
                     {% if role_object == vacancy.employer %}
                         <h5 class="uk-text-bold uk-margin-remove-top">Vacancy status</h5>
                         {% with vacancy.enabled as en %}
+                            {% if en is None %}
+                                <div class="uk-overlay-default uk-position-cover"></div>
+                                <div class="uk-overlay uk-position-center uk-dark">
+                                    <p data-uk-spinner="ratio: 0.4">Renewal vacancy status </p>
+                                </div>
+                            {% endif %}
                             <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
                                 <label class="uk-text-bold"><input class="uk-radio" type="radio" name="status"
                                                                    {% if en %}checked{% endif %}> Enabled
@@ -184,6 +190,7 @@
                                     </p>
                                 </div>
                             </div>
+
                         {% endwith %}
                     {% else %}
                         <h5 class="uk-text-bold">Vacancy</h5>
@@ -260,3 +267,4 @@
         {% endif %}
     {% endif %}
 {% endblock %}
+lorem

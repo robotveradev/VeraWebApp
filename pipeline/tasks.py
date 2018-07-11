@@ -13,13 +13,14 @@ def new_action(action):
                                 title=action['title'],
                                 fee=action['fee'],
                                 appr=action['approvable'])
+    # TODO may crash if pipeline_max_length reached
     if txn_hash:
         vacancy = Vacancy.objects.get(uuid=action['vacancy_uuid'])
         save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
                                               'Creation of a new action for vacancy: {}'.format(vacancy.title)),
-                                        countdown=1)
+                                        countdown=0.3)
         save_txn.apply_async(args=(txn_hash.hex(), 'NewAction', vacancy.employer.user.id, action['id'], vacancy.id),
-                             countdown=1)
+                             countdown=0.3)
 
 
 @shared_task

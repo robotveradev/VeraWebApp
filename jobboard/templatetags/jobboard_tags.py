@@ -6,11 +6,13 @@ from urllib.parse import urlencode
 from django import template
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.utils.safestring import mark_safe
 
 from candidateprofile.models import CandidateProfile
 from jobboard import blockies
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.oracle import OracleHandler
+from jobboard.messages import MESSAGES
 from jobboard.models import Transaction
 from quiz.models import ActionExam
 from vacancy.models import Vacancy, CandidateOnVacancy, VacancyOffer
@@ -207,3 +209,22 @@ def get_questions_count(employer):
     for item in employer.categories.all():
         count += item.questions.count()
     return count
+
+
+@register.inclusion_tag('jobboard/tags/blocked_with_tnx.html')
+def check_txn(txns, action_type, obj_id):
+    b = txns.filter(txn_type=action_type, obj_id=obj_id)
+    message = b.exists() and MESSAGES[action_type] or MESSAGES['Not_' + action_type]
+    return {
+        'message': mark_safe(message)
+    }
+
+
+@register.filter
+def txn_message_with_link(txn):
+    try:
+        message = MESSAGES[txn.txn_type]
+    except KeyError:
+        message = 'Transaction now pending...'
+    link = '<a href="{}" target="_blank" class="vr-link white-text">{}</a>'
+    return mark_safe(link.format(net_url() + 'tx/' + txn.txn_hash, message))
