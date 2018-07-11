@@ -76,16 +76,15 @@ def vacancy_actions(vacancy):
     return res
 
 
-@register.inclusion_tag('pipeline/employer_pipeline.html')
-def employer_pipeline_for_vacancy(vacancy, user):
+@register.inclusion_tag('pipeline/employer_pipeline.html', takes_context=True)
+def employer_pipeline_for_vacancy(context, vacancy, user):
     oracle = OracleHandler()
     cands_on_action = oracle.get_candidates_on_vacancy_by_action_count(vacancy.uuid)
     vac_actions = vacancy_actions(vacancy)
     cont_actions = [{**i, 'cans': i['id'] in cands_on_action and cands_on_action[i['id']] or 0} for i in vac_actions]
-    return {'actions': cont_actions,
-            'vacancy': vacancy,
-            'types': ActionType.objects.all(),
-            'user': user}
+    context.update({'actions': cont_actions,
+                    'types': ActionType.objects.all()})
+    return context
 
 
 @register.filter

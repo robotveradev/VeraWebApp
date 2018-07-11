@@ -13,6 +13,7 @@ def new_action(action):
                                 title=action['title'],
                                 fee=action['fee'],
                                 appr=action['approvable'])
+    # TODO may crash if pipeline_max_length reached
     if txn_hash:
         vacancy = Vacancy.objects.get(uuid=action['vacancy_uuid'])
         save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),

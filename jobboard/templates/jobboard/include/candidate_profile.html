@@ -272,7 +272,9 @@
     </div>
     <div class="uk-width-1-4">
         <div class="vr-window white uk-padding-small">
-            {% job_status role_object False %}
+            {% if role_object.contract_address %}
+                {% job_status role_object False %}
+            {% endif %}
         </div>
     </div>
 </div>
