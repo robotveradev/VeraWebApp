@@ -7,7 +7,10 @@
             <label{% attrs bound_field 'label' %}
                 for="{{ bound_field.id_for_label }}"
                 class="uk-form-label"
-            {% endattrs %}>{{ bound_field.label }}</label>
+            {% endattrs %}>
+                {{ bound_field.label }}
+                {% if field.required %}*{% endif %}
+            </label>
         {% endpart %}
         <div class="uk-form-controls">
             {% part field prefix %}{% endpart %}{% part field control %}
