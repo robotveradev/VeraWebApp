@@ -1,10 +1,12 @@
 {% load material_form material_form_internal i18n %}
 {% part bound_field.field %}
     <div class="uk-margin">
-        <label class="uk-form-label" for="id_{{ bound_field.html_name }}">{{ bound_field.label }}</label>
+        <label class="uk-form-label" for="id_{{ bound_field.html_name }}">{{ bound_field.label }}
+            {% if field.required %}*{% endif %}
+        </label>
         <div class="uk-form-controls">
             <div{% attrs bound_field 'group' %}
-                uk-form-custom="target: true"
+                data-uk-form-custom="target: true"
                 class="uk-display-block{% if field.required %} required{% endif %}{% if bound_field.errors %} has-error{% endif %}"
             {% endattrs %}>
                 {% part field control %}

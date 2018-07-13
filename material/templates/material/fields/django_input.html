@@ -4,7 +4,9 @@
 {% else %}
     {% part bound_field.field %}
         <div class="uk-margin">
-            <label class="uk-form-label" for="id_{{ bound_field.html_name }}">{{ bound_field.label }}{% part field help_text %}
+            <label class="uk-form-label" for="id_{{ bound_field.html_name }}">{{ bound_field.label }}
+                {% if field.required %}*{% endif %}
+                {% part field help_text %}
                     {% if field.help_text %}
                         <span style="font-size: 0.7rem" class="uk-text-meta">, {{ bound_field.help_text|safe }}</span>
                     {% endif %}
