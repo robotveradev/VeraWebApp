@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
-from candidateprofile import views as cp_views
+from member_profile import views as cp_views
 from company import views as company_views
 from interview import views as interview_views
 from jobboard import views as jobboard_views
@@ -33,7 +33,6 @@ from vacancy import views as vacancy_views
 basic = [
     path('', TemplateView.as_view(template_name='jobboard/index.html'), name='index'),
     path('invite/<uuid:code>/', users_views.InviteView.as_view()),
-    path('role/', jobboard_views.ChooseRoleView.as_view(), name='choose_role'),
     path('admin/', admin.site.urls),
     path('accounts/settings/', TemplateView.as_view(template_name='users/settings.html'), name='settings_page'),
     path('accounts/', include("allauth.urls")),
@@ -42,7 +41,7 @@ basic = [
     path('help/', TemplateView.as_view(template_name='jobboard/user_help.html'), name='user_help'),
     path('contract/status/change/', jobboard_views.ChangeContractStatus.as_view(), name='change_contract_status'),
     path('transactions/', jobboard_views.TransactionsView.as_view(), name='transactions'),
-    path('withdraw/', jobboard_views.withdraw, name='withdraw'),
+    path('withdraw/', jobboard_views.WithdrawView.as_view(), name='withdraw'),
     path('approve/', jobboard_views.ApproveTokenView.as_view(), name='approve'),
     path('check_agent/', jobboard_views.check_agent, name='check_agent'),
     path('agent/<slug:action>/', jobboard_views.GrantRevokeAgentView.as_view(), name='grant_agent'),
@@ -104,7 +103,6 @@ quiz_urlpatterns = [
 ]
 
 employer_urlpatterns = [
-    path('employer/<int:pk>/about/', jobboard_views.EmployerAboutView.as_view(), name='employer_about'),
     path('companies/', company_views.CompaniesView.as_view(), name='companies'),
     path('company/new/', company_views.NewCompanyView.as_view(), name='new_company'),
     path('company/<int:pk>', company_views.CompanyDetailsView.as_view(), name='company'),

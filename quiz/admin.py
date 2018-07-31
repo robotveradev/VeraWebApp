@@ -3,7 +3,7 @@ from quiz.models import Category, Question, Answer, ActionExam, QuestionKind, Ex
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['title', 'parent_category', 'employer']
+    list_display = ['title', 'parent_category', 'company']
 
     class Meta:
         model = Category

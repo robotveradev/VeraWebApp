@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, InviteCode
+from .models import Member, InviteCode
 
 
 def make_phones_verified(modeladmin, request, queryset):
@@ -19,11 +19,11 @@ def make_phones_unverified(modeladmin, request, queryset):
 make_phones_unverified.short_description = "Mark selected user phones as unverified"
 
 
-class CustomUserAdmin(UserAdmin):
+class MemberAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
-    model = CustomUser
-    list_display = ['email', 'username', 'country_code', 'phone_number', 'phone_number_verified']
+    model = Member
+    list_display = ['email', 'username', 'country_code', 'phone_number', 'contract_address', 'tax_number']
     actions = [make_phones_verified, make_phones_unverified, ]
 
 
@@ -62,5 +62,5 @@ class InviteCodeAdmin(admin.ModelAdmin):
         model = InviteCode
 
 
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Member, MemberAdmin)
 admin.site.register(InviteCode, InviteCodeAdmin)

@@ -10,12 +10,11 @@ from django.views.generic import CreateView
 
 from interview.forms import ActionInterviewForm, ScheduleMeetingForm
 from interview.models import ActionInterview, ScheduledMeeting, InterviewPassed
-from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
 from pipeline.models import Action
 from .zoomus import ZoomusApi
 
 
-class NewActionInterviewView(OnlyEmployerMixin, CreateView):
+class NewActionInterviewView(CreateView):
     template_name = 'interview/action_interview_new.html'
     form_class = ActionInterviewForm
 
@@ -35,7 +34,7 @@ class NewActionInterviewView(OnlyEmployerMixin, CreateView):
         return reverse('action_details', kwargs={'pk': self.action.pk})
 
 
-class CandidateInterviewScheduleView(OnlyCandidateMixin, CreateView):
+class CandidateInterviewScheduleView(CreateView):
     form_class = ScheduleMeetingForm
 
     template_name = 'interview/schedule.html'

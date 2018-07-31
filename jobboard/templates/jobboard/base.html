@@ -34,17 +34,17 @@
                 <li><a id="home" href="{% url 'index' %}">Home</a></li>
                 <li><a id="vacancies" href="{% url 'find_job' %}">Vacancies</a></li>
                 <li><a href="{% url 'find_profiles' %}">Profiles</a></li>
-                {% if role == 'employer' %}
-                    <li>
-                        <a id="new_vacancy" href="{% url 'new_vacancy' %}">Post a job</a>
-                    </li>
-                {% endif %}
-                {% if role == 'candidate' %}
+                <li>
+                    <a id="new_vacancy" href="{% url 'new_vacancy' %}">Post a job</a>
+                </li>
+                {% if user.is_authenticated %}
                     <li>
                         <a data-hint="feedback" href="{% url 'offers' %}">Feedback
-                            {% with role_object|offers_count as off_count %}{% if off_count > 0 %}
-                                ({{ off_count }})
-                            {% endif %}{% endwith %}
+                            {% with user|offers_count as off_count %}
+                                {% if off_count > 0 %}
+                                    ({{ off_count }})
+                                {% endif %}
+                            {% endwith %}
                         </a>
                     </li>
                 {% endif %}
@@ -56,7 +56,7 @@
                     <li>
                         <a data-hint="profile-drop" class="uk-text-capitalize uk-text-bold">
                             <i class="fa fa-user-circle-o blue-text text-lighten-2" aria-hidden="true"></i>
-                            &emsp;{{ user.username }}&emsp;
+                            &emsp;{% firstof user.full_name user.username %}&emsp;
                             <i data-uk-icon="icon:chevron-down;ratio:0.7"></i>
                         </a>
                         <div class="uk-navbar-dropdown uk-padding-small" data-uk-dropdown="mode: click; offset:0">
@@ -66,21 +66,16 @@
                                 </li>
                                 <li class="uk-nav-divider"></li>
                                 <li><a data-hint="settings" href="{% url 'settings_page' %}">Settings</a></li>
-                                {% if role == 'employer' %}
-                                    <li class="uk-nav-divider"></li>
-                                    <li><a data-hint="companies" href="{% url 'companies' %}">Companies</a></li>
-                                    <li class="uk-nav-divider"></li>
-                                    <li><a href="{% url 'vacancy_all' %}">Vacancies</a></li>
-                                    <li class="uk-nav-divider"></li>
-                                    <li><a data-hint="quiz_link" href="{% url 'quiz_index' %}">Quiz app</a></li>
-                                {% elif role == 'candidate' %}
-                                    <li class="uk-nav-divider"></li>
-                                    <li><a href="{% url 'candidate_vacancies' %}">My jobs</a></li>
-                                {% endif %}
-                                {% if role is not None %}
-                                    <li class="uk-nav-divider"></li>
-                                    <li><a href="{% url 'transactions' %}">Transactions</a></li>
-                                {% endif %}
+                                <li class="uk-nav-divider"></li>
+                                <li><a data-hint="companies" href="{% url 'companies' %}">Companies</a></li>
+                                <li class="uk-nav-divider"></li>
+                                <li><a href="{% url 'vacancy_all' %}">Vacancies</a></li>
+                                <li class="uk-nav-divider"></li>
+                                <li><a data-hint="quiz_link" href="{% url 'quiz_index' %}">Quiz app</a></li>
+                                <li class="uk-nav-divider"></li>
+                                <li><a href="{% url 'candidate_vacancies' %}">My jobs</a></li>
+                                <li class="uk-nav-divider"></li>
+                                <li><a href="{% url 'transactions' %}">Transactions</a></li>
                                 <li class="uk-nav-divider"></li>
                                 <li><a href="{% url 'account_logout' %}">
                                     Logout <i data-uk-icon="icon:sign-out;"

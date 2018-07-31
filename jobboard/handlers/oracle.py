@@ -7,12 +7,12 @@ from solc.utils.string import force_bytes, force_text
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
 from web3.utils.validation import validate_address
+from jobboard import utils
 
 
 class OracleHandler(object):
     def __init__(self):
-        self.web3 = Web3(HTTPProvider(settings.NODE_URL))
-        self.web3.middleware_stack.inject(geth_poa_middleware, layer=0)
+        self.web3 = utils.get_w3()
         self.account = settings.WEB_ETH_COINBASE
         self.contract_address = settings.VERA_ORACLE_CONTRACT_ADDRESS
         try:
@@ -101,15 +101,6 @@ class OracleHandler(object):
 
     def get_candidates(self):
         return self.contract.call().get_candidates()
-
-    def new_vacancy(self, employer_address, uuid, allowed):
-        validate_address(employer_address)
-        self.unlockAccount()
-        txn_hash = self.contract.transact({'from': self.account}).new_vacancy(employer_address,
-                                                                              uuid,
-                                                                              int(allowed))
-        self.lockAccount()
-        return txn_hash
 
     def new_fact(self, candidate_address, fact):
         if not isinstance(fact, dict):
@@ -214,13 +205,23 @@ class OracleHandler(object):
             candidates.append(candidate)
         return candidates
 
-    def candidate_status(self, contract_address, only_index=False):
-        index = self.contract.call().candidate_statuses(contract_address)
+    def member_status(self, contract_address, only_index=False):
+        index = self.contract.call().members_statuses(contract_address)
         return index if only_index else self.statuses[index]
 
     def change_candidate_status(self, contract_address, status):
-        assert status != self.candidate_status(contract_address, only_index=True)
+        assert status != self.member_status(contract_address, only_index=True)
         self.unlockAccount()
-        txn_hash = self.contract.transact({'from': self.account}).change_candidate_status(contract_address, status)
+        txn_hash = self.contract.transact({'from': self.account}).change_member_status(contract_address, status)
         self.lockAccount()
         return txn_hash
+
+    # v3
+    def get_member_companies(self, address):
+        return self.contract.call().get_member_companies(address)
+
+    def get_company_members(self, address):
+        return self.contract.call().get_company_members(address)
+
+    def get_company_members_length(self, address):
+        return self.contract.call().company_members_length(address)

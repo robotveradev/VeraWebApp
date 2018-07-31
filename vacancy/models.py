@@ -1,7 +1,8 @@
 from django.db import models
 from django.urls import reverse
 
-from candidateprofile.models import Busyness, Schedule
+from member_profile.models import Busyness, Schedule
+from users.models import Member
 
 
 class Vacancy(models.Model):
@@ -13,6 +14,7 @@ class Vacancy(models.Model):
     uuid = models.CharField(max_length=66,
                             blank=False,
                             null=False)
+
     title = models.CharField(max_length=255)
     specialisations = models.ManyToManyField('jobboard.Specialisation',
                                              blank=True)
@@ -50,39 +52,27 @@ class Vacancy(models.Model):
     def __str__(self):
         return '{}: {}'.format(self.company.name, self.title)
 
-    @property
-    def employer(self):
-        return self.company.employer
-
-    @property
-    def owner(self):
-        return self.company.employer.user
-
-    @property
-    def user_field_name(self):
-        return 'company.employer'
-
     class Meta:
         ordering = ('-updated_at',)
 
 
-class CandidateOnVacancy(models.Model):
-    candidate = models.ForeignKey('jobboard.Candidate',
-                                  on_delete=models.CASCADE)
+class MemberOnVacancy(models.Model):
+    member = models.ForeignKey(Member,
+                               on_delete=models.CASCADE)
     vacancy = models.ForeignKey(Vacancy,
                                 on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = (('candidate', 'vacancy'), )
+        unique_together = (('member', 'vacancy'),)
 
 
 class VacancyOffer(models.Model):
     vacancy = models.ForeignKey('vacancy.Vacancy',
                                 on_delete=models.CASCADE)
-    profile = models.ForeignKey('candidateprofile.CandidateProfile',
-                                on_delete=models.CASCADE,
-                                related_name='offers')
+    member = models.ForeignKey(Member,
+                               on_delete=models.CASCADE,
+                               related_name='offers')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
@@ -91,7 +81,7 @@ class VacancyOffer(models.Model):
                                    default='')
 
     class Meta:
-        unique_together = (("vacancy", "profile"),)
+        unique_together = (("vacancy", "member"),)
 
     def __str__(self):
         return 'Vacancy offer'

@@ -3,26 +3,26 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import TemplateView, DetailView, RedirectView, ListView
 from web3.utils.validation import validate_address
 
-from candidateprofile.forms import LanguageItemForm, CitizenshipForm, WorkPermitForm
-from candidateprofile.models import CandidateProfile
-from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm, AchievementForm
+from jobboard.forms import LearningForm, WorkedForm, CertificateForm, AchievementForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
-from jobboard.mixins import ChooseRoleMixin, OnlyEmployerMixin, OnlyCandidateMixin
 from jobboard.tasks import save_txn_to_history, save_txn
+from member_profile.forms import LanguageItemForm, CitizenshipForm, WorkPermitForm
+from member_profile.models import Profile
+from users.models import Member
 from vacancy.models import Vacancy
 from .decorators import choose_role_required
 from .filters import VacancyFilter, CPFilter
 from .handlers.oracle import OracleHandler
-from .models import Employer, TransactionHistory, Candidate
+from .models import TransactionHistory
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
@@ -43,7 +43,7 @@ class FindJobView(TemplateView):
         self.request = None
         self.vacancies = Vacancy.objects.filter(published=True, enabled=True, company__employer__enabled=True)
         self.vacancies_filter = None
-        self.cvs = CandidateProfile.objects
+        self.cvs = Profile.objects
         self.context = {}
 
     def dispatch(self, request, *args, **kwargs):
@@ -103,7 +103,7 @@ class FindProfilesView(TemplateView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
-        self.cps = CandidateProfile.objects.filter(candidate__enabled=True)
+        self.cps = Profile.objects.filter(candidate__enabled=True)
         self.cps_filter = None
         self.vacs = Vacancy.objects.filter(enabled=True)
         self.context = {}
@@ -160,73 +160,32 @@ class FindProfilesView(TemplateView):
         self.cps_filter = self.cps_filter.order_by(sort_by['order'])
 
 
-class ChooseRoleView(TemplateView):
-    template_name = 'jobboard/choose_role.html'
+class ProfileView(TemplateView):
+    template_name = 'jobboard/profile.html'
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        role = request.POST.get('role')
-        if role == _EMPLOYER:
-            _form = EmployerForm(request.POST)
-        elif role == _CANDIDATE:
-            _form = CandidateForm(request.POST)
-        else:
-            return redirect('choose_role')
-        if _form.is_valid():
-            role_o = _form.save(commit=False)
-            role_o.user = request.user
-            role_o.save()
-            if hasattr(request.GET, 'next'):
-                return HttpResponseRedirect(request.GET['next'])
-            if role == _CANDIDATE:
-                return redirect('complete_profile')
-            return redirect('profile')
-        else:
-            context = self.get_context_data(**kwargs)
-            context['errors'] = _form.errors
-            return self.render_to_response(context)
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.update(self.get_forms())
+        return ctx
 
     def get(self, request, *args, **kwargs):
-        if request.role is not None:
-            return redirect('profile')
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
-
-
-class ProfileView(ChooseRoleMixin, TemplateView):
-    template_name = 'jobboard/profile.html'
-
-    def get(self, request, *args, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if request.role is not None:
-            if request.role == _CANDIDATE and not hasattr(request.role_object, 'profile'):
-                return redirect('complete_profile')
-            context.update(self.get_current_object_data(request))
-        return self.render_to_response(context)
+        if not hasattr(request.user, 'profile'):
+            return redirect('complete_profile')
+        return super().get(request, *args, **kwargs)
 
     @staticmethod
-    def get_current_object_data(request):
-        data = {}
-        if request.role == _CANDIDATE:
-            data['learning_form'] = LearningForm()
-            data['worked_form'] = WorkedForm()
-            data['certificate_form'] = CertificateForm()
-            data['language_form'] = LanguageItemForm()
-            data['citizenship_form'] = CitizenshipForm()
-            data['work_permit_form'] = WorkPermitForm()
-            data['achievement_form'] = AchievementForm()
+    def get_forms():
+        data = {'learning_form': LearningForm(), 'worked_form': WorkedForm(), 'certificate_form': CertificateForm(),
+                'language_form': LanguageItemForm(), 'citizenship_form': CitizenshipForm(),
+                'work_permit_form': WorkPermitForm(), 'achievement_form': AchievementForm()}
         return data
 
 
-class EmployerAboutView(DetailView):
-    model = Employer
-    template_name = 'jobboard/employer_about.html'
-
-
-class ChangeContractStatus(ChooseRoleMixin, RedirectView):
+class ChangeContractStatus(RedirectView):
 
     def get(self, request, *args, **kwargs):
         request.role_object.enabled = not request.role_object.enabled
@@ -238,7 +197,7 @@ class ChangeContractStatus(ChooseRoleMixin, RedirectView):
         return reverse('profile')
 
 
-class TransactionsView(ChooseRoleMixin, ListView):
+class TransactionsView(ListView):
     model = TransactionHistory
     paginate_by = 10
     template_name = 'jobboard/transactions.html'
@@ -265,32 +224,30 @@ def get_item(periods, f_id):
     return False
 
 
-@login_required
-@choose_role_required
-def withdraw(request):
-    if request.method == 'POST':
+class WithdrawView(RedirectView):
+    pattern_name = 'profile'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.contract_address is None:
+            return super().get(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
         address = request.POST.get('address')
         amount = request.POST.get('amount')
-        if request.role_object.contract_address is None:
-            return redirect('profile')
         try:
             validate_address(address)
         except ValueError:
-            return HttpResponse('Invalid address')
+            messages.warning(request, 'Invalid address')
         else:
-            oracle = OracleHandler()
             coin_h = CoinHandler()
-            user_balance = coin_h.balanceOf(request.role_object.contract_address)
+            user_balance = coin_h.balanceOf(request.user.contract_address)
             if int(float(amount) * 10 ** 18) > user_balance:
-                return HttpResponse('You do not have so many coins', status=200)
-            else:
-                txn_hash = oracle.withdraw(request.role_object.contract_address, address, int(float(amount) * 10 ** 18))
-                save_txn_to_history.delay(request.role_object.user_id, txn_hash.hex(),
-                                          'Withdraw {} Vera token from {} to {}'.format(amount,
-                                                                                        request.role_object.contract_address,
-                                                                                        address))
-                save_txn.delay(txn_hash.hex(), 'Withdraw', request.user.id, request.role_object.id)
-    return redirect('profile')
+                return messages.warning(request, 'You do not have so many tokens')
+
+            from jobboard.tasks import withdraw_tokens
+            withdraw_tokens.delay(request.user.id, request.user.contract_address, address, amount)
+        return super().get(request, *args, **kwargs)
 
 
 @login_required
@@ -312,7 +269,7 @@ def check_agent(request):
             return HttpResponse('You must use Post request', status=400)
 
 
-class GrantRevokeAgentView(ChooseRoleMixin, View):
+class GrantRevokeAgentView(View):
 
     def get(self, request, *args, **kwargs):
         action = kwargs['action']
@@ -338,7 +295,7 @@ class GrantRevokeAgentView(ChooseRoleMixin, View):
         return redirect('profile')
 
 
-class NewFactView(OnlyCandidateMixin, View):
+class NewFactView(View):
 
     def post(self, request, *args, **kwargs):
         f_type = request.POST.get('f_type')
@@ -362,7 +319,7 @@ class NewFactView(OnlyCandidateMixin, View):
         return redirect('profile')
 
 
-class ApproveTokenView(OnlyEmployerMixin, RedirectView):
+class ApproveTokenView(RedirectView):
     pattern_name = 'profile'
 
     def __init__(self, **kwargs):
@@ -397,7 +354,7 @@ class ApproveTokenView(OnlyEmployerMixin, RedirectView):
         save_txn_to_history.delay(user_id, tnx_hash.hex(), 'Money approved for oracle')
 
 
-class GetFreeCoinsView(ChooseRoleMixin, RedirectView):
+class GetFreeCoinsView(RedirectView):
     pattern_name = 'profile'
 
     def __init__(self, **kwargs):
@@ -406,15 +363,20 @@ class GetFreeCoinsView(ChooseRoleMixin, RedirectView):
     def get(self, request, *args, **kwargs):
         coin_h = CoinHandler()
         OracleHandler().unlockAccount()
-        txn_hash = coin_h.transfer(request.role_object.contract_address, 1000 * 10 ** 18)
+        txn_hash = coin_h.transfer(request.user.contract_address, 10000 * 10 ** 18)
+        OracleHandler().lockAccount()
         save_txn_to_history.delay(request.user.id, txn_hash.hex(), 'Free coins added.')
         return super().get(request, *args, **kwargs)
 
 
 class CandidateProfileView(DetailView):
-    model = Candidate
-    template_name = 'jobboard/candidate.html'
+    model = Member
+    template_name = 'jobboard/member_profile.html'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.kwargs = None
 
     def get_object(self, queryset=None):
-        can = get_object_or_404(Candidate, user__username=self.kwargs.get('username'))
+        can = get_object_or_404(Member, username=self.kwargs.get('username'))
         return can

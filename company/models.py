@@ -1,15 +1,21 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 
 from google_address.models import Address
-from jobboard.models import Employer
+from jobboard.handlers.oracle import OracleHandler
 
 
 class Company(models.Model):
-    employer = models.ForeignKey(Employer,
-                                 on_delete=models.SET_NULL,
-                                 null=True,
-                                 related_name='companies')
+    contract_address = models.CharField(max_length=42,
+                                        blank=True,
+                                        null=True)
+    published = models.BooleanField(default=False)
+    created_by = models.ForeignKey('users.Member',
+                                   related_name='+',
+                                   on_delete=models.SET_NULL,
+                                   null=True)
+
     logo = models.ImageField(null=True)
     name = models.CharField(max_length=512,
                             null=False,
@@ -36,6 +42,15 @@ class Company(models.Model):
 
     def get_absolute_url(self):
         return reverse('company', kwargs={'pk': self.pk})
+
+    @property
+    def members(self):
+        _model = get_user_model()
+        if not self.contract_address:
+            return _model.objects.none()
+        oracle = OracleHandler()
+        members = oracle.get_company_members(self.contract_address)
+        return _model.objects.filter(contract_address__in=members)
 
 
 class Office(models.Model):

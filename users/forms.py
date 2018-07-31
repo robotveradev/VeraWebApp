@@ -6,18 +6,18 @@ from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import ugettext_lazy as _
 
 from country_codes import codes
-from .models import CustomUser
+from .models import Member
 
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
-        model = CustomUser
-        fields = ('username', 'email')
+        model = Member
+        fields = ('username', 'email', 'tax_number')
 
 
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
-        model = CustomUser
+        model = Member
         fields = UserChangeForm.Meta.fields
 
 
@@ -35,7 +35,7 @@ class CustomSignupForm(SignupForm):
     MIN_LENGTH = 4
 
     class Meta:
-        model = CustomUser
+        model = Member
         fields = ['username', 'country_code', 'phone_number', 'password1', 'password2', ]
 
     def clean_password1(self):
@@ -47,14 +47,14 @@ class CustomSignupForm(SignupForm):
 
     def clean_phone_number(self):
         phone_number = self.data.get('phone_number')
-        if CustomUser.objects.filter(phone_number=phone_number).exists():
+        if Member.objects.filter(phone_number=phone_number).exists():
             raise forms.ValidationError(
                 _("Another user with this phone number already exists"))
         return phone_number
 
     def clean_username(self):
         username = self.data.get('username')
-        if CustomUser.objects.filter(username=username).exists():
+        if Member.objects.filter(username=username).exists():
             raise forms.ValidationError(
                 _("Another user with this username already exists"))
         return username
@@ -79,7 +79,7 @@ class SendPhoneVerificationForm(forms.Form):
         phone_number = self.data.get('phone_number')
         initial_phone = self.initial.get('phone_number')
         if int(initial_phone) != int(phone_number):
-            if CustomUser.objects.filter(phone_number=phone_number).exists():
+            if Member.objects.filter(phone_number=phone_number).exists():
                 raise forms.ValidationError(
                     _("Another user with this phone number already exists"))
         return phone_number
@@ -105,7 +105,7 @@ class CustomSocialSignupForm(SocialSignupForm):
 
     def clean_phone_number(self):
         phone_number = self.data.get('phone_number')
-        if CustomUser.objects.filter(phone_number=phone_number).exists():
+        if Member.objects.filter(phone_number=phone_number).exists():
             raise forms.ValidationError(
                 _("Another user with this phone number already exists"))
         return phone_number

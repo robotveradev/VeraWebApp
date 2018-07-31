@@ -3,16 +3,16 @@ from django.db import models
 from django.db.models import Max, Sum
 from django.urls import reverse
 from jsonfield import JSONField
-
 from jobboard.helpers import BaseAction
+from users.models import Member
 
 
 class Category(models.Model):
     title = models.CharField(max_length=255)
-    employer = models.ForeignKey('jobboard.Employer',
-                                 on_delete=models.CASCADE,
-                                 null=True,
-                                 related_name='categories')
+    company = models.ForeignKey('company.Company',
+                                on_delete=models.CASCADE,
+                                null=True,
+                                related_name='quiz_categories')
     parent_category = models.ForeignKey('self',
                                         on_delete=models.SET_NULL,
                                         null=True,
@@ -117,7 +117,7 @@ class ActionExam(BaseAction, models.Model):
 
 
 class ExamPassed(models.Model):
-    candidate = models.ForeignKey('jobboard.Candidate',
+    candidate = models.ForeignKey(Member,
                                   on_delete=models.SET_NULL,
                                   null=True,
                                   related_name='exams')

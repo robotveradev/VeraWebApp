@@ -6,14 +6,6 @@ from django.contrib.auth.models import AnonymousUser
 from jobboard.models import Transaction
 
 
-def roles(request):
-    ctx = {
-        "role": request.role,
-        "role_object": request.role_object,
-    }
-    return ctx
-
-
 def hints(request):
     ctx = {
         "hints_enabled": settings.HINTS_ENABLED,

@@ -1,6 +1,5 @@
 import os
 
-from django.conf import settings
 from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -10,14 +9,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, CreateView, UpdateView, DetailView, ListView
 from web3 import Web3
 
-from candidateprofile.models import CandidateProfile
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.oracle import OracleHandler
-from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
-from jobboard.models import Candidate
+from member_profile.models import Profile
 from statistic.decorators import statistical
 from vacancy.forms import VacancyForm, EditVacancyForm
-from vacancy.models import Vacancy, CandidateOnVacancy, VacancyOffer
+from vacancy.models import Vacancy, MemberOnVacancy, VacancyOffer
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
@@ -30,7 +27,7 @@ MESSAGES = {'allow': _('You must approve tokens for platform.'),
             'need_more_actions': 'You must add more actions for pipeline.', }
 
 
-class CreateVacancyView(OnlyEmployerMixin, CreateView):
+class CreateVacancyView(CreateView):
     template_name = 'vacancy/new_vacancy.html'
     form_class = VacancyForm
 
@@ -40,13 +37,13 @@ class CreateVacancyView(OnlyEmployerMixin, CreateView):
         self.request = None
 
     def get(self, request, *args, **kwargs):
-        if not request.role_object.companies.exists():
+        if not request.user.companies.exists():
             return redirect('new_company')
         return super().get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs.update({'employer': self.request.role_object})
+        kwargs.update({'member': self.request.user})
         return kwargs
 
     def get_success_url(self):
@@ -61,7 +58,7 @@ class CreateVacancyView(OnlyEmployerMixin, CreateView):
         return super().form_valid(form)
 
 
-class VacancyEditView(OnlyEmployerMixin, UpdateView):
+class VacancyEditView(UpdateView):
     model = Vacancy
     form_class = EditVacancyForm
     template_name = 'vacancy/vacancy_edit.html'
@@ -90,7 +87,7 @@ class VacancyView(DetailView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class SubscribeToVacancyView(OnlyCandidateMixin, RedirectView):
+class SubscribeToVacancyView(RedirectView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -107,7 +104,7 @@ class SubscribeToVacancyView(OnlyCandidateMixin, RedirectView):
     def check_vac_profile(self, *args, **kwargs):
         if not self.vacancy.enabled:
             messages.error(self.request, MESSAGES['disabled_vacancy'].format(self.vacancy.title))
-        elif not self.request.role_object.enabled:
+        elif not self.request.user.enabled:
             messages.error(self.request, MESSAGES['disabled_profile'].format(self.request.role_object.profile.title))
         if not self.vacancy.enabled or not self.request.role_object.enabled:
             return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
@@ -115,11 +112,11 @@ class SubscribeToVacancyView(OnlyCandidateMixin, RedirectView):
             return self.subscribe(*args, **kwargs)
 
     def subscribe(self, *args, **kwargs):
-        CandidateOnVacancy.objects.create(candidate=self.request.role_object, vacancy=self.vacancy)
+        MemberOnVacancy.objects.create(candidate=self.request.role_object, vacancy=self.vacancy)
         return super().get(self.request, *args, **kwargs)
 
 
-class ChangeVacancyStatus(OnlyEmployerMixin, RedirectView):
+class ChangeVacancyStatus(RedirectView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -172,7 +169,7 @@ class ChangeVacancyStatus(OnlyEmployerMixin, RedirectView):
             self.errors.append('empty_interview')
 
 
-class VacanciesListView(OnlyEmployerMixin, ListView):
+class VacanciesListView(ListView):
     model = Vacancy
     template_name = 'vacancy/vacancies_all.html'
     paginate_by = 15
@@ -184,15 +181,15 @@ class VacanciesListView(OnlyEmployerMixin, ListView):
         return queryset
 
 
-class OfferVacancyView(OnlyEmployerMixin, RedirectView):
+class OfferVacancyView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         vac_o = get_object_or_404(Vacancy, id=kwargs['vacancy_id'], company__employer=self.request.role_object)
-        cp_o = get_object_or_404(CandidateProfile, id=kwargs['profile_id'])
+        cp_o = get_object_or_404(Profile, id=kwargs['profile_id'])
         VacancyOffer.objects.get_or_create(vacancy=vac_o, profile=cp_o)
-        return reverse('candidate_profile', kwargs={'username': cp_o.candidate.user.username})
+        return reverse('candidate_profile', kwargs={'username': cp_o.member.username})
 
 
-class UpdateAllowedView(OnlyEmployerMixin, UpdateView):
+class UpdateAllowedView(UpdateView):
     model = Vacancy
     fields = ('allowed_amount',)
 

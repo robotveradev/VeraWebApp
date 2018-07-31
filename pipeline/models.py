@@ -16,10 +16,6 @@ class Pipeline(models.Model):
     def __str__(self):
         return 'Pipeline for {}'.format(self.vacancy.title)
 
-    @property
-    def owner(self):
-        return self.vacancy.employer
-
 
 class ActionType(models.Model):
     title = models.CharField(max_length=64)
@@ -61,10 +57,6 @@ class Action(models.Model):
 
     def new_exam(self):
         ActionExam.objects.create(action=self)
-
-    @property
-    def owner(self):
-        return self.pipeline.vacancy.employer.user
 
     class Meta:
         ordering = ('index',)

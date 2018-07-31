@@ -1,0 +1,72 @@
+{% load material_form %}
+<div id="modal-new-language" data-uk-modal>
+    <div class="uk-modal-dialog">
+        <form method="post" class="uk-form-horizontal" action="{% url 'new_language' %}">
+            {% csrf_token %}
+            <button class="uk-modal-close-default" type="button" data-uk-close></button>
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Add language</h2>
+            </div>
+            <div class="uk-modal-body">
+                {% form form=language_form %}{% endform %}
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button-small uk-button uk-button-default uk-modal-close"
+                        type="reset">
+                    Cancel
+                </button>
+                <button class="uk-button-small uk-button uk-button-primary" type="submit">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-new-citizenship" data-uk-modal>
+    <div class="uk-modal-dialog">
+        <form method="post" class="uk-form-horizontal" action="{% url 'new_citizenship' %}">
+            {% csrf_token %}
+            <button class="uk-modal-close-default" type="button" data-uk-close></button>
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Add citizenship country</h2>
+            </div>
+            <div class="uk-modal-body">
+                {% form form=citizenship_form %}{% endform %}
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button-small uk-button uk-button-default uk-modal-close"
+                        type="reset">
+                    Cancel
+                </button>
+                <button class="uk-button-small uk-button uk-button-primary" type="submit">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-new-work_permit" data-uk-modal>
+    <div class="uk-modal-dialog">
+        <form method="post" class="uk-form-horizontal" action="{% url 'new_work_permit' %}">
+            {% csrf_token %}
+            <button class="uk-modal-close-default" type="button" data-uk-close></button>
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Add work permit country</h2>
+            </div>
+            <div class="uk-modal-body">
+                {% form form=work_permit_form %}{% endform %}
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button-small uk-button uk-button-default uk-modal-close"
+                        type="reset">
+                    Cancel
+                </button>
+                <button class="uk-button-small uk-button uk-button-primary" type="submit">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

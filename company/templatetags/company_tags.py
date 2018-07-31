@@ -4,6 +4,9 @@ from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
+from jobboard.handlers.company import CompanyInterface
+from jobboard.handlers.oracle import OracleHandler
+
 register = template.Library()
 
 
@@ -28,3 +31,23 @@ def get_correct_icon_name(soc):
 def get_icon_for_name(name, size=2):
     return mark_safe(
         '<i class="fa fa-{} fa-{}x blue-text text-lighten-2" area-hidden="true"></i>'.format(name, size))
+
+
+@register.simple_tag
+def member_company_role(member, company):
+    if not member.contract_address:
+        return None
+    ci = CompanyInterface(contract_address=company.contract_address)
+    is_owner = ci.is_owner(member.contract_address)
+    if is_owner:
+        return 'owner'
+    is_collaborator = ci.is_collaborator(member.contract_address)
+    if is_collaborator:
+        return 'collaborator'
+    return None
+
+
+@register.filter
+def members_length(address):
+    oracle = OracleHandler()
+    return oracle.get_company_members_length(address)

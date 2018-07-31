@@ -18,9 +18,9 @@ class VacancyForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        employer = kwargs.pop('employer')
+        member = kwargs.pop('member')
         super().__init__(*args, **kwargs)
-        self.fields['company'].queryset = Company.objects.filter(employer=employer)
+        self.fields['company'].queryset = member.companies
         self.fields['office'].queryset = Office.objects.filter(company__in=self.fields['company'].queryset)
 
 

@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from jobboard.handlers.candidate import CandidateHandler
 from jobboard.tasks import save_txn_to_history, save_txn
 from pipeline.models import Pipeline
-from vacancy.models import Vacancy, CandidateOnVacancy
+from vacancy.models import Vacancy, MemberOnVacancy
 from vacancy.tasks import new_vacancy, change_status, change_vacancy_allowed_amount
 
 
@@ -16,7 +16,7 @@ def handler_new_vacancy(sender, instance, created, **kwargs):
         Pipeline.objects.create(vacancy=instance)
 
 
-@receiver(post_save, sender=CandidateOnVacancy)
+@receiver(post_save, sender=MemberOnVacancy)
 def new_subscribe(sender, instance, created, **kwargs):
     if created:
         candidate_h = CandidateHandler(account=settings.WEB_ETH_COINBASE,

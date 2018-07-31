@@ -1,9 +1,9 @@
 {% load jobboard_tags %}
-<ul data-uk-accordion="multiple: true">
-    {% if facts %}
+{% if facts %}
+    <ul data-uk-accordion="multiple: true">
         {% for fact_object in facts %}
             {% with fact_object.fact as fact %}
-                {% with candidate.contract_address|is_fact_verify:fact_object.id as fact_verify %}
+                {% with mamber.contract_address|is_fact_verify:fact_object.id as fact_verify %}
                     <li class="uk-border uk-padding-small">
                         <a class="uk-accordion-title" href="#">
                             {% if fact.type == 'learning' %}
@@ -47,9 +47,7 @@
                 {% endwith %}
             {% endwith %}
         {% endfor %}
-    {% else %}
-        <li class="uk-border uk-padding-small">
-            <a class="uk-accordion-title" href="#">Facts not added yet.</a>
-        </li>
-    {% endif %}
-</ul>
+    </ul>
+{% else %}
+        <p>Facts not added yet.</p>
+{% endif %}
