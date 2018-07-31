@@ -1,6 +1,7 @@
 from allauth.account.signals import user_signed_up
 from django.dispatch import receiver
 
+from jobboard.tasks import new_member_instance
 from users.models import InviteCode
 
 
@@ -18,3 +19,5 @@ def user_signup(request, user, **kwargs):
     else:
         invite_object.used_by = user
         invite_object.save()
+
+    new_member_instance.delay(user.id)

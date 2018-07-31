@@ -1,0 +1,36 @@
+{% extends 'jobboard/base.html' %}
+
+{% load material_form static %}
+
+{% block head_title %}New Profile{% endblock %}
+
+{% block content %}
+    {{ form.media }}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+    <h4 class="uk-text-bold">Profile</h4>
+        <div class="uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4 white vr-window uk-padding-small">
+                <form class="uk-form-horizontal" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% form form=form %}{% endform %}
+                    <button id="save" type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right">
+                        Save
+                    </button>
+                </form>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">Lorem</h4>
+                    <p>{% lorem %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% if hinst_enabled %}
+    {% block extra_js %}
+        <script src="{% static 'js/hints/cp_new.js' %}"></script>
+    {% endblock %}
+{% endif %}

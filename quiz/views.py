@@ -6,14 +6,12 @@ from django.views.generic import TemplateView, CreateView, DetailView, ListView,
 from django.views.generic.edit import BaseUpdateView
 
 from jobboard.handlers.oracle import OracleHandler
-from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
-from jobboard.models import Candidate
 from pipeline.models import Action
 from quiz.forms import CategoryForm
 from quiz.models import ActionExam, Category, Question, Answer, QuestionKind, ExamPassed, AnswerForVerification
 
 
-class ActionExamView(OnlyEmployerMixin, ListView):
+class ActionExamView(ListView):
     template_name = 'quiz/action_exams.html'
 
     def __init__(self, **kwargs):
@@ -72,7 +70,7 @@ class ActionAddQuestionsView(ListView):
         return redirect('action_details', pk=action.id)
 
 
-class CandidateExaminingView(OnlyCandidateMixin, TemplateView):
+class CandidateExaminingView(TemplateView):
     template_name = 'quiz/candidate_examining.html'
 
     def __init__(self, **kwargs):
@@ -279,7 +277,7 @@ class ProcessAnswerView(View):
         return HttpResponse('ok', status=200)
 
 
-class ExamPassedView(OnlyEmployerMixin, DetailView):
+class ExamPassedView(DetailView):
     model = ExamPassed
 
     def __init__(self, **kwargs):
@@ -288,11 +286,13 @@ class ExamPassedView(OnlyEmployerMixin, DetailView):
         self.candidate = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.action_exam = get_object_or_404(ActionExam, pk=kwargs.get('exam_id'))
-        if self.action_exam.action.owner != request.user:
-            raise Http404
-        self.candidate = get_object_or_404(Candidate, pk=kwargs.get('candidate_id'))
-        return super().dispatch(request, *args, **kwargs)
+        pass
+        # todo change for member
+        # self.action_exam = get_object_or_404(ActionExam, pk=kwargs.get('exam_id'))
+        # if self.action_exam.action.owner != request.user:
+        #     raise Http404
+        # self.candidate = get_object_or_404(Candidate, pk=kwargs.get('candidate_id'))
+        # return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         try:

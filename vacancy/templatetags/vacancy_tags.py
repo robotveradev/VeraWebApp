@@ -1,8 +1,8 @@
 from django import template
-from candidateprofile.models import Schedule, Busyness, CandidateProfile
+from member_profile.models import Schedule, Busyness, Profile
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.models import Specialisation, Keyword
-from vacancy.models import CandidateOnVacancy
+from vacancy.models import MemberOnVacancy
 
 register = template.Library()
 
@@ -19,17 +19,17 @@ def get_jobs_with(item, type_s, _list):
         elif type_s == 'keyword':
             count = _list.filter(keywords__in=[item, ]).count()
         elif type_s == 'salary':
-            if isinstance(_list[0], CandidateProfile):
+            if isinstance(_list[0], Profile):
                 count = _list.filter(position__salary_from__gte=item).count()
             else:
                 count = _list.filter(salary_from__gte=item).count()
         elif type_s == 'busyness':
-            if isinstance(_list[0], CandidateProfile):
+            if isinstance(_list[0], Profile):
                 count = _list.filter(position__busyness__in=[item, ]).count()
             else:
                 count = _list.filter(busyness__in=[item, ]).count()
         elif type_s == 'schedule':
-            if isinstance(_list[0], CandidateProfile):
+            if isinstance(_list[0], Profile):
                 count = _list.filter(position__schedule__in=[item, ]).count()
             else:
                 count = _list.filter(schedule__in=[item, ]).count()
@@ -171,5 +171,5 @@ def may_apply_vacancy(candidate, vacancy):
         return False
     oracle = OracleHandler()
     current_action_index = oracle.get_candidate_current_action_index(vacancy.uuid, candidate.contract_address)
-    already_subscribed = CandidateOnVacancy.objects.filter(candidate=candidate, vacancy=vacancy).exists()
+    already_subscribed = MemberOnVacancy.objects.filter(candidate=candidate, vacancy=vacancy).exists()
     return hasattr(candidate.profile, 'position') and current_action_index == -1 and not already_subscribed

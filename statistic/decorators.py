@@ -8,9 +8,8 @@ from django.contrib.contenttypes.models import ContentType
 def statistical(f):
     @functools.wraps(f)
     def decorator(request, *args, **kwargs):
-        role = request.role or 'Not authorized user'
         ip = get_client_ip(request)
-        role_obj_id = request.role_object.id if request.role_object else None
+        user_id = request.user.id or None
         if not request.session.session_key:
             request.session.save()
         try:
@@ -24,8 +23,8 @@ def statistical(f):
                 pass
             else:
                 with transaction.atomic():
-                    obj, cr = model_object.model_class().objects.get_or_create(role=role,
-                                                                               role_obj_id=role_obj_id,
+                    obj, cr = model_object.model_class().objects.get_or_create(role='Member',
+                                                                               role_obj_id=user_id,
                                                                                ip=ip,
                                                                                session_id=request.session.session_key,
                                                                                obj_id=kwargs.get('pk'))

@@ -4,25 +4,25 @@
         {{ balance }} Vera
         {% if can_withdraw %}
             {% if balance > 0 %}
-                <a class="uk-link-muted" href="#withdraw-modal" uk-toggle>Withdraw</a>
+                <a class="uk-link-muted" href="#withdraw-modal" data-uk-toggle>Transfer</a>
             {% endif %}
         {% else %}
-            <span class="amber-text">Pending...<div uk-spinner="ratio:0.7"></div></span>
+            <span class="amber-text">Pending...<div data-uk-spinner="ratio:0.4"></div></span>
         {% endif %}
         {% if balance > 0 and can_withdraw %}
-            <div id="withdraw-modal" uk-modal>
+            <div id="withdraw-modal" data-uk-modal>
                 <div class="uk-modal-dialog">
-                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <button class="uk-modal-close-default" type="button" data-uk-close></button>
                     <form action="{% url 'withdraw' %}" method="post">
                         {% csrf_token %}
                         <div class="uk-modal-header">
-                            <h2 class="uk-modal-title">Token withdraw</h2>
+                            <h2 class="uk-modal-title">Transfer token</h2>
                         </div>
                         <div class="uk-modal-body">
-                            <p>Please indicate the eth wallet address and the number of coins for withdrawal</p>
+                            <p>Please indicate the eth wallet address and token amount for transfer</p>
                             <div class="uk-margin">
                                 <div class="uk-inline uk-display-block">
-                                    <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                    <span class="uk-form-icon" data-uk-icon="icon: file-edit"></span>
                                     <input class="uk-input" type="text" name="address" required
                                            id="address"
                                            placeholder="ETH Wallet address"
@@ -31,7 +31,7 @@
                             </div>
                             <div class="uk-margin">
                                 <div class="uk-inline uk-display-block">
-                                    <span class="uk-form-icon" uk-icon="icon: file-edit"></span>
+                                    <span class="uk-form-icon" data-uk-icon="icon: file-edit"></span>
                                     <input class="uk-input" type="number" step="0.001" name="amount" maxlength="30"
                                            required
                                            id="amount"
@@ -42,6 +42,12 @@
                             </div>
                         </div>
                         <div class="uk-modal-footer uk-text-right">
+                            {% if user.companies.exists %}
+                                <button class="uk-button uk-button-small uk-button-primary"
+                                        data-uk-toggle="target: #withdraw-to-company-modal">
+                                    Send tokens to company
+                                </button>
+                            {% endif %}
                             <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">
                                 Cancel
                             </button>
@@ -50,13 +56,58 @@
                     </form>
                 </div>
             </div>
+            {% if user.companies.exists %}
+                <div id="withdraw-to-company-modal" data-uk-modal>
+                    <div class="uk-modal-dialog">
+                        <button class="uk-modal-close-default" type="button" data-uk-close></button>
+                        <form action="{% url 'withdraw' %}" method="post">
+                            {% csrf_token %}
+                            <div class="uk-modal-header">
+                                <h2 class="uk-modal-title">Transfer token to company</h2>
+                            </div>
+                            <div class="uk-modal-body">
+                                <p>Please indicate the company and token amount for transfer</p>
+                                <div class="uk-margin">
+                                    <div class="uk-inline uk-display-block">
+                                        <span class="uk-form-icon" data-uk-icon="icon: file-edit"></span>
+                                        <select class="uk-select" name="address" required
+                                                id="address">
+                                            {% for company in user.companies %}
+                                                <option value="{{ company.contract_address }}">{{ company.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="uk-margin">
+                                    <div class="uk-inline uk-display-block">
+                                        <span class="uk-form-icon" data-uk-icon="icon: file-edit"></span>
+                                        <input class="uk-input" type="number" step="0.001" name="amount" maxlength="30"
+                                               required
+                                               id="amount"
+                                               max="{{ balance }}"
+                                               placeholder="Amount (max: {{ balance }} Vera)"
+                                               autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-modal-footer uk-text-right">
+                                <button class="uk-button uk-button-small uk-button-default uk-modal-close"
+                                        type="button">
+                                    Cancel
+                                </button>
+                                <button class="uk-button uk-button-small uk-button-primary" type="submit">Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
         {% endif %}
-        {% if test and role == 'employer' and balance < 100 %}
-            <a class="uk-link-muted" href="#modal-ekv" uk-toggle>Get coins!</a>
-
-            <div id="modal-ekv" uk-modal>
+        {% if testnet and balance < 50000 %}
+            <a class="uk-link-muted" href="#modal-ekv" data-uk-toggle>Get coins!</a>
+            <div id="modal-ekv" data-uk-modal>
                 <div class="uk-modal-dialog">
-                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <button class="uk-modal-close-default" type="button" data-uk-close></button>
                     <div class="uk-modal-header">
                         <h2 class="uk-modal-title">Get free coins</h2>
                     </div>
@@ -64,8 +115,11 @@
                         <p>Now we using Rinkeby Testnet, so you can get free Vera Coins.</p>
                     </div>
                     <div class="uk-modal-footer uk-text-right">
-                        <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">Cancel</button>
-                        <a href="{% url 'free_coins' %}" class="uk-button uk-button-small uk-button-primary">Get coins</a>
+                        <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">
+                            Cancel
+                        </button>
+                        <a href="{% url 'free_coins' %}" class="uk-button uk-button-small uk-button-primary">Get
+                            coins</a>
                     </div>
                 </div>
             </div>
@@ -73,5 +127,5 @@
 
     {% endwith %}
 {% else %}
-    <div uk-spinner="ratio: 0.7"></div>
+    <div data-uk-spinner="ratio: 0.7"></div>
 {% endif %}

@@ -151,7 +151,7 @@ a.uk-button {
 }
 
 .uk-input[type=text], .uk-input[type=password], .uk-input[type=number],
-.uk-input[type=date], .uk-input[type=email], .uk-select, .uk-input[type=time] {
+.uk-input[type=date], .uk-input[type=email], .uk-select, .uk-input[type=time], .uk-input[type=url] {
     border: 1px solid #aad9fd;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
@@ -162,3 +162,71 @@ a.uk-button {
     border: 1px solid #64b5f6;
     border-radius: 25px;
 }
+
+table.uk-table-divider tr:first-child {
+    border-top: none;
+}
+
+.vr-bg {
+    height: 175px;
+    position: relative;
+}
+
+.bg-top_1, .bg-top_2 {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px
+}
+
+.bg-top_1 {
+    background: url(./../img/header-wave-1280.svg) no-repeat center bottom;
+}
+
+.bg-top_2 {
+    background: url(./../img/header-wave-1280-blue.svg) no-repeat center bottom;
+}
+
+.vr-bg > .company > img {
+    position: absolute;
+    z-index: 3;
+    height: 100px;
+    width: 100px;
+    left: 30px;
+    top: 30px;
+    border-radius: 50%;
+}
+
+.vr-bg > .company > h2 {
+    position: absolute;
+    z-index: 3;
+    height: 100px;
+    left: 160px;
+    top: 10px;
+    color: white;
+}
+
+.profile_main_left {
+    transform: translateY(-115px);
+    text-align: center;
+}
+
+.company-item {
+    display: grid;
+    grid-template-columns: 20% auto;
+}
+
+.company-item > div.img > img {
+    max-width: 70%;
+}
+
+.uk-form-icon:not(.uk-form-icon-flip) + .uk-select {
+    padding-left: 40px;
+}
+
+.vr-small-table td {
+    padding: 10px 0;
+}
+

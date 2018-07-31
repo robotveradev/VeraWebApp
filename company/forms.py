@@ -11,7 +11,7 @@ if not settings.GOOGLE_ADDRESS['API_KEY']:
 
 class CompanyForm(forms.ModelForm):
     class Meta:
-        exclude = ['employer', 'verified', ]
+        exclude = ['employer', 'verified', 'contract_address', 'published', 'created_by']
         model = Company
         widgets = {
             'legal_address': AddressWidget()

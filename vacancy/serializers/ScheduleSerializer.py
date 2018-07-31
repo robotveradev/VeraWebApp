@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from candidateprofile.models import Schedule
+from member_profile.models import Schedule
 
 
 class ScheduleSerializer(serializers.ModelSerializer):

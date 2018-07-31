@@ -3,8 +3,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
 from jobboard.handlers.oracle import OracleHandler
-from jobboard.models import Candidate, Transaction
+from jobboard.models import Transaction
 from pipeline.models import Action, ActionType
+from users.models import Member
 from vacancy.models import Vacancy
 
 register = template.Library()
@@ -154,10 +155,10 @@ def get(arr, i):
 
 
 @register.filter
-def get_candidate(candidate_contract_address):
+def get_member(candidate_contract_address):
     try:
-        return Candidate.objects.get(contract_address=candidate_contract_address)
-    except Candidate.DoesNotExist:
+        return Member.objects.get(contract_address=candidate_contract_address)
+    except Member.DoesNotExist:
         return None
 
 

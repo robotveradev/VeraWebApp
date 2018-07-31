@@ -4,15 +4,13 @@ from django.urls import reverse
 from django.views.generic import RedirectView, DetailView, CreateView, UpdateView
 
 from jobboard.handlers.oracle import OracleHandler
-from jobboard.mixins import OnlyEmployerMixin, OnlyCandidateMixin
-from jobboard.models import Candidate
 from pipeline.forms import ActionChangeForm
 from pipeline.models import Action, Pipeline
 from pipeline.tasks import action_with_candidate
 from vacancy.models import Vacancy
 
 
-class ApproveActionEmployerView(OnlyEmployerMixin, RedirectView):
+class ApproveActionEmployerView(RedirectView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
@@ -23,16 +21,18 @@ class ApproveActionEmployerView(OnlyEmployerMixin, RedirectView):
         return reverse('vacancy', kwargs={'pk': self.vacancy.id})
 
     def dispatch(self, request, *args, **kwargs):
-        self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('vacancy_id'), company__employer=request.role_object)
-        self.candidate = get_object_or_404(Candidate, pk=kwargs.get('candidate_id'))
-        return super().dispatch(request, *args, **kwargs)
+        pass
+        # todo change for member
+        # self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('vacancy_id'), company__employer=request.role_object)
+        # self.candidate = get_object_or_404(Candidate, pk=kwargs.get('candidate_id'))
+        # return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         action_with_candidate.delay(self.vacancy.id, self.candidate.id, 'approve')
         return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
 
 
-class ResetCandidateView(OnlyEmployerMixin, RedirectView):
+class ResetCandidateView(RedirectView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
@@ -43,16 +43,18 @@ class ResetCandidateView(OnlyEmployerMixin, RedirectView):
         return reverse('vacancy', kwargs={'pk': self.vacancy.id})
 
     def dispatch(self, request, *args, **kwargs):
-        self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('vacancy_id'), company__employer=request.role_object)
-        self.candidate = get_object_or_404(Candidate, pk=kwargs.get('candidate_id'))
-        return super().dispatch(request, *args, **kwargs)
+        pass
+        # todo change for member
+        # self.vacancy = get_object_or_404(Vacancy, pk=kwargs.get('vacancy_id'), company__employer=request.role_object)
+        # self.candidate = get_object_or_404(Candidate, pk=kwargs.get('candidate_id'))
+        # return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         action_with_candidate.delay(self.vacancy.id, self.candidate.id, 'reset')
         return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
 
 
-class ActionDetailView(OnlyEmployerMixin, DetailView):
+class ActionDetailView(DetailView):
     model = Action
     context_object_name = 'action'
 
@@ -77,7 +79,7 @@ class ActionDetailView(OnlyEmployerMixin, DetailView):
         return context
 
 
-class NewActionView(OnlyEmployerMixin, CreateView):
+class NewActionView(CreateView):
     model = Action
     fields = ['action_type', 'pipeline', ]
 
@@ -99,7 +101,7 @@ class NewActionView(OnlyEmployerMixin, CreateView):
         return super().form_valid(form)
 
 
-class ChangeActionView(OnlyEmployerMixin, UpdateView):
+class ChangeActionView(UpdateView):
     form_class = ActionChangeForm
     model = Action
 
@@ -113,7 +115,7 @@ class ChangeActionView(OnlyEmployerMixin, UpdateView):
         return super().form_valid(form)
 
 
-class DeleteActionView(OnlyEmployerMixin, RedirectView):
+class DeleteActionView(RedirectView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -133,7 +135,7 @@ class DeleteActionView(OnlyEmployerMixin, RedirectView):
         return reverse('vacancy', kwargs={'pk': self.vacancy.id})
 
 
-class CandidateProcessAction(OnlyCandidateMixin, RedirectView):
+class CandidateProcessAction(RedirectView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

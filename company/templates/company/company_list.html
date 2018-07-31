@@ -7,15 +7,34 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h3 data-hint="companies-main">Companies</h3>
-        {% for company in company_list %}
-            {% include 'company/include/company_short.html' %}
-        {% empty %}
-            No companies yet.
-        {% endfor %}
-        <div class="uk-clearfix"></div>
-        <a data-hint="new-company" href="{% url 'new_company' %}" class="uk-button uk-button-small uk-button-primary uk-align-right">Add
-            company</a>
+        <h4 class="uk-text-bold" data-hint="companies-main">Companies</h4>
+        <div class="uk-margin-top-small uk-margin-large-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white">
+                    <div class="uk-padding-small">
+                        {% for company in company_list %}
+                            {% include 'company/include/company_short.html' %}
+                        {% empty %}
+                            No companies yet.
+                        {% endfor %}
+                        <a data-hint="new-company" href="{% url 'new_company' %}"
+                           class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
+                            Add company
+                        </a>
+                    <div class="uk-clearfix"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">
+                        Companies desc
+                    </h4>
+                    <p>{% lorem %}</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 {% endblock %}
 

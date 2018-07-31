@@ -5,20 +5,26 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView, CreateView, DetailView, DeleteView
 
-from jobboard.mixins import OnlyEmployerMixin
+from jobboard.handlers.oracle import OracleHandler
 from .forms import CompanyForm, OfficeForm
 from .models import Company, Address, Office, SocialLink
 
 
-class CompaniesView(OnlyEmployerMixin, ListView):
+class CompaniesView(ListView):
     model = Company
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+        self.oracle = OracleHandler()
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(employer=self.request.role_object)
+        companies = self.oracle.get_member_companies(self.request.user.contract_address)
+        return qs.filter(contract_address__in=companies)
 
 
-class NewCompanyView(OnlyEmployerMixin, CreateView):
+class NewCompanyView(CreateView):
     form_class = CompanyForm
     template_name = 'company/company_form.html'
 
@@ -27,7 +33,7 @@ class NewCompanyView(OnlyEmployerMixin, CreateView):
         self.request = None
 
     def form_valid(self, form):
-        form.instance.employer = self.request.role_object
+        form.instance.created_by = self.request.user
         return super().form_valid(form)
 
     def get_form_kwargs(self):
@@ -52,7 +58,7 @@ class CompanyDetailsView(DetailView):
         return context
 
 
-class CompanyDeleteView(OnlyEmployerMixin, DeleteView):
+class CompanyDeleteView(DeleteView):
     model = Company
 
     def dispatch(self, request, *args, **kwargs):
@@ -66,21 +72,27 @@ class CompanyDeleteView(OnlyEmployerMixin, DeleteView):
         return reverse('companies')
 
 
-class CompanyNewOfficeView(OnlyEmployerMixin, View):
+class CompanyNewOfficeView(View):
 
     def post(self, request, *args, **kwargs):
-        company = get_object_or_404(Company, pk=kwargs.get('pk'), employer=request.role_object)
-        office = Office()
-        office.company = company
-        office.address = Address.objects.create(raw=request.POST.get('address'))
-        office.main = 'main' in request.POST
-        office.save()
-        if request.is_ajax():
-            return JsonResponse({'id': office.pk, 'label': str(office)})
-        return HttpResponseRedirect(reverse('company', kwargs={'pk': company.pk}))
+        try:
+            company = request.user.companies.get(pk=kwargs.get('pk'))
+        except Company.DoesNotExist:
+            if request.is_ajax():
+                return JsonResponse(data={}, status=400)
+            return HttpResponseRedirect(reverse('profile'))
+        else:
+            office = Office()
+            office.company = company
+            office.address = Address.objects.create(raw=request.POST.get('address'))
+            office.main = 'main' in request.POST
+            office.save()
+            if request.is_ajax():
+                return JsonResponse({'id': office.pk, 'label': str(office)})
+            return HttpResponseRedirect(reverse('company', kwargs={'pk': company.pk}))
 
 
-class NewSocialLink(OnlyEmployerMixin, CreateView):
+class NewSocialLink(CreateView):
     model = SocialLink
     fields = ['company', 'link', ]
 

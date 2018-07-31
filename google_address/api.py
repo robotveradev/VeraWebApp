@@ -4,7 +4,7 @@ from google_address import helpers
 
 
 class GoogleAddressApi:
-    url = 'https://maps.googleapis.com/maps/api/geocode/json?{geo_type}={params}'
+    url = 'https://maps.googleapis.com/maps/api/geocode/json?{geo_type}={params}&language=ru'
     geo_type = None
     key = None
     params = None

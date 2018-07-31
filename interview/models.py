@@ -7,7 +7,7 @@ from jsonfield import JSONField
 from model_utils.models import SoftDeletableModel
 
 from jobboard.helpers import BaseAction
-from jobboard.models import Candidate
+from users.models import Member
 
 
 class ActionInterview(BaseAction, models.Model):
@@ -31,10 +31,6 @@ class ActionInterview(BaseAction, models.Model):
                                    validators=[
                                        MinValueValidator(5, 'Interview duration cannot be less than 5 minutes'), ])
 
-    @property
-    def employer(self):
-        return self.action.pipeline.vacancy.employer
-
     def get_result_url(self, **kwargs):
         pass
 
@@ -53,9 +49,12 @@ class ScheduledMeeting(SoftDeletableModel):
     action_interview = models.ForeignKey(ActionInterview,
                                          on_delete=models.CASCADE,
                                          related_name='scheduled_meetings')
-    candidate = models.ForeignKey(Candidate,
+    recruiter = models.ForeignKey(Member,
                                   on_delete=models.CASCADE,
-                                  related_name='scheduled_meetings')
+                                  related_name='recruiter_scheduled_meetings')
+    candidate = models.ForeignKey(Member,
+                                  on_delete=models.CASCADE,
+                                  related_name='candidate_scheduled_meetings')
     uuid = models.CharField(max_length=32,
                             blank=False,
                             null=False)
@@ -87,9 +86,12 @@ class InterviewPassed(models.Model):
     interview = models.ForeignKey(ActionInterview,
                                   on_delete=models.CASCADE,
                                   related_name='passes')
-    candidate = models.ForeignKey(Candidate,
+    recruiter = models.ForeignKey(Member,
                                   on_delete=models.CASCADE,
-                                  related_name='passed_interview')
+                                  related_name='recruiter_passed_interviews')
+    candidate = models.ForeignKey(Member,
+                                  on_delete=models.CASCADE,
+                                  related_name='candidate_passed_interviews')
     data = JSONField(blank=True,
                      null=True)
     date_created = models.DateTimeField(auto_now_add=True)

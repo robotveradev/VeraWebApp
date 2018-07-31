@@ -1,10 +1,10 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets
 
-from jobboard.models import Specialisation, Keyword, Employer
-from jobboard.serializers.EmployerFullSerializer import EmployerFullSerializer
+from jobboard.models import Specialisation, Keyword
 from jobboard.serializers.EmployerSerializer import EmployerSerializer
 from jobboard.serializers.KeywordSerializer import KeywordSerializer
 from jobboard.serializers.SpecialisationSerializer import SpecialisationSerializer
+from users.models import Member
 
 
 class SpecialisationViewSet(viewsets.ReadOnlyModelViewSet):
@@ -17,12 +17,6 @@ class KeywordViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = KeywordSerializer
 
 
-class EmployerViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Employer.objects.all()
+class MemberViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Member.objects.all()
     serializer_class = EmployerSerializer
-
-
-class EmployerFullViewSet(viewsets.GenericViewSet,
-                          mixins.RetrieveModelMixin):
-    queryset = Employer.objects.all()
-    serializer_class = EmployerFullSerializer
