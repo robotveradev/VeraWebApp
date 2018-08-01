@@ -23,7 +23,7 @@ class MemberAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = Member
-    list_display = ['email', 'username', 'country_code', 'phone_number', 'contract_address', 'tax_number']
+    list_display = ['email', 'username', 'country_code', 'phone_number', 'contract_address']
     actions = [make_phones_verified, make_phones_unverified, ]
 
 

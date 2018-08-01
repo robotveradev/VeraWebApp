@@ -77,3 +77,15 @@ class SocialLink(models.Model):
 
     def __str__(self):
         return '{}: {}'.format(self.company.name, self.link)
+
+
+class RequestToCompany(models.Model):
+    company = models.ForeignKey(Company,
+                                on_delete=models.CASCADE,
+                                related_name='invites')
+    member = models.ForeignKey('users.Member',
+                               on_delete=models.CASCADE,
+                               related_name='+')
+
+    class Meta:
+        unique_together = (('company', 'member'),)

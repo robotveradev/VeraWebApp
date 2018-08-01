@@ -1,8 +1,10 @@
+from django.db import IntegrityError
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, RedirectView, CreateView, UpdateView
 
+from company.models import RequestToCompany
 from google_address.models import Address
 from jobboard.forms import AchievementForm
 from jobboard.handlers.oracle import OracleHandler
@@ -65,10 +67,20 @@ class NewExperienceView(NewProfileFragmentMixin, CreateView):
     form_class = ExperienceForm
     template_name = 'member_profile/new_experience.html'
 
+    def process_request(self):
+        organization_id = self.request.POST.get('organization_id')
+        if organization_id:
+            try:
+                RequestToCompany.objects.create(company_id=organization_id, member=self.request.user)
+            except IntegrityError:
+                pass
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.profile = self.request.user.profile
         self.object.save()
+        if self.object.still:
+            self.process_request()
         return HttpResponseRedirect(reverse('profile'))
 
 

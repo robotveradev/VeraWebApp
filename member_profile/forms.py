@@ -1,9 +1,22 @@
 from django import forms
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
+from django_select2.forms import ModelSelect2TagWidget
 
+from company.models import Company
 from company.widgets import AddressWidget
 from .models import Profile, Position, Education, Experience, LanguageItem, Citizenship, WorkPermit
+
+
+class NameSearchFieldMixin(object):
+    search_fields = [
+        'name__icontains',
+        'tax_number__icontains',
+    ]
+
+
+class CompanyModelSelect2Widget(NameSearchFieldMixin, ModelSelect2TagWidget):
+    model = Company
 
 
 class ProfileForm(forms.ModelForm):
@@ -36,7 +49,7 @@ class PositionForm(forms.ModelForm):
 
 class EducationForm(forms.ModelForm):
     class Meta:
-        exclude = ('profile', )
+        exclude = ('profile',)
         model = Education
         widgets = {
             'education_from': forms.SelectDateWidget(
@@ -63,9 +76,9 @@ class EducationForm(forms.ModelForm):
 class ExperienceForm(forms.ModelForm):
     class Meta:
         model = Experience
-        exclude = ('profile', )
+        exclude = ('profile',)
         widgets = {
-            'city': AddressWidget()
+            'city': AddressWidget,
         }
 
     def clean(self):

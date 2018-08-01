@@ -175,7 +175,7 @@ def save_txn(txn_hash, txn_type, user_id, obj_id, vac_id=None):
 @shared_task
 def new_member_instance(user_id):
     try:
-        instance = Member.objects.get(pk=user_id)
+        Member.objects.get(pk=user_id)
     except Member.DoesNotExist:
         logger.error('Member with id {} not found, contract will not be deployed.'.format(user_id))
     else:
