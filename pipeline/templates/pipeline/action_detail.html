@@ -114,7 +114,7 @@
                                     <tr>
                                         <td>
                                             <a class="uk-link-text"
-                                               href="{% url 'candidate_profile' username=candidate.user.username %}">{{ candidate.full_name }}</a>
+                                               href="{% url 'member_profile' username=candidate.user.username %}">{{ candidate.full_name }}</a>
                                         </td>
                                         <td>
                                             {% if action.db|action_passed:candidate %}
@@ -166,7 +166,7 @@
                                 {% if candidate %}
                                     <tr>
                                         <td><a class="uk-link-text"
-                                               href="{% url 'candidate_profile' username=candidate.user.username %}">{{ candidate.full_name }}</a>
+                                               href="{% url 'member_profile' username=candidate.user.username %}">{{ candidate.full_name }}</a>
                                         </td>
                                         <td class="uk-text-right">{% get_result_link candidate action.db %}</td>
                                     </tr>

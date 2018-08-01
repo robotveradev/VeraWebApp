@@ -19,8 +19,7 @@ def statistic(context, item, show_type='short'):
         pass
     else:
         statistic_set = statistic_object.model_class().objects.filter(obj_id=item.id).exclude(
-            role=context.request.role,
-            role_obj_id=context.request.role_object.id)
+            role_obj_id=context.request.user.id)
     return {'statistic': statistic_set,
             'show_type': show_type,
             'empty': not statistic_set.exists(),

@@ -53,6 +53,7 @@ class CreateVacancyView(CreateView):
         return self.process_form_instance(form)
 
     def process_form_instance(self, form):
+        form.instance.created_by = self.request.user
         form.instance.allowed_amount = form.cleaned_data['allowed_amount']
         form.instance.uuid = Web3.toHex(os.urandom(32))
         return super().form_valid(form)
@@ -67,7 +68,7 @@ class VacancyEditView(UpdateView):
         queryset = super().get_queryset()
         pk = self.kwargs.get(self.pk_url_kwarg)
         if pk is not None:
-            queryset = queryset.filter(pk=pk, company__employer=self.request.role_object)
+            queryset = queryset.filter(pk=pk)
         try:
             obj = queryset.get()
         except queryset.model.DoesNotExist:
@@ -105,14 +106,14 @@ class SubscribeToVacancyView(RedirectView):
         if not self.vacancy.enabled:
             messages.error(self.request, MESSAGES['disabled_vacancy'].format(self.vacancy.title))
         elif not self.request.user.enabled:
-            messages.error(self.request, MESSAGES['disabled_profile'].format(self.request.role_object.profile.title))
-        if not self.vacancy.enabled or not self.request.role_object.enabled:
+            messages.error(self.request, MESSAGES['disabled_profile'].format(self.request.user.profile.title))
+        if not self.vacancy.enabled or not self.request.user.enabled:
             return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
         else:
             return self.subscribe(*args, **kwargs)
 
     def subscribe(self, *args, **kwargs):
-        MemberOnVacancy.objects.create(candidate=self.request.role_object, vacancy=self.vacancy)
+        MemberOnVacancy.objects.create(member=self.request.user, vacancy=self.vacancy)
         return super().get(self.request, *args, **kwargs)
 
 
@@ -169,24 +170,12 @@ class ChangeVacancyStatus(RedirectView):
             self.errors.append('empty_interview')
 
 
-class VacanciesListView(ListView):
-    model = Vacancy
-    template_name = 'vacancy/vacancies_all.html'
-    paginate_by = 15
-    ordering = '-created_at'
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.filter(company__employer=self.request.role_object)
-        return queryset
-
-
 class OfferVacancyView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         vac_o = get_object_or_404(Vacancy, id=kwargs['vacancy_id'], company__employer=self.request.role_object)
         cp_o = get_object_or_404(Profile, id=kwargs['profile_id'])
         VacancyOffer.objects.get_or_create(vacancy=vac_o, profile=cp_o)
-        return reverse('candidate_profile', kwargs={'username': cp_o.member.username})
+        return reverse('member_profile', kwargs={'username': cp_o.member.username})
 
 
 class UpdateAllowedView(UpdateView):

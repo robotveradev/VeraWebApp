@@ -17,7 +17,7 @@
                     <h4 class="uk-comment-title uk-margin-remove">
                         {% url 'subscribe_to_vacancy' vacancy_id=vacancy.id profile_id=cp.id as sub_url %}
                         <a class="uk-button uk-button-text"
-                           href="{% if selectable %}{{ sub_url }}{% else %}{% url 'candidate_profile' username=cp.candidate.user.username %}{% endif %}">
+                           href="{% if selectable %}{{ sub_url }}{% else %}{% url 'member_profile' username=cp.candidate.user.username %}{% endif %}">
                             {{ cp.title }}
                         </a>
                     </h4>
