@@ -6,13 +6,15 @@
     <div class="uk-width-1-5">
         <div class="profile_main_left">
             {% with user.profile.photo as photo %}
-                {% if photo %}
-                    <img class="uk-border-rounded" style="width: 100%"
-                         src="{{ photo.url }}"/>
-                {% else %}
-                    <img class="uk-border-rounded" width="100%"
-                         src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png">
-                {% endif %}
+                <div class="image-wrapper">
+                    {% if photo %}
+                        <img class="uk-border-rounded" style="width: 100%"
+                             src="{{ photo.url }}"/>
+                    {% else %}
+                        <img class="uk-border-rounded" width="100%"
+                             src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png">
+                    {% endif %}
+                </div>
             {% endwith %}
             <h5>Extra links</h5>
             <ul class="uk-nav uk-nav-default">
@@ -49,7 +51,7 @@
             </colgroup>
             <tr>
                 <td>Name:</td>
-                <td>{{ user }}</td>
+                <td>{% firstof user.full_name user.username %}</td>
             </tr>
             {% with user.profile as profile %}
                 {% if profile %}

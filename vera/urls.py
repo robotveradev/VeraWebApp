@@ -19,11 +19,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
-from member_profile import views as cp_views
 from company import views as company_views
 from interview import views as interview_views
 from jobboard import views as jobboard_views
 from jobboard.zoomus_endpoint import ZoomusEndpointView
+from member_profile import views as cp_views
 from pipeline import views as pipeline_views
 from quiz import views as quiz_views
 from statistic import views as statistic_views
@@ -32,6 +32,8 @@ from vacancy import views as vacancy_views
 
 basic = [
     path('', TemplateView.as_view(template_name='jobboard/index.html'), name='index'),
+    path('select2/', include('django_select2.urls')),
+    path('field/<str:model>/<str:field>/', jobboard_views.FindFieldView.as_view()),
     path('invite/<uuid:code>/', users_views.InviteView.as_view()),
     path('admin/', admin.site.urls),
     path('accounts/settings/', TemplateView.as_view(template_name='users/settings.html'), name='settings_page'),
@@ -147,7 +149,7 @@ interview_urlpatterns = [
 ]
 
 zoomus_urlpatterns = [
-    path('zoomus/', ZoomusEndpointView.as_view(),)
+    path('zoomus/', ZoomusEndpointView.as_view(), )
 ]
 
 urlpatterns = basic + \

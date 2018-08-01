@@ -89,30 +89,93 @@
                         </li>
                         {% if role %}
                             <li>
-                                {% if company.members.exists %}
-                                    <table class="uk-table uk-table-divider uk-table-small">
-                                        {% for member in company.members %}
-                                            {% if member == user %}
-                                                <tr>
-                                                    <td class="uk-text-bold">You</td>
-                                                    <td>{{ role }}</td>
-                                                </tr>
-                                            {% else %}
-                                                <tr>
-                                                    <td><a href="{{ member.get_absolute_url }}">{% firstof member.full_name member.username %}</a></td>
-                                                    <td>{% member_company_role member company %}</td>
-                                                </tr>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </table>
-                                {% else %}
-
-                                {% endif %}
+                                <table class="uk-table uk-table-divider uk-table-small uk-width-1-1">
+                                    <colgroup>
+                                        <col width="50%">
+                                        <col width="40%">
+                                        <col width="10%">
+                                    </colgroup>
+                                    <thead>
+                                    <tr>
+                                        <th>Member</th>
+                                        <th>Role</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    {% for req in company.invites.all %}
+                                        <tr>
+                                            <td>
+                                                <a class="vr-link uk-text-meta"
+                                                   href="{{ req.member.get_absolute_url }}">{% firstof req.member.full_name req.member.username %}</a>
+                                            </td>
+                                            <td>member</td>
+                                            <td><a class="vr-link uk-text-meta" href="#process{{ req.pk }}"
+                                                   data-uk-toggle>process</a></td>
+                                        </tr>
+                                    {% endfor %}
+                                    {% for member in company.members %}
+                                        {% if member == user %}
+                                            <tr>
+                                                <td class="uk-text-bold">You</td>
+                                                <td>{{ role }}</td>
+                                                <td></td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td>
+                                                    <a class="vr-link uk-text-meta"
+                                                       href="{{ member.get_absolute_url }}">{% firstof member.full_name member.username %}</a>
+                                                </td>
+                                                <td>{% member_company_role member company %}</td>
+                                                <td></td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </table>
                             </li>
                         {% endif %}
                     </ul>
                 </div>
             </div>
+            {% if company.invites.exists %}
+                {% for req in company.invites.all %}
+                    <div id="process{{ req.pk }}" data-uk-modal>
+                        <div class="uk-modal-dialog">
+                            <button class="uk-modal-close-default" type="button" uk-close></button>
+                            <div class="uk-modal-header">
+                                <h2 class="uk-modal-title">Process member invitation</h2>
+                            </div>
+                            <div class="uk-modal-body">
+                                <p class="">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                                    tempor
+                                    incididunt ut labore et dolore magna aliqua. </p>
+                                <form class="uk-form-horizontal" action="" method="post">
+                                    <input type="hidden" name="member_id" value="{{ req.member.id }}">
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label"
+                                               for="id_role">{% firstof req.member.full_name|title req.member.username|title %}
+                                            is a</label>
+                                        <div class="uk-form-controls">
+                                            <select name="role" id="role" class="uk-select">
+
+                                                <option value="member">Member</option>
+                                                <option value="admin">Admin</option>
+                                                <option value="collaborator">Collaborator</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="uk-modal-footer uk-text-right">
+                                <button class="uk-button uk-button-small uk-button-default uk-modal-close"
+                                        type="button">Cancel
+                                </button>
+                                <button class="uk-button uk-button-small uk-button-primary" type="button">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
             {% if role %}
                 <div class="uk-width-1-4">
                     <div class="vr-window white uk-padding-small">

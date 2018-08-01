@@ -19,14 +19,11 @@ class Member(AbstractUser):
     contract_address = models.CharField(max_length=42,
                                         blank=True,
                                         null=True)
-    tax_number = models.CharField(max_length=255,
-                                  blank=False,
-                                  null=False)
 
     objects = MemberManager()
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'phone_number', 'country_code', 'tax_number']
+    REQUIRED_FIELDS = ['email', 'phone_number', 'country_code']
 
     def __str__(self):
         return self.username

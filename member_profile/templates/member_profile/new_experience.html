@@ -6,23 +6,83 @@
 
 {% block content %}
     {{ block.super }}
-    {{ form.media }}
+    {{ form.media.css }}
     <div class="uk-container uk-align-center">
-        <form class="uk-form-horizontal" action="{% url 'new_experience' %}" method="post">
-            <fieldset class="uk-fieldset">
-                <legend class="uk-legend">
-                    {% trans 'Add work experience' %}
-                </legend>
-                {% csrf_token %}
-                {% form form=form %}{% endform %}
-                <button class="uk-button uk-button-primary uk-button-small uk-align-right">Save</button>
-            </fieldset>
-        </form>
+        <h4 class="uk-text-bold"> {% trans 'Add work experience' %}</h4>
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    <form class="uk-form-horizontal" action="{% url 'new_experience' %}" method="post">
+                        {% csrf_token %}
+                        {% form form=form %}{% endform %}
+                        <button class="uk-button uk-button-primary uk-button-small uk-align-right uk-margin-remove-bottom">
+                            Save
+                        </button>
+                        <div class="uk-clearfix"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">Experience desc</h4>
+                    <p>{% lorem %}</p>
+                </div>
+            </div>
+        </div>
     </div>
+    {{ form.media.js }}
 {% endblock %}
+{% block extra_js %}
+    <script>
+        $(document).ready(function () {
+            let $drop = $('<div class="vr-dropdown" id="organization_select"></div>');
+            let $input = $('input#id_organization');
+            $input.attr('autocomplete', 'off');
+            $('body').append($drop);
+            $drop.css({'left': $input.offset().left, 'top': $input.offset().top + 41, 'width': $input.css('width')});
+            $input.on('keypress', function () {
+                let val = $(this).val();
+                $.ajax({
+                    url: '/field/company/name/',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        name: val,
+                    },
+                    success: function (d) {
+                        $drop.html('');
+                        if (d) {
+                            d.map(i => {
+                                $drop.append('<span class="org_item uk-text-meta">'
+                                    + '<i data-uk-icon="icon:home;ratio:0.8">'
+                                    + '</i>' +
+                                    '<span data-com-id=' + i.id + '>' + i.name + '</span>'
+                                    + '</span>');
+                            });
+                            $drop.show();
+                        } else {
+                            $drop.hide();
+                        }
+                    }
+                })
+            });
 
-{% if hints_enabled %}
-    {% block extra_js %}
+            $(document).on('click', '.org_item', function () {
+                let $hidden = $input.closest('form').find('input[name=organization_id]');
+                let com_id = $(this).find('span').data('com-id');
+                if ($hidden.length > 0) {
+                    $hidden.val(com_id);
+                } else {
+                    $input.closest('form').append(
+                        '<input type="hidden" name="organization_id" value="' + com_id + '" />'
+                    );
+                }
+                $input.val($(this).find('span').text());
+                $drop.hide();
+            });
+        })
+    </script>
+    {% if hints_enabled %}
         <script src="{% static 'js/hints/new_experience.js' %}"></script>
-    {% endblock %}
-{% endif %}
+    {% endif %}
+{% endblock %}

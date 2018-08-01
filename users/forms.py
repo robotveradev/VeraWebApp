@@ -12,7 +12,7 @@ from .models import Member
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = Member
-        fields = ('username', 'email', 'tax_number')
+        fields = ('username', 'email')
 
 
 class CustomUserChangeForm(UserChangeForm):
@@ -23,6 +23,8 @@ class CustomUserChangeForm(UserChangeForm):
 
 class CustomSignupForm(SignupForm):
     phone_number = forms.IntegerField(required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
     email = forms.EmailField(widget=forms.TextInput(
         attrs={'type': 'email',
                'placeholder': _('E-mail address')}))
@@ -33,10 +35,13 @@ class CustomSignupForm(SignupForm):
                  codes])
 
     MIN_LENGTH = 4
+    field_order = ['first_name', 'last_name', 'username', 'email', 'phone_number', 'country_code', 'password1',
+                   'password2']
 
     class Meta:
         model = Member
-        fields = ['username', 'country_code', 'phone_number', 'password1', 'password2', ]
+        fields = ['first_name', 'last_name', 'username', 'email', 'country_code', 'phone_number', 'password1',
+                  'password2']
 
     def clean_password1(self):
         password = self.data.get('password1')

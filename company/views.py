@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views import View
@@ -79,7 +79,7 @@ class CompanyNewOfficeView(View):
             company = request.user.companies.get(pk=kwargs.get('pk'))
         except Company.DoesNotExist:
             if request.is_ajax():
-                return JsonResponse(data={}, status=400)
+                return HttpResponse(status=400)
             return HttpResponseRedirect(reverse('profile'))
         else:
             office = Office()
