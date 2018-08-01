@@ -14,6 +14,9 @@ class Vacancy(models.Model):
     uuid = models.CharField(max_length=66,
                             blank=False,
                             null=False)
+    created_by = models.ForeignKey('users.Member',
+                                   on_delete=models.SET_NULL,
+                                   null=True)
 
     title = models.CharField(max_length=255)
     specialisations = models.ManyToManyField('jobboard.Specialisation',

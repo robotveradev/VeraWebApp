@@ -52,7 +52,7 @@ basic = [
 candidate_urlpatterns = [
     path('profile/complete/', cp_views.CompleteProfileView.as_view(), name='complete_profile'),
     path('profile/', jobboard_views.ProfileView.as_view(), name='profile'),
-    path('profile/id/<str:username>/', jobboard_views.CandidateProfileView.as_view(), name='candidate_profile'),
+    path('profile/id/<str:username>/', jobboard_views.CandidateProfileView.as_view(), name='member_profile'),
     path('profile/new/language/', cp_views.NewLanguageView.as_view(), name='new_language'),
     path('profile/new/citizenship/', cp_views.NewCitizenshipView.as_view(), name='new_citizenship'),
     path('profile/new/workpermit/', cp_views.NewWorkPermitView.as_view(), name='new_work_permit'),
@@ -82,7 +82,6 @@ vacancy_urlpatterns = [
     path('vacancy/<int:pk>/', vacancy_views.VacancyView.as_view(), name='vacancy'),
     path('vacancy/<int:pk>/edit/', vacancy_views.VacancyEditView.as_view(), name='vacancy_edit'),
     path('vacancy/<int:pk>/status/change/', vacancy_views.ChangeVacancyStatus.as_view(), name='change_vacancy_status'),
-    path('vacancy/all/', vacancy_views.VacanciesListView.as_view(), name='vacancy_all'),
     path('vacancy/<int:pk>/update_allowed/', vacancy_views.UpdateAllowedView.as_view(), name='update_allowed'),
 ]
 

@@ -79,8 +79,37 @@
                             </div>
                         </li>
                         <li>
-
+                            <div class="uk-padding-small">
+                                {% for vacancy in company.vacancies.all %}
+                                    {% include 'vacancy/vacancy_short.html' with item=vacancy desc=True show_info=True editable=True %}
+                                {% empty %}
+                                    Company has no vacancies yet.
+                                {% endfor %}
+                            </div>
                         </li>
+                        {% if role %}
+                            <li>
+                                {% if company.members.exists %}
+                                    <table class="uk-table uk-table-divider uk-table-small">
+                                        {% for member in company.members %}
+                                            {% if member == user %}
+                                                <tr>
+                                                    <td class="uk-text-bold">You</td>
+                                                    <td>{{ role }}</td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td><a href="{{ member.get_absolute_url }}">{% firstof member.full_name member.username %}</a></td>
+                                                    <td>{% member_company_role member company %}</td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </table>
+                                {% else %}
+
+                                {% endif %}
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

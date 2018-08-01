@@ -3,6 +3,7 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.urls import reverse
 
 from jobboard.handlers.oracle import OracleHandler
 from users.manager import MemberManager
@@ -53,6 +54,9 @@ class Member(AbstractUser):
             return self.name
         else:
             return self.username
+
+    def get_absolute_url(self):
+        return reverse('member_profile', kwargs={'username': self.username})
 
 
 class InviteCode(models.Model):

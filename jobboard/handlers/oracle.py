@@ -4,9 +4,9 @@ from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from solc import compile_files
 from solc.utils.string import force_bytes, force_text
-from web3 import Web3, HTTPProvider
-from web3.middleware import geth_poa_middleware
+from web3 import Web3
 from web3.utils.validation import validate_address
+
 from jobboard import utils
 
 
@@ -150,60 +150,8 @@ class OracleHandler(object):
     def vacancy(self, uuid):
         return self.parse_vacancy(self.contract.call().vacancies(uuid))
 
-    def get_vacancy_pipeline_length(self, uuid):
-        return self.contract.call().get_vacancy_pipeline_length(uuid)
-
-    def get_action(self, vac_uuid, index, candidates=False):
-        action = self.parse_action(self.contract.call().vacancy_pipeline(vac_uuid, index))
-        if candidates:
-            action.update(**self.get_candidates_on_action(vac_uuid, index))
-        return action
-
-    def get_candidate_current_action_index(self, vac_uuid, cand_address):
-        return self.contract.call().get_candidate_current_action_index(vac_uuid, cand_address)
-
-    def get_candidates_on_vacancy_by_action_count(self, vac_uuid):
-        cand_count = self.contract.call().vacancy_candidates_length(vac_uuid)
-        counts = {}
-        for i in range(cand_count):
-            cand_address = self.contract.call().candidates_on_vacancy(vac_uuid, i)
-            current_action = self.get_candidate_current_action_index(vac_uuid, cand_address)
-            if not self.candidate_passed(vac_uuid, cand_address):
-                if current_action not in counts:
-                    counts[current_action] = 1
-                else:
-                    counts[current_action] += 1
-        return counts
-
-    def get_candidates_on_action(self, vac_uuid, action_index):
-        cand_count = self.contract.call().vacancy_candidates_length(vac_uuid)
-        candidates = {'now': [], 'pass': [], 'rest': []}
-        for i in range(cand_count):
-            cand_address = self.contract.call().candidates_on_vacancy(vac_uuid, i)
-            if not self.candidate_passed(vac_uuid, cand_address):
-                current_index = self.get_candidate_current_action_index(vac_uuid, cand_address)
-                ai, ci = action_index, current_index
-                candidates['now' if ci == ai else 'pass' if ci > ai else 'rest'].append(cand_address)
-        return candidates
-
-    def candidate_passed(self, vac_uuid, can_address):
-        return self.contract.call().vacancy_candidate_pass(vac_uuid, can_address)
-
     def get_vacancy_candidates_length(self, vac_uuid):
         return self.contract.call().vacancy_candidates_length(vac_uuid)
-
-    def get_candidates_on_vacancy(self, vac_uuid, passed=False, action_index=False):
-        candidates = []
-        for i in range(self.get_vacancy_candidates_length(vac_uuid)):
-            candidate = {}
-            candidate.update({'contract_address': self.contract.call().candidates_on_vacancy(vac_uuid, i)})
-            if passed:
-                candidate.update({'passed': self.candidate_passed(vac_uuid, candidate['contract_address'])})
-            if action_index:
-                candidate.update(
-                    {'action_index': self.get_candidate_current_action_index(vac_uuid, candidate['contract_address'])})
-            candidates.append(candidate)
-        return candidates
 
     def member_status(self, contract_address, only_index=False):
         index = self.contract.call().members_statuses(contract_address)
@@ -225,3 +173,60 @@ class OracleHandler(object):
 
     def get_company_members_length(self, address):
         return self.contract.call().company_members_length(address)
+
+    def get_members_on_vacancy_by_action_count(self, company_address, vac_uuid):
+        members_count = self.contract.call().vacancy_members_length(company_address, vac_uuid)
+        counts = {}
+        for i in range(members_count):
+            member_address = self.contract.call().members_on_vacancy(company_address, vac_uuid, i)
+            current_action = self.get_member_current_action_index(company_address, vac_uuid, member_address)
+            if not self.member_vacancy_passed(company_address, vac_uuid, member_address):
+                if current_action not in counts:
+                    counts[current_action] = 1
+                else:
+                    counts[current_action] += 1
+        return counts
+
+    def get_member_current_action_index(self, company_address, vac_uuid, member_address):
+        return self.contract.call().get_member_current_action_index(company_address, vac_uuid, member_address)
+
+    def member_vacancy_passed(self, company_address, vac_uuid, member_address):
+        return self.contract.call().member_vacancy_pass(company_address, vac_uuid, member_address)
+
+    def get_vacancy_pipeline_length(self, company_address, uuid):
+        return self.contract.call().get_vacancy_pipeline_length(company_address, uuid)
+
+    def get_action(self, company_address, vac_uuid, index, candidates=False):
+        action = self.parse_action(self.contract.call().vacancy_pipeline(company_address, vac_uuid, index))
+        if candidates:
+            action.update(**self.get_members_on_action(company_address, vac_uuid, index))
+        return action
+
+    def get_members_on_action(self, company_address, vac_uuid, action_index):
+        members_count = self.contract.call().vacancy_members_length(company_address, vac_uuid)
+        members = {'now': [], 'pass': [], 'rest': []}
+        for i in range(members_count):
+            member_address = self.contract.call().members_on_vacancy(company_address, vac_uuid, i)
+            if not self.member_vacancy_passed(company_address, vac_uuid, member_address):
+                current_index = self.get_member_current_action_index(company_address, vac_uuid, member_address)
+                ai, ci = action_index, current_index
+                members['now' if ci == ai else 'pass' if ci > ai else 'rest'].append(member_address)
+        return members
+
+    def get_vacancy_members_length(self, company_address, vac_uuid):
+        return self.contract.call().vacancy_members_length(company_address, vac_uuid)
+
+    def get_members_on_vacancy(self, company_address, vac_uuid, passed=False, action_index=False):
+        members = []
+        for i in range(self.get_vacancy_members_length(company_address, vac_uuid)):
+            member = {}
+            member.update({'contract_address': self.contract.call().members_on_vacancy(company_address, vac_uuid, i)})
+            if passed:
+                member.update(
+                    {'passed': self.member_vacancy_passed(company_address, vac_uuid, member['contract_address'])})
+            if action_index:
+                member.update(
+                    {'action_index': self.get_member_current_action_index(company_address, vac_uuid,
+                                                                          member['contract_address'])})
+            members.append(member)
+        return members

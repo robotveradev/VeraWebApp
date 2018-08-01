@@ -43,9 +43,3 @@ class CompanyInterface:
 
     def is_collaborator(self, address):
         return self.contract.call().collaborators(address)
-
-    def new_vacancy(self, uuid, allowed):
-        self.unlockAccount()
-        txn_hash = self.contract.transact({'from': self.account}).new_vacancy(uuid, allowed)
-        self.lockAccount()
-        return txn_hash

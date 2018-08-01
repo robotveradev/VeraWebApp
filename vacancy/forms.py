@@ -1,12 +1,12 @@
 from django import forms
 
-from company.models import Company, Office
+from company.models import Office
 from .models import Vacancy
 
 
 class VacancyForm(forms.ModelForm):
     class Meta:
-        exclude = ('uuid', 'enabled', 'published',)
+        exclude = ('uuid', 'enabled', 'published', 'created_by')
         model = Vacancy
 
         labels = {
@@ -26,7 +26,7 @@ class VacancyForm(forms.ModelForm):
 
 class EditVacancyForm(forms.ModelForm):
     class Meta:
-        exclude = ('company', 'uuid', 'published', 'allowed_amount', 'enabled',)
+        exclude = ('company', 'uuid', 'published', 'allowed_amount', 'enabled', 'created_by')
         model = Vacancy
 
         labels = {

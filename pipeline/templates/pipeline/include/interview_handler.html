@@ -64,7 +64,7 @@
                                 {% for meeting in meetings %}
                                     <tr>
                                         <td>
-                                            <a class="uk-text-meta vr-link " href="{% url 'candidate_profile' username=meeting.candidate.user.username %}">
+                                            <a class="uk-text-meta vr-link " href="{% url 'member_profile' username=meeting.candidate.user.username %}">
                                                 {{ meeting.candidate.full_name }}
                                             </a>
                                         </td>

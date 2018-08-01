@@ -70,19 +70,19 @@ def question_result(answers, question_id):
 
 def vacancy_actions(vacancy):
     oracle = OracleHandler()
-    pipeline_length = oracle.get_vacancy_pipeline_length(vacancy.uuid)
-    actions = [oracle.get_action(vacancy.uuid, i) for i in range(pipeline_length)]
+    pipeline_length = oracle.get_vacancy_pipeline_length(vacancy.company.contract_address, vacancy.uuid)
+    actions = [oracle.get_action(vacancy.company.contract_address, vacancy.uuid, i) for i in range(pipeline_length)]
     db_actions = Action.objects.filter(pipeline__vacancy=vacancy)
     res = [{**i, 'db': j} for i in actions for j in db_actions if i['id'] == j.index]
     return res
 
 
 @register.inclusion_tag('pipeline/employer_pipeline.html', takes_context=True)
-def employer_pipeline_for_vacancy(context, vacancy, user):
+def employer_pipeline_for_vacancy(context, vacancy):
     oracle = OracleHandler()
-    cands_on_action = oracle.get_candidates_on_vacancy_by_action_count(vacancy.uuid)
+    members_on_action = oracle.get_members_on_vacancy_by_action_count(vacancy.company.contract_address, vacancy.uuid)
     vac_actions = vacancy_actions(vacancy)
-    cont_actions = [{**i, 'cans': i['id'] in cands_on_action and cands_on_action[i['id']] or 0} for i in vac_actions]
+    cont_actions = [{**i, 'cans': i['id'] in members_on_action and members_on_action[i['id']] or 0} for i in vac_actions]
     context.update({'actions': cont_actions,
                     'types': ActionType.objects.all()})
     return context
@@ -134,7 +134,7 @@ def candidates_on_vacancy_count(actions):
 
 
 @register.inclusion_tag('pipeline/include/candidate_pipeline_for_vacancy.html')
-def candidate_pipeline_for_vacancy(vacancy, candidate):
+def candidate_pipeline_for_vacancy(vacancy):
     actions = vacancy_actions(vacancy)
     oracle = OracleHandler()
     candidate_current_action_index = oracle.get_candidate_current_action_index(vacancy.uuid, candidate.contract_address)
@@ -179,10 +179,10 @@ def action_passed(action, candidate):
 
 
 @register.filter
-def vacancy_candidates(vacancy_uuid):
+def vacancy_members(vacancy):
     oracle = OracleHandler()
-    candidates = oracle.get_candidates_on_vacancy(vacancy_uuid, True, True)
-    return candidates
+    members = oracle.get_members_on_vacancy(vacancy.company.contract_address, vacancy.uuid, True, True)
+    return members
 
 
 @register.filter

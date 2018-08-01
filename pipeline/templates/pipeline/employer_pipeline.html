@@ -114,7 +114,7 @@
                    data-uk-icon="chevron-down"></a>
             </h3>
             <div id="info" class="uk-margin-top">
-                {% with vacancy.uuid|vacancy_candidates as candidates %}
+                {% with vacancy|vacancy_members as members %}
                     <ul class="uk-list uk-list-bullet">
                         <li>Applied the vacancy: {{ candidates|length }}</li>
                         <li>Passed the pipeline: {{ candidates|passed|length }}</li>

@@ -7,15 +7,30 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        {% if object.published %}
-            <h4>Edit vacancy "{{ object.title|title }}"</h4>
-            <form class="uk-form-horizontal" action="{% url 'vacancy_edit' pk=object.id %}" method="post">
-                {% csrf_token %}
-                {% form form=form %}{% endform %}
-                <button class="uk-button uk-button-primary uk-align-right uk-button-small">Save</button>
-            </form>
-        {% else %}
-            {% include 'jobboard/include/message.html' with message='Vacancy contract does not ready yet' %}
-        {% endif %}
+        <h4 class="uk-text-bold">Edit vacancy "{{ object.title|title }}"</h4>
+        <div class="uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    {% if object.published %}
+                        <form class="uk-form-horizontal" action="{% url 'vacancy_edit' pk=object.id %}" method="post">
+                            {% csrf_token %}
+                            {% form form=form %}{% endform %}
+                            <button class="uk-button uk-button-primary uk-align-right uk-button-small uk-margin-remove-bottom">
+                                Save
+                            </button>
+                            <div class="uk-clearfix"></div>
+                        </form>
+                    {% else %}
+                        {% include 'jobboard/include/message.html' with message='Vacancy contract does not ready yet' %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">Edit vacancy</h4>
+                    <p>{% lorem %}</p>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

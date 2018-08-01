@@ -1,12 +1,16 @@
 from __future__ import absolute_import, unicode_literals
 
+import logging
+
 from celery import shared_task
 
-from jobboard.handlers.company import CompanyInterface
 from jobboard.handlers.employer import EmployerHandler
+from jobboard.handlers.member import MemberInterface
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.tasks import save_txn, save_txn_to_history
 from vacancy.models import Vacancy
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
@@ -14,15 +18,17 @@ def new_vacancy(vacancy_id):
     try:
         vacancy = Vacancy.objects.get(pk=vacancy_id)
     except Vacancy.DoesNotExist:
-        print('Vacancy {} does not exist'.format(vacancy_id))
+        logger.warning('Vacancy {} not found and will not be published'.format(vacancy_id))
     else:
-        ci = CompanyInterface(contract_address=vacancy.company.contract_address)
-        txn_hash = ci.new_vacancy(vacancy.uuid,
+        mi = MemberInterface(contract_address=vacancy.created_by.contract_address)
+        txn_hash = mi.new_vacancy(vacancy.company.contract_address,
+                                  vacancy.uuid,
                                   int(vacancy.allowed_amount) * 10 ** 18)
         if txn_hash:
-            save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
-                                                  'Creation of a new vacancy: {}'.format(vacancy.title)), countdown=1)
-            save_txn.apply_async(args=(txn_hash.hex(), 'NewVacancy', vacancy.employer.user.id, vacancy.id), countdown=1)
+            save_txn_to_history.apply_async(args=(vacancy.created_by.id, txn_hash.hex(),
+                                                  'Creation of a new vacancy: {}'.format(vacancy.title)), countdown=0.2)
+            save_txn.apply_async(args=(txn_hash.hex(), 'NewVacancy', vacancy.created_by.id, vacancy.id), countdown=0.2)
+    return True
 
 
 @shared_task
