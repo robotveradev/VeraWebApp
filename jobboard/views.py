@@ -211,7 +211,7 @@ class TransactionsView(ListView):
 
     def get_queryset(self):
         qu = super().get_queryset()
-        return qu.filter(user=self.request.user)
+        return qu.filter(user=self.request.user.id)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

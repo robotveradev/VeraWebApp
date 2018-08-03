@@ -103,13 +103,15 @@ quiz_urlpatterns = [
     path('quiz/action/<int:pk>/exam/', quiz_views.ActionExamView.as_view(), name='action_exam'),
 ]
 
-employer_urlpatterns = [
+company_urlpatterns = [
     path('companies/', company_views.CompaniesView.as_view(), name='companies'),
     path('company/new/', company_views.NewCompanyView.as_view(), name='new_company'),
     path('company/<int:pk>', company_views.CompanyDetailsView.as_view(), name='company'),
     path('company/<int:pk>/delete/', company_views.CompanyDeleteView.as_view(), name='delete_company'),
     path('company/<int:pk>/office/new/', company_views.CompanyNewOfficeView.as_view(), name='new_office'),
     path('soclink/new/', company_views.NewSocialLink.as_view(), name='new_social_link'),
+    path('company/add/member/', company_views.AddCompanyMember.as_view(), name='process_member_add'),
+    path('company/change/mmeber/', company_views.ChangeCompanyMember.as_view(), name='change_company_member'),
 ]
 
 statistic_urlpatterns = [
@@ -157,7 +159,7 @@ urlpatterns = basic + \
               vacancy_urlpatterns + \
               quiz_urlpatterns + \
               profile_urlpatterns + \
-              employer_urlpatterns + \
+              company_urlpatterns + \
               statistic_urlpatterns + \
               pipeline_urlpatterns + \
               interview_urlpatterns + \

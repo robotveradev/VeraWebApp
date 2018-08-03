@@ -24,7 +24,8 @@ from vacancy.models import Vacancy
 from vera.celery import app
 from . import utils
 
-DELETE_ONLY_TXN = ['subscribe', 'empanswer', 'withdraw', 'tokenapprove', 'actionchanged', 'changestatus']
+DELETE_ONLY_TXN = ['subscribe', 'empanswer', 'withdraw', 'tokenapprove', 'actionchanged', 'changestatus',
+                   'addcompanymember', 'changecompanymember']
 
 logger = logging.getLogger(__name__)
 
@@ -152,7 +153,7 @@ app.register_task(CheckTransaction())
 @shared_task
 def save_txn_to_history(user_id, txn_hash, action):
     txn = TransactionHistory()
-    txn.user_id = user_id
+    txn.user = user_id
     txn.hash = txn_hash
     txn.action = action
     txn.save()
@@ -164,7 +165,7 @@ def save_txn(txn_hash, txn_type, user_id, obj_id, vac_id=None):
     txn = Transaction()
     txn.txn_hash = txn_hash
     txn.txn_type = txn_type
-    txn.user_id = user_id
+    txn.user = user_id
     txn.obj_id = obj_id
     txn.vac_id = vac_id
     txn.save()

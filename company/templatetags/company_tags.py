@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 
 from jobboard.handlers.company import CompanyInterface
 from jobboard.handlers.oracle import OracleHandler
+from users.utils import company_member_role
 
 register = template.Library()
 
@@ -37,14 +38,7 @@ def get_icon_for_name(name, size=2):
 def member_company_role(member, company):
     if not member.contract_address:
         return None
-    ci = CompanyInterface(contract_address=company.contract_address)
-    is_owner = ci.is_owner(member.contract_address)
-    if is_owner:
-        return 'owner'
-    is_collaborator = ci.is_collaborator(member.contract_address)
-    if is_collaborator:
-        return 'collaborator'
-    return None
+    return company_member_role(company.contract_address, member.contract_address)
 
 
 @register.filter

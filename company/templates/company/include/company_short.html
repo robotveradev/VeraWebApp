@@ -1,17 +1,14 @@
 <li class="company-item">
-    <div class="img">
-        <img src="{{ company.logo.url }}" alt="{{ company.name }}">
+    <div class="img uk-padding-small">
+        <img src="{{ company.logo.url }}" alt="{{ company.name }}"/>
     </div>
-    <div class="desc">
-        <h4 class="uk-text-bold">
+    <div class="desc uk-padding-small">
+        <h5 class="uk-text-bold uk-margin-remove-bottom">
             <a class="uk-link-reset" href="{% url 'company' pk=company.pk %}">{{ company.name }}</a>
-        </h4>
-        <p>{{ company.legal_address.address_line }}</p>
-        <p>
-            {% with company.vacancies.count as c_count %}
-                <a class="vr-link uk-text-meta" href="#">{{ c_count }} vacanc{{ c_count|pluralize:"y,ies" }}</a>
-            {% endwith %}
+        </h5>
+        <p class="uk-padding-remove uk-margin-remove">{{ company.legal_address.address_line }}</p>
+        <p class="uk-margin-remove">
+            <a class="vr-link uk-text-meta" href="#">0 vacancies</a>
         </p>
     </div>
 </li>
-<br/>

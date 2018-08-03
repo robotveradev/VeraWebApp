@@ -14,7 +14,7 @@ class Pipeline(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return 'Pipeline for {}'.format(self.vacancy.title)
+        return 'Pipeline for vacancy'
 
 
 class ActionType(models.Model):
@@ -44,7 +44,7 @@ class Action(models.Model):
     to_delete = models.BooleanField(default=False)
 
     def __str__(self):
-        return '{} action'.format(self.pipeline.vacancy.title if self.pipeline and self.pipeline.vacancy else '')
+        return 'Pipeline action'
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):

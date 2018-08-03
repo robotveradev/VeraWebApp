@@ -7,7 +7,7 @@ from jobboard.handlers.oracle import OracleHandler
 from pipeline.forms import ActionChangeForm
 from pipeline.models import Action, Pipeline
 from pipeline.tasks import action_with_candidate
-from vacancy.models import Vacancy
+from users.utils import company_member_role
 
 
 class ApproveActionEmployerView(RedirectView):
@@ -89,7 +89,8 @@ class NewActionView(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         pipeline = get_object_or_404(Pipeline, pk=request.POST.get('pipeline', None))
-        assert pipeline.vacancy.owner == request.user, "User can\'t create action for this pipeline"
+        user_role = company_member_role(pipeline.vacancy.company.contract_address, request.user.contract_address)
+        assert user_role == 'owner', "User can\'t create action for this pipeline"
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -98,6 +99,7 @@ class NewActionView(CreateView):
     def form_valid(self, form):
         form.instance.fee = self.request.POST.get('fee', 0)
         form.instance.approvable = form.instance.action_type.must_approvable or 'approvable' in self.request.POST
+        form.instance.created_by = self.request.user
         return super().form_valid(form)
 
 
