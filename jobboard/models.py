@@ -28,7 +28,7 @@ class Specialisation(models.Model):
 
 
 class Transaction(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.SmallIntegerField(default=0)
     txn_hash = models.CharField(max_length=127)
     txn_type = models.CharField(max_length=31)
     obj_id = models.SmallIntegerField(default=0)
@@ -36,19 +36,17 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user.username + self.txn_hash
+        return self.txn_hash
 
 
 class TransactionHistory(models.Model):
     hash = models.CharField(max_length=127)
     action = models.CharField(max_length=512)
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             related_name='transactions')
+    user = models.SmallIntegerField(default=0)
 
     def __str__(self):
-        return '{}: {}'.format(self.user.username, self.hash)
+        return self.hash
 
     class Meta:
         ordering = ('-created_at',)

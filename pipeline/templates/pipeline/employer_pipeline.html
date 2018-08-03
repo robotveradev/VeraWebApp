@@ -1,5 +1,5 @@
 {% load pipeline_tags jobboard_tags %}
-<h2>Vacancy pipeline</h2>
+<h4 class="uk-text-bold">Vacancy pipeline</h4>
 <div class="uk-margin-large-bottom" data-uk-grid>
     <div class="uk-width-2-3">
         <ul data-uk-accordion="multiple: true">
@@ -44,75 +44,79 @@
 
                     </li>
                 {% endfor %}
-                {% if vacancy.enabled is False %}
-                    {% with actions|length as al %}
-                        {% with pending_actions|length as pal %}
-                            {% with al|add:pal as count %}
-                                {% if 2|pipeline_max_length > count %}
-                                    <li class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
-                                        <a class="uk-accordion-title" href="#">New action</a>
-                                        <div class="uk-accordion-content">
-                                            <form class="uk-form-horizontal" action="{% url 'new_pipeline_action' %}"
-                                                  method="post">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="pipeline" value="{{ vacancy.pipeline.id }}">
-                                                <div class="uk-margin">
-                                                    <label class="uk-form-label"
-                                                           for="form-horizontal-select">Select</label>
-                                                    <div class="uk-form-controls">
-                                                        <select name="action_type" class="uk-select"
-                                                                id="form-horizontal-select">
-                                                            {% for type_item in types %}
-                                                                <option data-appr="{{ type_item.must_approvable|yesno:'true,false' }}"
-                                                                        value="{{ type_item.id }}">{{ type_item.title }}</option>
-                                                            {% endfor %}
-                                                        </select>
+                {% if role == 'owner' %}
+                    {% if vacancy.enabled is False %}
+                        {% with actions|length as al %}
+                            {% with pending_actions|length as pal %}
+                                {% with al|add:pal as count %}
+                                    {% if 2|pipeline_max_length > count %}
+                                        <li class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
+                                            <a class="uk-accordion-title" href="#">New action</a>
+                                            <div class="uk-accordion-content">
+                                                <form class="uk-form-horizontal"
+                                                      action="{% url 'new_pipeline_action' %}"
+                                                      method="post">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="pipeline"
+                                                           value="{{ vacancy.pipeline.id }}">
+                                                    <div class="uk-margin">
+                                                        <label class="uk-form-label"
+                                                               for="form-horizontal-select">Select</label>
+                                                        <div class="uk-form-controls">
+                                                            <select name="action_type" class="uk-select"
+                                                                    id="form-horizontal-select">
+                                                                {% for type_item in types %}
+                                                                    <option data-appr="{{ type_item.must_approvable|yesno:'true,false' }}"
+                                                                            value="{{ type_item.id }}">{{ type_item.title }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <div class="uk-margin">
-                                                    <label class="uk-form-label"
-                                                           for="form-horizontal-text">Reward</label>
-                                                    <div class="uk-form-controls">
-                                                        <input value="0" class="uk-input" id="form-horizontal-text"
-                                                               type="text"
-                                                               placeholder="Reward" name="fee">
+                                                    <div class="uk-margin">
+                                                        <label class="uk-form-label"
+                                                               for="form-horizontal-text">Reward</label>
+                                                        <div class="uk-form-controls">
+                                                            <input value="0" class="uk-input" id="form-horizontal-text"
+                                                                   type="text"
+                                                                   placeholder="Reward" name="fee">
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <div class="uk-margin">
-                                                    <div class="uk-form-label">Approvable</div>
-                                                    <div class="uk-form-controls uk-form-controls-text">
-                                                        <label><input class="uk-checkbox" type="checkbox"
-                                                                      name="approvable"></label><br>
+                                                    <div class="uk-margin">
+                                                        <div class="uk-form-label">Approvable</div>
+                                                        <div class="uk-form-controls uk-form-controls-text">
+                                                            <label><input class="uk-checkbox" type="checkbox"
+                                                                          name="approvable"></label><br>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <button class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
-                                                    Save
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </li>
-                                {% endif %}
+                                                    <button class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
+                                                        Save
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </li>
+                                    {% endif %}
+                                {% endwith %}
                             {% endwith %}
                         {% endwith %}
-                    {% endwith %}
-                {% else %}
-                    <div class="uk-padding-small white uk-border">
-                        {% check_txn txns 'VacancyChange' vacancy.id %}
-                    </div>
+                    {% else %}
+                        <div class="uk-padding-small white uk-border">
+                            {% check_txn txns 'VacancyChange' vacancy.id %}
+                        </div>
+                    {% endif %}
                 {% endif %}
             {% endwith %}
         </ul>
     </div>
     <div class="uk-width-1-3">
         <div class="uk-padding-small uk-box-shadow-medium uk-border white">
-            <h3 class="uk-legend uk-margin-remove-bottom uk-position-relative">
+            <h4 class="uk-margin-remove-bottom uk-position-relative">
                 Pipeline info
                 <a href="#" class="uk-position-center-right toggle-icon" type="button"
                    data-uk-toggle="target: #info; animation: uk-animation-slide-top-small"
                    data-uk-icon="chevron-down"></a>
-            </h3>
+            </h4>
             <div id="info" class="uk-margin-top">
                 {% with vacancy|vacancy_members as members %}
                     <ul class="uk-list uk-list-bullet">

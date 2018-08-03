@@ -1,13 +1,16 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import ListView, CreateView, DetailView, DeleteView
+from django.views.generic import ListView, CreateView, DetailView, DeleteView, RedirectView
 
+from company.tasks import set_member_role, change_member_role
 from jobboard.handlers.oracle import OracleHandler
 from .forms import CompanyForm, OfficeForm
-from .models import Company, Address, Office, SocialLink
+from .models import Company, Address, Office, SocialLink, RequestToCompany
 
 
 class CompaniesView(ListView):
@@ -17,6 +20,10 @@ class CompaniesView(ListView):
         super().__init__(**kwargs)
         self.request = None
         self.oracle = OracleHandler()
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(CompaniesView, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -98,3 +105,45 @@ class NewSocialLink(CreateView):
 
     def get_success_url(self):
         return self.object.company.get_absolute_url()
+
+
+class AddCompanyMember(RedirectView):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.company_id = None
+
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('company', kwargs={'pk': self.company_id})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        member_role = request.POST.get('role')
+        invite = request.POST.get('req')
+        try:
+            inv = RequestToCompany.objects.get(pk=invite)
+        except RequestToCompany.DoesNotExist:
+            pass
+        else:
+            self.company_id = inv.company.id
+            set_member_role.delay(inv.company.contract_address, request.user.id, inv.member.id, member_role)
+            inv.delete()
+        return super().post(request, *args, **kwargs)
+
+
+class ChangeCompanyMember(RedirectView):
+    pattern_name = 'company'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        company = get_object_or_404(Company, pk=request.POST.get('company_id'))
+        member_id = request.POST.get('member_id')
+        role = request.POST.get('role')
+        change_member_role.delay(company.contract_address, member_id, request.user.id, role)
+        return super().get(request, *args, pk=company.id)

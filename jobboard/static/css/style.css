@@ -222,11 +222,16 @@ table.uk-table-divider tr:first-child {
 
 .company-item {
     display: grid;
-    grid-template-columns: 20% auto;
+    grid-template-columns: 10% auto;
+    background: white;
+}
+
+.company > div {
+    text-align: center;
 }
 
 .company-item > div.img > img {
-    max-width: 70%;
+    max-width: 100%;
 }
 
 .uk-form-icon:not(.uk-form-icon-flip) + .uk-select {
@@ -264,5 +269,17 @@ table.uk-table-divider tr:first-child {
 
 .vr-dropdown > span:not(:last-child) {
     border-bottom: 1px solid lightgray;
+}
 
+.companies-list li {
+    border-right: 3px solid blue;
+    margin-bottom: 10px;
+}
+
+.companies-list > li:first-child {
+    border-top-right-radius: 10px;
+}
+
+.companies-list > li:last-child {
+    border-bottom-right-radius: 10px;
 }

@@ -128,7 +128,7 @@ class ChangeVacancyStatus(RedirectView):
         return reverse('vacancy', kwargs={'pk': self.object.id})
 
     def get(self, request, *args, **kwargs):
-        self.object = get_object_or_404(Vacancy, pk=kwargs.get('pk', None), company__employer=request.role_object)
+        self.object = get_object_or_404(Vacancy, pk=kwargs.get('pk', None), company_id__in=request.user.companies)
         if not hasattr(self.object, 'pipeline'):
             self.errors.append('pipeline_doesnot_exist')
         else:
@@ -147,8 +147,8 @@ class ChangeVacancyStatus(RedirectView):
     def check_employer(self):
         oracle = OracleHandler()
         coin_h = CoinHandler()
-        vac_allowance = oracle.vacancy(self.object.uuid)['allowed_amount']
-        oracle_allowance = coin_h.allowance(self.object.company.employer.contract_address, oracle.contract_address)
+        vac_allowance = oracle.vacancy(self.object.company.contract_address, self.object.uuid)['allowed_amount']
+        oracle_allowance = coin_h.allowance(self.object.company.contract_address, oracle.contract_address)
         if oracle_allowance < vac_allowance:
             self.errors.append('allow')
 

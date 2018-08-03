@@ -9,16 +9,18 @@ from pipeline.tasks import new_action, changed_action, delete_action
 def action_handler(sender, instance, created, **kwargs):
     if hasattr(instance, 'fee') and hasattr(instance, 'approvable'):
         if not created:
-            action = {
-                'id': instance.id,
-                'title': instance.action_type.title,
-                'fee': instance.fee,
-                'approvable': instance.approvable,
-                'vacancy_uuid': instance.pipeline.vacancy.uuid,
-                'contract_address': instance.pipeline.owner.contract_address,
-                'index': instance.index
-            }
-            changed_action.delay(action)
+            pass
+            # todo change
+            # action = {
+            #     'id': instance.id,
+            #     'title': instance.action_type.title,
+            #     'fee': instance.fee,
+            #     'approvable': instance.approvable,
+            #     'vacancy_uuid': instance.pipeline.vacancy.uuid,
+            #     'contract_address': instance.pipeline.owner.contract_address,
+            #     'index': instance.index
+            # }
+            # changed_action.delay(action)
         elif created:
             if instance.fee == '':
                 instance.fee = 0
@@ -28,7 +30,9 @@ def action_handler(sender, instance, created, **kwargs):
                 'fee': instance.fee,
                 'approvable': instance.approvable,
                 'vacancy_uuid': instance.pipeline.vacancy.uuid,
-                'contract_address': instance.pipeline.owner.contract_address
+                'company_address': instance.pipeline.vacancy.company.contract_address,
+                'member_address': instance.created_by.contract_address,
+                'created_by': instance.created_by.id
             }
             new_action.delay(action)
     elif instance.to_delete:

@@ -17,6 +17,6 @@ def txns(request):
     ctx = {}
     if not isinstance(request.user, AnonymousUser):
         ctx.update({
-            'txns': Transaction.objects.filter(user=request.user)
+            'txns': Transaction.objects.filter(user=request.user.id)
         })
     return ctx

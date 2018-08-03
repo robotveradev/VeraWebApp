@@ -162,7 +162,7 @@ def is_owner(user, current_user):
 
 @register.filter(name='can_withdraw')
 def can_withdraw(user):
-    return not Transaction.objects.values('id').filter(user=user, txn_type='Withdraw').exists()
+    return not Transaction.objects.values('id').filter(user=user.id, txn_type='Withdraw').exists()
 
 
 @register.filter(name='get_url_without')

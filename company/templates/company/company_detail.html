@@ -54,14 +54,6 @@
                                         <td>{{ company.date_created }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Aims & objectives</td>
-                                        <td>
-                                            <p>
-                                                {{ company.description|safe }}
-                                            </p>
-                                        </td>
-                                    </tr>
-                                    <tr>
                                         <td>Phone</td>
                                         <td>{{ company.phone }}</td>
                                     </tr>
@@ -75,7 +67,21 @@
                                         <td><a class="vr-link uk-text-meta" target="_blank"
                                                href="{{ company.site }}">{{ company.site }}</a></td>
                                     </tr>
+                                    <tr>
+                                        <td>Aims & objectives</td>
+                                        <td>
+                                            <p>
+                                                {{ company.description|safe }}
+                                            </p>
+                                        </td>
+                                    </tr>
                                 </table>
+                                <div class="block-footer uk-text-right">
+                                    {% for soclink in company.social_links.all %}
+                                        <a class="uk-link-text"
+                                           href="{{ soclink.link }}">{{ soclink.link|icon_for_link }}</a>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </li>
                         <li>
@@ -93,41 +99,62 @@
                                     <colgroup>
                                         <col width="50%">
                                         <col width="40%">
-                                        <col width="10%">
                                     </colgroup>
                                     <thead>
                                     <tr>
                                         <th>Member</th>
-                                        <th>Role</th>
-                                        <th></th>
+                                        <th class="uk-text-right">Role</th>
                                     </tr>
                                     </thead>
                                     {% for req in company.invites.all %}
                                         <tr>
                                             <td>
                                                 <a class="vr-link uk-text-meta"
-                                                   href="{{ req.member.get_absolute_url }}">{% firstof req.member.full_name req.member.username %}</a>
+                                                   href="{{ req.member.get_absolute_url }}">{% firstof req.member.full_name req.member.username %}</a>&emsp;
                                             </td>
-                                            <td>member</td>
-                                            <td><a class="vr-link uk-text-meta" href="#process{{ req.pk }}"
-                                                   data-uk-toggle>process</a></td>
+                                            <td class="uk-text-right"><a class="vr-link uk-text-meta"
+                                                                         href="#process{{ req.pk }}"
+                                                                         data-uk-toggle>process</a></td>
                                         </tr>
                                     {% endfor %}
                                     {% for member in company.members %}
                                         {% if member == user %}
                                             <tr>
                                                 <td class="uk-text-bold">You</td>
-                                                <td>{{ role }}</td>
-                                                <td></td>
+                                                <td class="uk-text-right">{{ role }}</td>
+
                                             </tr>
                                         {% else %}
+                                            {% member_company_role member company as mem_role %}
                                             <tr>
                                                 <td>
                                                     <a class="vr-link uk-text-meta"
                                                        href="{{ member.get_absolute_url }}">{% firstof member.full_name member.username %}</a>
                                                 </td>
-                                                <td>{% member_company_role member company %}</td>
-                                                <td></td>
+                                                <td class="uk-text-right">
+                                                    {% if role == 'owner' %}
+                                                        <form action="{% url 'change_company_member' %}" method="post">
+                                                            {% csrf_token %}
+                                                            <input type="hidden" name="company_id"
+                                                                   value="{{ company.id }}">
+                                                            <input type="hidden" name="member_id"
+                                                                   value="{{ member.id }}">
+                                                            <select name="role">
+                                                                <option {% if mem_role == 'collaborator' %}selected{% endif %}
+                                                                        value="collaborator">collaborator
+                                                                </option>
+                                                                <option {% if mem_role == 'owner' %}selected{% endif %}
+                                                                        value="owner">owner
+                                                                </option>
+                                                                <option {% if mem_role == 'member' %}selected{% endif %}
+                                                                        value="member">member
+                                                                </option>
+                                                            </select>
+                                                        </form>
+                                                    {% else %}
+                                                        {{ mem_role }}
+                                                    {% endif %}
+                                                </td>
                                             </tr>
                                         {% endif %}
                                     {% endfor %}
@@ -145,12 +172,14 @@
                             <div class="uk-modal-header">
                                 <h2 class="uk-modal-title">Process member invitation</h2>
                             </div>
-                            <div class="uk-modal-body">
-                                <p class="">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                                    tempor
-                                    incididunt ut labore et dolore magna aliqua. </p>
-                                <form class="uk-form-horizontal" action="" method="post">
-                                    <input type="hidden" name="member_id" value="{{ req.member.id }}">
+                            <form class="uk-form-horizontal" action="{% url 'process_member_add' %}" method="post">
+                                <div class="uk-modal-body">
+                                    <p class="">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                                        tempor
+                                        incididunt ut labore et dolore magna aliqua. </p>
+
+                                    {% csrf_token %}
+                                    <input type="hidden" name="req" value="{{ req.id }}">
                                     <div class="uk-margin">
                                         <label class="uk-form-label"
                                                for="id_role">{% firstof req.member.full_name|title req.member.username|title %}
@@ -164,14 +193,15 @@
                                             </select>
                                         </div>
                                     </div>
-                                </form>
-                            </div>
-                            <div class="uk-modal-footer uk-text-right">
-                                <button class="uk-button uk-button-small uk-button-default uk-modal-close"
-                                        type="button">Cancel
-                                </button>
-                                <button class="uk-button uk-button-small uk-button-primary" type="button">Save</button>
-                            </div>
+                                </div>
+                                <div class="uk-modal-footer uk-text-right">
+                                    <button class="uk-button uk-button-small uk-button-default uk-modal-close"
+                                            type="button">Cancel
+                                    </button>
+                                    <button class="uk-button uk-button-small uk-button-primary" type="submit">Save
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 {% endfor %}
@@ -207,8 +237,10 @@
     </div>
 {% endblock %}
 
-{% if hints_enabled %}
-    {% block extra_js %}
+
+{% block extra_js %}
+    <script src="{% static 'js/company.js' %}"></script>
+    {% if hints_enabled %}
         <script src="{% static 'js/hints/company_details_main.js' %}"></script>
-    {% endblock %}
-{% endif %}
+    {% endif %}
+{% endblock %}

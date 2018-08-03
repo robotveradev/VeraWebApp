@@ -1,24 +1,32 @@
+import logging
+
 from celery import shared_task
 
 from jobboard.handlers.employer import EmployerHandler
+from jobboard.handlers.member import MemberInterface
 from jobboard.tasks import save_txn_to_history, save_txn
-from vacancy.models import Vacancy, MemberOnVacancy
+from vacancy.models import Vacancy
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
 def new_action(action):
-    emp_h = EmployerHandler(contract_address=action['contract_address'])
-    txn_hash = emp_h.new_action(vac_uuid=action['vacancy_uuid'],
-                                title=action['title'],
-                                fee=action['fee'],
-                                appr=action['approvable'])
-    # TODO may crash if pipeline_max_length reached
-    if txn_hash:
+    mi = MemberInterface(contract_address=action['member_address'])
+    try:
+        txn_hash = mi.new_action(company_address=action['company_address'],
+                                 vac_uuid=action['vacancy_uuid'],
+                                 title=action['title'],
+                                 fee=action['fee'],
+                                 appr=action['approvable'])
+    except Exception as e:
+        logger.warning('Cant create new action, {} {}'.format(action['id'], e))
+    else:
         vacancy = Vacancy.objects.get(uuid=action['vacancy_uuid'])
-        save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
+        save_txn_to_history.apply_async(args=(action['created_by'], txn_hash.hex(),
                                               'Creation of a new action for vacancy: {}'.format(vacancy.title)),
                                         countdown=0.1)
-        save_txn.apply_async(args=(txn_hash.hex(), 'NewAction', vacancy.employer.user.id, action['id'], vacancy.id),
+        save_txn.apply_async(args=(txn_hash.hex(), 'NewAction', action['created_by'], action['id'], vacancy.id),
                              countdown=0.1)
 
 

@@ -2,6 +2,7 @@ import json
 
 from django.conf import settings
 from solc import compile_files
+from solc.utils.string import force_bytes
 from web3.utils.validation import validate_address
 
 from jobboard import utils
@@ -54,5 +55,39 @@ class MemberInterface:
         self.unlockAccount()
         txn_hash = self.contract.transact({'from': self.account}).new_collaborator_member(company_address,
                                                                                           member_address)
+        self.lockAccount()
+        return txn_hash
+
+    def new_company_member(self, company_address, member_address):
+        validate_address(company_address)
+        validate_address(member_address)
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).new_member(company_address,
+                                                                             member_address)
+        self.lockAccount()
+        return txn_hash
+
+    def new_action(self, company_address, vac_uuid, title, fee, appr):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).new_vacancy_pipeline_action(company_address,
+                                                                                              vac_uuid,
+                                                                                              force_bytes(title),
+                                                                                              int(float(
+                                                                                                  fee)) * 10 ** 18,
+                                                                                              appr)
+        self.lockAccount()
+        return txn_hash
+
+    def del_collaborator_member(self, company_address, member_address):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).del_collaborator_member(company_address,
+                                                                                          member_address)
+        self.lockAccount()
+        return txn_hash
+
+    def del_owner_member(self, company_address, member_address):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).del_owner_member(company_address,
+                                                                                   member_address)
         self.lockAccount()
         return txn_hash

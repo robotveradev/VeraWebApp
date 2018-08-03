@@ -38,7 +38,7 @@ class OracleHandler(object):
         return dict(zip(['id', 'title', 'fee', 'approvable'], action))
 
     def parse_vacancy(self, vac):
-        return dict(zip(['uuid', 'enabled', 'allowed_amount'], vac))
+        return dict(zip(['enabled', 'allowed_amount'], vac))
 
     def unlockAccount(self):
         return self.web3.personal.unlockAccount(self.account, self.__password)
@@ -147,9 +147,6 @@ class OracleHandler(object):
         assert (index < self.candidate_vacancies_length(candidate_address))
         return Web3.toHex(self.contract.call().candidate_vacancies(candidate_address, index))
 
-    def vacancy(self, uuid):
-        return self.parse_vacancy(self.contract.call().vacancies(uuid))
-
     def get_vacancy_candidates_length(self, vac_uuid):
         return self.contract.call().vacancy_candidates_length(vac_uuid)
 
@@ -230,3 +227,6 @@ class OracleHandler(object):
                                                                           member['contract_address'])})
             members.append(member)
         return members
+
+    def vacancy(self, company_address, uuid):
+        return self.parse_vacancy(self.contract.call().vacancies(company_address, uuid))

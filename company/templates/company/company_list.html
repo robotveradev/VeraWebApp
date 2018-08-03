@@ -10,20 +10,28 @@
         <h4 class="uk-text-bold" data-hint="companies-main">Companies</h4>
         <div class="uk-margin-top-small uk-margin-large-bottom" data-uk-grid>
             <div class="uk-width-3-4">
-                <div class="vr-window white">
-                    <div class="uk-padding-small">
+                {% if txns %}
+                    {% for txn in txns %}
+                        {% if txn.txn_type == 'NewCompany' %}
+                            <div class="vr-window white uk-padding-small">
+                                Creating new company... <span data-uk-spinner="ratio: 0.4"></span>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% if company_list %}
+                    <ul class="uk-padding-remove companies-list">
                         {% for company in company_list %}
                             {% include 'company/include/company_short.html' %}
-                        {% empty %}
-                            No companies yet.
                         {% endfor %}
-                        <a data-hint="new-company" href="{% url 'new_company' %}"
-                           class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
-                            Add company
-                        </a>
-                    <div class="uk-clearfix"></div>
+                    </ul>
+                {% else %}
+                    <div class="vr-window white uk-padding-small">
+                        No companies yet.
                     </div>
-                </div>
+                {% endif %}
+
+
             </div>
             <div class="uk-width-1-4">
                 <div class="vr-window white uk-padding-small">
@@ -31,10 +39,14 @@
                         Companies desc
                     </h4>
                     <p>{% lorem %}</p>
+                    <a data-hint="new-company" href="{% url 'new_company' %}"
+                       class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
+                        Add company
+                    </a>
+                    <div class="uk-clearfix"></div>
                 </div>
             </div>
         </div>
-
     </div>
 {% endblock %}
 

@@ -13,6 +13,7 @@
     {% if user.is_authenticated %}
         {% member_company_role user vacancy.company as role %}
     {% endif %}
+    {{ role }}
     {% if role == 'owner' %}
         <form id="change_vacancy_status" action="{% url 'change_vacancy_status' pk=vacancy.id %}" method="get"></form>
     {% endif %}
@@ -108,24 +109,22 @@
                             <td>Required experience</td>
                             <td>{{ vacancy.experience }} years.</td>
                         </tr>
+                        {% if vacancy.description %}
+                            <tr>
+                                <td colspan="2">
+                                    {{ vacancy.description|safe }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                        {% if vacancy.requirement %}
+                            <tr>
+                                <td colspan="2">
+                                    {{ vacancy.requirement|safe }}
+                                </td>
+                            </tr>
+                        {% endif %}
                         </tbody>
                     </table>
-
-                    <div>
-                        {% if vacancy.description %}
-                            <div>
-                                {{ vacancy.description|safe }}
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div>
-                        {% if vacancy.requirement %}
-                            <div>
-                                {{ vacancy.requirement|safe }}
-                            </div>
-                        {% endif %}
-                    </div>
-
                 </div>
             </div>
             <div class="uk-width-1-4">
@@ -178,10 +177,11 @@
                                 </td>
                                 <td class="uk-text-right">
                                     {% if vacancy.published %}
-                                        {{ vacancy.allowed_amount }} Vera (
-                                        <a class="uk-text-meta vr-link" href="#increase"
-                                           data-uk-toggle>increase</a>
-                                        )
+                                        {{ vacancy.allowed_amount }} Vera
+                                        {% if role == 'owner' %}
+                                            (<a class="uk-text-meta vr-link" href="#increase"
+                                                data-uk-toggle>increase</a>)
+                                        {% endif %}
                                     {% else %}
                                         <div data-uk-spinner="ratio: 0.4"></div>
                                     {% endif %}
@@ -208,12 +208,18 @@
             {% include 'jobboard/include/login_modal.html' with button_text='Subscribe' %}
         {% else %}
             {% if role %}
-                {% employer_pipeline_for_vacancy vacancy %}
+                {% if role == 'member' %}
+                    You cannot subscribe to this vacancy
+                {% else %}
+                    {% employer_pipeline_for_vacancy vacancy role %}
+                {% endif %}
+
             {% else %}
-                {% candidate_pipeline_for_vacancy vacancy %}
+                {% candidate_pipeline_for_vacancy vacancy user %}
             {% endif %}
         {% endif %}
     </div>
+
     {% csrf_token %}
 
     {% if role == 'owner' %}
@@ -253,7 +259,7 @@
 {% block extra_js %}
     <script src="{% static 'js/pipeline.js' %}"></script>
     {% if hints_enabled %}
-        {% if role == 'candidate' %}
+        {% if not role %}
             <script src="{% static 'js/hints/vacancy.js' %}"></script>
         {% endif %}
     {% endif %}

@@ -78,13 +78,15 @@ def vacancy_actions(vacancy):
 
 
 @register.inclusion_tag('pipeline/employer_pipeline.html', takes_context=True)
-def employer_pipeline_for_vacancy(context, vacancy):
+def employer_pipeline_for_vacancy(context, vacancy, role):
     oracle = OracleHandler()
     members_on_action = oracle.get_members_on_vacancy_by_action_count(vacancy.company.contract_address, vacancy.uuid)
     vac_actions = vacancy_actions(vacancy)
-    cont_actions = [{**i, 'cans': i['id'] in members_on_action and members_on_action[i['id']] or 0} for i in vac_actions]
+    cont_actions = [{**i, 'cans': i['id'] in members_on_action and members_on_action[i['id']] or 0} for i in
+                    vac_actions]
     context.update({'actions': cont_actions,
-                    'types': ActionType.objects.all()})
+                    'types': ActionType.objects.all(),
+                    'role': role})
     return context
 
 
@@ -134,15 +136,16 @@ def candidates_on_vacancy_count(actions):
 
 
 @register.inclusion_tag('pipeline/include/candidate_pipeline_for_vacancy.html')
-def candidate_pipeline_for_vacancy(vacancy):
+def candidate_pipeline_for_vacancy(vacancy, user):
     actions = vacancy_actions(vacancy)
     oracle = OracleHandler()
-    candidate_current_action_index = oracle.get_candidate_current_action_index(vacancy.uuid, candidate.contract_address)
-    if not oracle.candidate_passed(vacancy.uuid, candidate.contract_address):
+    candidate_current_action_index = oracle.get_member_current_action_index(vacancy.company.contract_address,
+                                                                            vacancy.uuid, user.contract_address)
+    if not oracle.member_vacancy_passed(vacancy.company.contract_address, vacancy.uuid, user.contract_address):
         return {
             'actions': actions,
             'candidate_current_action_index': candidate_current_action_index,
-            'candidate': candidate,
+            'candidate': user,
             'vacancy': vacancy
         }
     else:
