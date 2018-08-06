@@ -9,7 +9,8 @@
                         <a class="uk-link-muted" href="#question_{{ item.id }}" data-uk-toggle>{{ item.kind }}</a>
                     {% if item.kind.w2v %}<sup data-uk-tooltip="The question is estimated with the help of AI"
                                                class="green-text">AI</sup>{% endif %}
-                    <span class="uk-text-meta" data-uk-tooltip="Question type can be changed" data-uk-icon="question"></span>
+                    <span class="uk-text-meta" data-uk-tooltip="Question type can be changed"
+                          data-uk-icon="question"></span>
             </span>
             </div>
             <div id="question_{{ item.id }}" data-uk-modal>
@@ -26,7 +27,8 @@
                             {% get_questions_kinds item %}
                         </div>
                         <div class="uk-modal-footer uk-text-right">
-                            <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">Cancel
+                            <button class="uk-button uk-button-small uk-button-default uk-modal-close" type="button">
+                                Cancel
                             </button>
                             <button type="submit" class="uk-button uk-button-small uk-button-primary">Save</button>
                         </div>
@@ -35,12 +37,17 @@
             </div>
         {% endif %}
         <br/>
-        <span class="uk-text-lead">{{ item.question_text|safe }}</span>
-        <div class="uk-accordion-content">
+        <h5 class="uk-text-bold uk-margin-remove-top uk-margin-small-bottom">{{ item.question_text|safe }}</h5>
+        <div>
             {% if item.answers.all %}
-                <ul class="uk-list uk-list-divider uk-margin-left">
+                <ul class="uk-list uk-margin-left">
                     {% for answer in item.answers.all|dictsortreversed:'weight' %}
-                        <li>{{ answer.text }}, <span class="uk-text-meta">{{ answer.weight }}</span></li>
+                        <li>
+                            <div class="uk-grid-small uk-flex-bottom" data-uk-grid>
+                                <div class="uk-width-expand" data-uk-leader>{{ answer.text }}</div>
+                                <div class="uk-text-meta">weight: {{ answer.weight }}</div>
+                            </div>
+                        </li>
                     {% endfor %}
                     {% if item.kind.w2v %}
                         <li>
@@ -48,7 +55,11 @@
                         </li>
                     {% endif %}
                 </ul>
-                <a href="{% url 'new_answer' question_id=item.id %}" class="uk-align-right uk-link-muted">Add answer</a>
+                <a href="{% url 'new_answer' question_id=item.id %}"
+                   class="uk-align-right uk-link-muted uk-margin-remove-bottom">
+                    Add answer
+                </a>
+                <div class="uk-clearfix"></div>
             {% else %}
                 <span class="uk-text-warning">Question have no one answer! <a
                         href="{% url 'new_answer' question_id=item.id %}" class="uk-link-muted">Add answer</a></span>

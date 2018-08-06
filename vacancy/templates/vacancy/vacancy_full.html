@@ -167,9 +167,9 @@
                     {% endif %}
                 </div>
                 <br>
-                <div class="uk-padding-small white vr-window uk-position-relative">
-                    <h5 class="uk-text-bold uk-margin-remove-top">Vacancy info</h5>
-                    {% if role %}
+                {% if role %}
+                    <div class="uk-padding-small white vr-window uk-position-relative">
+                        <h5 class="uk-text-bold uk-margin-remove-top">Vacancy info</h5>
                         <table class="uk-table uk-table-small vr-small-table">
                             <tr>
                                 <td>
@@ -188,8 +188,9 @@
                                 </td>
                             </tr>
                         </table>
-                    {% endif %}
-                </div>
+
+                    </div>
+                {% endif %}
             </div>
         </div>
         <div>
@@ -209,11 +210,10 @@
         {% else %}
             {% if role %}
                 {% if role == 'member' %}
-                    You cannot subscribe to this vacancy
+                    {#                    todo message that company member cannot apply vacancy #}
                 {% else %}
                     {% employer_pipeline_for_vacancy vacancy role %}
                 {% endif %}
-
             {% else %}
                 {% candidate_pipeline_for_vacancy vacancy user %}
             {% endif %}

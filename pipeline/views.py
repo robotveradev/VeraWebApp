@@ -71,7 +71,8 @@ class ActionDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        act = self.oracle.get_action(self.vacancy.uuid, self.action.index, candidates=True)
+        act = self.oracle.get_action(self.vacancy.company.contract_address, self.vacancy.uuid, self.action.index,
+                                     candidates=True)
         context['action'] = {**act, 'db': self.action}
         context['change_form'] = ActionChangeForm(instance=self.action,
                                                   initial={'fee': act['fee'],

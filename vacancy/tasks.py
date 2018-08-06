@@ -8,6 +8,7 @@ from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.member import MemberInterface
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.tasks import save_txn, save_txn_to_history
+from users.models import Member
 from vacancy.models import Vacancy
 
 logger = logging.getLogger(__name__)
@@ -32,25 +33,50 @@ def new_vacancy(vacancy_id):
 
 
 @shared_task
-def change_status(vacancy_id):
+def change_status(vacancy_id, member_id):
     try:
-        vacancy = Vacancy.objects.get(pk=vacancy_id)
-    except Vacancy.DoesNotExist:
-        print('Vacancy {} does not exist'.format(vacancy_id))
+        sender = Member.objects.get(pk=member_id)
+    except Member.DoesNotExist:
+        logger.warning('Member {} not found, vacancy status will not be changed'.format(member_id))
     else:
-        emp_h = EmployerHandler(contract_address=vacancy.employer.contract_address)
-        oracle = OracleHandler()
-        bch_vacancy = oracle.vacancy(vacancy.uuid)
-        if bch_vacancy['enabled']:
-            txn_hash = emp_h.disable_vac(vacancy.uuid)
+        try:
+            vacancy = Vacancy.objects.get(pk=vacancy_id)
+        except Vacancy.DoesNotExist:
+            logger.warning('Vacancy {} does not exist'.format(vacancy_id))
         else:
-            txn_hash = emp_h.enable_vac(vacancy.uuid)
-        if txn_hash:
-            save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
-                                                  'Vacancy status changed: {}'.format(vacancy.title)), countdown=0.5)
-            save_txn.apply_async(args=(txn_hash.hex(), 'VacancyChange', vacancy.employer.user.id, vacancy.id),
-                                 countdown=0.5)
-    return True
+            oracle = OracleHandler()
+            allowed_for_vacancies = 0
+            company = vacancy.company
+            for vacancy in company.vacancies.all():
+                allowed_for_vacancies += oracle.vacancy(company.contract_address, vacancy.uuid)[
+                    'allowed_amount']
+
+            mi = MemberInterface(contract_address=sender.contract_address)
+            try:
+                txn_hash = mi.approve_company_tokens(company.contract_address, allowed_for_vacancies)
+            except Exception as e:
+                logger.warning('Cannot approve company tokens: {}'.format(e))
+            else:
+                save_txn_to_history.delay(member_id, txn_hash.hex(),
+                                          'Approving {} tokens for platform'.format(allowed_for_vacancies / 10 ** 18))
+                bch_vacancy = oracle.vacancy(vacancy.company.contract_address, vacancy.uuid)
+
+                if bch_vacancy['enabled']:
+                    method = getattr(mi, 'disable_vac')
+                else:
+                    method = getattr(mi, 'enable_vac')
+
+                try:
+                    txn_hash = method(company.contract_address, vacancy.uuid)
+                except Exception as e:
+                    logger.warning('Cant change vacancy {} status: {}'.format(vacancy.id, e))
+                else:
+                    save_txn_to_history.apply_async(args=(member_id, txn_hash.hex(),
+                                                          'Vacancy status changed: {}'.format(vacancy.title)),
+                                                    countdown=0.2)
+                    save_txn.apply_async(args=(txn_hash.hex(), 'VacancyChange', member_id, vacancy.id),
+                                         countdown=0.2)
+            return True
 
 
 @shared_task

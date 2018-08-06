@@ -43,20 +43,11 @@ class FindJobView(TemplateView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
-        self.vacancies = Vacancy.objects.filter(published=True, enabled=True, company__employer__enabled=True)
+        self.vacancies = Vacancy.objects.filter(published=True, enabled=True)
         self.vacancies_filter = None
-        self.cvs = Profile.objects
         self.context = {}
 
-    def dispatch(self, request, *args, **kwargs):
-        self.request = request
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        self.context = super().get_context_data(**kwargs)
-
     def get(self, request, *args, **kwargs):
-        self.get_context_data(**kwargs)
         self.set_vacancies_filter()
         self.sort_vacancies_filter()
         paginator = Paginator(self.vacancies_filter, 15)
@@ -71,12 +62,9 @@ class FindJobView(TemplateView):
             self.set_filter_by_parameters()
 
     def set_filter_for_relevant_vacancies(self):
-        if self.request.role == _CANDIDATE:
-            cvs = self.cvs.filter(candidate=self.request.role_object, enabled=True)
-            specs_list = list(set([item['specialisations__id'] for item in cvs.values('specialisations__id') if
-                                   item['specialisations__id'] is not None]))
-            keywords_list = list(
-                set([item['keywords__id'] for item in cvs.values('keywords__id') if item['keywords__id'] is not None]))
+        if is_authenticated(self.request.user):
+            specs_list = list(set([i.id for i in self.request.user.profile.specialisations.all()]))
+            keywords_list = list(set([i.id for i in self.request.user.profile.keywords.all()]))
             vacs = self.vacancies.filter(Q(specialisations__in=specs_list) |
                                          Q(keywords__in=keywords_list)).distinct()
             self.vacancies_filter = vacs
@@ -105,8 +93,8 @@ class FindProfilesView(TemplateView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
-        self.cps = Profile.objects.filter(candidate__enabled=True)
-        self.cps_filter = None
+        self.profiles = Profile.objects.all()
+        self.profiles_filter = None
         self.vacs = Vacancy.objects.filter(enabled=True)
         self.context = {}
 
@@ -119,39 +107,39 @@ class FindProfilesView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         self.get_context_data(**kwargs)
-        self.set_cps_filter()
-        self.sort_cps_filter()
-        paginator = Paginator(self.cps_filter, 15)
-        self.context.update({'cps': paginator.get_page(request.GET.get('page')),
+        self.set_profiles_filter()
+        self.sort_profiles_filter()
+        paginator = Paginator(self.profiles_filter, 15)
+        self.context.update({'profiles': paginator.get_page(request.GET.get('page')),
                              'sorts': CPS_SORTS})
         return self.render_to_response(self.context)
 
-    def set_cps_filter(self):
+    def set_profiles_filter(self):
         if 'filter' not in self.request.GET:
-            self.set_filter_for_relevant_cps()
+            self.set_filter_for_relevant_profiles()
         else:
             self.set_filter_by_parameters()
 
-    def set_filter_for_relevant_cps(self):
-        if self.request.role == _EMPLOYER:
-            vacs = self.vacs.filter(company__employer=self.request.role_object, enabled=True)
+    def set_filter_for_relevant_profiles(self):
+        if is_authenticated(self.request.user):
+            vacs = Vacancy.objects.filter(company__in=self.request.user.companies, enabled=True)
             specs_list = list(set([item['specialisations__id'] for item in vacs.values('specialisations__id') if
                                    item['specialisations__id'] is not None]))
             keywords_list = list(
                 set([item['keywords__id'] for item in vacs.values('keywords__id') if item['keywords__id'] is not None]))
-            cps = self.cps.filter(Q(specialisations__in=specs_list) |
-                                  Q(keywords__in=keywords_list)).exclude(
-                candidate__contract_address=None).distinct()
-            self.cps_filter = cps
+            profiles = self.profiles.filter(Q(specialisations__in=specs_list) |
+                                            Q(keywords__in=keywords_list)).exclude(
+                member__contract_address=None).distinct()
+            self.profiles_filter = profiles
         else:
-            self.cps_filter = self.cps
-        self.context.update({'all': self.cps})
+            self.profiles_filter = self.profiles
+        self.context.update({'all': self.profiles})
 
     def set_filter_by_parameters(self):
-        self.cps_filter = CPFilter(self.request.GET, self.cps).qs
-        self.context.update({'all': self.cps_filter})
+        self.profiles_filter = CPFilter(self.request.GET, self.profiles).qs
+        self.context.update({'all': self.profiles_filter})
 
-    def sort_cps_filter(self):
+    def sort_profiles_filter(self):
         if 'sort' in self.request.GET:
             sort_by = get_item(CPS_SORTS, int(self.request.GET.get('sort')))
             if not sort_by:
@@ -159,7 +147,7 @@ class FindProfilesView(TemplateView):
         else:
             sort_by = CPS_SORTS[2]
         self.context.update({'selected_sort': sort_by})
-        self.cps_filter = self.cps_filter.order_by(sort_by['order'])
+        self.profiles_filter = self.profiles_filter.order_by(sort_by['order'])
 
 
 class ProfileView(TemplateView):

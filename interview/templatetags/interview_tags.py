@@ -9,8 +9,9 @@ register = template.Library()
 
 
 @register.filter
-def get_interview_form(a=None):
-    return ActionInterviewForm
+def get_interview_form(company):
+    kwargs = {'initial': {'company': company}}
+    return ActionInterviewForm(**kwargs)
 
 
 @register.filter

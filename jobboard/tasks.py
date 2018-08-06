@@ -129,12 +129,9 @@ class CheckTransaction(Task):
         except Vacancy.DoesNotExist:
             pass
         else:
-            vac_o.enabled = self.oracle.vacancy(vac_o.uuid)['enabled']
+            vac_o.enabled = self.oracle.vacancy(vac_o.company.contract_address, vac_o.uuid)['enabled']
             vac_o.save()
             txn.delete()
-            print('Employer ({}) change vacancy ({}) enabled to: {}'.format(vac_o.employer.contract_address,
-                                                                            vac_o.uuid,
-                                                                            vac_o.enabled))
 
     def actiondeleted(self, txn):
         try:

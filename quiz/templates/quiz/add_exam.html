@@ -8,13 +8,30 @@
     {{ block.super }}
     <div class="uk-container uk-align-center">
         <h4 class="uk-text-bold">{% trans 'Add exam for action' %}</h4>
-        <form method="post" action="{% url 'action_exam_new' pk=action.id %}">
-            {% csrf_token %}
-            <input type="hidden" value="{{ action.id }}" name="action">
-            <ul data-uk-accordion="multiple: true">
-                {% include 'quiz/tags/category_list.html' with categories=object_list %}
-            </ul>
-            <button type="submit" class="uk-button uk-button-primary uk-button-small uk-align-right">Continue</button>
-        </form>
+        <div class="uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    <form method="post" action="{% url 'action_exam_new' pk=action.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{ action.id }}" name="action">
+                        <ul data-uk-accordion="multiple: true">
+                            {% include 'quiz/tags/category_list.html' with categories=object_list %}
+                        </ul>
+                        <button type="submit"
+                                class="uk-button uk-button-primary uk-button-small uk-align-right uk-margin-remove-bottom">
+                            Continue
+                        </button>
+                        <div class="uk-clearfix"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="white uk-padding-small vr-window">
+                    <h4 class="uk-text-bold">Desc</h4>
+                    <p>{% lorem 20 w random %}</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 {% endblock %}

@@ -1,6 +1,8 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import TemplateView, CreateView, DetailView, ListView, UpdateView
 from django.views.generic.edit import BaseUpdateView
@@ -46,7 +48,7 @@ class ActionAddQuestionsView(ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return Category.objects.filter(employer=self.request.role_object, parent_category=None)
+        return Category.objects.filter(company=self.action.pipeline.vacancy.company)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -61,9 +63,11 @@ class ActionAddQuestionsView(ListView):
     def post(self, request, *args, **kwargs):
         action = get_object_or_404(Action,
                                    id=request.POST.get('action'))
-        if not action.owner == request.user:
-            raise Http404
+
         question_ids = request.POST.getlist('questions')
+        if not question_ids:
+            ActionExam.objects.filter(action=action).delete()
+            return redirect('action_details', pk=action.id)
         action_exam, _ = ActionExam.objects.get_or_create(action=action)
         action_exam.questions.set(Question.objects.filter(id__in=question_ids))
         action_exam.save()
@@ -115,14 +119,9 @@ class CandidateExaminingView(TemplateView):
 class QuizIndexPage(TemplateView):
     template_name = 'quiz/main.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(QuizIndexPage, self).get_context_data(**kwargs)
-        context['categories'] = Category.objects.filter(employer=self.request.role_object, parent_category=None)
-        return context
-
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
 
 class NewCategoryView(CreateView):
@@ -137,14 +136,8 @@ class NewCategoryView(CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['employer'] = self.request.role_object
+        kwargs['member'] = self.request.user
         return kwargs
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.employer = self.request.role_object
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class CategoryView(DetailView):
@@ -310,3 +303,7 @@ class ExamPassedView(DetailView):
                                                         self.candidate.contract_address)
         cci == self.action_exam.action.index and context.update({'not_yet': True})
         return context
+
+
+class QuizCompanyPage(TemplateView):
+    pass
