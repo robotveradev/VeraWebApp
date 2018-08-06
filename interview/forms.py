@@ -9,7 +9,12 @@ from .models import ActionInterview, ScheduledMeeting
 class ActionInterviewForm(forms.ModelForm):
     class Meta:
         model = ActionInterview
-        fields = ('start_date', 'end_date', 'start_time', 'end_time', 'duration')
+        fields = ('recruiters', 'start_date', 'end_date', 'start_time', 'end_time', 'duration')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        company = kwargs.get('initial')['company']
+        self.fields['recruiters'].queryset = company.collaborators
 
     def clean(self):
         cleaned_data = super().clean()

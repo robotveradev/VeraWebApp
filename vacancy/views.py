@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import RedirectView, CreateView, UpdateView, DetailView, ListView
+from django.views.generic import RedirectView, CreateView, UpdateView, DetailView
 from web3 import Web3
 
 from jobboard.handlers.coin import CoinHandler
@@ -18,13 +18,13 @@ from vacancy.models import Vacancy, MemberOnVacancy, VacancyOffer
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
-MESSAGES = {'allow': _('You must approve tokens for platform.'),
-            'empty_exam': _('One or more actions do not have an exam.'),
+MESSAGES = {'empty_exam': _('One or more actions do not have an exam.'),
             'empty_interview': _('One or more actions do not have an interview.'),
             'disabled_profile': _('Your profile has no position. You must set position it for subscribe.'),
             'disabled_vacancy': _('Vacancy {} now disabled. You cannot subscribe to disabled vacancy.'),
-            'pipeline_doesnot_exist': 'You must add pipeline to enable vacancy.',
-            'need_more_actions': 'You must add more actions for pipeline.', }
+            'pipeline_doesnot_exist': _('You must add pipeline to enable vacancy.'),
+            'need_more_actions': _('You must add more actions for pipeline.'),
+            'allow': _('The company does not have enough tokens')}
 
 
 class CreateVacancyView(CreateView):
@@ -121,6 +121,7 @@ class ChangeVacancyStatus(RedirectView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.request = None
         self.object = None
         self.errors = []
 
@@ -132,25 +133,35 @@ class ChangeVacancyStatus(RedirectView):
         if not hasattr(self.object, 'pipeline'):
             self.errors.append('pipeline_doesnot_exist')
         else:
-            self.check_employer()
+            self.check_company()
             self.check_actions()
         if not self.errors:
+            pass
             if self.object.enabled is not None:
                 self.object.enabled = None
                 self.object.change_status = True
+                self.object.change_by = request.user
                 self.object.save()
         else:
             for error in set(self.errors):
                 messages.warning(request, MESSAGES[error])
         return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
 
-    def check_employer(self):
+    def check_company(self):
         oracle = OracleHandler()
         coin_h = CoinHandler()
-        vac_allowance = oracle.vacancy(self.object.company.contract_address, self.object.uuid)['allowed_amount']
-        oracle_allowance = coin_h.allowance(self.object.company.contract_address, oracle.contract_address)
-        if oracle_allowance < vac_allowance:
+
+        company_balance = coin_h.balanceOf(self.object.company.contract_address)
+        allowed_for_vacancies = 0
+        for vacancy in self.object.company.vacancies.all():
+            allowed_for_vacancies += oracle.vacancy(self.object.company.contract_address, vacancy.uuid)[
+                'allowed_amount']
+        if allowed_for_vacancies > company_balance:
             self.errors.append('allow')
+        # vac_allowance = oracle.vacancy(self.object.company.contract_address, self.object.uuid)['allowed_amount']
+        # oracle_allowance = coin_h.allowance(self.object.company.contract_address, oracle.contract_address)
+        # mi = MemberInterface(self.request.user.contract_address)
+        # mi.approve_company_tokens()
 
     def check_actions(self):
         if hasattr(self.object, 'pipeline'):

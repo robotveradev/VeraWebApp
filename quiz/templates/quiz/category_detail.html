@@ -10,28 +10,38 @@
     {{ block.super }}
     <div data-hint="main" class="uk-container uk-align-center">
         <h4 class="uk-text-bold">{{ object.title|title }}</h4>
-        {% if object.sub_categories %}
-            {% for category in object.sub_categories.all %}
-                {% include 'quiz/include/category.html' with item=category %}
-            {% endfor %}
-        {% else %}
-            {% include 'quiz/include/category.html' with item=object %}
-        {% endif %}
-        <h5>Category questions</h5>
-        <div class="uk-margin-large-bottom">
-            {% if object.questions.all %}
-                {% for question in object.questions.all %}
-                    {% include 'quiz/include/question.html' with item=question %}
-                {% endfor %}
-                <a data-hint="add_link" href="{% url 'new_question' category_id=object.id %}"
-                   class="uk-button uk-button-primary uk-button-small uk-align-right">Add new question</a>
-                <div class="uk-clearfix"></div>
-            {% else %}
-                You have no one question in category.
-                <a data-hint="add_link" href="{% url 'new_question' category_id=object.id %}"
-                   class="uk-link-muted vr-link">Add
-                    first one right now!</a>
-            {% endif %}
+        <div class="uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window">
+                    {% if object.questions.all %}
+                        {% for question in object.questions.all %}
+                            {% include 'quiz/include/question.html' with item=question %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="uk-padding-small white">
+                            Category has no questions yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window uk-padding-small white">
+                    <h4 class="uk-text-bold">
+                        Category desc
+                    </h4>
+                    <ul class="uk-list">
+                        <li class="uk-text-justify">
+                            Author: {% firstof category.created_by.full_name category.created_by.username %}
+                        </li>
+                        <li>Created: {{ category.created_at|date }}</li>
+                        <li>Last update: {{ category.updated_at|date }}</li>
+                    </ul>
+                    <a data-hint="add_link" href="{% url 'new_question' category_id=object.id %}"
+                       class="uk-button uk-button-primary uk-button-small uk-align-right uk-margin-remove-bottom">Add
+                        new question</a>
+                    <div class="uk-clearfix"></div>
+                </div>
+            </div>
         </div>
 
     </div>

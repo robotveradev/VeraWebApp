@@ -210,10 +210,10 @@ def member_status(context, member, for_change=False):
 
 
 @register.filter
-def get_questions_count(employer):
+def get_categories_count(member):
     count = 0
-    for item in employer.categories.all():
-        count += item.questions.count()
+    for item in member.companies.all():
+        count += item.quiz_categories.count()
     return count
 
 

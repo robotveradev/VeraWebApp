@@ -89,6 +89,7 @@ vacancy_urlpatterns = [
 
 quiz_urlpatterns = [
     path('quiz/', quiz_views.QuizIndexPage.as_view(), name='quiz_index'),
+    path('quiz/company/<int:pk>', quiz_views.QuizCompanyPage.as_view(), name='quiz_index'),
     path('quiz/category/<int:pk>', quiz_views.CategoryView.as_view(), name='category'),
     path('quiz/category/new/', quiz_views.NewCategoryView.as_view(), name='new_category'),
     path('quiz/category/<int:category_id>/question/new/', quiz_views.NewQuestionView.as_view(), name='new_question'),

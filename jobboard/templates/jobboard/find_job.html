@@ -59,7 +59,7 @@
                                     {{ vacancy.city|title }},
                                 {% endif %}
                                 {% if vacancy.published %}
-                                    {{ vacancy.uuid|get_interview_fee }} Vera
+                                    {{ vacancy|get_interview_fee }} Vera
                                 {% else %}
                                     <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
                                 {% endif %}

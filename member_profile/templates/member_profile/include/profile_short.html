@@ -1,12 +1,12 @@
 {% load statistic_tags %}
 
-{% if cp %}
+{% if profile %}
     <div class="uk-box-shadow-small uk-padding-small uk-margin-small uk-box-shadow-hover-medium white uk-border">
         <article class="uk-comment">
             <header class="uk-comment-header uk-flex-middle" data-uk-grid>
                 <div class="uk-width-auto">
-                    {% if cp.photo %}
-                        <img class="uk-comment-avatar" src="{{ cp.photo.url }}" width="80" height="80" alt="">
+                    {% if profile.photo %}
+                        <img class="uk-comment-avatar" src="{{ profile.photo.url }}" width="80" height="80" alt="">
                     {% else %}
                         <img width="80" height="80" class="uk-comment-avatar"
                              src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
@@ -15,15 +15,16 @@
                 </div>
                 <div class="uk-width-expand">
                     <h4 class="uk-comment-title uk-margin-remove">
-                        {% url 'subscribe_to_vacancy' vacancy_id=vacancy.id profile_id=cp.id as sub_url %}
+                        {% url 'subscribe_to_vacancy' vacancy_id=vacancy.id profile_id=profile.id as sub_url %}
                         <a class="uk-button uk-button-text"
-                           href="{% if selectable %}{{ sub_url }}{% else %}{% url 'member_profile' username=cp.candidate.user.username %}{% endif %}">
-                            {{ cp.title }}
+                           href="
+                                   {% if selectable %}{{ sub_url }}{% else %}{% url 'member_profile' username=profile.member.username %}{% endif %}">
+                            {{ profile.title }}
                         </a>
                     </h4>
                     <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
-                        <li>{{ cp.updated_at|timesince }} ago</li>
-                        <li>{{ cp.salary_from }}</li>
+                        <li>{{ profile.updated_at|timesince }} ago</li>
+                        <li>{{ profile.salary_from }}</li>
                         {% if selectable %}
                             {% if can_sub %}
                                 <li><a class="uk-button uk-button-text"
@@ -35,19 +36,16 @@
             </header>
             {% if candidate_info %}
                 <div>
-                    {{ cp.sex|title }}{% if cp.birth_date %}, {{ cp.birth_date|date:'d E Y' }} year of
-                        birth{% endif %}{% if cp.level %}, education level:
-                        {{ cp.level.title|lower }}{% endif %}
+                    {{ profile.sex|title }}{% if profile.birth_date %}, {{ profile.birth_date|date:'d E Y' }} year of
+                        birth{% endif %}{% if profile.level %}, education level:
+                        {{ profile.level.title|lower }}{% endif %}
                 </div>
                 <div>
-                    {{ cp.address.address_line|title }}{% if cp.relocation %}, ready for
-                        transfer{% endif %}{% if cp.official_journey %}, ready
+                    {{ profile.address.address_line|title }}{% if profile.relocation %}, ready for
+                        transfer{% endif %}{% if profile.official_journey %}, ready
                         for official journey{% endif %}
                 </div>
             {% endif %}
         </article>
-        {% if cp.candidate == role_object and show_stat %}
-            {% statistic cp %}
-        {% endif %}
     </div>
 {% endif %}

@@ -6,7 +6,7 @@
             Complete fields below to config interview
         </legend>
         {% csrf_token %}
-        {% with 2|get_interview_form as form %}
+        {% with action.db.pipeline.vacancy.company|get_interview_form as form %}
             {% form form=form %}{% endform %}
             <button type="submit"
                     class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">Save
@@ -24,6 +24,7 @@
     <div id="interview" class="uk-margin-top">
         <div data-uk-grid>
             <div class="uk-width-3-4">
+
                 {% if action.db.interview.end_date %}
                     <div class="uk-margin-bottom" data-uk-grid>
                         <div class="uk-width-1-6">
@@ -64,7 +65,8 @@
                                 {% for meeting in meetings %}
                                     <tr>
                                         <td>
-                                            <a class="uk-text-meta vr-link " href="{% url 'member_profile' username=meeting.candidate.user.username %}">
+                                            <a class="uk-text-meta vr-link "
+                                               href="{% url 'member_profile' username=meeting.candidate.user.username %}">
                                                 {{ meeting.candidate.full_name }}
                                             </a>
                                         </td>
@@ -103,7 +105,7 @@
             </div>
             <div class="uk-width-1-4">
                 <div class="uk-border uk-padding-small">
-                    <h5>Options</h5>
+                    <h5>Info</h5>
                     {% with action.db.interview as interview %}
                         <ul class="uk-list">
                             <li>Start date: {{ interview.start_date }}</li>
@@ -114,6 +116,18 @@
                             {% if interview.end_time %}
                                 <li>End time: {{ interview.end_time }}</li>
                             {% endif %}
+                            <li>
+                                Assigned to:
+                                <ul>
+                                    {% for member in interview.recruiters.all %}
+                                        <li>
+                                            <a class="vr-link uk-text-meta" target="_blank"
+                                               href="{{ member.get_absolute_url }}">{% firstof member.full_name member.username %}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+
                         </ul>
                         <a href="#"
                            class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">

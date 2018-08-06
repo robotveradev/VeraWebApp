@@ -26,6 +26,11 @@ class NewActionInterviewView(CreateView):
         self.action = get_object_or_404(Action, pk=kwargs.get('pk'))
         return super().dispatch(request, *args, **kwargs)
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial.update({'company': self.action.pipeline.vacancy.company})
+        return initial
+
     def form_valid(self, form):
         form.instance.action = self.action
         return super().form_valid(form)

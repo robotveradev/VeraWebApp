@@ -13,11 +13,12 @@ class Category(models.Model):
                                 on_delete=models.CASCADE,
                                 null=True,
                                 related_name='quiz_categories')
-    parent_category = models.ForeignKey('self',
-                                        on_delete=models.SET_NULL,
-                                        null=True,
-                                        blank=True,
-                                        related_name='sub_categories')
+    created_by = models.ForeignKey('users.Member',
+                                   on_delete=models.SET_NULL,
+                                   related_name='+',
+                                   null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return '{}'.format(self.title)

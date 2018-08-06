@@ -1,7 +1,8 @@
 from django import template
-from member_profile.models import Schedule, Busyness, Profile
+
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.models import Specialisation, Keyword
+from member_profile.models import Schedule, Busyness, Profile
 from vacancy.models import MemberOnVacancy
 
 register = template.Library()
@@ -153,9 +154,10 @@ def get_real_filter_name(need_key):
 
 
 @register.filter
-def get_interview_fee(uuid):
+def get_interview_fee(vacancy):
     oracle = OracleHandler()
-    fee_list = [int(oracle.get_action(uuid, i)['fee']) for i in range(oracle.get_vacancy_pipeline_length(uuid))]
+    fee_list = [int(oracle.get_action(vacancy.company.contract_address, vacancy.uuid, i)['fee']) for i in
+                range(oracle.get_vacancy_pipeline_length(vacancy.company.contract_address, vacancy.uuid))]
     return '-'.join([str(i) for i in fee_list]) if sum(fee_list) > 0 else 0
 
 
@@ -166,10 +168,11 @@ def is_already_offer(vacancy, cp):
 
 
 @register.filter
-def may_apply_vacancy(candidate, vacancy):
-    if not candidate.contract_address:
+def may_apply_vacancy(member, vacancy):
+    if not member.contract_address:
         return False
     oracle = OracleHandler()
-    current_action_index = oracle.get_candidate_current_action_index(vacancy.uuid, candidate.contract_address)
-    already_subscribed = MemberOnVacancy.objects.filter(candidate=candidate, vacancy=vacancy).exists()
-    return hasattr(candidate.profile, 'position') and current_action_index == -1 and not already_subscribed
+    current_action_index = oracle.get_member_current_action_index(vacancy.company.contract_address, vacancy.uuid,
+                                                                  member.contract_address)
+    already_subscribed = MemberOnVacancy.objects.filter(member=member, vacancy=vacancy).exists()
+    return current_action_index == -1 and not already_subscribed

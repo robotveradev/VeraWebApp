@@ -35,9 +35,29 @@ class MemberInterface:
     def lockAccount(self):
         return self.web3.personal.lockAccount(self.account)
 
+    def approve_company_tokens(self, company_address, amount):
+        validate_address(company_address)
+        self.unlockAccount()
+        self.contract.transact({'from': self.account}).approve_company_tokens(company_address, 0)
+        txn_hash = self.contract.transact({'from': self.account}).approve_company_tokens(company_address, amount)
+        self.lockAccount()
+        return txn_hash
+
     def new_vacancy(self, company_address, uuid, allowed):
         self.unlockAccount()
         txn_hash = self.contract.transact({'from': self.account}).new_vacancy(company_address, uuid, allowed)
+        self.lockAccount()
+        return txn_hash
+
+    def disable_vac(self, company_address, uuid):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).disable_vac(company_address, uuid)
+        self.lockAccount()
+        return txn_hash
+
+    def enable_vac(self, company_address, uuid):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).enable_vac(company_address, uuid)
         self.lockAccount()
         return txn_hash
 

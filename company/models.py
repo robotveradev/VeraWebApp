@@ -4,6 +4,7 @@ from django.urls import reverse
 
 from google_address.models import Address
 from jobboard.handlers.oracle import OracleHandler
+from users.utils import company_member_role
 
 
 class Company(models.Model):
@@ -42,6 +43,19 @@ class Company(models.Model):
 
     def get_absolute_url(self):
         return reverse('company', kwargs={'pk': self.pk})
+
+    @property
+    def owners(self):
+        collaborators = self.collaborators
+        return collaborators.filter(pk__in=[member.id for member in collaborators if
+                                            company_member_role(self.contract_address,
+                                                                member.contract_address) == 'owner'])
+
+    @property
+    def collaborators(self):
+        members = self.members
+        return members.filter(pk__in=[member.id for member in members if
+                                      company_member_role(self.contract_address, member.contract_address) != 'member'])
 
     @property
     def members(self):

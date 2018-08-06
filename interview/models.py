@@ -20,7 +20,7 @@ class ActionInterview(BaseAction, models.Model):
     end_date = models.DateField(blank=True,
                                 null=True,
                                 help_text=_('Date to you want to interview candidates'))
-    start_time = models.TimeField(default=now,
+    start_time = models.TimeField(default='08:00',
                                   help_text=_('Time from you want to interview'))
     end_time = models.TimeField(blank=True,
                                 null=True,
@@ -30,6 +30,7 @@ class ActionInterview(BaseAction, models.Model):
                                    default=10,
                                    validators=[
                                        MinValueValidator(5, 'Interview duration cannot be less than 5 minutes'), ])
+    recruiters = models.ManyToManyField('users.Member')
 
     def get_result_url(self, **kwargs):
         pass

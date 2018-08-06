@@ -158,9 +158,9 @@ def get(arr, i):
 
 
 @register.filter
-def get_member(candidate_contract_address):
+def get_member(member_contract_address):
     try:
-        return Member.objects.get(contract_address=candidate_contract_address)
+        return Member.objects.get(contract_address=member_contract_address)
     except Member.DoesNotExist:
         return None
 

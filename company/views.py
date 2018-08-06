@@ -108,13 +108,7 @@ class NewSocialLink(CreateView):
 
 
 class AddCompanyMember(RedirectView):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.company_id = None
-
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse('company', kwargs={'pk': self.company_id})
+    pattern_name = 'company'
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -128,10 +122,9 @@ class AddCompanyMember(RedirectView):
         except RequestToCompany.DoesNotExist:
             pass
         else:
-            self.company_id = inv.company.id
             set_member_role.delay(inv.company.contract_address, request.user.id, inv.member.id, member_role)
             inv.delete()
-        return super().post(request, *args, **kwargs)
+            return super().get(request, *args, pk=inv.company.id)
 
 
 class ChangeCompanyMember(RedirectView):
