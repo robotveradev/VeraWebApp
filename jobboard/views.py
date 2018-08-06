@@ -169,9 +169,13 @@ class ProfileView(TemplateView):
 
     @staticmethod
     def get_forms():
-        data = {'learning_form': LearningForm(), 'worked_form': WorkedForm(), 'certificate_form': CertificateForm(),
-                'language_form': LanguageItemForm(), 'citizenship_form': CitizenshipForm(),
-                'work_permit_form': WorkPermitForm(), 'achievement_form': AchievementForm()}
+        data = {'learning_form': LearningForm(),
+                'worked_form': WorkedForm(),
+                'certificate_form': CertificateForm(),
+                'language_form': LanguageItemForm(),
+                'citizenship_form': CitizenshipForm(),
+                'work_permit_form': WorkPermitForm(),
+                'achievement_form': AchievementForm()}
         return data
 
 

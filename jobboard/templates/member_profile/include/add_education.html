@@ -1,0 +1,26 @@
+<p class="uk-text-lead">{{ add_education.institute }}
+    {% if user == profile.member %}
+        <a class="uk-align-right" href="{% url 'additional_education_edit' pk=add_education.pk %}"
+           data-uk-icon="icon: file-edit"></a>
+    {% endif %}
+</p>
+<div class="uk-margin-small-bottom" data-uk-grid>
+    <div class="uk-width-4-5">
+        {% if add_education.start %}
+            From {{ add_education.start|date:'d E Y' }}
+        {% endif %}
+        {% if add_education.end %}
+            to {{ add_education.end|date:'d E Y' }}
+        {% endif %}
+        {% if add_education.profession %}
+            <div>
+                {{ add_education.profession }}
+            </div>
+        {% endif %}
+    </div>
+    {% if add_education.has_certificate %}
+        <div class="uk-width-1-5">
+            <div class="chip white blue-text text-lighten-2 vr-chip-border">With certificate</div>
+        </div>
+    {% endif %}
+</div>

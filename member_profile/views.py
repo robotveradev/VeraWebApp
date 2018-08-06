@@ -62,6 +62,19 @@ class NewEducationView(NewProfileFragmentMixin, CreateView):
         return HttpResponseRedirect(reverse('profile'))
 
 
+class NewAdditionalEducationView(NewProfileFragmentMixin, CreateView):
+    model = AdditionalEducation
+    form_class = AdditionalEducationForm
+    template_name = 'member_profile/new_additional_education.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.profile = self.request.user.profile
+        self.object.save()
+        print(self.object)
+        return HttpResponseRedirect(reverse('profile'))
+
+
 class NewExperienceView(NewProfileFragmentMixin, CreateView):
     model = Experience
     form_class = ExperienceForm
@@ -129,6 +142,12 @@ class EducationEditView(ProfileFragmentEditMixin, UpdateView):
     model = Education
     form_class = EducationForm
     template_name = 'member_profile/education_edit.html'
+
+
+class AdditionalEducationEditView(ProfileFragmentEditMixin, UpdateView):
+    model = AdditionalEducation
+    form_class = AdditionalEducationForm
+    template_name = 'member_profile/additional_education_edit.html'
 
 
 class HideOfferView(RedirectView):

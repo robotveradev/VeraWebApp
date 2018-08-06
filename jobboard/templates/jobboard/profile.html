@@ -18,6 +18,7 @@
                     <li><a data-hint="position" class="uk-text-capitalize" href="#">Position</a></li>
                     <li><a class="uk-text-capitalize" href="#">Experience</a></li>
                     <li><a class="uk-text-capitalize" href="#">Education</a></li>
+                    <li><a class="uk-text-capitalize" href="#">Additional education</a></li>
                 </ul>
             </div>
         </div>
@@ -119,6 +120,24 @@
                                            class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">Add
                                             education
                                             info</a>
+                                        <div class="uk-clearfix"></div>
+                                    {% endwith %}
+                                </div>
+                            </li>
+                            <li>
+                                <div class="uk-padding-small">
+                                    {% with profile.additional_education.all as add_educations %}
+                                        {% if add_educations %}
+                                            {% for add_education in add_educations %}
+                                                {% include 'member_profile/include/add_education.html' %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <p>Additional education information is not available.</p>
+                                        {% endif %}
+                                        <a href="{% url 'new_additional_education' %}"
+                                           class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">
+                                            Add additional education info
+                                        </a>
                                         <div class="uk-clearfix"></div>
                                     {% endwith %}
                                 </div>
