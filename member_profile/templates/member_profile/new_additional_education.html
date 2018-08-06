@@ -7,16 +7,27 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <form class="uk-form-horizontal" action="{% url 'new_additional_education' %}" method="post">
-            <fieldset class="uk-fieldset">
-                <legend class="uk-legend">
-                    {% trans 'New additional education entry' %}
-                </legend>
-                {% csrf_token %}
-                {% form form=form %}{% endform %}
-                <button class="uk-button uk-button-primary uk-button-small uk-align-right">Save</button>
-            </fieldset>
-        </form>
+        <h4 class="uk-text-bold">{% trans 'New additional education entry' %}</h4>
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    <form class="uk-form-horizontal" action="{% url 'new_additional_education' %}" method="post">
+                        {% csrf_token %}
+                        {% form form=form %}{% endform %}
+                        <button class="uk-button uk-button-primary uk-button-small uk-align-right uk-margin-remove-bottom">
+                            Save
+                        </button>
+                        <div class="uk-clearfix"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">Additional education desc</h4>
+                    <p>{% lorem %}</p>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
