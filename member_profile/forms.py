@@ -5,7 +5,7 @@ from django_select2.forms import ModelSelect2TagWidget
 
 from company.models import Company
 from company.widgets import AddressWidget
-from .models import Profile, Position, Education, Experience, LanguageItem, Citizenship, WorkPermit
+from .models import Profile, Position, Education, Experience, LanguageItem, Citizenship, WorkPermit, AdditionalEducation
 
 
 class NameSearchFieldMixin(object):
@@ -52,12 +52,38 @@ class EducationForm(forms.ModelForm):
         exclude = ('profile',)
         model = Education
         widgets = {
-            'education_from': forms.SelectDateWidget(
-                years=[i for i in range(1950, now().year)][::-1],
+            'start': forms.SelectDateWidget(
+                years=[i for i in range(1950, now().year + 1)][::-1],
                 empty_label=('Select year', 'month', 'day'),
             ),
-            'education_to': forms.SelectDateWidget(
-                years=[i for i in range(1950, now().year)][::-1],
+            'end': forms.SelectDateWidget(
+                years=[i for i in range(1950, now().year + 1)][::-1],
+                empty_label=('Select year', 'month', 'day'),
+            ),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not cleaned_data.get('start') or not cleaned_data.get('end'):
+            raise forms.ValidationError(_(
+                "You must specify an start date and end date."))
+        if cleaned_data.get('start') > cleaned_data.get('end'):
+            raise forms.ValidationError(_(
+                "Start date must be less than end date"
+            ))
+
+
+class AdditionalEducationForm(forms.ModelForm):
+    class Meta:
+        exclude = ('profile',)
+        model = AdditionalEducation
+        widgets = {
+            'start': forms.SelectDateWidget(
+                years=[i for i in range(1950, now().year + 1)][::-1],
+                empty_label=('Select year', 'month', 'day'),
+            ),
+            'end': forms.SelectDateWidget(
+                years=[i for i in range(1950, now().year + 1)][::-1],
                 empty_label=('Select year', 'month', 'day'),
             ),
         }

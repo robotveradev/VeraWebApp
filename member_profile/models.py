@@ -44,6 +44,12 @@ LANGUAGE_LEVELS = (
     ('BIL', _('Bilingual')),
 )
 
+ADDITIONAL_CHOICES = (
+    ('COURSE', 'Course'),
+    ('TRAINING', 'Training'),
+    ('CONFERENCE', 'Conference'),
+)
+
 
 def current_year():
     return now().year
@@ -201,7 +207,8 @@ class Education(models.Model):
     def __str__(self):
         return self.institute or '-'
 
-    def get_absolute_url(self):
+    @staticmethod
+    def get_absolute_url():
         return reverse('profile')
 
 
@@ -287,3 +294,27 @@ class Achievement(models.Model):
 
     def __str__(self):
         return '{} achievement'.format(self.profile)
+
+
+class AdditionalEducation(models.Model):
+    profile = models.ForeignKey(Profile,
+                                on_delete=models.CASCADE,
+                                related_name='additional_education',
+                                blank=False,
+                                null=False)
+    education_type = models.CharField(max_length=20,
+                                      choices=ADDITIONAL_CHOICES,
+                                      null=False,
+                                      blank=False)
+    institute = models.CharField(max_length=127,
+                                 blank=True,
+                                 null=True)
+    profession = models.CharField(max_length=127,
+                                  blank=True,
+                                  null=True)
+    start = models.DateField()
+    end = models.DateField()
+    has_certificate = models.BooleanField(default=False)
+
+    def __str__(self):
+        return '{} {}'.format(self.profile.member.username, self.education_type)

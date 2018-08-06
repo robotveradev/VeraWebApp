@@ -1,31 +1,31 @@
 {% extends 'jobboard/base.html' %}
 
-{% block head_title %} Vera Platform - Education {{ edu_o.profession|title }} edit{% endblock %}
+{% block head_title %} Vera Platform - Additional  education {{ edu_o.profession|title }} edit{% endblock %}
 
 {% load material_form %}
 
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
+        {% if error %}
+            <h4>
+                {{ error }}
+            </h4>
+        {% else %}
             {% if error %}
-                <h4>
-                    {{ error }}
-                </h4>
-            {% else %}
-                {% if error %}
-                    <span class="center red-text">{{ error }}</span>
-                {% endif %}
-                <form class="uk-form-horizontal" action="{% url 'education_edit' pk=object.id %}" method="post">
+                <span class="center red-text">{{ error }}</span>
+            {% endif %}
+            <form class="uk-form-horizontal" action="{% url 'additional_education_edit' pk=object.id %}" method="post">
                 <fieldset class="uk-fieldset">
                     <legend class="uk-legend">
-                        Edit Education {{ object.profession|title }}
+                        Edit additional education {{ object.profession|title }}
                     </legend>
                     {% csrf_token %}
                     {% form form=form %}{% endform %}
                     <button class="uk-button uk-button-primary uk-align-right uk-button-small">Save</button>
                 </fieldset>
 
-                </form>
-            {% endif %}
+            </form>
+        {% endif %}
     </div>
 {% endblock %}
