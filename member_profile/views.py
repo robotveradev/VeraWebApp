@@ -9,7 +9,7 @@ from google_address.models import Address
 from jobboard.forms import AchievementForm
 from jobboard.handlers.oracle import OracleHandler
 from member_profile.tasks import change_candidate_status
-from vacancy.models import VacancyOffer, Vacancy
+from vacancy.models import VacancyOffer
 from .forms import *
 
 

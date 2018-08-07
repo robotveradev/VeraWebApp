@@ -372,8 +372,12 @@ class CandidateProfileView(DetailView):
         self.kwargs = None
 
     def get_object(self, queryset=None):
-        can = get_object_or_404(Member, username=self.kwargs.get('username'))
-        return can
+        return get_object_or_404(Member, username=self.kwargs.get('username'))
+
+    def get(self, request, *args, **kwargs):
+        if self.get_object() == request.user:
+            return redirect(reverse('profile'))
+        return super().get(request, *args, **kwargs)
 
 
 class FindFieldView(View):

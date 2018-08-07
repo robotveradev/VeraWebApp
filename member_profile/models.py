@@ -84,9 +84,9 @@ class Profile(models.Model):
                                   default=None)
     sex = models.CharField(max_length=20,
                            choices=SEX_CHOICES)
-    address = models.ForeignKey(Address,
-                                on_delete=models.SET_NULL,
-                                null=True)
+    address = models.CharField(max_length=255,
+                               blank=True,
+                               null=True)
     relocation = models.NullBooleanField(default=None)
     official_journey = models.NullBooleanField(default=None)
     specialisations = models.ManyToManyField('jobboard.Specialisation',

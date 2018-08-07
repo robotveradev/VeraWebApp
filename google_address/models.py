@@ -60,6 +60,10 @@ class Address(models.Model):
     lng = models.FloatField('lng', blank=True, null=True)
     address_components = models.ManyToManyField(AddressComponent)
 
+    @property
+    def formatted(self):
+        return self.get_address()
+
     def get_city_state(self):
         state = self.address_components.filter(types__name='administrative_area_level_1')
         county = self.address_components.filter(types__name='administrative_area_level_2')
