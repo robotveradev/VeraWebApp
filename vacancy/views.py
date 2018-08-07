@@ -41,6 +41,7 @@ class CreateVacancyView(CreateView):
 
     def get(self, request, *args, **kwargs):
         if not request.user.companies.exists():
+            messages.info(request, 'You must add company first')
             return redirect('new_company')
         return super().get(request, *args, **kwargs)
 
