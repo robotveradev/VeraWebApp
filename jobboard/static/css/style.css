@@ -239,7 +239,7 @@ table.uk-table-divider tr:first-child {
 }
 
 .vr-small-table td, .vr-small-table th {
-    padding: 10px 0;
+    padding: 5px 0;
 }
 
 .vr-dropdown {
@@ -283,3 +283,45 @@ table.uk-table-divider tr:first-child {
 .companies-list > li:last-child {
     border-bottom-right-radius: 10px;
 }
+
+.pipeline {
+    border-top: 1px solid grey;
+    position: relative;
+}
+
+.pipeline .line {
+    position: absolute;
+    border-top: 1px solid blue;
+    width: 95%;
+    top: 27px;
+}
+
+.pipeline .action {
+    width: 16px;
+    height: 16px;
+    border: 4px solid #f3f6fd;
+    border-radius: 50%;
+    z-index: 1;
+    background: white;
+    position: relative;
+}
+
+.pipeline .action.passed:after {
+    background: blue;
+}
+
+.pipeline .action:after {
+    content: ' ';
+    width: 14px;
+    height: 14px;
+    border: 1px solid blue;
+    position: absolute;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+}
+
+a.company-link {
+    margin-left: 10px;
+}
+

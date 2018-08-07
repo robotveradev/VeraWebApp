@@ -34,12 +34,39 @@ class Member(AbstractUser):
 
     @property
     def companies(self):
+        """
+        Filter for companies member is in.
+        :return: Companies QuerySet
+        """
         _model = ContentType.objects.get(model='company')
         if not self.contract_address:
             return _model.model_class().objects.none()
         oracle = OracleHandler()
         companies = oracle.get_member_companies(self.contract_address)
         return _model.model_class().objects.filter(contract_address__in=companies)
+
+    @property
+    def vacancies(self):
+        """
+        Filter for vacancies member subscribed to
+        :return: Vacancies QuerySet
+        """
+        _model = ContentType.objects.get(model='vacancy')
+        if not self.contract_address:
+            return _model.model_class().objects.none()
+        vac_set = set()
+        oracle = OracleHandler()
+        vac_length = oracle.member_vacancies_length(self.contract_address)
+        for i in range(vac_length):
+            vac_uuid = oracle.member_vacancy_by_index(self.contract_address, i)
+            vac_set.add(vac_uuid)
+        vacancies = _model.model_class().objects.filter(uuid__in=vac_set)
+        return vacancies
+
+    def current_action_index(self, vacancy):
+        oracle = OracleHandler()
+        return oracle.get_member_current_action_index(vacancy.company.contract_address, vacancy.uuid,
+                                                      self.contract_address)
 
     def get_short_name(self):
         """

@@ -1,1 +1,27 @@
+{% extends 'jobboard/base.html' %}
 
+{% load i18n %}
+
+{% block head_title %}Vera Platform - My vacancies{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        <h4 class="uk-text-bold">{% trans 'My vacancies' %}</h4>
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                {% for vacancy in user.vacancies.all %}
+                    {% include 'vacancy/vacancy_short.html' with item=vacancy pipeline=True %}
+                {% endfor %}
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">
+                        My vacancies desc
+                    </h4>
+                    <p>{% lorem %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

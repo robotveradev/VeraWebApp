@@ -39,7 +39,7 @@
                 <p>{% trans 'Action does not have exam yet' %}</p>
             {% endif %}
             <div class="uk-align-right uk-margin-remove-bottom">
-                <a href="{% url 'action_exam_new' pk=action.db.id %}"
+                <a href="{% url 'action_exam_new' pk=action.id %}"
                    class="uk-button uk-button-primary uk-button-small">
                     {% trans 'Add question' %}
                 </a>

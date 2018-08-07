@@ -8,7 +8,7 @@
         </h5>
         <p class="uk-padding-remove uk-margin-remove">{{ company.legal_address.address_line }}</p>
         <p class="uk-margin-remove">
-            <a class="vr-link uk-text-meta" href="#">0 vacancies</a>
+            <a class="vr-link uk-text-meta" href="#">{{ company.vacancies.count }} vacancies</a>
         </p>
     </div>
 </li>

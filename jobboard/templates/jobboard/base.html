@@ -70,8 +70,10 @@
                                 <li><a data-hint="companies" href="{% url 'companies' %}">Companies</a></li>
                                 <li class="uk-nav-divider"></li>
                                 <li><a data-hint="quiz_link" href="{% url 'quiz_index' %}">Quiz app</a></li>
-                                <li class="uk-nav-divider"></li>
-                                <li><a href="{% url 'candidate_vacancies' %}">My jobs</a></li>
+                                {% if user.vacancies.exists %}
+                                    <li class="uk-nav-divider"></li>
+                                    <li><a href="{% url 'candidate_vacancies' %}">My jobs</a></li>
+                                {% endif %}
                                 <li class="uk-nav-divider"></li>
                                 <li><a href="{% url 'transactions' %}">Transactions</a></li>
                                 <li class="uk-nav-divider"></li>

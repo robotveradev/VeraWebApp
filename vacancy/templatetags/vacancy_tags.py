@@ -155,10 +155,7 @@ def get_real_filter_name(need_key):
 
 @register.filter
 def get_interview_fee(vacancy):
-    oracle = OracleHandler()
-    fee_list = [int(oracle.get_action(vacancy.company.contract_address, vacancy.uuid, i)['fee']) for i in
-                range(oracle.get_vacancy_pipeline_length(vacancy.company.contract_address, vacancy.uuid))]
-    return '-'.join([str(i) for i in fee_list]) if sum(fee_list) > 0 else 0
+    return '-'.join([str(i.chain.fee) for i in vacancy.pipeline.actions.all()])
 
 
 @register.filter

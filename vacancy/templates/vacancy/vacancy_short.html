@@ -1,7 +1,11 @@
-{% load jobboard_tags vacancy_tags statistic_tags company_tags %}
+{% load jobboard_tags vacancy_tags statistic_tags company_tags user_tags %}
 {% member_company_role user item.company as role %}
-<div class="uk-padding-small uk-margin-small white">
-    <div>
+<div class="vr-window uk-margin-small white">
+    {% if role and show_info %}
+        <div data-uk-grid>
+        <div class="uk-width-3-4">
+    {% endif %}
+    <div class="uk-padding-small">
         <div>
             <div>
                 {% if selectable %}
@@ -16,7 +20,8 @@
                             class="uk-text-bold">{{ item.company.name }}</span>: {{ item.title }}</a>
                 {% endif %}
                 {% if role and editable %}
-                    <a class="uk-align-right" href="{% url 'vacancy_edit' pk=item.id %}" data-uk-icon="icon: file-edit"></a>
+                    <a class="uk-align-right" href="{% url 'vacancy_edit' pk=item.id %}"
+                       data-uk-icon="icon: file-edit"></a>
                 {% endif %}
             </div>
             <span class="uk-text-small">created {{ item.created_at|date }}
@@ -58,7 +63,32 @@
         </div>
     </div>
     {% if role and show_info %}
-        {% statistic item %}
+        </div>
+        <div class="uk-width-1-4">
+            {% statistic item %}
+        </div>
+        </div>
+    {% endif %}
+    {% if pipeline and not role %}
+        {% with user|member_current_action_index:item as cur_action %}
+            <div class="pipeline uk-padding-small uk-flex uk-flex-between">
+                <div class="line"></div>
+                {% for action in item.pipeline.actions.all %}
+                    <div class="action{% if cur_action > action.index %} passed{% endif %}"></div>
+                {% endfor %}
+            </div>
+            <div class="uk-padding-small uk-padding-remove-top uk-text-right">
+                {% for action in item.pipeline.actions.all %}
+                    {% if action.index == cur_action %}
+                        {% if action.action_type.condition_of_passage %}
+                            Next step: pass the <a class="uk-link-muted"
+                                                   href="{% url 'process_action' pk=action.id %}">{{ action.action_type.condition_of_passage }}</a>
+                        {% else %}
+                            Next step: wait for employer's approval
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endwith %}
     {% endif %}
 </div>
-<hr/>

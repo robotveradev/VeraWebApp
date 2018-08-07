@@ -1,6 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 
+from jobboard.handlers.oracle import OracleHandler
 from quiz.models import ActionExam
 
 
@@ -46,6 +48,20 @@ class Action(models.Model):
     def __str__(self):
         return 'Pipeline action'
 
+    @property
+    def chain(self):
+        if self.pipeline:
+            if self.pipeline.vacancy:
+                vacancy = self.pipeline.vacancy
+                oracle = OracleHandler()
+                return oracle.get_action(vacancy.company.contract_address, vacancy.uuid, self.index)
+        return None
+
+    @property
+    def candidates(self):
+        action = self.chain
+        return get_user_model().objects.filter(contract_address__in=action.candidates)
+
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
         if not self.id:
@@ -54,9 +70,6 @@ class Action(models.Model):
 
     def get_absolute_url(self):
         return reverse('action_details', kwargs={'pk': self.id})
-
-    def new_exam(self):
-        ActionExam.objects.create(action=self)
 
     class Meta:
         ordering = ('index',)

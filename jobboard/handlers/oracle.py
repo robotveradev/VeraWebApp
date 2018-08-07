@@ -3,11 +3,23 @@ import json
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from solc import compile_files
-from solc.utils.string import force_bytes, force_text
+from solc.utils.string import force_bytes
 from web3 import Web3
 from web3.utils.validation import validate_address
 
 from jobboard import utils
+
+
+class Action(object):
+    def __init__(self, a_id, title, fee, approvable, candidates=None):
+        self.id = a_id
+        self.title = title
+        self.fee = fee / 10 ** 18
+        self.approvable = approvable
+        self.candidates = candidates
+
+    def __str__(self):
+        return '{} action'.format(self.id)
 
 
 class OracleHandler(object):
@@ -32,10 +44,8 @@ class OracleHandler(object):
     def trim0x(self, text):
         return text.rstrip('\x00')
 
-    def parse_action(self, action):
-        action[1] = self.trim0x(force_text(action[1]))
-        action[2] = int(action[2]) / 10 ** 18
-        return dict(zip(['id', 'title', 'fee', 'approvable'], action))
+    def parse_action(self, action, cans):
+        return Action(action[0], action[1], action[2], action[3], cans)
 
     def parse_vacancy(self, vac):
         return dict(zip(['enabled', 'allowed_amount'], vac))
@@ -138,15 +148,6 @@ class OracleHandler(object):
         validate_address(employer_address)
         return self.contract.call().employer_vacancies_length(employer_address)
 
-    def candidate_vacancies_length(self, candidate_address):
-        validate_address(candidate_address)
-        return self.contract.call().candidate_vacancies_length(candidate_address)
-
-    def candidate_vacancy_by_index(self, candidate_address, index):
-        validate_address(candidate_address)
-        assert (index < self.candidate_vacancies_length(candidate_address))
-        return Web3.toHex(self.contract.call().candidate_vacancies(candidate_address, index))
-
     def get_vacancy_candidates_length(self, vac_uuid):
         return self.contract.call().vacancy_candidates_length(vac_uuid)
 
@@ -193,21 +194,21 @@ class OracleHandler(object):
     def get_vacancy_pipeline_length(self, company_address, uuid):
         return self.contract.call().get_vacancy_pipeline_length(company_address, uuid)
 
-    def get_action(self, company_address, vac_uuid, index, candidates=False):
-        action = self.parse_action(self.contract.call().vacancy_pipeline(company_address, vac_uuid, index))
-        if candidates:
-            action.update(**self.get_members_on_action(company_address, vac_uuid, index))
+    def get_action(self, company_address, vac_uuid, index):
+        cans = self.get_members_on_action(company_address, vac_uuid, index)
+        action = self.parse_action(self.contract.call().vacancy_pipeline(company_address, vac_uuid, index), cans)
         return action
 
     def get_members_on_action(self, company_address, vac_uuid, action_index):
         members_count = self.contract.call().vacancy_members_length(company_address, vac_uuid)
-        members = {'now': [], 'pass': [], 'rest': []}
+        members = []
         for i in range(members_count):
             member_address = self.contract.call().members_on_vacancy(company_address, vac_uuid, i)
             if not self.member_vacancy_passed(company_address, vac_uuid, member_address):
                 current_index = self.get_member_current_action_index(company_address, vac_uuid, member_address)
                 ai, ci = action_index, current_index
-                members['now' if ci == ai else 'pass' if ci > ai else 'rest'].append(member_address)
+                if ci == ai:
+                    members.append(member_address)
         return members
 
     def get_vacancy_members_length(self, company_address, vac_uuid):
@@ -238,3 +239,11 @@ class OracleHandler(object):
         txn_hash = self.contract.transact({'from': self.account}).level_up(company_address, vac_uuid, member_address)
         self.lockAccount()
         return txn_hash
+
+    def member_vacancies_length(self, member_address):
+        validate_address(member_address)
+        return self.contract.call().member_vacancies_length(member_address)
+
+    def member_vacancy_by_index(self, member_address, index):
+        validate_address(member_address)
+        return Web3.toHex(self.contract.call().member_vacancies(member_address, index))
