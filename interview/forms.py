@@ -36,7 +36,7 @@ class ScheduleMeetingForm(forms.ModelForm):
         super().__init__(**kwargs)
         if 'data' in kwargs:
             self.action_interview = kwargs['data'].get('action_interview')
-            self.employer = kwargs['data'].get('employer')
+            self.recruiters = kwargs['data'].get('recruiters')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -46,7 +46,7 @@ class ScheduleMeetingForm(forms.ModelForm):
         date_time = date_time.replace(hour=time.hour, minute=time.minute)
         if date and time:
             meetings = ScheduledMeeting.objects.filter(
-                action_interview__action__pipeline__vacancy__company__employer=self.employer,
+                action_interview__recruiters__in=self.recruiters,
                 date__gte=date,
                 date__lt=date + timedelta(days=1)).order_by('time')
             duration = self.action_interview.duration
