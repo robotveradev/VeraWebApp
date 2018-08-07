@@ -14,5 +14,5 @@ MESSAGES = {
     'NewMember': _('Your new contract now creating...') + '&nbsp;<span data-uk-spinner="ratio: 0.5"></span>',
     'NewVacancy': _('Your new vacancy now creating...') + '&nbsp;<span data-uk-spinner="ratio: 0.5"></span>',
     'NewCompany': _('New company contract now creating...') + '&nbsp;<span data-uk-spinner="ratio: 0.5"></span>',
-
+    'MemberSubscribe': _('Vacancy subscribing now pending...') + '&nbsp;<span data-uk-spinner="ratio: 0.5"></span>',
 }

@@ -40,6 +40,7 @@ class NewActionInterviewView(CreateView):
 
 
 class CandidateInterviewScheduleView(CreateView):
+    # TODO make for recruiters
     form_class = ScheduleMeetingForm
 
     template_name = 'interview/schedule.html'
@@ -51,12 +52,12 @@ class CandidateInterviewScheduleView(CreateView):
         self.action_interview = None
         self.candidate = None
         self.meeting = None
-        self.employer = None
+        self.recruiters = None
 
     def get_initial(self):
-        self.employer = self.action_interview.employer
+
         meetings = ScheduledMeeting.objects.filter(
-            action_interview__action__pipeline__vacancy__company__employer=self.employer,
+            action_interview__recruiters__in=self.recruiters,
             date__gte=self.date,
             date__lt=self.date + timedelta(days=1)).order_by('time')
         duration = self.action_interview.duration
@@ -94,6 +95,7 @@ class CandidateInterviewScheduleView(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.action_interview = get_object_or_404(ActionInterview, pk=kwargs.get('pk'))
+        self.recruiters = self.action_interview.vacancy.company.collaborators
         if 'date' not in request.POST:
             self.date = datetime.now()
         else:
@@ -103,7 +105,7 @@ class CandidateInterviewScheduleView(CreateView):
                 messages.warning(request, 'Interview period is over.')
                 return HttpResponseRedirect(
                     reverse('vacancy', kwargs={'pk': self.action_interview.action.pipeline.vacancy.id}))
-        self.candidate = request.role_object
+        self.candidate = request.user
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -126,7 +128,7 @@ class CandidateInterviewScheduleView(CreateView):
         kwargs = super().get_form_kwargs()
         if 'data' in kwargs:
             data = kwargs['data'].copy()
-            data.update({'employer': self.employer})
+            data.update({'recruiters': self.recruiters})
             data.update({'action_interview': self.action_interview})
             kwargs['data'] = data
         return kwargs
@@ -138,17 +140,19 @@ class CandidateInterviewScheduleView(CreateView):
         time = form.cleaned_data['time']
         zoom = ZoomusApi(settings.ZOOMUS_API_KEY, settings.ZOOMUS_API_SECRET, settings.ZOOMUS_USER_ID)
         try:
-            scheduled = zoom.schedule_meeting(topic='Vacancy {} interview'.format(self.action_interview.vacancy.title),
-                                              start_time='{}T{}'.format(date, time),
-                                              duration=self.action_interview.duration,
-                                              timezone=settings.TIME_ZONE)
+            # scheduled = zoom.schedule_meeting(topic='Vacancy {} interview'.format(self.action_interview.vacancy.title),
+            #                                   start_time='{}T{}'.format(date, time),
+            #                                   duration=self.action_interview.duration,
+            #                                   timezone=settings.TIME_ZONE)
+            pass
         except ValueError:
             messages.error(self.request, 'Error during scheduling meeting')
             return super().form_invalid(form)
         else:
-            res = scheduled.json()
-            form.instance.link_start = res['start_url']
-            form.instance.link_join = res['join_url']
-            form.instance.conf_id = res['id']
-            form.instance.uuid = res['uuid']
-            return super().form_valid(form)
+            print('date: {}, time: {}'.format(date, time))
+            # res = scheduled.json()
+            # form.instance.link_start = res['start_url']
+            # form.instance.link_join = res['join_url']
+            # form.instance.conf_id = res['id']
+            # form.instance.uuid = res['uuid']
+            # return super().form_valid(form)

@@ -8,27 +8,44 @@
     {{ block.super }}
 
     <div class="uk-container uk-align-center">
-        <h4>Exam result for {{ candidate.user.username }}</h4>
-        {% for question in object.exam.questions.all %}
-            {% with object.answers|question_result:question.id as answers %}
-                <div class="uk-box-shadow-small uk-padding-small uk-margin-small">
-                    {% include "quiz/question_kinds/"|add:question.kind.template_name|add:'_question.html' with answers=answers %}
+        <h4 class="uk-text-bold">Exam result for {% firstof candidate.full_name candidate.username %}</h4>
+        <div class="uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="white vr-window uk-padding-small">
+                    {% for question in object.exam.questions.all %}
+                        {% with object.answers|question_result:question.id as answers %}
+                            <div class="uk-margin-small">
+                                {% include "quiz/question_kinds/"|add:question.kind.template_name|add:'_question.html' with answers=answers %}
+                            </div>
+                        {% endwith %}
+                    {% empty %}
+                        {% if not_yet %}
+                            Candidate doesn't pass this exam yet.
+                        {% else %}
+                            There is no results for {{ candidate.user.username }}. Perhaps you transferred the candidate
+                            to the next
+                            level with yourself?
+                        {% endif %}
+                    {% endfor %}
+
                 </div>
-            {% endwith %}
-        {% empty %}
-            {% if not_yet %}
-                Candidate doesn't pass this exam yet.
-            {% else %}
-                There is no results for {{ candidate.user.username }}. Perhaps you transferred the candidate to the next
-                level yourself?
-            {% endif %}
-        {% endfor %}
-        <div class="uk-clearfix"></div>
-        <div class="uk-align-right">
-            <a href="{% url 'vacancy' pk=action.pipeline.vacancy.id %}"
-               class="uk-button uk-button-small uk-button-default">Back to vacancy</a>
-            <a class="uk-button uk-button-small uk-button-primary"
-               href="{% url 'action_details' pk=action.id %}">Back to action</a>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="white vr-window uk-padding-small">
+                    <h4 class="uk-text-bold">
+                        Exam results desc
+                    </h4>
+                    <p>{% lorem %}</p>
+                    <div class="uk-text-right uk-margin-remove-bottom">
+                        <a href="{% url 'vacancy' pk=action.pipeline.vacancy.id %}"
+                           class="uk-button uk-button-small uk-button-default uk-margin-small-bottom">Back to
+                            vacancy</a>
+                        <a class="uk-button uk-button-small uk-button-primary"
+                           href="{% url 'action_details' pk=action.id %}">Back to action</a>
+                    </div>
+                    <div class="uk-clearfix"></div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

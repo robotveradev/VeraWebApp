@@ -230,3 +230,11 @@ class OracleHandler(object):
 
     def vacancy(self, company_address, uuid):
         return self.parse_vacancy(self.contract.call().vacancies(company_address, uuid))
+
+    def level_up(self, company_address, vac_uuid, member_address):
+        validate_address(company_address)
+        validate_address(member_address)
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).level_up(company_address, vac_uuid, member_address)
+        self.lockAccount()
+        return txn_hash

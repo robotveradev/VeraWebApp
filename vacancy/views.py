@@ -1,6 +1,7 @@
 import os
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -13,6 +14,7 @@ from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.oracle import OracleHandler
 from member_profile.models import Profile
 from statistic.decorators import statistical
+from users.utils import company_member_role
 from vacancy.forms import VacancyForm, EditVacancyForm
 from vacancy.models import Vacancy, MemberOnVacancy, VacancyOffer
 
@@ -24,7 +26,8 @@ MESSAGES = {'empty_exam': _('One or more actions do not have an exam.'),
             'disabled_vacancy': _('Vacancy {} now disabled. You cannot subscribe to disabled vacancy.'),
             'pipeline_doesnot_exist': _('You must add pipeline to enable vacancy.'),
             'need_more_actions': _('You must add more actions for pipeline.'),
-            'allow': _('The company does not have enough tokens')}
+            'allow': _('The company does not have enough tokens.'),
+            'company_member': _('Company member not allowed to subscribe.')}
 
 
 class CreateVacancyView(CreateView):
@@ -95,22 +98,30 @@ class SubscribeToVacancyView(RedirectView):
         self.vacancy = None
         self.request = None
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def get_redirect_url(self, *args, **kwargs):
         return reverse('vacancy', kwargs={'pk': kwargs.get('vacancy_id')})
 
     def get(self, request, *args, **kwargs):
         self.vacancy = get_object_or_404(Vacancy, id=kwargs.get('vacancy_id'))
-        return self.check_vac_profile(*args, **kwargs)
+        return self.check_vac(*args, **kwargs)
 
-    def check_vac_profile(self, *args, **kwargs):
+    def check_vac(self, *args, **kwargs):
         if not self.vacancy.enabled:
             messages.error(self.request, MESSAGES['disabled_vacancy'].format(self.vacancy.title))
-        elif not self.request.user.enabled:
-            messages.error(self.request, MESSAGES['disabled_profile'].format(self.request.user.profile.title))
-        if not self.vacancy.enabled or not self.request.user.enabled:
             return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
-        else:
-            return self.subscribe(*args, **kwargs)
+
+        return self.check_profile(*args, **kwargs)
+
+    def check_profile(self, *args, **kwargs):
+        role = company_member_role(self.vacancy.company.contract_address, self.request.user.contract_address)
+        if role:
+            messages.error(self.request, MESSAGES['company_member'])
+            return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
+        return self.subscribe(*args, **kwargs)
 
     def subscribe(self, *args, **kwargs):
         MemberOnVacancy.objects.create(member=self.request.user, vacancy=self.vacancy)

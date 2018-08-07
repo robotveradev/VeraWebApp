@@ -238,7 +238,7 @@ table.uk-table-divider tr:first-child {
     padding-left: 40px;
 }
 
-.vr-small-table td {
+.vr-small-table td, .vr-small-table th {
     padding: 10px 0;
 }
 

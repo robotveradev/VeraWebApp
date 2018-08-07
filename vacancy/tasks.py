@@ -84,7 +84,8 @@ def change_vacancy_allowed_amount(vacancy_id):
     try:
         vacancy = Vacancy.objects.get(pk=vacancy_id)
     except Vacancy.DoesNotExist:
-        pass
+        logger.warning('Vacancy {} not found, allowed will not be changed'.format(vacancy_id))
+        return False
     else:
         emp_h = EmployerHandler(contract_address=vacancy.employer.contract_address)
         oracle = OracleHandler()
@@ -94,7 +95,36 @@ def change_vacancy_allowed_amount(vacancy_id):
             if txn_hash:
                 save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
                                                       'Vacancy allowed amount changed: {}'.format(vacancy.title)),
-                                                countdown=1)
+                                                countdown=0.1)
                 save_txn.apply_async(
                     args=(txn_hash.hex(), 'VacancyAllowedChanged', vacancy.employer.user.id, vacancy.id),
-                    countdown=1)
+                    countdown=0.1)
+
+
+@shared_task
+def new_subscribe(member_id, vacancy_id):
+    try:
+        vacancy = Vacancy.objects.get(pk=vacancy_id)
+    except Vacancy.DoesNotExist:
+        logger.warning('Vacancy {} not found, user {} will not be subscribed'.format(vacancy_id, member_id))
+        return False
+    else:
+        try:
+            member = Member.objects.get(pk=member_id)
+        except Member.DoesNotExist:
+            logger.warning('Member {} not found, and will not be subscribed'.format(member_id))
+            return False
+        else:
+            mi = MemberInterface(contract_address=member.contract_address)
+            try:
+                txn_hash = mi.subscribe(vacancy.company.contract_address, vacancy.uuid)
+            except Exception as e:
+                logger.error('Error while subscribe: member {}, vacancy {}, e: {}'.format(member_id, vacancy_id, e))
+            else:
+                save_txn_to_history.apply_async(args=(member_id, txn_hash.hex(),
+                                                      'Subscribe to vacancy: {}'.format(vacancy.title)),
+                                                countdown=0.1)
+                save_txn.apply_async(
+                    args=(txn_hash.hex(), 'MemberSubscribe', member_id, vacancy.id),
+                    countdown=0.1)
+                return True

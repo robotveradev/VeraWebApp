@@ -111,3 +111,24 @@ class MemberInterface:
                                                                                    member_address)
         self.lockAccount()
         return txn_hash
+
+    def subscribe(self, company_address, vac_uuid):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).subscribe(company_address,
+                                                                            vac_uuid)
+        self.lockAccount()
+        return txn_hash
+
+    def approve_level_up(self, company_address, vac_uuid, member_address):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).approve_level_up(company_address, vac_uuid,
+                                                                                   member_address)
+        self.lockAccount()
+        return txn_hash
+
+    def reset_candidate_action(self, company_address, vac_uuid, member_address):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).reset_member_action(company_address, vac_uuid,
+                                                                                      member_address)
+        self.lockAccount()
+        return txn_hash

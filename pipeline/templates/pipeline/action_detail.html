@@ -65,13 +65,17 @@
                         {% endif %}
                         {% with action.db.pipeline.vacancy as vacancy %}
                             {% if vacancy.enabled is True %}
-                                <p>
-                                    You have to <a class="uk-link-muted"
-                                                   href="{% url 'change_vacancy_status' pk=vacancy.id %}">disable</a>
-                                    vacancy before you can change vacancy action properties.
-                                </p>
+                                {% if role == 'owner' %}
+                                    <p>
+                                        You have to <a class="uk-link-muted"
+                                                       href="{% url 'change_vacancy_status' pk=vacancy.id %}">disable</a>
+                                        vacancy before you can change vacancy action properties.
+                                    </p>{% else %}
+                                    Vacancy owner must disable vacancy for change pipeline actions.
+                                {% endif %}
                             {% elif vacancy.enabled is False %}
-                                <form id="change-action-form" action="{% url 'change_pipeline_action' pk=action.db.id %}"
+                                <form id="change-action-form"
+                                      action="{% url 'change_pipeline_action' pk=action.db.id %}"
                                       method="post"
                                       class="uk-form-horizontal">
                                     {% csrf_token %}
@@ -100,19 +104,19 @@
         {% if action.now|length > 0 %}
             <br/>
             <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
-                <h3 class="uk-legend uk-position-relative uk-margin-remove-bottom">
+                <h4 class="uk-legend uk-position-relative uk-margin-remove-bottom">
                     Now at stage
                     <a class="uk-position-center-right toggle-icon" type="button"
                        data-uk-toggle="target: #now-at-stage; animation: uk-animation-slide-top-small"
                        data-uk-icon="chevron-down"></a>
-                </h3>
+                </h4>
                 <div id="now-at-stage">
-                    <table class="uk-table uk-table-small uk-table-divider">
+                    <table class="uk-table uk-table-small vr-small-table">
                         <thead>
                         <tr>
-                            <td>Candidate address</td>
-                            <td>Result</td>
-                            <td class="uk-text-right">Management</td>
+                            <th>Candidate address</th>
+                            <th>Result</th>
+                            <th class="uk-text-right">Management</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -122,7 +126,7 @@
                                     <tr>
                                         <td>
                                             <a class="uk-link-text"
-                                               href="{% url 'member_profile' username=candidate.user.username %}">{{ candidate.full_name }}</a>
+                                               href="{% url 'member_profile' username=candidate.username %}">{% firstof candidate.full_name candidate.username %}</a>
                                         </td>
                                         <td>
                                             {% if action.db|action_passed:candidate %}
@@ -161,11 +165,11 @@
                        data-uk-icon="chevron-down"></a>
                 </h3>
                 <div id="pass-stage">
-                    <table class="uk-table uk-table-small uk-table-divider">
+                    <table class="uk-table uk-table-small vr-small-table">
                         <thead>
                         <tr>
-                            <td>Candidate address</td>
-                            <td class="uk-text-right">Result</td>
+                            <th>Candidate address</th>
+                            <th class="uk-text-right">Result</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -174,7 +178,7 @@
                                 {% if candidate %}
                                     <tr>
                                         <td><a class="uk-link-text"
-                                               href="{% url 'member_profile' username=candidate.user.username %}">{{ candidate.full_name }}</a>
+                                               href="{% url 'member_profile' username=candidate.username %}">{% firstof candidate.full_name candidate.username %}</a>
                                         </td>
                                         <td class="uk-text-right">{% get_result_link candidate action.db %}</td>
                                     </tr>

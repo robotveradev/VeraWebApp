@@ -2,9 +2,9 @@ from django.db.models.signals import post_save, pre_save, m2m_changed
 from django.dispatch import receiver
 
 from jobboard.handlers.oracle import OracleHandler
+from pipeline.tasks import candidate_level_up
 from quiz.models import ExamPassed, AnswerForVerification, ActionExam
 from quiz.tasks import ProcessExam, VerifyAnswer
-from pipeline.tasks import candidate_level_up
 
 
 @receiver(post_save, sender=ExamPassed)
@@ -15,12 +15,13 @@ def candidate_pass_exam(sender, instance, created, **kwargs):
     else:
         if instance.processed and instance.points >= instance.exam.passing_grade:
             oracle = OracleHandler()
-            cci = oracle.get_candidate_current_action_index(instance.exam.action.pipeline.vacancy.uuid,
-                                                            instance.candidate.contract_address)
+            vacancy = instance.exam.action.pipeline.vacancy
+            cci = oracle.get_member_current_action_index(vacancy.company.contract_address, vacancy.uuid,
+                                                         instance.candidate.contract_address)
             if cci == instance.exam.action.index:
-                action_bch = oracle.get_action(instance.exam.action.pipeline.vacancy.uuid, cci)
+                action_bch = oracle.get_action(vacancy.company.contract_address, vacancy.uuid, cci)
                 if not action_bch['approvable']:
-                    candidate_level_up.delay(instance.exam.action.pipeline.vacancy.id, instance.candidate.id)
+                    candidate_level_up.delay(vacancy.id, instance.candidate.id)
 
 
 @receiver(pre_save, sender=AnswerForVerification)
