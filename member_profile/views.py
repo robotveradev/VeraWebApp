@@ -248,24 +248,8 @@ class ChangeStatusView(RedirectView):
         return reverse('profile')
 
 
-class CandidateVacanciesView(TemplateView):
+class MemberVacanciesView(TemplateView):
     template_name = 'member_profile/vacancies.html'
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.request = None
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        vac_set = set()
-        oracle = OracleHandler()
-        count = oracle.candidate_vacancies_length(self.request.user.contract_address)
-        for i in range(count):
-            vac_uuid = oracle.candidate_vacancy_by_index(self.request.user.contract_address, i)
-            vac_set.add(vac_uuid)
-        vacancies = Vacancy.objects.filter(uuid__in=vac_set)
-        context.update({'vacancies': vacancies})
-        return context
 
 
 class NewAchievementView(NewProfileFragmentMixin, CreateView):

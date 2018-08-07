@@ -74,27 +74,6 @@ class ActionDetailView(DetailView):
     model = Action
     context_object_name = 'action'
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.vacancy = None
-        self.action = None
-        self.oracle = OracleHandler()
-
-    def dispatch(self, request, *args, **kwargs):
-        self.action = get_object_or_404(Action, pk=kwargs.get('pk', None))
-        self.vacancy = self.action.pipeline.vacancy
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        act = self.oracle.get_action(self.vacancy.company.contract_address, self.vacancy.uuid, self.action.index,
-                                     candidates=True)
-        context['action'] = {**act, 'db': self.action}
-        context['change_form'] = ActionChangeForm(instance=self.action,
-                                                  initial={'fee': act['fee'],
-                                                           'approvable': act['approvable']})
-        return context
-
 
 class NewActionView(CreateView):
     model = Action

@@ -59,7 +59,7 @@ candidate_urlpatterns = [
     path('profile/new/citizenship/', cp_views.NewCitizenshipView.as_view(), name='new_citizenship'),
     path('profile/new/workpermit/', cp_views.NewWorkPermitView.as_view(), name='new_work_permit'),
     path('status/change/', cp_views.ChangeStatusView.as_view(), name='change_status'),
-    path('my/vacancies/', cp_views.CandidateVacanciesView.as_view(), name='candidate_vacancies'),
+    path('my/vacancies/', cp_views.MemberVacanciesView.as_view(), name='candidate_vacancies'),
 ]
 
 profile_urlpatterns = [

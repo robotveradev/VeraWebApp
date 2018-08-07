@@ -234,3 +234,8 @@ def txn_message_with_link(txn):
         message = 'Transaction now pending...'
     link = '<a href="{}" target="_blank" class="vr-link white-text">{}</a>'
     return mark_safe(link.format(net_url() + 'tx/' + txn.txn_hash, message))
+
+
+@register.filter(name='times')
+def times(number):
+    return range(number)

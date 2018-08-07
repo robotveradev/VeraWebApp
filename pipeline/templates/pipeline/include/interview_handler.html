@@ -1,12 +1,12 @@
 {% load interview_tags material_form static %}
 
-{% if not action.db.interview %}
-    <form class="uk-form-horizontal" action="{% url 'action_interview_new' pk=action.db.id %}" method="post">
+{% if not action.interview %}
+    <form class="uk-form-horizontal" action="{% url 'action_interview_new' pk=action.id %}" method="post">
         <legend class="uk-legend">
             Complete fields below to config interview
         </legend>
         {% csrf_token %}
-        {% with action.db.pipeline.vacancy.company|get_interview_form as form %}
+        {% with action.pipeline.vacancy.company|get_interview_form as form %}
             {% form form=form %}{% endform %}
             <button type="submit"
                     class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">Save
@@ -25,28 +25,28 @@
         <div data-uk-grid>
             <div class="uk-width-3-4">
 
-                {% if action.db.interview.end_date %}
+                {% if action.interview.end_date %}
                     <div class="uk-margin-bottom" data-uk-grid>
                         <div class="uk-width-1-6">
                             <p class="uk-text-center">
-                                {{ action.db.interview.start_date }}
+                                {{ action.interview.start_date }}
                             </p>
                         </div>
                         <div class="uk-width-2-3">
                             <progress id="interview-progress" class="uk-progress"
-                                      value="{{ 1|get_diff_2:action.db.interview.start_date }}"
-                                      max="{{ action.db.interview.end_date|get_diff_2:action.db.interview.start_date }}"></progress>
+                                      value="{{ 1|get_diff_2:action.interview.start_date }}"
+                                      max="{{ action.interview.end_date|get_diff_2:action.interview.start_date }}"></progress>
                         </div>
                         <div class="uk-width-1-6">
                             <p class="uk-text-center">
-                                {{ action.db.interview.end_date }}
+                                {{ action.interview.end_date }}
                             </p>
                         </div>
                     </div>
                 {% endif %}
                 <div class="uk-margin-bottom">
                     <h4>Scheduled meetings</h4>
-                    {% with action.db.interview.scheduled_meetings.all as meetings %}
+                    {% with action.interview.scheduled_meetings.all as meetings %}
                         {% if meetings %}
                             <table class="uk-table uk-table-divider uk-table-small" width="100%">
                                 <colgroup>
@@ -66,8 +66,8 @@
                                     <tr>
                                         <td>
                                             <a class="uk-text-meta vr-link "
-                                               href="{% url 'member_profile' username=meeting.candidate.user.username %}">
-                                                {{ meeting.candidate.full_name }}
+                                               href="{% url 'member_profile' username=meeting.candidate.username %}">
+                                                {% firstof meeting.candidate.full_name meeting.candidate.username %}
                                             </a>
                                         </td>
                                         <td>{{ meeting.date|date:'Y-m-j' }} {{ meeting.time|date:'H:i:s' }}</td>
@@ -106,7 +106,7 @@
             <div class="uk-width-1-4">
                 <div class="uk-border uk-padding-small">
                     <h5>Info</h5>
-                    {% with action.db.interview as interview %}
+                    {% with action.interview as interview %}
                         <ul class="uk-list">
                             <li>Start date: {{ interview.start_date }}</li>
                             <li>Start time: {{ interview.start_time }}</li>

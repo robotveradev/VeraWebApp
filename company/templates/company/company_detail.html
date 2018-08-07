@@ -20,7 +20,7 @@
             </div>
         </div>
         <div class="uk-margin-top-small uk-margin-large-bottom" data-uk-grid>
-            <div class="uk-width-{% if role %}3-4{% else %}1-1{% endif %}">
+            <div class="uk-width-3-4">
                 <div class="vr-window white">
                     <ul id="profile_container" class="uk-switcher">
                         <li>
@@ -53,20 +53,7 @@
                                         <td>Date created</td>
                                         <td>{{ company.date_created }}</td>
                                     </tr>
-                                    <tr>
-                                        <td>Phone</td>
-                                        <td>{{ company.phone }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Email</td>
-                                        <td><a class="vr-link uk-text-meta"
-                                               href="mailto:{{ company.email }}">{{ company.email }}</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Site</td>
-                                        <td><a class="vr-link uk-text-meta" target="_blank"
-                                               href="{{ company.site }}">{{ company.site }}</a></td>
-                                    </tr>
+
                                     <tr>
                                         <td>Aims & objectives</td>
                                         <td>
@@ -78,14 +65,44 @@
                                 </table>
                                 <div class="block-footer uk-text-right">
                                     {% for soclink in company.social_links.all %}
-                                        <a class="uk-link-text"
+                                        <a class="uk-link-text company-link"
                                            href="{{ soclink.link }}">{{ soclink.link|icon_for_link }}</a>
                                     {% endfor %}
+                                    {% if role %}
+                                        <i data-uk-tooltip="Add social link"
+                                           class="uk-margin-small uk-margin-small-left fa fa-plus fa-2x"
+                                           area-hidden="true" data-uk-toggle="target: #modal-add_soclink"></i>
+                                        <div id="modal-add_soclink" data-uk-modal>
+                                            <div class="uk-modal-dialog uk-modal-body">
+                                                <form method="post" action="{% url 'new_social_link' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="company" value="{{ company.pk }}">
+                                                    <h2 class="uk-modal-title">Add social link</h2>
+                                                    <div class="uk-margin">
+                                                        <label for="id_new_soclink" class="uk-form-label">Social
+                                                            url</label>
+                                                        <div class="uk-form-controls">
+                                                            <input name="link" class="uk-input" type="text"
+                                                                   id="id_new_soclink"/>
+                                                        </div>
+                                                    </div>
+                                                    <p class="uk-text-right">
+                                                        <button class="uk-button-small uk-button uk-button-default uk-modal-close"
+                                                                type="reset">Cancel
+                                                        </button>
+                                                        <button class="uk-button-small uk-button uk-button-primary"
+                                                                type="submit">Save
+                                                        </button>
+                                                    </p>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </li>
                         <li>
-                            <div class="uk-padding-small">
+                            <div>
                                 {% for vacancy in company.vacancies.all %}
                                     {% include 'vacancy/vacancy_short.html' with item=vacancy desc=True show_info=True editable=True %}
                                 {% empty %}
@@ -206,10 +223,28 @@
                     </div>
                 {% endfor %}
             {% endif %}
-            {% if role %}
-                <div class="uk-width-1-4">
+
+
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h5 class="uk-text-bold">Links</h5>
+                    <ul>
+                        <li>
+                            Phone: {{ company.phone }}
+                        </li>
+                        <li>
+                            <a class="vr-link uk-text-meta"
+                               href="mailto:{{ company.email }}">{{ company.email }}</a>
+                        </li>
+                        <li>
+                            <a class="vr-link uk-text-meta" target="_blank"
+                               href="{{ company.site }}">{{ company.site }}</a>
+                        </li>
+                    </ul>
+                </div>
+                {% if role %}
                     <div class="vr-window white uk-padding-small">
-                        <h5 class="uk-text-bold">Company management</h5>
+                        <h5 class="uk-text-bold">Management</h5>
                         <table class="uk-table uk-table-small vr-small-table">
                             <tr>
                                 <td>Balance</td>
@@ -231,8 +266,9 @@
                             <div class="uk-clearfix"></div>
                         {% endif %}
                     </div>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
+
         </div>
     </div>
 {% endblock %}

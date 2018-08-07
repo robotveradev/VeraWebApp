@@ -1,6 +1,9 @@
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 
+from jobboard.handlers.oracle import OracleHandler
 from member_profile.models import Busyness, Schedule
 from users.models import Member
 
@@ -54,6 +57,20 @@ class Vacancy(models.Model):
 
     def __str__(self):
         return '{}: {}'.format(self.company.name, self.title)
+
+    @property
+    def candidates(self):
+        """
+        Filter for members subscribed to vacancy
+        :return: Members QuerySet
+        """
+        members = OracleHandler().get_members_on_vacancy(self.company.contract_address, self.uuid)
+        return get_user_model().objects.filter(contract_address__in=[i['contract_address'] for i in members])
+
+    @property
+    def allowed_amount(self):
+        oracle = OracleHandler()
+        return oracle.vacancy(self.company.contract_address, self.uuid)['allowed_amount'] / 10 ** 18
 
     class Meta:
         ordering = ('-updated_at',)
