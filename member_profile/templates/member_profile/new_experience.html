@@ -15,6 +15,9 @@
                     <form class="uk-form-horizontal" action="{% url 'new_experience' %}" method="post">
                         {% csrf_token %}
                         {% form form=form %}{% endform %}
+                        {% if request.GET.id %}
+                            <input type="hidden" name="organization_id" value="{{ request.GET.id }}">
+                        {% endif %}
                         <button class="uk-button uk-button-primary uk-button-small uk-align-right uk-margin-remove-bottom">
                             Save
                         </button>
@@ -41,6 +44,10 @@
             $('body').append($drop);
             $drop.css({'left': $input.offset().left, 'top': $input.offset().top + 41, 'width': $input.css('width')});
             $input.on('keypress', function () {
+                let $hidden = $input.closest('form').find('input[name=organization_id]');
+                if ($hidden.length > 0) {
+                    $hidden.remove();
+                }
                 let val = $(this).val();
                 $.ajax({
                     url: '/field/company/name/',

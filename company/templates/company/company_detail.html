@@ -242,7 +242,16 @@
                         </li>
                     </ul>
                 </div>
+                {% if not role %}
+                    <br>
+                    <div class="vr-window white uk-padding-small">
+                        <h5 class="uk-text-bold">Work here?</h5>
+                        <p>Click <a class="uk-text-meta vr-link" href="{% url 'new_experience' %}?id={{ company.id }}">here</a>
+                            to add this company to your work experience!</p>
+                    </div>
+                {% endif %}
                 {% if role %}
+                    <br>
                     <div class="vr-window white uk-padding-small">
                         <h5 class="uk-text-bold">Management</h5>
                         <table class="uk-table uk-table-small vr-small-table">

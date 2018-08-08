@@ -61,8 +61,12 @@
                         </a>
                         <div class="uk-navbar-dropdown uk-padding-small" data-uk-dropdown="mode: click; offset:0">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
-                                <li>
-                                    <a data-hint="profile" href="{% url 'profile' %}">Profile</a>
+                                <li class=" uk-display-inline">
+                                    <a data-hint="profile" class=" uk-display-inline"
+                                       href="{% url 'profile' %}">Profile</a>
+                                    <a class="uk-display-inline uk-icon uk-align-right"
+                                       href="{% url 'cp_edit' %}"
+                                       data-uk-icon="icon: file-edit; ratio: 0.8"></a>
                                 </li>
                                 <li class="uk-nav-divider"></li>
                                 <li><a data-hint="settings" href="{% url 'settings_page' %}">Settings</a></li>

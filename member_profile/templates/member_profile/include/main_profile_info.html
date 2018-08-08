@@ -58,9 +58,6 @@
                     <tr>
                         <td>Info:</td>
                         <td>
-                            <a class="uk-align-right uk-margin-remove-bottom"
-                               href="{% url 'cp_edit' %}"
-                               data-uk-icon="icon: file-edit; ratio: 0.6"></a>
                             <div>
                                 {{ profile.sex|title }}{% if profile.birth_date %},
                                     {{ profile.birth_date|date:'d E Y' }}

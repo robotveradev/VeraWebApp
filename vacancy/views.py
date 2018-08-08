@@ -34,6 +34,10 @@ class CreateVacancyView(CreateView):
     template_name = 'vacancy/new_vacancy.html'
     form_class = VacancyForm
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object = None
@@ -207,7 +211,7 @@ class UpdateAllowedView(UpdateView):
 
     def post(self, request, *args, **kwargs):
         vacancy = get_object_or_404(Vacancy, pk=kwargs.get('pk'))
-        if vacancy.owner != request.user:
+        if request.user not in vacancy.company.owners:
             return HttpResponse(status=403)
         return super().post(request, *args, **kwargs)
 
