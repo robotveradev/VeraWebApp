@@ -80,6 +80,21 @@ class NewExperienceView(NewProfileFragmentMixin, CreateView):
     form_class = ExperienceForm
     template_name = 'member_profile/new_experience.html'
 
+    def __init__(self):
+        super().__init__()
+        self.company = None
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get('id'):
+            self.company = get_object_or_404(Company, pk=request.GET.get('id'))
+        return super().get(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        if self.company:
+            initial.update({'organization': self.company.name})
+        return initial
+
     def process_request(self):
         organization_id = self.request.POST.get('organization_id')
         if organization_id:
