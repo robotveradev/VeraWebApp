@@ -41,7 +41,6 @@ basic = [
     path('vacancies/', jobboard_views.FindJobView.as_view(), name='find_job'),
     path('profiles/', jobboard_views.FindProfilesView.as_view(), name='find_profiles'),
     path('help/', TemplateView.as_view(template_name='jobboard/user_help.html'), name='user_help'),
-    path('contract/status/change/', jobboard_views.ChangeContractStatus.as_view(), name='change_contract_status'),
     path('transactions/', jobboard_views.TransactionsView.as_view(), name='transactions'),
     path('withdraw/', jobboard_views.WithdrawView.as_view(), name='withdraw'),
     path('approve/', jobboard_views.ApproveTokenView.as_view(), name='approve'),

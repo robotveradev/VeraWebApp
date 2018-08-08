@@ -151,18 +151,11 @@ class OracleHandler(object):
     def get_vacancy_candidates_length(self, vac_uuid):
         return self.contract.call().vacancy_candidates_length(vac_uuid)
 
+    # v3
     def member_status(self, contract_address, only_index=False):
         index = self.contract.call().members_statuses(contract_address)
         return index if only_index else self.statuses[index]
 
-    def change_candidate_status(self, contract_address, status):
-        assert status != self.member_status(contract_address, only_index=True)
-        self.unlockAccount()
-        txn_hash = self.contract.transact({'from': self.account}).change_member_status(contract_address, status)
-        self.lockAccount()
-        return txn_hash
-
-    # v3
     def get_member_companies(self, address):
         return self.contract.call().get_member_companies(address)
 

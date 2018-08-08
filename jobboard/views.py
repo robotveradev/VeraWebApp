@@ -179,18 +179,6 @@ class ProfileView(TemplateView):
         return data
 
 
-class ChangeContractStatus(RedirectView):
-
-    def get(self, request, *args, **kwargs):
-        request.role_object.enabled = not request.role_object.enabled
-        request.role_object.save()
-        messages.success(request, 'Contract status has been changed')
-        return super().get(request, *args, **kwargs)
-
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse('profile')
-
-
 class TransactionsView(ListView):
     model = TransactionHistory
     paginate_by = 10
