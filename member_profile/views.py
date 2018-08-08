@@ -8,7 +8,7 @@ from company.models import RequestToCompany
 from google_address.models import Address
 from jobboard.forms import AchievementForm
 from jobboard.handlers.oracle import OracleHandler
-from member_profile.tasks import change_candidate_status
+from member_profile.tasks import change_member_status
 from vacancy.models import VacancyOffer
 from .forms import *
 
@@ -250,17 +250,15 @@ class NewWorkPermitView(CreateView):
 
 
 class ChangeStatusView(RedirectView):
+    pattern_name = 'profile'
 
     def post(self, request, *args, **kwargs):
         oracle = OracleHandler()
-        old_status = oracle.candidate_status(request.role_object.contract_address, only_index=True)
-        new_status = request.POST.get('status')
+        old_status = oracle.member_status(request.user.contract_address, only_index=True)
+        new_status = int(request.POST.get('status'))
         if new_status != old_status:
-            change_candidate_status.delay(request.role_object.id, new_status)
-        return super().post(request, *args, **kwargs)
-
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse('profile')
+            change_member_status.delay(request.user.id, new_status)
+        return super().get(request, *args, **kwargs)
 
 
 class MemberVacanciesView(TemplateView):

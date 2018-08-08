@@ -9,20 +9,35 @@
             </div>
         {% endif %}
         <h5 class="uk-text-bold uk-margin-remove-top">My status on the site</h5>
-        {% for item in statuses %}
-            <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
-                <label class="uk-text-bold"><input class="uk-radio" type="radio" name="status"
-                                                   {% if status == item.status %}checked{% endif %}> {{ item.status }}
-                </label>
-                <div style="margin-left: 22px !important;" class="uk-margin-small-right vr-desc">
-                    <p class="uk-text-meta" style="font-size: 0.7rem;">
-                        Lorem ipsum dolor sit amet, cons ecte tur adipisicing elit.
-                    </p>
+        <form method="post" action="{% url 'change_status' %}">
+            {% csrf_token %}
+            {% for item in statuses %}
+                <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                    <label class="uk-text-bold"><input class="uk-radio" type="radio" name="status" value="{{ item.id }}"
+                                                       {% if status == item.status %}checked{% endif %}> {{ item.status }}
+                    </label>
+                    <div style="margin-left: 22px !important;" class="uk-margin-small-right vr-desc">
+                        <p class="uk-text-meta" style="font-size: 0.7rem;">
+                            Lorem ipsum dolor sit amet, cons ecte tur adipisicing elit.
+                        </p>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </form>
     </div>
 {% endif %}
 
-
-
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('input[name=status]').on('change', function () {
+            let $checked = $('input[name=status]:checked');
+            let status = $checked.closest('label').text();
+            let form = $checked.closest('form');
+            UIkit.modal.confirm(`Change status for ${status.trim()}?`).then(function () {
+                form[0].submit();
+            }, function () {
+                form[0].reset();
+            });
+        });
+    })
+</script>

@@ -132,3 +132,9 @@ class MemberInterface:
                                                                                       member_address)
         self.lockAccount()
         return txn_hash
+
+    def change_status(self, status):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).change_status(status)
+        self.lockAccount()
+        return txn_hash
