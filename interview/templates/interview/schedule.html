@@ -8,29 +8,29 @@
 
 {% block content %}
     {{ block.super }}
-
-    <div id="change-datetime" data-uk-modal>
-        <div class="uk-modal-dialog">
-            <button class="uk-modal-close-default" type="button" data-uk-close></button>
-            <form class="uk-form-horizontal" method="post">
-                <div class="uk-modal-header">
-                    <h2 class="uk-modal-title">Change meeting date time</h2>
-                </div>
-                <div class="uk-modal-body">
-                    {% csrf_token %}
-                    {% form form=form %}{% endform %}
-                    <div class="uk-clearfix"></div>
-                </div>
-                <div class="uk-modal-footer uk-text-right">
-                    <button type="submit"
-                            class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
-                        Confirm
-                    </button>
-                </div>
-            </form>
+    {% if not unavailable %}
+        <div id="change-datetime" data-uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" data-uk-close></button>
+                <form class="uk-form-horizontal" method="post">
+                    <div class="uk-modal-header">
+                        <h2 class="uk-modal-title">Change meeting date time</h2>
+                    </div>
+                    <div class="uk-modal-body">
+                        {% csrf_token %}
+                        {% form form=form %}{% endform %}
+                        <div class="uk-clearfix"></div>
+                    </div>
+                    <div class="uk-modal-footer uk-text-right">
+                        <button type="submit"
+                                class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">
+                            Confirm
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
-
+    {% endif %}
     <div class="uk-container uk-align-center">
         <h4 data-hint="scheduling-main" class="uk-text-bold">Scheduling meeting</h4>
         <div class=" uk-margin-large-bottom" data-uk-grid>
@@ -40,31 +40,39 @@
                         {% for error in form.non_field_errors %}
                             <span class="red-text">{{ error }}</span>
                         {% endfor %}
-
                     {% endif %}
                     {% if passed %}
                         Interview passed at {{ passed.date_created|date:'l, j F, H:i' }}.
                     {% else %}
                         {% if not meeting %}
-                            <div data-hint="meeting-available">
-                                <form method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="date" value="{{ form.initial.date|date:'Y-m-j' }}">
-                                    <input type="hidden" name="time" value="{{ form.initial.time|date:'H:i:s' }}">
-                                    <p>Closest meeting available in <span
-                                            class="green-text">{{ form.initial.date|date:'j F' }}, {{ form.initial.time|date:'H:i' }}</span>.
-                                        Ok?</p>
-                                    <div class="uk-align-right uk-margin-remove-bottom">
-                                        <button data-hint="confirm" type="submit"
-                                                class="uk-button uk-button-small uk-button-primary">Confirm
-                                        </button>
-                                        <a class="uk-button uk-button-small uk-button-default"
-                                           data-uk-toggle href="#change-datetime">Change date/time
-                                        </a>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="uk-clearfix"></div>
+                            {% if not unavailable %}
+                                <div data-hint="meeting-available">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="date" value="{{ form.initial.date|date:'Y-m-j' }}">
+                                        <input type="hidden" name="time" value="{{ form.initial.time|date:'H:i' }}">
+                                        <p>
+                                            {#                                            {% if form.errors %}#}
+                                            {#                                                Choosen date time not available#}
+                                            {#                                            {% else %}#}
+                                            Closest meeting available in
+                                            {#                                            {% endif %}#}
+                                            <span class="green-text">{{ form.initial.date|date:'j F' }}, {{ form.initial.time|date:'H:i' }}</span>
+                                        </p>
+                                        <div class="uk-align-right uk-margin-remove-bottom">
+                                            <button data-hint="confirm" type="submit"
+                                                    class="uk-button uk-button-small uk-button-primary">Confirm
+                                            </button>
+                                            <a class="uk-button uk-button-small uk-button-default"
+                                               data-uk-toggle href="#change-datetime">Change date/time
+                                            </a>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="uk-clearfix"></div>
+                            {% else %}
+                                You cannot set interview right now.
+                            {% endif %}
                         {% else %}
                             <h5 data-hint="scheduled" class="uk-text-bold">Meeting already scheduled</h5>
                             <table class="uk-table uk-table-divider uk-table-small" width="100%">
@@ -75,11 +83,11 @@
                                 <tbody>
                                 <tr>
                                     <td>Date</td>
-                                    <td>{{ meeting.date|date:'Y-m-j' }}</td>
+                                    <td>{{ meeting.date|date:'j E Y' }}</td>
                                 </tr>
                                 <tr>
                                     <td>Time</td>
-                                    <td>{{ meeting.time|date:'H:i:s' }}</td>
+                                    <td>{{ meeting.time|date:'H:i' }}</td>
                                 </tr>
                                 {% now 'Y-m-j' as now %}
                                 {% if now == meeting.date|date:'Y-m-j' %}

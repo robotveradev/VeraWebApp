@@ -1,3 +1,4 @@
+import time
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -29,7 +30,7 @@ class ActionInterview(BaseAction, models.Model):
     duration = models.IntegerField(help_text=_('Interview duration'),
                                    default=10,
                                    validators=[
-                                       MinValueValidator(5, 'Interview duration cannot be less than 5 minutes'), ])
+                                       MinValueValidator(10, 'Interview duration cannot be less than 10 minutes'), ])
     recruiters = models.ManyToManyField('users.Member')
 
     def get_result_url(self, **kwargs):
@@ -47,6 +48,7 @@ class ActionInterview(BaseAction, models.Model):
 
 
 class ScheduledMeeting(SoftDeletableModel):
+    # all_objects = models.Manager()
     action_interview = models.ForeignKey(ActionInterview,
                                          on_delete=models.CASCADE,
                                          related_name='scheduled_meetings')
@@ -80,7 +82,7 @@ class ScheduledMeeting(SoftDeletableModel):
         return '{} {}'.format(self.date, self.time)
 
     class Meta:
-        unique_together = (('action_interview', 'candidate',),)
+        unique_together = (('action_interview', 'candidate', 'is_removed'),)
 
 
 class InterviewPassed(models.Model):
