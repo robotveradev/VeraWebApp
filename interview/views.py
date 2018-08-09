@@ -3,13 +3,13 @@ from datetime import datetime, timedelta
 import date_converter
 from django.conf import settings
 from django.contrib import messages
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView
 
 from interview.forms import ActionInterviewForm, ScheduleMeetingForm
 from interview.models import ActionInterview, ScheduledMeeting, InterviewPassed
+from interview.utils import get_first_available_time
 from pipeline.models import Action
 from .zoomus import ZoomusApi
 
@@ -40,9 +40,7 @@ class NewActionInterviewView(CreateView):
 
 
 class CandidateInterviewScheduleView(CreateView):
-    # TODO make for recruiters
     form_class = ScheduleMeetingForm
-
     template_name = 'interview/schedule.html'
 
     def __init__(self, **kwargs):
@@ -53,64 +51,82 @@ class CandidateInterviewScheduleView(CreateView):
         self.candidate = None
         self.meeting = None
         self.recruiters = None
+        self.interview_is_over = False
+
+    def dispatch(self, request, *args, **kwargs):
+        self.action_interview = get_object_or_404(ActionInterview, pk=kwargs.get('pk'))
+        self.recruiters = self.action_interview.recruiters.all()
+        self.candidate = request.user
+
+        return self.set_datetime(request, *args, **kwargs)
+
+    def set_datetime(self, request, *args, **kwargs):
+        if 'date' in request.POST:
+            selected = '{} {}'.format(request.POST.get('date'), request.POST.get('time'))
+            date = date_converter.string_to_datetime(selected, '%Y-%m-%d %H:%M')
+        else:
+            date = datetime.now()
+
+        if date.time() > self.action_interview.end_time:
+            date = date + timedelta(days=1)
+
+        if date.time() < self.action_interview.start_time or date.time() > self.action_interview.end_time:
+            date = date.replace(hour=self.action_interview.start_time.hour,
+                                minute=self.action_interview.start_time.minute)
+
+        if date.date() > self.action_interview.end_date:
+            self.interview_is_over = True
+
+        self.date = date.replace(second=0, microsecond=0)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        if self.interview_is_over:
+            messages.info(request, 'Interview time is over')
+        if not self.recruiters.exists():
+            messages.info(request, 'There is no recruiters for this interview')
+        return super().get(request, *args, **kwargs)
 
     def get_initial(self):
-
+        times = {}
         meetings = ScheduledMeeting.objects.filter(
             action_interview__recruiters__in=self.recruiters,
             date__gte=self.date,
-            date__lt=self.date + timedelta(days=1)).order_by('time')
-        duration = self.action_interview.duration
-        a = []
-        time_n = None
-        find = False
-        for item in meetings:
-            bla = datetime.now()
-            bla = bla.replace(hour=item.time.hour, minute=item.time.minute, second=0)
-            if bla >= datetime.now() - timedelta(minutes=duration):
-                a.append(item)
-        if a:
-            next_far = datetime.now()
-            next_far = next_far.replace(hour=a[0].time.hour, minute=a[0].time.minute)
-            if next_far > datetime.now() + timedelta(minutes=duration):
-                time_n = datetime.now()
-                find = True
-        if not find:
-            for i in range(len(a) - 1):
-                if a[i].time.replace(minute=a[i].time.minute + duration) < a[i + 1].time:
-                    time_n = a[i].time.replace(minute=a[i].time.minute + duration)
-                    find = True
-        if not find and a:
-            next_applied = datetime.now()
-            next_applied = next_applied.replace(hour=a[-1].time.hour, minute=a[-1].time.minute, second=0) + timedelta(
-                minutes=duration)
-            time_n = next_applied
-            find = True
-        if not find:
-            time_n = datetime.now()
-        return {'date': self.date, 'time': time_n}
+            date__lt=self.date + timedelta(days=1),
+            time__gt=self.date.time()).distinct().order_by('time')
+
+        if not meetings:
+            return {'date': self.date, 'time': self.date}
+
+        for recruiter in self.recruiters:
+            this_day_rec_meetings = recruiter.recruiter_scheduled_meetings.filter(date__gte=self.date,
+                                                                                  date__lt=self.date + timedelta(
+                                                                                      days=1))
+            if not this_day_rec_meetings.exists():
+                return {'date': self.date, 'time': self.date}
+
+            for meeting in this_day_rec_meetings:
+                if recruiter.id not in times.keys():
+                    times[recruiter.id] = []
+                times[recruiter.id].append(datetime.combine(meeting.date, meeting.time))
+
+        if times:
+            ava_time = []
+            for item in times.values():
+                r_time = get_first_available_time(item, self.action_interview.duration)
+                if r_time:
+                    ava_time.append(r_time)
+            if ava_time:
+                min_time = min(ava_time)
+                return {'date': min_time.date(), 'time': min_time.time()}
 
     def get_success_url(self):
         return reverse('candidate_interviewing', kwargs={'pk': self.action_interview.pk})
 
-    def dispatch(self, request, *args, **kwargs):
-        self.action_interview = get_object_or_404(ActionInterview, pk=kwargs.get('pk'))
-        self.recruiters = self.action_interview.vacancy.company.collaborators
-        if 'date' not in request.POST:
-            self.date = datetime.now()
-        else:
-            self.date = date_converter.string_to_datetime(request.POST.get('date'), '%Y-%m-%d')
-        if self.action_interview.end_date:
-            if datetime.combine(self.action_interview.end_date, datetime.max.time()) < datetime.now():
-                messages.warning(request, 'Interview period is over.')
-                return HttpResponseRedirect(
-                    reverse('vacancy', kwargs={'pk': self.action_interview.action.pipeline.vacancy.id}))
-        self.candidate = request.user
-        return super().dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['action_interview'] = self.action_interview
+        context['unavailable'] = self.interview_is_over or not self.recruiters
         try:
             passed = InterviewPassed.objects.get(interview=self.action_interview, candidate=self.candidate)
         except InterviewPassed.DoesNotExist:
@@ -134,25 +150,27 @@ class CandidateInterviewScheduleView(CreateView):
         return kwargs
 
     def form_valid(self, form):
+        from interview.utils import get_recruiter_for_time
         form.instance.action_interview = self.action_interview
         form.instance.candidate = self.candidate
         date = form.cleaned_data['date']
         time = form.cleaned_data['time']
+        recruiter = get_recruiter_for_time(self.recruiters, datetime.combine(date, time),
+                                           self.action_interview.duration)
         zoom = ZoomusApi(settings.ZOOMUS_API_KEY, settings.ZOOMUS_API_SECRET, settings.ZOOMUS_USER_ID)
         try:
-            # scheduled = zoom.schedule_meeting(topic='Vacancy {} interview'.format(self.action_interview.vacancy.title),
-            #                                   start_time='{}T{}'.format(date, time),
-            #                                   duration=self.action_interview.duration,
-            #                                   timezone=settings.TIME_ZONE)
-            pass
+            scheduled = zoom.schedule_meeting(topic='Vacancy {} interview'.format(self.action_interview.vacancy.title),
+                                              start_time='{}T{}'.format(date, time),
+                                              duration=self.action_interview.duration,
+                                              timezone=settings.TIME_ZONE)
         except ValueError:
             messages.error(self.request, 'Error during scheduling meeting')
             return super().form_invalid(form)
         else:
-            print('date: {}, time: {}'.format(date, time))
-            # res = scheduled.json()
-            # form.instance.link_start = res['start_url']
-            # form.instance.link_join = res['join_url']
-            # form.instance.conf_id = res['id']
-            # form.instance.uuid = res['uuid']
-            # return super().form_valid(form)
+            res = scheduled.json()
+            form.instance.link_start = res['start_url']
+            form.instance.link_join = res['join_url']
+            form.instance.conf_id = res['id']
+            form.instance.uuid = res['uuid']
+            form.instance.recruiter = recruiter
+            return super().form_valid(form)
