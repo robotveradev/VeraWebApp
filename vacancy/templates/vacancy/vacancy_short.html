@@ -24,8 +24,8 @@
                        data-uk-icon="icon: file-edit"></a>
                 {% endif %}
             </div>
-            <span class="uk-text-small">created {{ item.created_at|date }}
-                {% if item.created_at != item.updated_at %},
+            <span class="uk-text-small">created {{ item.created_at|date:'j E Y' }}
+                    {% if item.created_at != item.updated_at %},
                     updated {{ item.updated_at|timesince }} ago{% endif %}
             </span>
             <div class="uk-text-small">
@@ -35,12 +35,12 @@
                         {% endif %}
                         {% if item.published %}
                             {% if role %}
-                                {{ item.allowed_amount }} Vera
+                                {{ item.chain_allowed_amount }} Vera
                             {% endif %}
                         {% else %}
                             <div data-uk-spinner="ratio:0.4"></div>
                         {% endif %}
-                        {% if role and editable %}
+                        {% if role == 'owner' and editable %}
                             {% if item.published %}
                                 {% if item.enabled is not None %}
                                     <a href="{% url 'change_vacancy_status' pk=item.id %}">
@@ -71,18 +71,19 @@
     {% endif %}
     {% if pipeline and not role %}
         {% with user|member_current_action_index:item as cur_action %}
-            <div class="pipeline uk-padding-small uk-flex uk-flex-between">
+            <div class="pipeline uk-padding-small uk-flex uk-flex-between blue lighten-2">
                 <div class="line"></div>
                 {% for action in item.pipeline.actions.all %}
                     <div class="action{% if cur_action > action.index %} passed{% endif %}"></div>
                 {% endfor %}
             </div>
-            <div class="uk-padding-small uk-padding-remove-top uk-text-right">
+            <div class="pipeline-footer uk-padding-small uk-padding-remove-top uk-text-right blue lighten-2 white-text">
                 {% for action in item.pipeline.actions.all %}
                     {% if action.index == cur_action %}
                         {% if action.action_type.condition_of_passage %}
-                            Next step: pass the <a class="uk-link-muted"
-                                                   href="{% url 'process_action' pk=action.id %}">{{ action.action_type.condition_of_passage }}</a>
+                            Next step: pass the
+                            <a class="white-text vr-link"
+                               href="{% url 'process_action' pk=action.id %}">{{ action.action_type.condition_of_passage }}</a>
                         {% else %}
                             Next step: wait for employer's approval
                         {% endif %}

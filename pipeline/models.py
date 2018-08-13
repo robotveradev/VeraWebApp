@@ -50,6 +50,8 @@ class Action(models.Model):
 
     @property
     def chain(self):
+        if not self.published:
+            return None
         if self.pipeline:
             if self.pipeline.vacancy:
                 vacancy = self.pipeline.vacancy
@@ -60,6 +62,8 @@ class Action(models.Model):
     @property
     def candidates(self):
         action = self.chain
+        if not self.published:
+            return get_user_model().objects.none()
         return get_user_model().objects.filter(contract_address__in=action.candidates)
 
     def save(self, force_insert=False, force_update=False, using=None,

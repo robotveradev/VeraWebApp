@@ -52,11 +52,7 @@
                                         <input type="hidden" name="date" value="{{ form.initial.date|date:'Y-m-j' }}">
                                         <input type="hidden" name="time" value="{{ form.initial.time|date:'H:i' }}">
                                         <p>
-                                            {#                                            {% if form.errors %}#}
-                                            {#                                                Choosen date time not available#}
-                                            {#                                            {% else %}#}
                                             Closest meeting available in
-                                            {#                                            {% endif %}#}
                                             <span class="green-text">{{ form.initial.date|date:'j F' }}, {{ form.initial.time|date:'H:i' }}</span>
                                         </p>
                                         <div class="uk-align-right uk-margin-remove-bottom">
