@@ -74,6 +74,19 @@ class ActionDetailView(DetailView):
     model = Action
     context_object_name = 'action'
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.action = None
+
+    def get_context_data(self, **kwargs):
+        action = self.get_object()
+        context = super().get_context_data(**kwargs)
+
+        context['change_form'] = ActionChangeForm(instance=action,
+                                                  initial={'fee': action.chain.fee,
+                                                           'approvable': action.chain.approvable})
+        return context
+
 
 class NewActionView(CreateView):
     model = Action

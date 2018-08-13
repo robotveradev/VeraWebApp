@@ -13,13 +13,12 @@
     {% if user.is_authenticated %}
         {% member_company_role user vacancy.company as role %}
     {% endif %}
-    {{ role }}
     {% if role == 'owner' %}
         <form id="change_vacancy_status" action="{% url 'change_vacancy_status' pk=vacancy.id %}" method="get"></form>
     {% endif %}
 
     <div class="uk-container uk-align-center">
-        <h4 data-hint="uk-text-bold">{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.company.name|title }}</small>
+        <h4 class="uk-text-bold">{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.company.name|title }}</small>
             {% if role %}
                 <a href="{% url 'vacancy_edit' pk=vacancy.id %}" data-uk-icon="file-edit"></a>
             {% endif %}
@@ -66,15 +65,6 @@
                                 </td>
                             </tr>
                         {% endif %}
-                        </tbody>
-                    </table>
-
-                    <table class="uk-table uk-table-divider uk-table-small" width="100%">
-                        <colgroup>
-                            <col width="20%">
-                            <col width="80%">
-                        </colgroup>
-                        <tbody>
                         {% with vacancy.schedule.all as schedules %}
                             {% if schedules %}
                                 <tr>
@@ -177,7 +167,7 @@
                                 </td>
                                 <td class="uk-text-right">
                                     {% if vacancy.published %}
-                                        {{ vacancy.allowed_amount }} Vera
+                                        {{ vacancy.chain_allowed_amount }} Vera
                                         {% if role == 'owner' %}
                                             (<a class="uk-text-meta vr-link" href="#increase"
                                                 data-uk-toggle>increase</a>)
@@ -240,7 +230,7 @@
                             <label class="uk-form-label" for="new_allowed">Allowed amount</label>
                             <div class="uk-form-controls">
                                 <input id="new_allowed" name="allowed_amount" class="uk-input" type="number" step="1"
-                                       value="{{ vacancy.allowed_amount }}">
+                                       value="{{ vacancy.chain_allowed_amount }}">
                             </div>
                         </div>
                     </div>

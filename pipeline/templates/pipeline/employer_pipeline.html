@@ -17,7 +17,8 @@
                             <article class="uk-article">
                                 <p class="uk-article-meta">{{ action.chain.approvable|yesno:'Approvable, Not approvable' }}
                                     pipeline action, reward: {{ action.chain.fee }} Vera Coin
-                                    <a class="uk-align-right" href="{{ action|employer_pipeline_action_config_link }}">Config</a>
+                                    <a class="uk-align-right"
+                                       href="{{ action|employer_pipeline_action_config_link }}">Config</a>
                                 </p>
                                 <p>Now at action - {{ action.candidates.count }}
                                     candidate{{ action.candidates.count|pluralize }}.</p>
@@ -130,12 +131,12 @@
                                     Max payment: {{ full_pay }} Vera Coin
                                 </li>
                                 {% if role and full_pay > 0 %}
-                                    {% with vacancy.allowed_amount|get_max_candidates_count:full_pay as max_candidates %}
+                                    {% with vacancy.chain_allowed_amount|get_max_candidates_count:full_pay as max_candidates %}
                                         <li>Max candidates: {{ max_candidates }} </li>
                                         {% if max_candidates < 5 %}
                                             <p class="uk-text-meta" style="font-size: .7rem">
                                                 It seems that with a fixed number of tokens
-                                                ({{ vacancy.allowed_amount }} Vera Coin) and a reward for complete
+                                                ({{ vacancy.chain_allowed_amount }} Vera Coin) and a reward for complete
                                                 passage of pipeline ({{ full_pay }} Vera Coin), the maximum number of
                                                 candidates who can pass the entire
                                                 pipeline - {{ max_candidates }}.

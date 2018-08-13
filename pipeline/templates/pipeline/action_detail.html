@@ -6,14 +6,13 @@
 
 {% block content %}
     {{ block.super }}
-
     {% if user.is_authenticated %}
         {% member_company_role user action.pipeline.vacancy.company as role %}
     {% endif %}
     <div class="uk-container uk-align-center">
         <h5 class="uk-text-bold">Action {{ action.action_type.title|lower }} information
             {% if action.pipeline.vacancy.enabled is False and role == 'owner' %}
-                <a href="{% url 'delete_pipeline_action' pk=action.db.id %}"
+                <a href="{% url 'delete_pipeline_action' pk=action.id %}"
                    class="uk-align-right uk-button uk-button-small uk-button-default red white-text">delete action</a>
             {% endif %}
         </h5>
@@ -63,7 +62,8 @@
                                     <p>You have to <a class="uk-link-muted"
                                                       href="{% url 'change_vacancy_status' pk=vacancy.id %}">disable</a>
                                         vacancy before you can change vacancy action properties.
-                                    </p>{% else %}
+                                    </p>
+                                {% else %}
                                     Vacancy owner must disable vacancy for change pipeline actions.
                                 {% endif %}
                             {% elif vacancy.enabled is False %}

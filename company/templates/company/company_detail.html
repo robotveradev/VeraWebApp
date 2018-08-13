@@ -72,28 +72,38 @@
                                         <i data-uk-tooltip="Add social link"
                                            class="uk-margin-small uk-margin-small-left fa fa-plus fa-2x"
                                            area-hidden="true" data-uk-toggle="target: #modal-add_soclink"></i>
+
                                         <div id="modal-add_soclink" data-uk-modal>
-                                            <div class="uk-modal-dialog uk-modal-body">
-                                                <form method="post" action="{% url 'new_social_link' %}">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="company" value="{{ company.pk }}">
+                                            <div class="uk-modal-dialog">
+                                                <button class="uk-modal-close-default" type="button" uk-close></button>
+                                                <div class="uk-modal-header">
                                                     <h2 class="uk-modal-title">Add social link</h2>
-                                                    <div class="uk-margin">
-                                                        <label for="id_new_soclink" class="uk-form-label">Social
-                                                            url</label>
-                                                        <div class="uk-form-controls">
-                                                            <input name="link" class="uk-input" type="text"
-                                                                   id="id_new_soclink"/>
+                                                </div>
+                                                <form class="uk-form-horizontal" method="post"
+                                                      action="{% url 'new_social_link' %}">
+                                                    <div class="uk-modal-body">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="company" value="{{ company.pk }}">
+
+                                                        <div class="uk-margin">
+                                                            <label for="id_new_soclink" class="uk-form-label">Social
+                                                                url</label>
+                                                            <div class="uk-form-controls">
+                                                                <input name="link" class="uk-input" type="text"
+                                                                       id="id_new_soclink"/>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <p class="uk-text-right">
-                                                        <button class="uk-button-small uk-button uk-button-default uk-modal-close"
-                                                                type="reset">Cancel
-                                                        </button>
-                                                        <button class="uk-button-small uk-button uk-button-primary"
-                                                                type="submit">Save
-                                                        </button>
-                                                    </p>
+                                                    <div class="uk-modal-footer">
+                                                        <div class="uk-text-right">
+                                                            <button class="uk-button-small uk-button uk-button-default uk-modal-close"
+                                                                    type="reset">Cancel
+                                                            </button>
+                                                            <button class="uk-button-small uk-button uk-button-primary"
+                                                                    type="submit">Save
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </form>
                                             </div>
                                         </div>
@@ -106,7 +116,9 @@
                                 {% for vacancy in company.vacancies.all %}
                                     {% include 'vacancy/vacancy_short.html' with item=vacancy desc=True show_info=True editable=True %}
                                 {% empty %}
-                                    Company has no vacancies yet.
+                                    <div class="uk-padding-small">
+                                        Company has no vacancies yet.
+                                    </div>
                                 {% endfor %}
                             </div>
                         </li>
