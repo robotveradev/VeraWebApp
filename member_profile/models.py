@@ -11,7 +11,7 @@ SEX_CHOICES = (
     ('female', 'female'),
 )
 
-YEARS = [(i, i) for i in range(1950, now().year)][::-1]
+YEARS = [(i, i) for i in range(1950, now().year + 1)][::-1]
 
 DAYS = [(i, i) for i in range(1, 32)]
 

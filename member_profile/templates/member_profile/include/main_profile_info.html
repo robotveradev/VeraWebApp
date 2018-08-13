@@ -66,7 +66,8 @@
                                     {{ profile.level.title|lower }}{% endif %}
                             </div>
                             <div>
-                                {{ profile.address|title }}{% if profile.relocation %},
+                                {% if profile.address %}{{ profile.address|title }}{% endif %}
+                                        {% if profile.relocation %},
                                     ready for transfer{% endif %}
                                 {% if profile.official_journey %},
                                     ready

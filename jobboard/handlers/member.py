@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from solc import compile_files
 from solc.utils.string import force_bytes
 from web3.utils.validation import validate_address
@@ -34,6 +35,15 @@ class MemberInterface:
 
     def lockAccount(self):
         return self.web3.personal.lockAccount(self.account)
+
+    def new_fact(self, member_about_address, fact, fact_uuid):
+        validate_address(member_about_address)
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).new_fact(member_about_address,
+                                                                           json.dumps(fact, cls=DjangoJSONEncoder),
+                                                                           fact_uuid)
+        self.lockAccount()
+        return txn_hash
 
     def approve_company_tokens(self, company_address, amount):
         validate_address(company_address)
@@ -136,5 +146,12 @@ class MemberInterface:
     def change_status(self, status):
         self.unlockAccount()
         txn_hash = self.contract.transact({'from': self.account}).change_status(status)
+        self.lockAccount()
+        return txn_hash
+
+    def verify_fact(self, member_address, fact_uuid):
+        validate_address(member_address)
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).verify_fact(member_address, fact_uuid)
         self.lockAccount()
         return txn_hash

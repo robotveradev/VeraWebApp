@@ -104,10 +104,6 @@ a.uk-button {
     border: 1px solid red;
 }
 
-.uk-input, .uk-select, .uk-textarea {
-    border: 2px solid #bababa;
-}
-
 .toggle-icon {
     cursor: pointer;
 }
@@ -151,7 +147,7 @@ a.uk-button {
 }
 
 .uk-input[type=text], .uk-input[type=password], .uk-input[type=number],
-.uk-input[type=date], .uk-input[type=email], .uk-select, .uk-input[type=time], .uk-input[type=url] {
+.uk-input[type=date], .uk-input[type=email], .uk-select, .uk-input[type=time], .uk-input[type=url], .uk-textarea {
     border: 1px solid #aad9fd;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
@@ -285,15 +281,15 @@ table.uk-table-divider tr:first-child {
 }
 
 .pipeline {
-    border-top: 1px solid grey;
+    /*border-top: 1px solid grey;*/
     position: relative;
 }
 
 .pipeline .line {
     position: absolute;
-    border-top: 1px solid blue;
+    border-top: 3px solid white;
     width: 95%;
-    top: 27px;
+    top: 25px;
 }
 
 .pipeline .action {
@@ -307,14 +303,14 @@ table.uk-table-divider tr:first-child {
 }
 
 .pipeline .action.passed:after {
-    background: blue;
+    background: #4caf50;
 }
 
 .pipeline .action:after {
     content: ' ';
     width: 14px;
     height: 14px;
-    border: 1px solid blue;
+    border: 1px solid #4caf50;
     position: absolute;
     border-radius: 50%;
     top: 0;
@@ -325,3 +321,15 @@ a.company-link {
     margin-left: 10px;
 }
 
+.pipeline-footer {
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+.fact-item:not(:last-child) {
+    border-bottom: 1px solid grey;
+}
+
+.confirm-link {
+    cursor: pointer;
+}

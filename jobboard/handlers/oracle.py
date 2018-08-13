@@ -1,7 +1,6 @@
 import json
 
 from django.conf import settings
-from django.core.serializers.json import DjangoJSONEncoder
 from solc import compile_files
 from solc.utils.string import force_bytes
 from web3 import Web3
@@ -111,16 +110,6 @@ class OracleHandler(object):
 
     def get_candidates(self):
         return self.contract.call().get_candidates()
-
-    def new_fact(self, candidate_address, fact):
-        if not isinstance(fact, dict):
-            raise TypeError('Fact must be dict')
-        validate_address(candidate_address)
-        self.unlockAccount()
-        txn_hash = self.contract.transact({'from': self.account}).new_fact(candidate_address,
-                                                                           json.dumps(fact, cls=DjangoJSONEncoder))
-        self.lockAccount()
-        return txn_hash
 
     def facts_length(self, candidate_address):
         validate_address(candidate_address)
@@ -240,3 +229,20 @@ class OracleHandler(object):
     def member_vacancy_by_index(self, member_address, index):
         validate_address(member_address)
         return Web3.toHex(self.contract.call().member_vacancies(member_address, index))
+
+    def member_fact_confirmations(self, sender_address, member_address, fact_uuid):
+        return self.contract.call().member_fact_confirmations(sender_address, member_address, fact_uuid)
+
+    def member_facts_confirmations_count(self, member_address, fact_uuid):
+        return self.contract.call().facts_confirmations_count(member_address, fact_uuid)
+
+    def member_verified(self, member_address):
+        validate_address(member_address)
+        return self.contract.call().member_verified(member_address)
+
+    def verify_member(self, member_address):
+        validate_address(member_address)
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).verify_member(member_address)
+        self.lockAccount()
+        return txn_hash

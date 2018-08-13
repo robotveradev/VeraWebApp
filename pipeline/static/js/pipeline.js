@@ -11,7 +11,7 @@ $(document).ready(function () {
             UIkit.modal.confirm('Change vacancy status? This may take some time.').then(function () {
                 $('#change_vacancy_status')[0].submit();
             }, function () {
-                console.log('Rejected.')
+                console.log('Rejected.');
             });
 
         })

@@ -126,20 +126,6 @@
   },
   {
     "constant": true,
-    "inputs": [],
-    "name": "number_of_confirmations",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
     "inputs": [
       {
         "name": "_member",
@@ -390,6 +376,33 @@
       {
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_verifier",
+        "type": "address"
+      },
+      {
+        "name": "_member",
+        "type": "address"
+      },
+      {
+        "name": "_fact_uuid",
+        "type": "bytes32"
+      }
+    ],
+    "name": "member_fact_confirmations",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
       }
     ],
     "payable": false,

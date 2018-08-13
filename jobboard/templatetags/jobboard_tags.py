@@ -3,6 +3,7 @@ import json
 import re
 from urllib.parse import urlencode
 
+import date_converter
 from django import template
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -97,32 +98,44 @@ def get_vacancy(vac_uuid):
         return None
 
 
-@register.inclusion_tag('jobboard/tags/facts.html')
-def facts(member):
+@register.inclusion_tag('jobboard/tags/facts.html', takes_context=True)
+def facts(context, member):
+    date_fields = ['date_from', 'date_up_to', 'date_of_receiving']
     args = {}
     if member.contract_address:
         oracle = OracleHandler()
         fact_keys = oracle.facts_keys(member.contract_address)
-        facts = []
+        facts_dict = []
         for item in fact_keys:
             fact = oracle.fact(member.contract_address, item)
-            facts.append({'id': item,
-                          'from': fact[0],
-                          'date': datetime.datetime.fromtimestamp(int(fact[1])),
-                          'fact': json.loads(fact[2])})
-        args['facts'] = facts
+            f = json.loads(fact[2])
+            for date_item in date_fields:
+                if date_item in f:
+                    f[date_item] = date_converter.string_to_date(f[date_item], current_format='%Y-%m-%dT%H:%M:%S')
+
+            facts_dict.append({'id': item,
+                               'from': fact[0],
+                               'date': datetime.datetime.fromtimestamp(int(fact[1])),
+                               'fact': f})
+        args['facts'] = facts_dict
         args['member'] = member
-    return args
+        context.update(args)
+    return context
 
 
-def check_fact(f_id):
-    return False
+@register.filter
+def confirmations(address, f_id):
+    oracle = OracleHandler()
+    return oracle.member_facts_confirmations_count(address, f_id)
 
 
-@register.filter(name='is_fact_verify')
-def is_fact_verify(address, f_id):
-    # TODO change for oracle
-    return False
+@register.simple_tag
+def is_member_verify_fact(sender_address, member_address, fact_id, txns):
+    transact_now = False
+    for item in txns:
+        if item.obj_id == fact_id:
+            transact_now = True
+    return transact_now or OracleHandler().member_fact_confirmations(sender_address, member_address, fact_id)
 
 
 @register.filter(name='parse_addresses')
@@ -146,10 +159,8 @@ def paginator_pages(current_page, max_page):
             return range(current_page - 2, current_page + 3)
 
 
-@register.filter(name='need_dots')
+@register.filter
 def need_dots(first, next_o):
-    # print('first: {}, next: {}'.format(first, next_o))
-    # return False
     if next_o - first > 1:
         return True
     return False

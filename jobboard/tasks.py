@@ -25,7 +25,8 @@ from vera.celery import app
 from . import utils
 
 DELETE_ONLY_TXN = ['subscribe', 'empanswer', 'withdraw', 'tokenapprove', 'actionchanged', 'changestatus',
-                   'addcompanymember', 'changecompanymember', 'membersubscribe', 'candidateactionupdown']
+                   'addcompanymember', 'changecompanymember', 'membersubscribe', 'candidateactionupdown', 'addnewfact',
+                   'newfactconfirmation']
 
 logger = logging.getLogger(__name__)
 

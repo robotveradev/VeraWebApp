@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'google_address',
     'rest_framework',
     'django_select2',
+    'django_object_actions',
 ]
 
 SITE_ID = 3
