@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import ListView, CreateView, DetailView, DeleteView, RedirectView
+from django.views.generic import ListView, CreateView, DetailView, DeleteView, RedirectView, UpdateView
 
 from company.tasks import set_member_role, change_member_role
 from jobboard.handlers.oracle import OracleHandler
@@ -54,6 +54,11 @@ class NewCompanyView(CreateView):
 
     def get_success_url(self):
         return reverse('companies')
+
+
+class CompanyEditView(UpdateView):
+    model = Company
+    form_class = CompanyForm
 
 
 class CompanyDetailsView(DetailView):

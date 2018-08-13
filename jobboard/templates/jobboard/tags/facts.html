@@ -51,11 +51,10 @@
                                 <span class="uk-text-bold">{{ fact.title|capfirst }}</span> {{ fact.desc }}
                             {% endif %}
                             </p>
-                            <div class="confirmations-count uk-align-right">Fact has {{ confirmations_count }}
+                            <div class="confirmations-count uk-align-right green-text">Fact
+                                has {{ confirmations_count }}
                                 confirmation{{ confirmations_count|pluralize }}.
                                 {% if user != member and user.verified %}
-
-
                                     {% is_member_verify_fact user.contract_address member.contract_address fact_object.id txns as already_verify %}
                                     {% if not already_verify %}
                                         <span class="vr-link confirm-link uk-text-meta">Add confirmation</span>
