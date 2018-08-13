@@ -64,9 +64,28 @@ class Member(AbstractUser):
         return vacancies
 
     def current_action_index(self, vacancy):
-        oracle = OracleHandler()
-        return oracle.get_member_current_action_index(vacancy.company.contract_address, vacancy.uuid,
-                                                      self.contract_address)
+        """
+        Get member current action number for given vacancy
+        :param vacancy: vacancy to find action number
+        :return: int (action number) or -1 (not subscribed to vacancy)
+        """
+        return OracleHandler().get_member_current_action_index(vacancy.company.contract_address, vacancy.uuid,
+                                                               self.contract_address)
+
+    @property
+    def verified(self):
+        """
+        Is member verified in system
+        :return: bool
+        """
+        return OracleHandler().member_verified(self.contract_address)
+
+    def verify(self):
+        """
+        Verify user
+        :return: txn_hash in hex object
+        """
+        return OracleHandler().verify_member(self.contract_address)
 
     def get_short_name(self):
         """
@@ -78,6 +97,15 @@ class Member(AbstractUser):
             return self.name
         else:
             return self.username
+
+    def is_already_verify_fact(self, member_address, fact_id):
+        """
+        Returns true if current user already verify member fact
+        :param member_address: Member fact verified for
+        :param fact_id: fact id
+        :return: bool
+        """
+        return OracleHandler().member_fact_confirmations(self.contract_address, member_address, fact_id)
 
     def get_absolute_url(self):
         return reverse('member_profile', kwargs={'username': self.username})

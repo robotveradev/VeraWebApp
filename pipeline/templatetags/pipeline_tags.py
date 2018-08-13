@@ -182,7 +182,7 @@ def get_pending_actions_count(vacancy_id):
 
 @register.filter
 def full_payment(actions):
-    return sum([i.chain.fee for i in actions])
+    return sum([i.chain.fee if i.chain else 0 for i in actions])
 
 
 @register.filter

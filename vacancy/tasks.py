@@ -80,7 +80,7 @@ def change_status(vacancy_id, member_id):
 
 
 @shared_task
-def change_vacancy_allowed_amount(vacancy_id):
+def change_vacancy_allowed_amount(vacancy_id):  # todo
     try:
         vacancy = Vacancy.objects.get(pk=vacancy_id)
     except Vacancy.DoesNotExist:

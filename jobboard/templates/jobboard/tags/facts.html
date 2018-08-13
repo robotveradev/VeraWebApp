@@ -1,47 +1,74 @@
-{% load jobboard_tags %}
+{% load jobboard_tags pipeline_tags %}
+
 {% if facts %}
-    <ul data-uk-accordion="multiple: true">
+    <ul class="uk-margin-remove-bottom" data-uk-accordion="multiple: true">
         {% for fact_object in facts %}
             {% with fact_object.fact as fact %}
-                {% with mamber.contract_address|is_fact_verify:fact_object.id as fact_verify %}
-                    <li class="uk-border uk-padding-small">
+                {% with member.contract_address|confirmations:fact_object.id as confirmations_count %}
+                    <li class="uk-open uk-padding-small fact-item uk-margin-remove-top">
                         <a class="uk-accordion-title" href="#">
                             {% if fact.type == 'learning' %}
                                 Studied
                             {% elif fact.type == 'worked' %}
                                 Have worked
                             {% elif fact.type == 'certification' %}
-                                Certificate
+                                Has a certificate
                             {% elif fact.type == 'vac_pass' %}
                                 Pass the vacancy pipeline
+                            {% elif fact.type == 'custom' %}
+                                Custom member fact
                             {% endif %}
-                            {% if fact_verify %}
-                                <span class="green-text"
-                                      data-uk-icon="icon: check; ratio: 1"></span>
-                            {% else %}
-                                <span data-uk-icon="icon: question; ratio: 1"></span>
-                            {% endif %}
+                            <span class="uk-text-meta">
+                                {% with fact_object.from|get_member as sender %}
+                                    {% if sender == user %}
+                                        added by you
+                                    {% else %}
+                                        {% if sender != member %}
+                                            added by {% firstof sender.full_name sender.username %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endwith %}
+                            </span>
                         </a>
                         <div class="uk-accordion-content">
-
                             <p>{% if fact.type == 'learning' %}
-                                Studied at {{ fact.place }}, from {{ fact.date_from }} to
-                                {{ fact.date_up_to }},
+                                Studied at {{ fact.place }}, from {{ fact.date_from|date:'j E Y' }} to
+                                {{ fact.date_up_to|date:'j E Y' }},
                                 specialty {{ fact.specialisation }}.<br/>
                                 Diploma number {{ fact.diploma_number }}. <br/>
                             {% elif fact.type == 'worked' %}
-                                Have worked at {{ fact.place }}, from {{ fact.date_from }} to
-                                {{ fact.date_up_to }},
+                                Have worked at {{ fact.place }}, from {{ fact.date_from|date:'j E Y' }} to
+                                {{ fact.date_up_to|date:'j E Y' }},
                                 at position {{ fact.position }}. <br/>
                             {% elif fact.type == 'certification' %}
                                 Received certificate from {{ fact.institution }}, at course
                                 {{ fact.course }}.
-                                Date of receiving {{ fact.date_of_receiving }}. <br/>
+                                Date of receiving {{ fact.date_of_receiving|date:'j E Y' }}. <br/>
                             {% elif fact.type == 'vac_pass' %}
                                 {{ fact.title|capfirst }} {{ fact.employer }}.
                                 <br/>
+                            {% elif fact.type == 'custom' %}
+                                <span class="uk-text-bold">{{ fact.title|capfirst }}</span> {{ fact.desc }}
                             {% endif %}
                             </p>
+                            <div class="confirmations-count uk-align-right">Fact has {{ confirmations_count }}
+                                confirmation{{ confirmations_count|pluralize }}.
+                                {% if user != member and user.verified %}
+
+
+                                    {% is_member_verify_fact user.contract_address member.contract_address fact_object.id txns as already_verify %}
+                                    {% if not already_verify %}
+                                        <span class="vr-link confirm-link uk-text-meta">Add confirmation</span>
+                                    {% endif %}
+
+                                {% endif %}
+                                <form action="{% url 'verify_fact' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="fact_id" value="{{ fact_object.id }}">
+                                    <input type="hidden" name="member_id" value="{{ member.id }}">
+                                    <input type="hidden" name="sender_id" value="{{ user.id }}">
+                                </form>
+                            </div>
                         </div>
                     </li>
                 {% endwith %}
@@ -49,5 +76,19 @@
         {% endfor %}
     </ul>
 {% else %}
-        <p>Facts not added yet.</p>
+    <div class="uk-padding-small">Facts not added yet.</div>
+{% endif %}
+{% if user != member and user.verified %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.confirm-link').on('click', function () {
+                let $form = $(this).closest('div').find('form');
+                UIkit.modal.confirm('Add your confirmation to fact? This action can not be undone.').then(function () {
+                    $form[0].submit();
+                }, function () {
+                    console.log('Rejected.')
+                });
+            });
+        });
+    </script>
 {% endif %}

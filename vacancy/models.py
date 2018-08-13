@@ -68,7 +68,7 @@ class Vacancy(models.Model):
         return get_user_model().objects.filter(contract_address__in=[i['contract_address'] for i in members])
 
     @property
-    def allowed_amount(self):
+    def chain_allowed_amount(self):
         oracle = OracleHandler()
         return oracle.vacancy(self.company.contract_address, self.uuid)['allowed_amount'] / 10 ** 18
 

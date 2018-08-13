@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from account.compat import is_authenticated
 from django.conf import settings as django_settings
 from django.contrib import messages
@@ -10,15 +12,16 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import TemplateView, DetailView, RedirectView, ListView
+from django.views.generic import TemplateView, DetailView, RedirectView, ListView, FormView
 from web3.utils.validation import validate_address
 
-from jobboard.forms import LearningForm, WorkedForm, CertificateForm, AchievementForm
+from jobboard.forms import LearningForm, WorkedForm, CertificateForm, AchievementForm, VerifyFactForm, CustomFactForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
 from jobboard.tasks import save_txn_to_history, save_txn
 from member_profile.forms import LanguageItemForm, CitizenshipForm, WorkPermitForm
 from member_profile.models import Profile
+from member_profile.tasks import new_fact_confirmation, new_member_fact
 from users.models import Member
 from vacancy.models import Vacancy
 from .decorators import choose_role_required
@@ -251,54 +254,60 @@ def check_agent(request):
             return HttpResponse('You must use Post request', status=400)
 
 
-class GrantRevokeAgentView(View):
+class NewFactView(FormView):
 
-    def get(self, request, *args, **kwargs):
-        action = kwargs['action']
-        if action not in ['revoke', 'grant']:
-            pass
-        else:
-            address = request.GET.get('address')
-            if address == django_settings.WEB_ETH_COINBASE:
-                pass
-            else:
-                try:
-                    validate_address(address)
-                except ValueError:
-                    pass
-                else:
-                    oracle = OracleHandler()
-                    if action == 'revoke':
-                        txn_hash = oracle.revoke_agent(request.role_object.contract_address, address)
-                    else:
-                        txn_hash = oracle.grant_agent(request.role_object.contract_address, address)
-                    save_txn_to_history.delay(request.user.id, txn_hash.hex(),
-                                              'Revoke access for agent {}'.format(address))
-        return redirect('profile')
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+        self.f_type = None
+        self.member_address = None
 
-
-class NewFactView(View):
-
-    def post(self, request, *args, **kwargs):
-        f_type = request.POST.get('f_type')
-        if f_type not in ['learning', 'worked', 'certification']:
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        f_type = request.POST.get('f_type', None)
+        if f_type not in ['learning', 'worked', 'certification', 'custom']:
+            messages.info(request, 'Incorrect fact type')
             return redirect('profile')
+        self.f_type = f_type
+        self.member_address = request.POST.get('member_address', request.user.contract_address)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.request.method in ('POST', 'PUT') and self.f_type == 'custom':
+            data = kwargs['data'].copy()
+            data.update({'date': datetime.now().date()})
+            kwargs.update({
+                'data': data
+            })
+        return kwargs
+
+    def get_form_class(self):
+        if self.f_type == 'learning':
+            form = LearningForm
+        elif self.f_type == 'worked':
+            form = WorkedForm
+        elif self.f_type == 'certification':
+            form = CertificateForm
         else:
-            if f_type == 'learning':
-                form = LearningForm(request.POST)
-            elif f_type == 'worked':
-                form = WorkedForm(request.POST)
-            else:
-                form = CertificateForm(request.POST)
-            if form.is_valid():
-                fact = form.cleaned_data
-                fact.update({'type': f_type, 'from': request.role_object.contract_address})
-                oracle = OracleHandler()
-                oracle.unlockAccount()
-                txn_hash = oracle.new_fact(request.role_object.contract_address, fact)
-                save_txn_to_history.delay(request.role_object.user_id, txn_hash.hex(),
-                                          'New "{}" fact added'.format(f_type))
-        return redirect('profile')
+            form = CustomFactForm
+        return form
+
+    def form_invalid(self, form):
+        for error in form.errors['__all__'].as_data():
+            messages.warning(self.request, ', '.join(error))
+        return super().form_invalid(form)
+
+    def form_valid(self, form):
+        fact = form.cleaned_data
+        fact.update({'type': self.f_type})
+        new_member_fact.delay(fact, self.request.user.contract_address, self.member_address)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        if self.member_address == self.request.user.contract_address:
+            return reverse('profile')
+        return Member.objects.get(contract_address=self.member_address).get_absolute_url()
 
 
 class ApproveTokenView(RedirectView):
@@ -392,3 +401,25 @@ class FindFieldView(View):
             finded = model_class.objects.values('id', field).filter(**filters)[:10]
             dict_f = [{'id': i['id'], field: i['name']} for i in finded]
             return JsonResponse(dict_f, safe=False, status=200)
+
+
+class AddFactConfirmation(FormView):
+    form_class = VerifyFactForm
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+
+    @staticmethod
+    def redirect(form):
+        return redirect(Member.objects.get(pk=form.cleaned_data['member_id']).get_absolute_url())
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        new_fact_confirmation.delay(data['sender_address'], data['member_address'], data['fact_id'])
+        return self.redirect(form)
+
+    def form_invalid(self, form):
+        for e in form.errors['__all__'].as_data():
+            messages.warning(self.request, ', '.join(e))
+        return self.redirect(form)

@@ -30,6 +30,9 @@ from statistic import views as statistic_views
 from users import views as users_views
 from vacancy import views as vacancy_views
 
+admin.site.site_header = 'Vera Job Board Admin panel'
+admin.site.index_title = 'Job Board administration'
+
 basic = [
     path('', TemplateView.as_view(template_name='jobboard/index.html'), name='index'),
     path('select2/', include('django_select2.urls')),
@@ -45,8 +48,8 @@ basic = [
     path('withdraw/', jobboard_views.WithdrawView.as_view(), name='withdraw'),
     path('approve/', jobboard_views.ApproveTokenView.as_view(), name='approve'),
     path('check_agent/', jobboard_views.check_agent, name='check_agent'),
-    path('agent/<slug:action>/', jobboard_views.GrantRevokeAgentView.as_view(), name='grant_agent'),
     path('fact/new/', jobboard_views.NewFactView.as_view(), name='new_fact'),
+    path('fact/verify/', jobboard_views.AddFactConfirmation.as_view(), name='verify_fact'),
     path('free/coins/', jobboard_views.GetFreeCoinsView.as_view(), name='free_coins'),
 ]
 

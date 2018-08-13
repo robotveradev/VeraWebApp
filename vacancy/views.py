@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, CreateView, UpdateView, DetailView
 from web3 import Web3
 
+from company.models import Company
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.oracle import OracleHandler
 from member_profile.models import Profile
@@ -34,20 +35,31 @@ class CreateVacancyView(CreateView):
     template_name = 'vacancy/new_vacancy.html'
     form_class = VacancyForm
 
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.object = None
         self.request = None
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         if not request.user.companies.exists():
             messages.info(request, 'You must add company first')
             return redirect('new_company')
         return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            company = request.user.companies.get(pk=request.POST.get('company'))
+        except Company.DoesNotExist:
+            messages.warning(request, 'Invalid company')
+        else:
+            if request.user not in company.owners:
+                messages.warning(request, 'You cannot create vacancy at this company')
+                return super().get(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -170,8 +182,7 @@ class ChangeVacancyStatus(RedirectView):
         company_balance = coin_h.balanceOf(self.object.company.contract_address)
         allowed_for_vacancies = 0
         for vacancy in self.object.company.vacancies.all():
-            allowed_for_vacancies += oracle.vacancy(self.object.company.contract_address, vacancy.uuid)[
-                'allowed_amount']
+            allowed_for_vacancies += vacancy.chain_allowed_amount
         if allowed_for_vacancies > company_balance:
             self.errors.append('allow')
         # vac_allowance = oracle.vacancy(self.object.company.contract_address, self.object.uuid)['allowed_amount']

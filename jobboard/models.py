@@ -31,7 +31,7 @@ class Transaction(models.Model):
     user = models.SmallIntegerField(default=0)
     txn_hash = models.CharField(max_length=127)
     txn_type = models.CharField(max_length=31)
-    obj_id = models.SmallIntegerField(default=0)
+    obj_id = models.CharField(max_length=127)
     vac_id = models.SmallIntegerField(default=0, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

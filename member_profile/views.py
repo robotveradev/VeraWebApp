@@ -187,15 +187,6 @@ class CompleteProfileView(CreateView):
         self.object = None
         self.request = None
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        if self.request.method in ('POST', 'PUT'):
-            address = Address.objects.create(raw=kwargs['data']['address'])
-            data = kwargs['data'].copy()
-            data['address'] = address.id
-            kwargs['data'] = data
-        return kwargs
-
     def form_valid(self, form):
         form.instance.member = self.request.user
         return super().form_valid(form)

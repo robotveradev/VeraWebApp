@@ -157,6 +157,28 @@
     "constant": false,
     "inputs": [
       {
+        "name": "_member",
+        "type": "address"
+      },
+      {
+        "name": "_fact",
+        "type": "string"
+      },
+      {
+        "name": "_fact_uuid",
+        "type": "bytes32"
+      }
+    ],
+    "name": "new_fact",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "_company",
         "type": "address"
       },
