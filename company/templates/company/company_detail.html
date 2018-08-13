@@ -7,6 +7,7 @@
     {% if user.is_authenticated %}
         {% member_company_role user company as role %}
     {% endif %}
+
     <div class="uk-container uk-align-center">
         <div class="uk-margin-large-top" data-uk-grid>
             <div class="uk-width-{% if role %}3-4{% else %}1-1{% endif %}">
@@ -15,6 +16,7 @@
                     <li><a class="uk-text-capitalize" href="#">Vacancies</a></li>
                     {% if role %}
                         <li><a class="uk-text-capitalize" href="#">Fellow workers</a></li>
+                        <li><a class="uk-text-capitalize" href="#">Company offices</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -189,6 +191,50 @@
                                     {% endfor %}
                                 </table>
                             </li>
+                            <li>
+                                <div class="uk-padding-small">
+                                    <ul class="uk-list uk-list-bullet">
+                                        {% for office in company.offices.all %}
+                                            <li>{{ office.address }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    <button class="uk-button uk-button-small uk-button-primary uk-margin-remove-bottom uk-align-right"
+                                            data-uk-toggle="target: #new-company-office">
+                                        New office
+                                    </button>
+                                    <div class="uk-clearfix"></div>
+                                </div>
+
+                                <div id="new-company-office" data-uk-modal>
+                                    <div class="uk-modal-dialog">
+                                        <button class="uk-modal-close-default" type="button" data-uk-close></button>
+                                        <div class="uk-modal-header">
+                                            <h2 class="uk-modal-title">New office</h2>
+                                        </div>
+                                        <form method="post" action="{% url 'new_office' pk=company.id %}">
+                                            <div class="uk-modal-body">
+                                                {% csrf_token %}
+                                                <div class="uk-margin">
+                                                    <label for="id_address" class="uk-form-label">Address</label>
+                                                    <div class="uk-form-controls uk-margin-small-top">
+                                                        <input type="text" class="uk-input address" id="id_address"
+                                                               name="address">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="uk-modal-footer uk-text-right">
+                                                <button class="uk-button uk-button-default uk-modal-close uk-button-small"
+                                                        type="button">
+                                                    Cancel
+                                                </button>
+                                                <button class="uk-button uk-button-primary uk-button-small"
+                                                        type="submit">Save
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </li>
                         {% endif %}
                     </ul>
                 </div>
@@ -262,9 +308,25 @@
                             to add this company to your work experience!</p>
                     </div>
                 {% endif %}
+                {% if role == 'owner' %}
+                    <div class="vr-window white uk-padding-small uk-margin-small-top">
+                        <h5 class="uk-text-bold">Edit company</h5>
+                        <ul>
+                            <li>
+                                <a class="vr-link uk-text-meta" href="{% url 'edit_company' pk=company.id %}">
+                                    Edit company
+                                </a>
+                            </li>
+                            <li>
+                                <a class="vr-link uk-text-meta" href="#" data-uk-toggle="target: #new-company-office">
+                                    New company office
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                {% endif %}
                 {% if role %}
-                    <br>
-                    <div class="vr-window white uk-padding-small">
+                    <div class="vr-window white uk-padding-small uk-margin-small-top">
                         <h5 class="uk-text-bold">Management</h5>
                         <table class="uk-table uk-table-small vr-small-table">
                             <tr>

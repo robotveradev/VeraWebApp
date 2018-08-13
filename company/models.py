@@ -24,9 +24,7 @@ class Company(models.Model):
     tax_number = models.CharField(max_length=64,
                                   null=False,
                                   blank=False)
-    legal_address = models.ForeignKey(Address,
-                                      on_delete=models.SET_NULL,
-                                      null=True)
+    legal_address = models.CharField(max_length=255)
     work_sector = models.CharField(max_length=512)
     date_created = models.DateField(null=True,
                                     blank=True)

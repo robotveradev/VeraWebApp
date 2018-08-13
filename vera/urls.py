@@ -112,6 +112,7 @@ quiz_urlpatterns = [
 company_urlpatterns = [
     path('companies/', company_views.CompaniesView.as_view(), name='companies'),
     path('company/new/', company_views.NewCompanyView.as_view(), name='new_company'),
+    path('company/<int:pk>/edit/', company_views.CompanyEditView.as_view(), name='edit_company'),
     path('company/<int:pk>', company_views.CompanyDetailsView.as_view(), name='company'),
     path('company/<int:pk>/delete/', company_views.CompanyDeleteView.as_view(), name='delete_company'),
     path('company/<int:pk>/office/new/', company_views.CompanyNewOfficeView.as_view(), name='new_office'),
