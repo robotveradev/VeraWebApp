@@ -44,7 +44,7 @@ def statistic_short(statistic_set, item):
 @register.filter(name='user_role')
 def user_role(statistic_object):
     try:
-        model_obj = ContentType.objects.get(app_label='jobboard', model=statistic_object.role.lower())
+        model_obj = ContentType.objects.get(app_label='users', model=statistic_object.role.lower())
     except ContentType.DoesNotExist:
         return None
     else:

@@ -75,6 +75,10 @@ class Vacancy(models.Model):
     def chain(self):
         return OracleHandler().vacancy(self.company.contract_address, self.uuid)
 
+    @property
+    def user_field_name(self):
+        return 'company.collaborators'
+
     class Meta:
         ordering = ('-updated_at',)
 

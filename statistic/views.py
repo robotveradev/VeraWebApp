@@ -3,7 +3,6 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView
-from jobboard.decorators import choose_role_required
 from django.contrib.contenttypes.models import ContentType
 from django.urls import resolve
 from jobboard.helpers import get_related
@@ -23,7 +22,6 @@ class StatisticView(ListView):
         self.related_model_object = None
 
     @method_decorator(login_required)
-    @method_decorator(choose_role_required)
     def dispatch(self, request, *args, **kwargs):
         self.pk = kwargs.get('pk')
         try:
@@ -37,9 +35,7 @@ class StatisticView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-
-        return queryset.filter(obj_id=self.pk).exclude(role=self.request.role,
-                                                       role_obj_id=self.request.role_object.id)
+        return queryset.filter(obj_id=self.pk)
 
     def set_related_model(self):
         related_model_name = self.model.related_model_name
@@ -49,7 +45,7 @@ class StatisticView(ListView):
     def check_related_object(self, request, *args, **kwargs):
         self.related_model_object = get_object_or_404(self.related_model, pk=self.pk)
         user_field = self.related_model_object.user_field_name
-        if get_related(self.related_model_object, user_field) != request.role_object:
+        if request.user not in get_related(self.related_model_object, user_field):
             raise Http404
         return super().dispatch(request, *args, **kwargs)
 
