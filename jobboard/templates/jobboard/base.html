@@ -38,11 +38,11 @@
                     <a id="new_vacancy" href="{% url 'new_vacancy' %}">Post a job</a>
                 </li>
                 {% if user.is_authenticated %}
-                    <li>
+                    <li class="uk-position-relative">
                         <a data-hint="feedback" href="{% url 'offers' %}">Feedback
                             {% with user|offers_count as off_count %}
                                 {% if off_count > 0 %}
-                                    ({{ off_count }})
+                                    <span class="feedback-count">{{ off_count }}</span>
                                 {% endif %}
                             {% endwith %}
                         </a>

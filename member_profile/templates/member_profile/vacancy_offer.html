@@ -7,31 +7,36 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h4>Vacancy offers</h4>
-        {% if vac_offers %}
-            <ul uk-accordion="multiple: true">
-                {% for item in vac_offers %}
-                    <li class="uk-open uk-box-shadow-small uk-padding-small">
-                        <a class="uk-accordion-title" href="#">{{ item.vacancy.title|title }}<span
-                                class="uk-text-small grey-text">, {{ item.vacancy.company.name }}</span></a>
-
-                        <div class="uk-accordion-content">
+        <h4 class="uk-text-bold">Vacancy offers</h4>
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    {% if vac_offers %}
+                        {% for item in vac_offers %}
+                            <h4 class="uk-text-bold">{{ item.vacancy.title|title }}<span
+                                    class="uk-text-small grey-text">, {{ item.vacancy.company.name }}</span></h4>
                             <p>Hello! Please consider our vacancy <a
                                     href="{% url 'vacancy' pk=item.vacancy.id %}">{{ item.vacancy.title|lower }}</a>.
                             </p>
-                            <div class="uk-align-right">
-                                <a class="uk-button uk-button-small red white-text  uk-button-default" href="{% url 'hide_offer' pk=item.pk %}">Hide</a>
+                            <div class="uk-align-right uk-margin-remove-bottom">
+                                <a class="uk-button uk-button-small red white-text uk-button-default"
+                                   href="{% url 'hide_offer' pk=item.pk %}">Hide</a>
                             </div>
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <br><br><br><br><br>
-            You do not have any job offers
-            <br><br><br><br><br>
-            <br><br><br><br><br>
-            <br><br><br><br><br>
-        {% endif %}
+                            <div class="uk-clearfix"></div>
+                        {% endfor %}
+                    {% else %}
+                        You do not have any job offers
+                    {% endif %}
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">
+                        Offers desc
+                    </h4>
+                    <p>{% lorem 14 w random %}</p>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

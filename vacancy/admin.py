@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Vacancy, MemberOnVacancy
+from .models import Vacancy, MemberOnVacancy, VacancyOffer
 
 
 class AdminVacancy(admin.ModelAdmin):
@@ -18,5 +18,13 @@ class MemberOnVacancyAdmin(admin.ModelAdmin):
         model = MemberOnVacancy
 
 
+class OffersAdmin(admin.ModelAdmin):
+    list_display = [f.name for f in VacancyOffer._meta.fields]
+
+    class Meta:
+        model = VacancyOffer
+
+
 admin.site.register(Vacancy, AdminVacancy)
 admin.site.register(MemberOnVacancy, MemberOnVacancyAdmin)
+admin.site.register(VacancyOffer, OffersAdmin)

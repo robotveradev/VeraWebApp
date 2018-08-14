@@ -67,14 +67,14 @@ class CandidateInterviewScheduleView(CreateView):
         else:
             date = datetime.now()
 
-        if date.time() > self.action_interview.end_time:
+        if self.action_interview.end_time and date.time() > self.action_interview.end_time:
             date = date + timedelta(days=1)
 
         if date.time() < self.action_interview.start_time or date.time() > self.action_interview.end_time:
             date = date.replace(hour=self.action_interview.start_time.hour,
                                 minute=self.action_interview.start_time.minute)
 
-        if date.date() > self.action_interview.end_date:
+        if self.action_interview.end_date and date.date() > self.action_interview.end_date:
             self.interview_is_over = True
 
         self.date = date.replace(second=0, microsecond=0)

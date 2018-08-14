@@ -283,18 +283,19 @@ table.uk-table-divider tr:first-child {
 .pipeline {
     /*border-top: 1px solid grey;*/
     position: relative;
+    padding: 7px 10px;
 }
 
 .pipeline .line {
     position: absolute;
     border-top: 3px solid white;
-    width: 95%;
-    top: 25px;
+    width: 97%;
+    top: 15px;
 }
 
 .pipeline .action {
-    width: 16px;
-    height: 16px;
+    width: 10px;
+    height: 10px;
     border: 4px solid #f3f6fd;
     border-radius: 50%;
     z-index: 1;
@@ -308,8 +309,8 @@ table.uk-table-divider tr:first-child {
 
 .pipeline .action:after {
     content: ' ';
-    width: 14px;
-    height: 14px;
+    width: 8px;
+    height: 8px;
     border: 1px solid #4caf50;
     position: absolute;
     border-radius: 50%;
@@ -324,6 +325,8 @@ a.company-link {
 .pipeline-footer {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
+    font-size: .8rem;
+    line-height: .8rem;
 }
 
 .fact-item:not(:last-child) {
@@ -332,4 +335,18 @@ a.company-link {
 
 .confirm-link {
     cursor: pointer;
+}
+
+span.feedback-count {
+    background: #64b5f6;
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    line-height: 15px;
+    text-align: center;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.6rem;
+    top: 25px;
+    right: 0;
 }

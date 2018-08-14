@@ -22,8 +22,9 @@ class VacancyOfferView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx.update({'vac_offers', VacancyOffer.objects.filter(member=self.request.user,
+        ctx.update({'vac_offers': VacancyOffer.objects.filter(member=self.request.user,
                                                               is_active=True).order_by('-created_at')})
+        return ctx
 
 
 class NewProfileFragmentMixin:

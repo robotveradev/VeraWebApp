@@ -250,3 +250,12 @@ def txn_message_with_link(txn):
 @register.filter(name='times')
 def times(number):
     return range(number)
+
+
+@register.simple_tag
+def vacancies_for_offer(member, current_user):
+    companies = current_user.companies.filter(
+        id__in=[i.id for i in current_user.companies if current_user in i.collaborators]) \
+        .exclude(id__in=[i.id for i in member.companies])
+    qs = Vacancy.objects.filter(company__in=companies)
+    return qs.exclude(id__in=member.vacancies.values_list('id'))

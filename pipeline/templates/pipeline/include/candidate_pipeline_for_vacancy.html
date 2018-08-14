@@ -1,4 +1,5 @@
 {% load pipeline_tags vacancy_tags static %}
+{% member_vacancy_pass vacancy candidate as pass %}
 {% if vacancy.enabled and vacancy.published or pass %}
     {% with vacancy.pipeline.actions as actions %}
         <div class="uk-margin-large-bottom" data-uk-grid>
@@ -48,7 +49,7 @@
                                                                   class="uk-badge green uk-position-top-right action-price-badge">{{ action.chain.fee|floatformat }} &nbsp;VC</span>
                                                         {% endif %}
                                                     </div>
-                                                    {% if actions|length|add:"-1" > action.index %}
+                                                    {% if actions.count|add:"-1" > action.index %}
                                                         <div class="line uk-position-absolute"></div>
                                                     {% endif %}
                                                 {% endfor %}
@@ -82,17 +83,12 @@
                                data-uk-toggle="target: #step-info; animation: uk-animation-slide-top-small"
                                data-uk-icon="chevron-down"></a>
                         </h3>
-                        <div class="uk-padding-small" id="step-info">
+                        <div class="uk-padding-small uk-padding-remove-horizontal" id="step-info">
                             {% if candidate_current_action_index == -1 %}
                                 <p>{{ actions.count }} action{{ actoins.count|pluralize }} vacancy pipeline.</p>
                                 <p>Complete all the pipeline steps to get this vacancy.</p>
                                 <p>Good luck!</p>
-                                {% if not candidate.profile.position %}
-                                    <p data-hint="no-position" class="uk-text-meta">
-                                        First you need to <a class="vr-link" href="{% url 'new_position' %}">fill in
-                                        career objective position</a>.
-                                    </p>
-                                {% endif %}
+
                                 {% if candidate|may_apply_vacancy:vacancy %}
                                     <a data-hint="apply-vacancy"
                                        class="uk-button uk-button-small uk-button-primary uk-align-center uk-margin-remove-bottom"

@@ -118,15 +118,17 @@ def blocked(action):
 
 @register.inclusion_tag('pipeline/include/candidate_pipeline_for_vacancy.html')
 def candidate_pipeline_for_vacancy(vacancy, user):
-    oracle = OracleHandler()
-    if not oracle.member_vacancy_passed(vacancy.company.contract_address, vacancy.uuid, user.contract_address):
-        return {
-            'candidate_current_action_index': user.current_action_index(vacancy),
-            'candidate': user,
-            'vacancy': vacancy
-        }
-    else:
-        return {'pass': True, 'vacancy': vacancy}
+    return {
+        'candidate_current_action_index': user.current_action_index(vacancy),
+        'candidate': user,
+        'vacancy': vacancy
+    }
+
+
+@register.simple_tag
+def member_vacancy_pass(vacancy, member):
+    return OracleHandler().member_vacancy_passed(vacancy.company.contract_address, vacancy.uuid,
+                                                 member.contract_address)
 
 
 @register.filter

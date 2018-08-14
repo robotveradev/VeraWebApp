@@ -159,12 +159,6 @@ def get_interview_fee(vacancy):
 
 
 @register.filter
-def is_already_offer(vacancy, cp):
-    # TODO
-    return True
-
-
-@register.filter
 def may_apply_vacancy(member, vacancy):
     if not member.contract_address:
         return False
