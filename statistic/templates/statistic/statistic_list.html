@@ -9,59 +9,73 @@
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        {% if object_list %}
-            <h4>Statistic for: {{ related.title }}</h4>
-            <table class="uk-table uk-table-divider uk-table-small uk-table-justify">
-                <thead>
-                <tr>
-                    <th class="uk-table-expand">
-                        user
-                    </th>
-                    <th class="uk-text-center">
-                        views
-                    </th>
-                    <th class="uk-text-right">
-                        last visit
-                    </th>
-                    <th class="uk-text-right">
-                        date
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for item in object_list %}
-                    <tr>
-                        <td>
-                            {% with item|user_role as visit_obj %}
-                                {% if visit_obj is None %}
-                                    <span class="uk-text-muted">{{ item.role|capfirst }}</span>
-                                {% else %}
-                                    {% if visit_obj.obj.get_url %}
-                                        <a class="uk-link-text" href="{{ visit_obj.obj.get_url }}">{{ visit_obj.obj.full_name }}</a>
-                                    {% else %}
-                                        {{ visit_obj.obj.full_name }}
-                                    {% endif %}
-                                {% endif %}
-                            {% endwith %}
-                        </td>
-                        <td class="uk-text-center">
-                            {{ item.count }}
-                        </td>
-                        <td class="uk-text-right">
-                            {{ item.date_updated }}
-                        </td>
-                        <td class="uk-text-right">
-                            {{ item.date_created }}
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% if is_paginated %}
-                {% include 'jobboard/include/paginator.html' with paginate=page_obj %}
-            {% endif %}
-        {% else %}
-            Statistic does not exist!
-        {% endif %}
+        <h4 class="uk-text-bold">Statistic for: {{ related.title }}</h4>
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    {% if object_list %}
+                        <table class="uk-table uk-table-divider uk-table-small uk-table-justify">
+                            <thead>
+                            <tr>
+                                <th class="uk-table-expand">
+                                    user
+                                </th>
+                                <th class="uk-text-center">
+                                    views
+                                </th>
+                                <th class="uk-text-right">
+                                    last visit
+                                </th>
+                                <th class="uk-text-right">
+                                    date
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in object_list %}
+                                <tr>
+                                    <td>
+                                        {% with item|user_role as visit_obj %}
+                                            {% if visit_obj is None %}
+                                                <span class="uk-text-muted">{{ item.role|capfirst }}</span>
+                                            {% else %}
+                                                {% if visit_obj.obj.get_absolute_url %}
+                                                    <a class="uk-link-text"
+                                                       href="{{ visit_obj.obj.get_absolute_url }}">{% firstof visit_obj.obj.full_name visit_obj.obj.username %}</a>
+                                                {% else %}
+                                                    {% firstof visit_obj.obj.full_name visit_obj.obj.username %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td class="uk-text-center">
+                                        {{ item.count }}
+                                    </td>
+                                    <td class="uk-text-right">
+                                        {{ item.date_updated }}
+                                    </td>
+                                    <td class="uk-text-right">
+                                        {{ item.date_created }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        Statistic does not exist!
+                    {% endif %}
+                    {% if is_paginated %}
+                        {% include 'jobboard/include/paginator.html' with paginate=page_obj %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">Statistic desc</h4>
+                    <p>{% lorem 14 w random %}</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 {% endblock %}

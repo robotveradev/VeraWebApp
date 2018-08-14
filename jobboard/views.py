@@ -24,7 +24,6 @@ from member_profile.models import Profile
 from member_profile.tasks import new_fact_confirmation, new_member_fact
 from users.models import Member
 from vacancy.models import Vacancy
-from .decorators import choose_role_required
 from .filters import VacancyFilter, CPFilter
 from .handlers.oracle import OracleHandler
 from .models import TransactionHistory
@@ -235,25 +234,6 @@ class WithdrawView(RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-@login_required
-@choose_role_required
-def check_agent(request):
-    if request.is_ajax():
-        if request.method == 'POST':
-            agent_address = request.POST.get('agent_address')
-            try:
-                validate_address(agent_address)
-            except ValueError:
-                return HttpResponse('Invalid address', status=400)
-            else:
-                emp_h = EmployerHandler(contract_address=request.role_object.contract_address)
-                if agent_address.casefold() == django_settings.WEB_ETH_COINBASE.casefold():
-                    return HttpResponse('oracle', status=200)
-                return HttpResponse(emp_h.is_agent(agent_address), status=200)
-        else:
-            return HttpResponse('You must use Post request', status=400)
-
-
 class NewFactView(FormView):
 
     def __init__(self, **kwargs):
@@ -378,11 +358,15 @@ class CandidateProfileView(DetailView):
 
 
 class FindFieldView(View):
+    # todo убрать
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         if not is_authenticated(request.user):
             return HttpResponse(status=403)
         return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         model = kwargs.get('model')

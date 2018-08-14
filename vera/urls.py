@@ -47,7 +47,6 @@ basic = [
     path('transactions/', jobboard_views.TransactionsView.as_view(), name='transactions'),
     path('withdraw/', jobboard_views.WithdrawView.as_view(), name='withdraw'),
     path('approve/', jobboard_views.ApproveTokenView.as_view(), name='approve'),
-    path('check_agent/', jobboard_views.check_agent, name='check_agent'),
     path('fact/new/', jobboard_views.NewFactView.as_view(), name='new_fact'),
     path('fact/verify/', jobboard_views.AddFactConfirmation.as_view(), name='verify_fact'),
     path('free/coins/', jobboard_views.GetFreeCoinsView.as_view(), name='free_coins'),
