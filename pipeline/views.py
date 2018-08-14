@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import RedirectView, DetailView, CreateView, UpdateView
 
@@ -120,9 +120,17 @@ class ChangeActionView(UpdateView):
         super().__init__(**kwargs)
         self.request = None
 
+    def dispatch(self, request, *args, **kwargs):
+        action = super().get_object()
+        if request.user not in action.pipeline.vacancy.company.owners:
+            messages.warning(request, 'You has no permissions to change pipeline actions.')
+            return redirect(reverse('action_details', kwargs={'pk': action.id}))
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         form.instance.fee = self.request.POST.get('fee', 0)
         form.instance.approvable = 'approvable' in self.request.POST
+        form.instance.sender = self.request.user
         return super().form_valid(form)
 
 
@@ -136,9 +144,10 @@ class DeleteActionView(RedirectView):
     def dispatch(self, request, *args, **kwargs):
         action = get_object_or_404(Action, pk=kwargs.get('pk', None))
         self.vacancy = action.pipeline.vacancy
-        if action.owner != request.user:
+        if request.user not in self.vacancy.company.owners:
             raise Http404
         action.to_delete = True
+        action.sender_id = request.user.id
         action.save()
         return super().dispatch(request, *args, **kwargs)
 

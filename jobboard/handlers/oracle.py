@@ -178,8 +178,12 @@ class OracleHandler(object):
 
     def get_action(self, company_address, vac_uuid, index):
         cans = self.get_members_on_action(company_address, vac_uuid, index)
-        action = self.parse_action(self.contract.call().vacancy_pipeline(company_address, vac_uuid, index), cans)
-        return action
+        try:
+            chain_action = self.contract.call().vacancy_pipeline(company_address, vac_uuid, index)
+        except Exception as e:
+            return Action(index, '', 0, False, cans)
+        else:
+            return self.parse_action(chain_action, cans)
 
     def get_members_on_action(self, company_address, vac_uuid, action_index):
         members_count = self.contract.call().vacancy_members_length(company_address, vac_uuid)

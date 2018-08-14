@@ -1,7 +1,7 @@
 {% load i18n quiz_tags %}
 
 {% if type %}
-    <div class="uk-border uk-padding-small uk-box-shadow-medium white">
+    <div class="uk-border uk-padding-small uk-box-shadow-medium white uk-margin-medium-bottom">
         {% include 'pipeline/include/'|add:type|add:'_handler.html' %}
     </div>
 {% endif %}

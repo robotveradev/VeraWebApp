@@ -155,3 +155,23 @@ class MemberInterface:
         txn_hash = self.contract.transact({'from': self.account}).verify_fact(member_address, fact_uuid)
         self.lockAccount()
         return txn_hash
+
+    def change_action(self, company_address, vac_uuid, index, title, fee, appr):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).change_vacancy_pipeline_action(company_address,
+                                                                                                 vac_uuid,
+                                                                                                 index,
+                                                                                                 force_bytes(title),
+                                                                                                 int(float(
+                                                                                                     fee)) * 10 ** 18,
+                                                                                                 appr)
+        self.lockAccount()
+        return txn_hash
+
+    def delete_action(self, company_address, vac_uuid, index):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).delete_vacancy_pipeline_action(company_address,
+                                                                                                 vac_uuid,
+                                                                                                 index)
+        self.lockAccount()
+        return txn_hash
