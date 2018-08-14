@@ -94,8 +94,7 @@
         <br/>
         {% actions_handler action %}
         {% if action.candidates.exists %}
-            <br/>
-            <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
+            <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white uk-margin-small-top uk-margin-medium-bottom">
                 <h4 class="uk-legend uk-position-relative uk-margin-remove-bottom">
                     Now at stage
                     <a class="uk-position-center-right toggle-icon" type="button"
@@ -120,11 +119,8 @@
                                            href="{% url 'member_profile' username=candidate.username %}">{% firstof candidate.full_name candidate.username %}</a>
                                     </td>
                                     <td>
-                                        {% if action|action_passed:candidate %}
-                                            {% get_result_link candidate action %}
-                                        {% else %}
-                                            Not passed yet
-                                        {% endif %}</td>
+                                        {% get_result_link candidate action %}
+                                    </td>
                                     <td class="uk-text-right">
                                         {% if action.pipeline.vacancy.enabled %}
                                             <div class="uk-text-right">
@@ -145,42 +141,6 @@
                 </div>
             </div>
         {% endif %}
-        {% if action.pass|length > 0 %}
-            <br/>
-            <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
-                <h3 class="uk-legend uk-position-relative uk-margin-remove-bottom">
-                    Pass this stage
-                    <a class="uk-position-center-right toggle-icon" type="button"
-                       data-uk-toggle="target: #pass-stage; animation: uk-animation-slide-top-small"
-                       data-uk-icon="chevron-down"></a>
-                </h3>
-                <div id="pass-stage">
-                    <table class="uk-table uk-table-small vr-small-table">
-                        <thead>
-                        <tr>
-                            <th>Candidate address</th>
-                            <th class="uk-text-right">Result</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for item in action.pass %}
-                            {% with item|get_member as candidate %}
-                                {% if candidate %}
-                                    <tr>
-                                        <td><a class="uk-link-text"
-                                               href="{% url 'member_profile' username=candidate.username %}">{% firstof candidate.full_name candidate.username %}</a>
-                                        </td>
-                                        <td class="uk-text-right">{% get_result_link candidate action.db %}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endwith %}
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% endif %}
-        <br/>
         <div class="uk-align-right">
             <a class="uk-button uk-button-primary uk-button-small"
                href="{% url 'vacancy' pk=action.pipeline.vacancy.id %}">Back to vacancy</a>

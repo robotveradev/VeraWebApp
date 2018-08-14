@@ -12,9 +12,8 @@ from web3 import Web3
 
 from company.models import Company
 from jobboard.handlers.coin import CoinHandler
-from jobboard.handlers.oracle import OracleHandler
-from member_profile.models import Profile
 from statistic.decorators import statistical
+from users.models import Member
 from users.utils import company_member_role
 from vacancy.forms import VacancyForm, EditVacancyForm
 from vacancy.models import Vacancy, MemberOnVacancy, VacancyOffer
@@ -176,7 +175,6 @@ class ChangeVacancyStatus(RedirectView):
         return HttpResponseRedirect(self.get_redirect_url(*args, **kwargs))
 
     def check_company(self):
-        oracle = OracleHandler()
         coin_h = CoinHandler()
 
         company_balance = coin_h.balanceOf(self.object.company.contract_address)
@@ -185,10 +183,6 @@ class ChangeVacancyStatus(RedirectView):
             allowed_for_vacancies += vacancy.chain_allowed_amount
         if allowed_for_vacancies > company_balance:
             self.errors.append('allow')
-        # vac_allowance = oracle.vacancy(self.object.company.contract_address, self.object.uuid)['allowed_amount']
-        # oracle_allowance = coin_h.allowance(self.object.company.contract_address, oracle.contract_address)
-        # mi = MemberInterface(self.request.user.contract_address)
-        # mi.approve_company_tokens()
 
     def check_actions(self):
         if hasattr(self.object, 'pipeline'):
@@ -209,11 +203,27 @@ class ChangeVacancyStatus(RedirectView):
 
 
 class OfferVacancyView(RedirectView):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.member = None
+
+    def get(self, request, *args, **kwargs):
+        vac_o = get_object_or_404(Vacancy, id=kwargs['vacancy_id'])
+        self.member = get_object_or_404(Member, id=kwargs['member_id'])
+        if self.member.job_status == 2:
+            messages.warning(request, '{} at the moment does not accept job invitations.'.format(
+                self.member.full_name or self.member.username))
+        else:
+            if VacancyOffer.objects.filter(vacancy=vac_o, member=self.member).exists():
+                messages.info(request, 'Vacancy already offered')
+            else:
+                VacancyOffer.objects.create(vacancy=vac_o, member=self.member)
+                messages.info(request, ' Vacancy offer successfully sent')
+        return super().get(request, *args, **kwargs)
+
     def get_redirect_url(self, *args, **kwargs):
-        vac_o = get_object_or_404(Vacancy, id=kwargs['vacancy_id'], company__employer=self.request.role_object)
-        cp_o = get_object_or_404(Profile, id=kwargs['profile_id'])
-        VacancyOffer.objects.get_or_create(vacancy=vac_o, profile=cp_o)
-        return reverse('member_profile', kwargs={'username': cp_o.member.username})
+        return reverse('member_profile', kwargs={'username': self.member.username})
 
 
 class UpdateAllowedView(UpdateView):

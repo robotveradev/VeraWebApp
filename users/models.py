@@ -33,6 +33,10 @@ class Member(AbstractUser):
         return self.get_full_name()
 
     @property
+    def job_status(self):
+        return OracleHandler().member_status(self.contract_address, only_index=True)
+
+    @property
     def companies(self):
         """
         Filter for companies member is in.
@@ -41,8 +45,7 @@ class Member(AbstractUser):
         _model = ContentType.objects.get(model='company')
         if not self.contract_address:
             return _model.model_class().objects.none()
-        oracle = OracleHandler()
-        companies = oracle.get_member_companies(self.contract_address)
+        companies = OracleHandler().get_member_companies(self.contract_address)
         return _model.model_class().objects.filter(contract_address__in=companies)
 
     @property

@@ -48,6 +48,11 @@ INSTALLED_APPS = [
     'django_object_actions',
 ]
 
+if DEBUG:
+    INSTALLED_APPS += [
+        'django_extensions'
+    ]
+
 SITE_ID = 3
 
 AUTH_USER_MODEL = 'users.Member'

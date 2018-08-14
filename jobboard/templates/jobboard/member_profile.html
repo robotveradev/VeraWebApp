@@ -1,9 +1,10 @@
 {% extends 'jobboard/base.html' %}
-{% load jobboard_tags w3_tags static %}
+{% load jobboard_tags w3_tags static user_tags %}
 {% block head_title %}Vera Platform - Profile {% endblock %}
 
 {% block content %}
     {{ block.super }}
+    {% vacancies_for_offer object user as offer_vacancies %}
     <div class="uk-container uk-align-center uk-margin-large-bottom">
         <h4 data-hint="uk-text-bold">{{ object.username|title }} profile</h4>
         <div class="uk-margin-large-top" data-uk-grid>
@@ -29,6 +30,9 @@
                             {% endif %}
                         {% endwith %}
                     {% endwith %}
+                    {% if offer_vacancies.exists %}
+                        <li><a class="uk-text-capitalize" href="#">Offer vacancy</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -238,36 +242,38 @@
                         </div>
                     </li>
                     {% with object.profile as profile %}
-                        <li>
-                            <div data-uk-grid>
-                                <div class="uk-width-3-4">
-                                    <div class="vr-window white uk-padding-small">
-                                        {% with profile.achievements.all as achievements %}
-                                            {% if achievements %}
-                                                {% for achievement in achievements %}
-                                                    <p class="uk-text-lead">{{ achievement.title }}</p>
-                                                    <p>{{ achievement.text|safe }}</p>
-                                                {% endfor %}
+                        {% if profile.achievements.exists %}
+                            <li>
+                                <div data-uk-grid>
+                                    <div class="uk-width-3-4">
+                                        <div class="vr-window white uk-padding-small">
+                                            {% with profile.achievements.all as achievements %}
+                                                {% if achievements %}
+                                                    {% for achievement in achievements %}
+                                                        <p class="uk-text-lead">{{ achievement.title }}</p>
+                                                        <p>{{ achievement.text|safe }}</p>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    Member have no achievements added.
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                    <div class="uk-width-1-4">
+                                        <div class="vr-window white uk-padding-small">
+                                            {% if user.is_authenticated %}
+                                                <h4 class="uk-text-bold">
+                                                    Achievements desc
+                                                </h4>
+                                                <p>{% lorem %}</p>
                                             {% else %}
-                                                Member have no achievements added.
+                                                {% include 'jobboard/include/login_modal.html' with head_message='Would you like him to join the company?' %}
                                             {% endif %}
-                                        {% endwith %}
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="uk-width-1-4">
-                                    <div class="vr-window white uk-padding-small">
-                                        {% if user.is_authenticated %}
-                                            <h4 class="uk-text-bold">
-                                                Achievements desc
-                                            </h4>
-                                            <p>{% lorem %}</p>
-                                        {% else %}
-                                            {% include 'jobboard/include/login_modal.html' with head_message='Would you like him to join the company?' %}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
+                            </li>
+                        {% endif %}
                         {% if profile.position %}
                             <li>
                                 <div data-uk-grid>
@@ -344,40 +350,30 @@
                             {% endif %}
                         {% endwith %}
                     {% endwith %}
+                    {% if offer_vacancies.exists %}
+                        <li>
+                            <div data-uk-grid>
+                                <div class="uk-width-3-4">
+                                    <div class="vr-window white">
+                                        {% include 'vacancy/includes/offers.html' with items=offer_vacancies.all candidate=object %}
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-4">
+                                    <div class="vr-window white uk-padding-small">
+                                        <h4 class="uk-text-bold">Offer vacancy</h4>
+                                        {% if object.job_status == 2 %}
+                                            <p>{% firstof object.full_name object.username %}
+                                                at the moment does not accept job invitations.</p>
+                                        {% else %}
+                                            <p>{% lorem 14 w random %}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </div>
 {% endblock %}
-
-{# TODO Change this! #}
-<h5 class="uk-text-bold">Actions</h5>
-{% if role_object.vacancies.count > 0 %}
-    <button class="uk-button uk-button-primary uk-button-small uk-align-center uk-margin-remove-bottom"
-            data-uk-toggle="target: #offer_modal">
-        Offer a vacancy
-    </button>
-    <div class="uk-clearfix"></div>
-    <div id="offer_modal" data-uk-modal>
-        <div class="uk-modal-dialog">
-            <button class="uk-modal-close-default" type="button" data-uk-close></button>
-            <div class="uk-modal-header">
-                <h4 class="uk-modal-title">Select vacancy</h4>
-            </div>
-            <div>
-                {% for vac in role_object.vacancies %}
-                    {% include 'vacancy/vacancy_short.html' with item=vac selectable=True cv=object.profile %}
-                {% endfor %}
-            </div>
-            <div class="uk-modal-footer uk-text-right">
-                <button class="uk-button uk-button-small uk-button-default uk-modal-close"
-                        type="button">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
-{% else %}
-    <a href="{% url 'new_vacancy' %}"
-       class="uk-button uk-button-primary uk-button-small">Create vacancy</a>
-{% endif %}

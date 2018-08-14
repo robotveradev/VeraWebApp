@@ -82,7 +82,7 @@ profile_urlpatterns = [
 
 vacancy_urlpatterns = [
     path('vacancy/new/', vacancy_views.CreateVacancyView.as_view(), name='new_vacancy'),
-    path('vacancy/<int:vacancy_id>/offer/<int:profile_id>/', vacancy_views.OfferVacancyView.as_view(),
+    path('vacancy/<int:vacancy_id>/offer/<int:member_id>/', vacancy_views.OfferVacancyView.as_view(),
          name='offer_vacancy'),
     path('vacancy/<int:vacancy_id>/subscribe/<int:candidate_id>/', vacancy_views.SubscribeToVacancyView.as_view(),
          name='subscribe_to_vacancy'),
