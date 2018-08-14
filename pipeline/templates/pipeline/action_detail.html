@@ -41,55 +41,55 @@
 
                 </div>
             </div>
-            <div class="uk-width-1-2">
-                <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
-                    <h3 class="uk-legend uk-position-relative uk-margin-remove-bottom">
-                        Action change form
-                        <a class="uk-position-center-right toggle-icon" type="button"
-                           data-uk-toggle="target: #change-action; animation: uk-animation-slide-top-small"
-                           data-uk-icon="chevron-down"></a>
-                    </h3>
-                    <div id="change-action">
-                        {% if action|blocked %}
-                            <div class="uk-overlay-default uk-position-cover"></div>
-                            <div class="uk-overlay uk-position-center uk-dark">
-                                <p data-uk-spinner="ratio: 0.4">Apply action changes </p>
-                            </div>
-                        {% endif %}
-                        {% with action.pipeline.vacancy as vacancy %}
-                            {% if vacancy.enabled is True %}
-                                {% if role == 'owner' %}
-                                    <p>You have to <a class="uk-link-muted"
-                                                      href="{% url 'change_vacancy_status' pk=vacancy.id %}">disable</a>
-                                        vacancy before you can change vacancy action properties.
-                                    </p>
-                                {% else %}
-                                    Vacancy owner must disable vacancy for change pipeline actions.
-                                {% endif %}
-                            {% elif vacancy.enabled is False %}
-                                <form id="change-action-form"
-                                      action="{% url 'change_pipeline_action' pk=action.id %}"
-                                      method="post" class="uk-form-horizontal">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                                    {% form form=change_form %}{% endform %}
-                                    <button style="display: none;" id="save_action_changes"
-                                            {% if role != 'owner' %}disabled{% endif %}
-                                            class="uk-button uk-button-small uk-button-default uk-align-right uk-margin-remove-bottom">
-                                        save
-                                    </button>
-                                    <div class="uk-clearfix"></div>
-                                </form>
-                            {% else %}
-                                <div data-uk-spinner="ratio: 0.4">Checking the possibility of making changes in the
-                                    action
+            {% if role == 'owner' %}
+                <div class="uk-width-1-2">
+                    <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
+                        <h3 class="uk-legend uk-position-relative uk-margin-remove-bottom">
+                            Action change form
+                            <a class="uk-position-center-right toggle-icon" type="button"
+                               data-uk-toggle="target: #change-action; animation: uk-animation-slide-top-small"
+                               data-uk-icon="chevron-down"></a>
+                        </h3>
+                        <div id="change-action">
+                            {% if action|blocked %}
+                                <div class="uk-overlay-default uk-position-cover"></div>
+                                <div class="uk-overlay uk-position-center uk-dark">
+                                    <p data-uk-spinner="ratio: 0.4">Apply action changes </p>
                                 </div>
                             {% endif %}
-                        {% endwith %}
+                            {% with action.pipeline.vacancy as vacancy %}
+                                {% if vacancy.enabled is True %}
+                                    <p class="uk-padding-small uk-margin-remove-bottom uk-padding-remove-horizontal">
+                                        You
+                                        have to <a class="uk-link-muted"
+                                                   href="{% url 'change_vacancy_status' pk=vacancy.id %}">disable</a>
+                                        vacancy before you can change vacancy action properties.
+                                    </p>
+                                {% elif vacancy.enabled is False %}
+                                    <form id="change-action-form"
+                                          action="{% url 'change_pipeline_action' pk=action.id %}"
+                                          method="post" class="uk-form-horizontal">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
+                                        {% form form=change_form %}{% endform %}
+                                        <button style="display: none;" id="save_action_changes"
+                                                {% if role != 'owner' %}disabled{% endif %}
+                                                class="uk-button uk-button-small uk-button-default uk-align-right uk-margin-remove-bottom">
+                                            save
+                                        </button>
+                                        <div class="uk-clearfix"></div>
+                                    </form>
+                                {% else %}
+                                    <div data-uk-spinner="ratio: 0.4">Checking the possibility of making changes in
+                                        the
+                                        action
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
                     </div>
-
                 </div>
-            </div>
+            {% endif %}
         </div>
         <br/>
         {% actions_handler action %}
@@ -141,7 +141,7 @@
                 </div>
             </div>
         {% endif %}
-        <div class="uk-align-right">
+        <div class="uk-align-right ">
             <a class="uk-button uk-button-primary uk-button-small"
                href="{% url 'vacancy' pk=action.pipeline.vacancy.id %}">Back to vacancy</a>
         </div>

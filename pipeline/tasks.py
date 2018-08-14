@@ -2,12 +2,11 @@ import logging
 
 from celery import shared_task
 
-from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.member import MemberInterface
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.tasks import save_txn_to_history, save_txn
 from users.models import Member
-from vacancy.models import Vacancy, MemberOnVacancy
+from vacancy.models import Vacancy
 
 logger = logging.getLogger(__name__)
 
@@ -34,34 +33,68 @@ def new_action(action):
 
 @shared_task
 def changed_action(action):
-    emp_h = EmployerHandler(contract_address=action['contract_address'])
-    txn_hash = emp_h.change_action(vac_uuid=action['vacancy_uuid'],
-                                   index=action['index'],
-                                   title=action['title'],
-                                   fee=action['fee'],
-                                   appr=action['approvable'])
-    if txn_hash:
-        vacancy = Vacancy.objects.get(uuid=action['vacancy_uuid'])
-        save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
-                                              'Changed action {} on vacancy: {}'.format(action['index'],
-                                                                                        vacancy.title)),
-                                        countdown=0.1)
-        save_txn.apply_async(args=(txn_hash.hex(), 'ActionChanged', vacancy.employer.user.id, action['id']),
-                             countdown=0.1)
+    try:
+        sender = Member.objects.get(pk=action['sender_id'])
+    except Member.DoesNotExist:
+        logger.warning('Sender {} not found, action will not be changed'.format(action['sender_id']))
+        return False
+    else:
+        try:
+            vacancy = Vacancy.objects.get(pk=action['vacancy_id'])
+        except Vacancy.DoesNotExist:
+            logger.warning('Vacancy {} not found, action will not be changed'.format(action['vacancy_id']))
+            return False
+        else:
+            mi = MemberInterface(contract_address=sender.contract_address)
+            try:
+                txn_hash = mi.change_action(company_address=vacancy.company.contract_address,
+                                            vac_uuid=vacancy.uuid,
+                                            index=action['index'],
+                                            title=action['title'],
+                                            fee=action['fee'],
+                                            appr=action['approvable'])
+            except Exception as e:
+                logger.error('Error while change pipline action {}: {}'.format(action['index'], e))
+                return False
+            else:
+                save_txn_to_history.apply_async(args=(action['sender_id'], txn_hash.hex(),
+                                                      'Changed action {} on vacancy: {}'.format(action['index'],
+                                                                                                vacancy.title)),
+                                                countdown=0.1)
+                save_txn.apply_async(args=(txn_hash.hex(), 'ActionChanged', action['sender_id'], action['id']),
+                                     countdown=0.1)
+                return True
 
 
 @shared_task
 def delete_action(action):
-    vacancy = Vacancy.objects.get(id=action['vacancy_id'])
-    emp_h = EmployerHandler(contract_address=vacancy.employer.contract_address)
-    txn_hash = emp_h.delete_action(vacancy.uuid, action['index'])
-    if txn_hash:
-        save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
-                                              'Deleted action {} on vacancy: {}'.format(action['index'],
-                                                                                        vacancy.title)),
-                                        countdown=0.1)
-        save_txn.apply_async(args=(txn_hash.hex(), 'ActionDeleted', vacancy.employer.user.id, action['id'], vacancy.id),
-                             countdown=0.1)
+    try:
+        sender = Member.objects.get(pk=action['sender_id'])
+    except Member.DoesNotExist:
+        logger.warning('Sender {} not found. Action will not be deleted'.format(action['sender_id']))
+        return False
+    else:
+        try:
+            vacancy = Vacancy.objects.get(id=action['vacancy_id'])
+        except Vacancy.DoesNotExist:
+            logger.warning('Action vacancy {} not found, action will not be deleted'.format(action['vacancy_id']))
+            return False
+        else:
+            mi = MemberInterface(contract_address=sender.contract_address)
+            try:
+                txn_hash = mi.delete_action(vacancy.company.contract_address, vacancy.uuid, action['index'])
+            except Exception as e:
+                logger.error('Error while deleting action {}: {}'.format(action['id'], e))
+                return False
+            else:
+                save_txn_to_history.apply_async(args=(action['sender_id'], txn_hash.hex(),
+                                                      'Deleted action {} on vacancy: {}'.format(action['index'],
+                                                                                                vacancy.title)),
+                                                countdown=0.1)
+                save_txn.apply_async(
+                    args=(txn_hash.hex(), 'ActionDeleted', action['sender_id'], action['id'], vacancy.id),
+                    countdown=0.1)
+                return True
 
 
 @shared_task

@@ -5,7 +5,7 @@
         <div class="uk-width-3-4">
             <ul data-uk-accordion="multiple: true">
                 {% for action in actions.all %}
-                    <li class="uk-border uk-padding-small uk-box-shadow-medium white uk-position-relative uk-border-{{ action|set_action_status_color }}">
+                    <li class="uk-border uk-open uk-padding-small uk-box-shadow-medium white uk-position-relative uk-border-{{ action|set_action_status_color }}">
                         {% if not action.published %}
                             <div class="uk-overlay-default uk-position-cover"></div>
                             <div class="uk-overlay uk-position-center uk-dark">
