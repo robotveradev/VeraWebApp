@@ -69,8 +69,11 @@ class Vacancy(models.Model):
 
     @property
     def chain_allowed_amount(self):
-        oracle = OracleHandler()
-        return oracle.vacancy(self.company.contract_address, self.uuid)['allowed_amount'] / 10 ** 18
+        return OracleHandler().vacancy(self.company.contract_address, self.uuid)['allowed_amount'] / 10 ** 18
+
+    @property
+    def chain(self):
+        return OracleHandler().vacancy(self.company.contract_address, self.uuid)
 
     class Meta:
         ordering = ('-updated_at',)

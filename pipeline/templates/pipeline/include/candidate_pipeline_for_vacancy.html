@@ -100,8 +100,7 @@
                                         <p>Pipeline {{ item.action_type.title|lower }}
                                             action, {{ item.chain.approvable|yesno:"approvable, not approvable" }}.</p>
                                         <p>{% if item.chain.fee == 0 %}Not paid{% else %}{{ item.chain.fee }}
-                                            VeraCoin{% endif %}
-                                            .</p>
+                                            VeraCoin{% endif %}.</p>
                                         <h5>
                                             What's next?
                                         </h5>
@@ -128,7 +127,7 @@
                     </div>
                 </div>
             {% else %}
-                <div class="uk-width-2-3">
+                <div class="uk-width-3-4">
                     <div class="uk-padding-small uk-border white">
                         <h3 class="uk-legend uk-margin-remove-bottom uk-position-relative">
                             Next action
@@ -144,17 +143,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="uk-width-1-3">
-                    <div data-hint="vacancy-pipeline-passed" class="uk-border uk-padding-small uk-position-relative">
+                <div class="uk-width-1-4">
+                    <div data-hint="vacancy-pipeline-passed"
+                         class="uk-border uk-padding-small white uk-position-relative">
                         <div class="uk-overlay-default uk-position-cover"></div>
                         <div class="uk-overlay uk-position-center uk-dark">
-                            <img src="{% static 'img/stamp.png' %}" alt="">
+                            <img style="transform: scale(2)" src="{% static 'img/stamp.png' %}" alt="">
                         </div>
                         <div>
                             <h3 class="uk-legend uk-margin-remove-bottom">
                                 Step info
                             </h3>
-                            <div class="uk-padding-small">
+                            <div class="">
                                 <p>Pipeline action, not approvable.</p>
                                 <p>Many coins.</p>
                                 <h4>

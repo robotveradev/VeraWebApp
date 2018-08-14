@@ -23,99 +23,136 @@
                 <a href="{% url 'vacancy_edit' pk=vacancy.id %}" data-uk-icon="file-edit"></a>
             {% endif %}
         </span></h4>
+
+
+        <div class="uk-margin-large-top" data-uk-grid>
+            <div class="uk-width-3-4">
+                <ul data-uk-tab="connect: #vacancy-info">
+                    <li class="uk-active"><a class="uk-text-capitalize" href="#">Info</a></li>
+                    <li><a class="uk-text-capitalize" href="#">Blockchain info</a></li>
+                </ul>
+            </div>
+        </div>
+
+
         <div class="uk-margin-medium-bottom" data-uk-grid>
             <div class="uk-width-3-4">
-                <div class="vr-window white uk-padding-small">
-
-                    <table class="uk-table uk-table-divider uk-table-small" width="100%">
-                        <colgroup>
-                            <col width="20%">
-                            <col width="80%">
-                        </colgroup>
-                        <tbody>
-                        <tr>
-                            <td>Vacancy uuid</td>
-                            <td>{{ vacancy.uuid }}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <h4 class="uk-text-bold">General vacancy info</h4>
-                    <table class="uk-table uk-table-divider uk-table-small" width="100%">
-                        <colgroup>
-                            <col width="20%">
-                            <col width="80%">
-                        </colgroup>
-                        <tbody>
-                        <tr>
-                            <td>
-                                Organization
-                            </td>
-                            <td>
-                                <a class=" red-text"
-                                   href="{% url 'company' pk=vacancy.company.id %}">{{ vacancy.company.name }}</a>
-                            </td>
-                        </tr>
-                        {% if vacancy.office.all %}
-                            <tr>
-                                <td>Office{{ vacancy.office.count|pluralize }}</td>
-                                <td>
-                                    {% for office in vacancy.office.all %}
-                                        {{ office.address.address_line|title }}<br/>
-                                    {% endfor %}
-                                </td>
-                            </tr>
-                        {% endif %}
-                        {% with vacancy.schedule.all as schedules %}
-                            {% if schedules %}
+                <ul id="vacancy-info" class="uk-switcher">
+                    <li>
+                        <div class="vr-window white uk-padding-small">
+                            <h4 class="uk-text-bold">General vacancy info</h4>
+                            <table style="table-layout: fixed"
+                                   class="uk-table uk-table-divider uk-table-small uk-margin-remove-bottom"
+                                   width="100%">
+                                <colgroup>
+                                    <col width="20%">
+                                    <col width="80%">
+                                </colgroup>
+                                <tbody>
                                 <tr>
-                                    <td>Schedule</td>
-                                    <td>{{ schedules|join:', ' }}.</td>
+                                    <td>
+                                        Organization
+                                    </td>
+                                    <td>
+                                        <a class=" red-text"
+                                           href="{% url 'company' pk=vacancy.company.id %}">{{ vacancy.company.name }}</a>
+                                    </td>
                                 </tr>
-                            {% endif %}
-                        {% endwith %}
-                        {% with vacancy.busyness.all as busyness %}
-                            {% if busyness %}
-                                <tr>
-                                    <td>Busyness</td>
-                                    <td>{{ busyness|join:', ' }}.</td>
-                                </tr>
-                            {% endif %}
-                        {% endwith %}
-                        <tr>
-                            <td>Salary</td>
-                            <td>
-                                {% if vacancy.salary_from %}
-                                    {% if vacancy.salary_up_to %}
-                                        {{ vacancy.salary_from }} - {{ vacancy.salary_up_to }} $$
-                                    {% else %}
-                                        from {{ vacancy.salary_from }} $
-                                    {% endif %}
-                                {% else %}
-                                    by agreement
+                                {% if vacancy.office.all %}
+                                    <tr>
+                                        <td>Office{{ vacancy.office.count|pluralize }}</td>
+                                        <td>
+                                            {% for office in vacancy.office.all %}
+                                                {{ office.address.address_line|title }}<br/>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Required experience</td>
-                            <td>{{ vacancy.experience }} years.</td>
-                        </tr>
-                        {% if vacancy.description %}
-                            <tr>
-                                <td colspan="2">
-                                    {{ vacancy.description|safe }}
-                                </td>
-                            </tr>
-                        {% endif %}
-                        {% if vacancy.requirement %}
-                            <tr>
-                                <td colspan="2">
-                                    {{ vacancy.requirement|safe }}
-                                </td>
-                            </tr>
-                        {% endif %}
-                        </tbody>
-                    </table>
-                </div>
+                                {% with vacancy.schedule.all as schedules %}
+                                    {% if schedules %}
+                                        <tr>
+                                            <td>Schedule</td>
+                                            <td>{{ schedules|join:', ' }}.</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endwith %}
+                                {% with vacancy.busyness.all as busyness %}
+                                    {% if busyness %}
+                                        <tr>
+                                            <td>Busyness</td>
+                                            <td>{{ busyness|join:', ' }}.</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endwith %}
+                                <tr>
+                                    <td>Salary</td>
+                                    <td>
+                                        {% if vacancy.salary_from %}
+                                            {% if vacancy.salary_up_to %}
+                                                {{ vacancy.salary_from }} - {{ vacancy.salary_up_to }} $$
+                                            {% else %}
+                                                from {{ vacancy.salary_from }} $
+                                            {% endif %}
+                                        {% else %}
+                                            By agreement.
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Required experience</td>
+                                    <td>{{ vacancy.experience }} years.</td>
+                                </tr>
+                                {% if vacancy.description %}
+                                    <tr>
+                                        <td colspan="2">
+                                            <div>
+                                                {{ vacancy.description|safe }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if vacancy.requirement %}
+                                    <tr>
+                                        <td colspan="2">
+                                            {{ vacancy.requirement|safe }}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="vr-window white uk-padding-small">
+                            <p class="uk-text-meta uk-text-justify">{% lorem 50 w random %}</p>
+                            <table class="uk-table vr-small-table uk-table-divider uk-table-small uk-margin-remove-bottom"
+                                   width="100%">
+                                <colgroup>
+                                    <col width="30%">
+                                    <col width="70%">
+                                </colgroup>
+                                <tbody>
+                                <tr>
+                                    <td>Vacancy uuid</td>
+                                    <td>{{ vacancy.uuid }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Company contract address</td>
+                                    <td>{% if vacancy.company.contract_address is not None %}
+                                        <img style="width: 16px; height: 16px;"
+                                             src="{{ vacancy.company.contract_address|get_blockies_png }}"
+                                             alt="">&nbsp;<a class="uk-link-reset" target="_blank"
+                                                             href="https://rinkeby.etherscan.io/address/{{ vacancy.company.contract_address }}">{{ vacancy.company.contract_address }}</a>
+                                    {% else %}
+                                        <div data-uk-spinner="ratio: 0.7"></div>
+                                    {% endif %}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </li>
+                </ul>
             </div>
             <div class="uk-width-1-4">
                 <div class="uk-padding-small white vr-window uk-position-relative">

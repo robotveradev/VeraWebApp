@@ -18,6 +18,7 @@
                         <li><a class="uk-text-capitalize" href="#">Fellow workers</a></li>
                         <li><a class="uk-text-capitalize" href="#">Company offices</a></li>
                     {% endif %}
+                    <li><a class="uk-text-capitalize" href="#">Blockchain info</a></li>
                 </ul>
             </div>
         </div>
@@ -196,6 +197,8 @@
                                     <ul class="uk-list uk-list-bullet">
                                         {% for office in company.offices.all %}
                                             <li>{{ office.address }}</li>
+                                        {% empty %}
+                                            <li>Company offices not indicated</li>
                                         {% endfor %}
                                     </ul>
                                     <button class="uk-button uk-button-small uk-button-primary uk-margin-remove-bottom uk-align-right"
@@ -236,6 +239,33 @@
                                 </div>
                             </li>
                         {% endif %}
+                        <li>
+                            <div class="uk-padding-small">
+                                <p class="uk-text-meta">
+                                    {% lorem 40 w random %}
+                                </p>
+                                <table class="uk-table vr-small-table uk-table-divider uk-table-small uk-margin-remove-bottom"
+                                       width="100%">
+                                    <colgroup>
+                                        <col width="30%">
+                                        <col width="70%">
+                                    </colgroup>
+                                    <tbody>
+                                    <tr>
+                                        <td>Company contract address</td>
+                                        <td>{% if company.contract_address is not None %}
+                                            <img style="width: 16px; height: 16px;"
+                                                 src="{{ company.contract_address|get_blockies_png }}"
+                                                 alt="">&nbsp;<a class="uk-link-reset" target="_blank"
+                                                                 href="https://rinkeby.etherscan.io/address/{{ company.contract_address }}">{{ company.contract_address }}</a>
+                                        {% else %}
+                                            <div data-uk-spinner="ratio: 0.7"></div>
+                                        {% endif %}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>

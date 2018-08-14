@@ -47,8 +47,8 @@ def change_status(vacancy_id, member_id):
             oracle = OracleHandler()
             allowed_for_vacancies = 0
             company = vacancy.company
-            for vacancy in company.vacancies.all():
-                allowed_for_vacancies += oracle.vacancy(company.contract_address, vacancy.uuid)[
+            for vacancy_item in company.vacancies.all():
+                allowed_for_vacancies += oracle.vacancy(company.contract_address, vacancy_item.uuid)[
                     'allowed_amount']
 
             mi = MemberInterface(contract_address=sender.contract_address)
@@ -73,9 +73,9 @@ def change_status(vacancy_id, member_id):
                 else:
                     save_txn_to_history.apply_async(args=(member_id, txn_hash.hex(),
                                                           'Vacancy status changed: {}'.format(vacancy.title)),
-                                                    countdown=0.2)
+                                                    countdown=0.1)
                     save_txn.apply_async(args=(txn_hash.hex(), 'VacancyChange', member_id, vacancy.id),
-                                         countdown=0.2)
+                                         countdown=0.1)
             return True
 
 
