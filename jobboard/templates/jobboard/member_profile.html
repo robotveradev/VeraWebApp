@@ -8,8 +8,8 @@
     <div class="uk-container uk-align-center uk-margin-large-bottom">
         <h4 data-hint="uk-text-bold">{{ object.username|title }} profile</h4>
         <div class="uk-margin-large-top" data-uk-grid>
-            <div class="uk-width-3-4">
-                <ul data-uk-tab="connect: #profile_contrainer">
+            <div class="uk-width-1-1">
+                <ul class="uk-child-width-expand" data-uk-tab="connect: #profile_contrainer">
                     <li class="uk-active"><a class="uk-text-capitalize" href="#">Profile</a></li>
                     <li><a class="uk-text-capitalize" href="#">Facts</a></li>
                     {% with object.profile as profile %}
@@ -19,20 +19,15 @@
                         {% if profile.position %}
                             <li><a class="uk-text-capitalize" href="#">Position</a></li>
                         {% endif %}
-                        {% with profile.experience.exists as experiences %}
-                            {% if experiences %}
-                                <li><a class="uk-text-capitalize" href="#">Experience</a></li>
-                            {% endif %}
-                        {% endwith %}
-                        {% with profile.education.exists as educations %}
-                            {% if educations %}
-                                <li><a class="uk-text-capitalize" href="#">Education</a></li>
-                            {% endif %}
-                        {% endwith %}
+                        {% if profile.experience.exists %}
+                            <li><a class="uk-text-capitalize" href="#">Experience</a></li>
+                        {% endif %}
+                        <li><a class="uk-text-capitalize" href="#">Education</a></li>
                     {% endwith %}
                     {% if offer_vacancies.exists %}
                         <li><a class="uk-text-capitalize" href="#">Offer vacancy</a></li>
                     {% endif %}
+                    <li><a class="uk-text-capitalize" href="#">Blockchain info</a></li>
                 </ul>
             </div>
         </div>
@@ -50,16 +45,19 @@
                                          data-uk-grid>
                                         <div class="uk-width-1-5">
                                             <div class="profile_main_left">
-                                                {% with object.profile.photo as photo %}
-                                                    {% if photo %}
-                                                        <img class="uk-border-rounded" style="width: 100%"
-                                                             src="{{ photo.url }}"/>
-                                                    {% else %}
-                                                        <img class="uk-border-rounded" style="width: 100%;"
-                                                             src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
-                                                             alt="">
-                                                    {% endif %}
-                                                {% endwith %}
+                                                <div class="image-wrapper">
+                                                    {% with object.profile.photo as photo %}
+                                                        {% if photo %}
+                                                            <img class="uk-border-rounded" style="width: 100%"
+                                                                 src="{{ photo.url }}"/>
+                                                        {% else %}
+                                                            <img class="uk-border-rounded" style="width: 100%;"
+                                                                 src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
+                                                                 alt="">
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                </div>
+
                                             </div>
                                         </div>
                                         <div class="uk-width-4-5">
@@ -136,19 +134,6 @@
                                                         </td>
                                                     </tr>
                                                 {% endwith %}
-
-                                                {% if object.contract_address is not None %}
-                                                    <tr data-hint="contract_address">
-                                                        <td>Contract address:</td>
-                                                        <td>
-                                                            <img style="width: 16px; height: 16px;"
-                                                                 src="{{ object.contract_address|get_blockies_png }}"
-                                                                 alt="">
-                                                            <a class="uk-link-reset" target="_blank"
-                                                               href="https://rinkeby.etherscan.io/address/{{ object.contract_address }}">{{ object.contract_address }}</a>
-                                                        </td>
-                                                    </tr>
-                                                {% endif %}
                                             </table>
                                             {% for item in object.profile.specialisations.all %}
                                                 <div class="chip vr-chip-border white blue-text text-lighten-2">{{ item }}</div>
@@ -303,6 +288,8 @@
                                     </div>
                                     <div class="uk-width-1-4">
                                         <div class="vr-window white uk-padding-small">
+                                            <h4 class="uk-text-bold">Position desc</h4>
+                                            <p>{% lorem 20 w random %}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -311,7 +298,6 @@
                         {% with profile.experience.all as experiences %}
                             {% if experiences %}
                                 <li>
-
                                     <div data-uk-grid>
                                         <div class="uk-width-3-4">
                                             <div class="vr-window white uk-padding-small">
@@ -322,33 +308,43 @@
                                         </div>
                                         <div class="uk-width-1-4">
                                             <div class="vr-window white uk-padding-small">
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                </li>
-                            {% endif %}
-                        {% endwith %}
-                        {% with profile.education.all as educations %}
-                            {% if educations %}
-                                <li>
-                                    <div data-uk-grid>
-                                        <div class="uk-width-3-4">
-                                            <div class="vr-window white uk-padding-small">
-                                                {% for education in educations %}
-                                                    {% include 'member_profile/include/education.html' %}
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                        <div class="uk-width-1-4">
-                                            <div class="vr-window white uk-padding-small">
+                                                <h4 class="uk-text-bold">Experiense desc</h4>
+                                                <p>{% lorem 20 w random %}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </li>
                             {% endif %}
                         {% endwith %}
+
+                        <li>
+                            <div data-uk-grid>
+                                <div class="uk-width-3-4">
+                                    <div class="vr-window white uk-padding-small">
+                                        {% for education in profile.education.all %}
+                                            {% include 'member_profile/include/education.html' %}
+                                        {% empty %}
+                                            <p>Education information not provided.</p>
+                                        {% endfor %}
+
+                                        {% if profile.additional_education.exists %}
+                                            <h5 class="uk-text-bold">Additional courses</h5>
+                                            {% for add_education in profile.additional_education.all %}
+                                                {% include 'member_profile/include/add_education.html' %}
+                                            {% endfor %}
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-4">
+                                    <div class="vr-window white uk-padding-small">
+                                        <h4 class="uk-text-bold">Education desc</h4>
+                                        <p>{% lorem %}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
                     {% endwith %}
                     {% if offer_vacancies.exists %}
                         <li>
@@ -372,6 +368,47 @@
                             </div>
                         </li>
                     {% endif %}
+                    <li>
+                        <div data-uk-grid>
+                            <div class="uk-width-3-4">
+                                <div class="vr-window white uk-padding-small">
+                                    <p class="uk-text-meta">
+                                        {% lorem 40 w random %}
+                                    </p>
+                                    <table data-hint="main_info"
+                                           class="uk-table uk-table-divider uk-table-small uk-margin-remove-bottom"
+                                           width="100%">
+                                        <colgroup>
+                                            <col width="30%">
+                                            <col width="70%">
+                                        </colgroup>
+                                        <tr>
+                                            <td>Contract address</td>
+                                            <td>
+                                                {% if object.contract_address is not None %}
+                                                    <img style="width: 16px; height: 16px;"
+                                                         src="{{ object.contract_address|get_blockies_png }}"
+                                                         alt="">&nbsp;<a class="uk-link-reset" target="_blank"
+                                                                         href="https://rinkeby.etherscan.io/address/{{ object.contract_address }}">{{ object.contract_address }}</a>
+                                                {% else %}
+                                                    <div data-uk-spinner="ratio: 0.7"></div>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </div>
+                            </div>
+                            <div class="uk-width-1-4">
+                                <div class="vr-window white uk-padding-small">
+                                    <h4 class="uk-text-bold">
+                                        Blockchain info
+                                    </h4>
+                                    <p>{% lorem 20 w random %}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>

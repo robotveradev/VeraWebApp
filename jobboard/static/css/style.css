@@ -205,15 +205,15 @@ table.uk-table-divider tr:first-child {
 }
 
 .profile_main_left {
-    transform: translateY(-100px);
     text-align: center;
 }
 
 .profile_main_left .image-wrapper {
-    min-height: 142px;
-    background: white;
+    /*min-height: 142px;*/
+    /*background: white;*/
     border-radius: 5px;
-    box-shadow: 0 2px 2px 0 lightgrey;
+    /*box-shadow: 0 2px 2px 0 lightgrey;*/
+    transform: translateY(-100px);
 }
 
 .company-item {

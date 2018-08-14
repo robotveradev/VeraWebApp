@@ -8,7 +8,7 @@
             {% with user.profile.photo as photo %}
                 <div class="image-wrapper">
                     {% if photo %}
-                        <img class="uk-border-rounded" style="width: 100%"
+                        <img class="uk-border-rounded" width="100%"
                              src="{{ photo.url }}"/>
                     {% else %}
                         <img class="uk-border-rounded" width="100%"
@@ -16,30 +16,6 @@
                     {% endif %}
                 </div>
             {% endwith %}
-            <h5>Extra links</h5>
-            <ul class="uk-nav uk-nav-default">
-                <li>
-                    <a href="#">
-                        <span class="uk-margin-small-right"
-                              data-uk-icon="icon: world"></span>
-                        Some
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <span class="uk-margin-small-right"
-                              data-uk-icon="icon: grid"></span>
-                        Useful
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <span class="uk-margin-small-right"
-                              data-uk-icon="icon: users"></span>
-                        Links
-                    </a>
-                </li>
-            </ul>
         </div>
     </div>
     <div class="uk-width-4-5">
@@ -123,25 +99,6 @@
                     </tr>
                 {% endif %}
             {% endwith %}
-            <tr data-hint="contract_address">
-                <td>Contract address:</td>
-                <td>
-                    {% if user.contract_address is not None %}
-                        <img style="width: 16px; height: 16px;"
-                             src="{{ user.contract_address|get_blockies_png }}"
-                             alt="">&nbsp;<a class="uk-link-reset" target="_blank"
-                                             href="https://rinkeby.etherscan.io/address/{{ user.contract_address }}">{{ user.contract_address }}</a>
-                    {% else %}
-                        <div data-uk-spinner="ratio: 0.7"></div>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr data-hint="balance">
-                <td>Balance:</td>
-                <td>
-                    {% get_balance user %}
-                </td>
-            </tr>
         </table>
         {% for item in user.profile.specialisations.all %}
             <div class="chip white blue-text text-lighten-2 vr-chip-border">{{ item }}</div>
