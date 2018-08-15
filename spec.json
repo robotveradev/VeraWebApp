@@ -1,0 +1,5266 @@
+[
+  {
+    "model": "jobboard.specialisation",
+    "pk": 10,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Architecture and Engineering"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 11,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Aerospace Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 12,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Architect"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 13,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Biomedical Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 14,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Chemical Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 15,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Civil Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 16,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Construction Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 17,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Controls Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 18,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Design Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 19,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Drafter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 20,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Electrical Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 21,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Electronics Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 22,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Electronics Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 23,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Engineering Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 24,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Entry Level Electrical EngineerEnvironmental Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 25,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Field Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 26,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Industrial Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 27,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Manufacturing Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 28,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Materials Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 29,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Mechanical Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 30,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Packaging Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 31,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Process Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 32,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Product Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 33,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Project Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 34,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Project Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 35,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Quality Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 36,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Safety Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 37,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Structural Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 38,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Validation Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 39,
+    "fields": {
+      "parent_specialisation": 10,
+      "title": "Welding Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 40,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Arts, Design, and Media"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 41,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Account Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 42,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Art Director"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 43,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Communications Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 44,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Communications Specialist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 45,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Content Writer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 46,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Creative Director"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 47,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Editor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 48,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Editorial Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 49,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Graphic Artist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 50,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Graphic Designer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 51,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Illustrator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 52,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Interior Designer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 53,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Interpreter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 54,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Journalist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 55,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Marketing Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 56,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Marketing Coordinator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 57,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Marketing Specialist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 58,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Medical Writer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 59,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Merchandiser"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 60,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Photographer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 61,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Producer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 62,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Production Artist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 63,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Proofreader"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 64,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Retail Merchandiser"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 65,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Technical Writer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 66,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Translator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 67,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Videographer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 68,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Visual Merchandiser"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 69,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Web Designer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 70,
+    "fields": {
+      "parent_specialisation": 40,
+      "title": "Writer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 71,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Building Maintenance"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 72,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Butler"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 73,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Custodian"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 74,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Director of Housekeeping"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 75,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Environmental Services Director"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 76,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Environmental Services Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 77,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Environmental Services Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 78,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Environmental Services Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 79,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Exterminator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 80,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Floor Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 81,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "General Cleaner"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 82,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Grounds Keeper"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 83,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Grounds Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 84,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Housekeeper"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 85,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Housekeeping Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 86,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Housekeeping Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 87,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Houseperson"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 88,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Irrigation Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 89,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Janitor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 90,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Janitorial Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 91,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Landscape Foreman"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 92,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Landscape Laborer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 93,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Landscape Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 94,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Maintenance Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 95,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Maintenance Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 96,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Pest Control Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 97,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Porter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 98,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Room Attendant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 99,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Sanitation Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 100,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Tree Trimmer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 101,
+    "fields": {
+      "parent_specialisation": 71,
+      "title": "Washer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 102,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Business and Financial Operations"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 103,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Accountant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 104,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Assistant Controller"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 105,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Auditor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 106,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Budget Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 107,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Business Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 108,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Claims Adjuster"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 109,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Compensation Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 110,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Construction Estimator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 111,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Consultant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 112,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Corporate Trainer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 113,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Cost Accountant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 114,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Credit Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 115,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Data Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 116,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Estimator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 117,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Event Coordinator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 118,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Financial Advisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 119,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Financial Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 120,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Insurance Adjuster"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 121,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Investment Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 122,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Loan Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 123,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Logistics Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 124,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Mortgage Underwriter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 125,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Plant Controller"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 126,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Project Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 127,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Property Accountant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 128,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Recruiter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 129,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Staff Accountant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 130,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Staffing Coordinator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 131,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Tax Accountant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 132,
+    "fields": {
+      "parent_specialisation": 102,
+      "title": "Training Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 133,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Community and Social Service"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 134,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Academic Advisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 135,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Admissions Advisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 136,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Admissions Counselor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 137,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Admissions Representative"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 138,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Behavior Specialist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 139,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Career Counselor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 140,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Case Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 141,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Chaplain"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 142,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Clinical Social Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 143,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Clinician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 144,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Counselor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 145,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Direct Support Professional"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 146,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Health Educator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 147,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Job Coach"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 148,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Medical Social Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 149,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Mental Health Clinician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 150,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Mental Health Counselor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 151,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Mental Health Professional"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 152,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Mental Health Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 153,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Mental Health Therapist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 154,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Mental Health Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 155,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Probation Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 156,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Psychologist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 157,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Residential Counselor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 158,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Social Work Case Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 159,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Social Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 160,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Substance Abuse Counselor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 161,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Therapeutic Staff Support"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 162,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Therapist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 163,
+    "fields": {
+      "parent_specialisation": 133,
+      "title": "Youth Counselor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 164,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Construction"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 165,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Assistant Construction Superintendent"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 166,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Building Inspector"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 167,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Carpenter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 168,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Concrete Finisher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 169,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Concrete Foreman"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 170,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Concrete Superintendent"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 171,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Construction Foreman"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 172,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Construction Inspector"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 173,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Construction Laborer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 174,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Construction Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 175,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Driller"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 176,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Electrical Apprentice"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 177,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Electrical Helper"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 178,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Electrical Superintendent"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 179,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Electrician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 180,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Electrician Apprentice"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 181,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Electrician Helper"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 182,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Equipment Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 183,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Foreman"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 184,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "General Laborer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 185,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Industrial Electrician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 186,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Journeyman Electrician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 187,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Maintenance Electrician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 188,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Master Electrician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 189,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Painter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 190,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Pipe Fitter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 191,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Plumber"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 192,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Roofer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 193,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Roustabout"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 194,
+    "fields": {
+      "parent_specialisation": 164,
+      "title": "Superintendent"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 195,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Education"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 196,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Adjunct Faculty"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 197,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Adjunct Instructor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 198,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Adjunct Professor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 199,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Cosmetology Instructor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 200,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Criminal Justice Instructor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 201,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Director of Education"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 202,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Elementary School Teacher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 203,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "English Instructor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 204,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "English Teacher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 205,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Instructional Designer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 206,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Instructor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 207,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Kindergarten Teacher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 208,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Librarian"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 209,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Medical Assistant Instructor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 210,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Nurse Educator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 211,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Nursing Instructor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 212,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Paraprofessional"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 213,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Physical Education Teacher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 214,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Preschool Teacher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 215,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Professor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 216,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Psychology Instructor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 217,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Science Teacher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 218,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Social Studies Teacher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 219,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Spanish Teacher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 220,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Substitute Teacher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 221,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Teacher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 222,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Teacher Aide"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 223,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Teacher Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 224,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Teaching Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 225,
+    "fields": {
+      "parent_specialisation": 195,
+      "title": "Tutor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 226,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Farming, Fishing, and Forestry"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 227,
+    "fields": {
+      "parent_specialisation": 226,
+      "title": "Deckhand"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 228,
+    "fields": {
+      "parent_specialisation": 226,
+      "title": "Farm Hand"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 229,
+    "fields": {
+      "parent_specialisation": 226,
+      "title": "Farm Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 230,
+    "fields": {
+      "parent_specialisation": 226,
+      "title": "Fisherman"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 231,
+    "fields": {
+      "parent_specialisation": 226,
+      "title": "Food Inspector"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 232,
+    "fields": {
+      "parent_specialisation": 226,
+      "title": "General Laborer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 233,
+    "fields": {
+      "parent_specialisation": 226,
+      "title": "Picker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 234,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Food Services"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 235,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Baker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 236,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Banquet Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 237,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Banquet Server"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 238,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Bar Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 239,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Barista"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 240,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Bartender"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 241,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Busser"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 242,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Catering Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 243,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Chef"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 244,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Chef Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 245,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Cocktail Server"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 246,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Cook"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 247,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Dietary Cook"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 248,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Dishwasher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 249,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Executive Chef"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 250,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Food Server"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 251,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Food Service Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 252,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Food Service Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 253,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Food Service Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 254,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Greeter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 255,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Kitchen Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 256,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Kitchen Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 257,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Line Cook"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 258,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Pastry Chef"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 259,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Prep Cook"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 260,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Restaurant Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 261,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Restaurant Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 262,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Server"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 263,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Shift Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 264,
+    "fields": {
+      "parent_specialisation": 234,
+      "title": "Sous Chef"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 265,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Healthcare Practitioners and Technical"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 266,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Activity Director"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 267,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Case Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 268,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Dental Hygienist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 269,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Dentist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 270,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Dietitian"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 271,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Director of Nursing"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 272,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Home Health Nurse"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 273,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Laboratory Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 274,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Licensed Practical Nurse"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 275,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Medical Coder"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 276,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Medical Records Clerk"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 277,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Medical Technologist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 278,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Nurse Educator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 279,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Nurse Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 280,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Nurse Practitioner"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 281,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Occupational Therapist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 282,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Paramedic"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 283,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Patient Care Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 284,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Pharmacist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 285,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Pharmacy Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 286,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Physical Therapist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 287,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Physician Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 288,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Registered Nurse"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 289,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Remote Medical Coder"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 290,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Respiratory Therapist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 291,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "School Nurse"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 292,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Speech Language Pathologist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 293,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Surgical Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 294,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Surgical Technologist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 295,
+    "fields": {
+      "parent_specialisation": 265,
+      "title": "Utilization Review Nurse"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 296,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Healthcare Support"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 297,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Certified Medical Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 298,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Certified Medication Aide"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 299,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Certified Nursing Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 300,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Certified Occupational Therapy Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 301,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Clinical Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 302,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Dental Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 303,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Dietary Aide"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 304,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Health Care Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 305,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Home Health Aide"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 306,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Hospice Aide"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 307,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Laboratory Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 308,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Massage Therapist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 309,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Medical Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 310,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Medical Transcriptionist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 311,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Nurse Aide"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 312,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Nurse Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 313,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Occupational Therapy Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 314,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Orthodontic Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 315,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Patient Care Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 316,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Patient Care Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 317,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Phlebotomist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 318,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Phlebotomy Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 319,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Physical Therapist Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 320,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Physical Therapy Aide"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 321,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Physical Therapy Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 322,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Registered Dental Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 323,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Sterile Processing Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 324,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Transcriptionist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 325,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Unit Clerk"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 326,
+    "fields": {
+      "parent_specialisation": 296,
+      "title": "Veterinary Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 327,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Installation, Maintenance, and Repair"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 328,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Aircraft Mechanic"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 329,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Automotive Service Advisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 330,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Automotive Service Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 331,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Automotive Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 332,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Avionics Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 333,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Biomedical Equipment Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 334,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Cable Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 335,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Diesel Mechanic"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 336,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Diesel Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 337,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Electronic Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 338,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Equipment Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 339,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Field Service Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 340,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Field Service Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 341,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Handyman"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 342,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Installation Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 343,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Instrumentation Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 344,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Machine Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 345,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Maintenance Electrician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 346,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Maintenance Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 347,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Maintenance Mechanic"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 348,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Maintenance Planner"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 349,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Maintenance Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 350,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Maintenance Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 351,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Repair Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 352,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Service Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 353,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Shop Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 354,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Telecommunications Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 355,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Tower Climber"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 356,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Trailer Mechanic"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 357,
+    "fields": {
+      "parent_specialisation": 327,
+      "title": "Welder"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 358,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Legal"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 359,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Contract Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 360,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Corporate Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 361,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Corporate Counsel"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 362,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Corporate Paralegal"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 363,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Foreclosure Paralegal"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 364,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "General Counsel"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 365,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Healthcare Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 366,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Immigration Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 367,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Immigration Paralegal"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 368,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "In-House Counsel"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 369,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Intellectual Property Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 370,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Law Clerk"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 371,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Lawyer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 372,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Legal Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 373,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Legal Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 374,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Legal Clerk"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 375,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Legal Counsel"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 376,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Litigation Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 377,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Litigation Paralegal"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 378,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Paralegal"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 379,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Patent Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 380,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Personal Injury Paralegal"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 381,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Real Estate Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 382,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Real Estate Paralegal"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 383,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Staff Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 384,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Tax Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 385,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Title Closer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 386,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Title Examiner"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 387,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Title Processor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 388,
+    "fields": {
+      "parent_specialisation": 358,
+      "title": "Trademark Attorney"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 389,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Life, Physical, and Social Science"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 390,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Analytical Scientist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 391,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Biochemist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 392,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Biological Scientist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 393,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Biologist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 394,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Chemical Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 395,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Chemist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 396,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Clinical Laboratory Scientist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 397,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Clinical Research Associate"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 398,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Economist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 399,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Environmental Scientist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 400,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Environmental Specialist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 401,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Environmental Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 402,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Field Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 403,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Food Scientist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 404,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Food Technologist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 405,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Formulation Chemist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 406,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Geologist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 407,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Laboratory Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 408,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Laboratory Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 409,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Laboratory Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 410,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Materials Scientist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 411,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Medical Science Liaison"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 412,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Microbiologist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 413,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Psychologist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 414,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Quality Assurance Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 415,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Research Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 416,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Research Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 417,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Research Associate"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 418,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Research Scientist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 419,
+    "fields": {
+      "parent_specialisation": 389,
+      "title": "Research Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 420,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Management"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 421,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Account Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 422,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Call Center Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 423,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Construction Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 424,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Construction Superintendent"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 425,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Controller"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 426,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Director of Operations"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 427,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Distribution Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 428,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "District Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 429,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Executive Director"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 430,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Finance Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 431,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "General Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 432,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Human Resources Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 433,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Manufacturing Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 434,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Marketing Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 435,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Nursing Home Administrator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 436,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Office Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 437,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Operations Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 438,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Plant Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 439,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Product Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 440,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Program Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 441,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Project Coordinator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 442,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Project Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 443,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Property Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 444,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Purchasing Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 445,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Restaurant Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 446,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Sales Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 447,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Store Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 448,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Transportation Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 449,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Vice President"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 450,
+    "fields": {
+      "parent_specialisation": 420,
+      "title": "Warehouse Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 451,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Manufacturing and Production"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 452,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Chemical Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 453,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "CNC Machinist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 454,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "CNC Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 455,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "CNC Programmer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 456,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Distribution Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 457,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Electronic Assembler"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 458,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "General Laborer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 459,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Lab Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 460,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Machine Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 461,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Machinist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 462,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Maintenance Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 463,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Manual Machinist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 464,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Manufacturing Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 465,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Manufacturing Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 466,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Mechanical Assembler"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 467,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Operations Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 468,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Painter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 469,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Plant Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 470,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Press Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 471,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Process Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 472,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Production Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 473,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Production Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 474,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Production Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 475,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Production Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 476,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Quality Control Inspector"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 477,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Quality Inspector"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 478,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Quality Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 479,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Quality Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 480,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Welder"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 481,
+    "fields": {
+      "parent_specialisation": 451,
+      "title": "Welding Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 482,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Office and Administrative Support"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 483,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Accounting Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 484,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Accounting Clerk"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 485,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Administrative Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 486,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Bank Teller"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 487,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Call Center Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 488,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Clerk"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 489,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Collector"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 490,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Customer Service Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 491,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Customer Service Representative"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 492,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Customer Service Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 493,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Data Entry Clerk"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 494,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Dispatcher"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 495,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Executive Administrative Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 496,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Executive Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 497,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "File Clerk"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 498,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Human Resources Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 499,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Legal Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 500,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Legal Secretary"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 501,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Loan Processor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 502,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Mail Clerk"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 503,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Medical Biller"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 504,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Medical Receptionist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 505,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Office Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 506,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Office Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 507,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Personal Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 508,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Receptionist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 509,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Secretary"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 510,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Teller"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 511,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Warehouse Associate"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 512,
+    "fields": {
+      "parent_specialisation": 482,
+      "title": "Warehouse Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 513,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Personal Care and Service"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 514,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Activities Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 515,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Activities Coordinator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 516,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Activities Director"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 517,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Caregiver"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 518,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Caretaker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 519,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Concierge"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 520,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Cosmetologist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 521,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Doorman"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 522,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Embalmer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 523,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Esthetician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 524,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Fitness Instructor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 525,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Fitness Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 526,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Fitness Specialist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 527,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Fitness Trainer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 528,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Groomer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 529,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Hair Stylist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 530,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Nanny"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 531,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Personal Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 532,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Personal Care Aide"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 533,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Personal Care Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 534,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Personal Trainer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 535,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Pet Groomer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 536,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Recreation Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 537,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Recreation Director"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 538,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Recreation Specialist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 539,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Resident Assistant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 540,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Salon Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 541,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Stylist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 542,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Valet"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 543,
+    "fields": {
+      "parent_specialisation": 513,
+      "title": "Wellness Coordinator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 544,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Protective Services"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 545,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Armed Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 546,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Armed Security Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 547,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Asset Protection Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 548,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Background Investigator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 549,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Correctional Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 550,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Detention Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 551,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Driver/Guard"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 552,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Facility Security Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 553,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Fire Chief"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 554,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Fire Fighter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 555,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Fire Inspector"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 556,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Fraud Investigator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 557,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Intelligence Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 558,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Law Enforcement Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 559,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Lifeguard"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 560,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Loss Prevention Associate"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 561,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Loss Prevention Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 562,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Patrol Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 563,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Police Chief"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 564,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Police Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 565,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Public Safety Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 566,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Security Director"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 567,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Security Guard"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 568,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Security Investigator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 569,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Security Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 570,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Security Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 571,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Security Specialist"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 572,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Security Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 573,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Sheriff"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 574,
+    "fields": {
+      "parent_specialisation": 544,
+      "title": "Transportation Security Officer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 575,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Sales"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 576,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Account Executive"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 577,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Account Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 578,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Account Representative"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 579,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Appointment Setter"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 580,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Assistant Store Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 581,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Brand Ambassador"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 582,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Business Development Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 583,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Cashier"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 584,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Field Representative"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 585,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Inside Sales Representative"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 586,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Insurance Sales Agent"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 587,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Leasing Agent"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 588,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Leasing Consultant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 589,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Medical Sales Representative"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 590,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Parts Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 591,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Personal Banker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 592,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Real Estate Agent"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 593,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Retail Sales Associate"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 594,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Sales Associate"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 595,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Sales Consultant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 596,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Sales Coordinator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 597,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Sales Director"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 598,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Sales Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 599,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Sales Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 600,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Sales Representative"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 601,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Store Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 602,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Teller"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 603,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Trader"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 604,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Travel Agent"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 605,
+    "fields": {
+      "parent_specialisation": 575,
+      "title": "Travel Consultant"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 606,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Technology"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 607,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": ".Net Developer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 608,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Android Developer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 609,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Build Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 610,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Business Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 611,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Data Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 612,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Database Administrator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 613,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "ETL Developer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 614,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Informatica Developer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 615,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "IT Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 616,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Java Developer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 617,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Mainframe Developer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 618,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Network Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 619,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Network Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 620,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Oracle Developer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 621,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "PC Technician"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 622,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Product Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 623,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Programmer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 624,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Project Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 625,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Project Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 626,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Scrum Master"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 627,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "SharePoint Developer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 628,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Software Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 629,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Software Tester"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 630,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "SQL Developer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 631,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Systems Administrator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 632,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Systems Analyst"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 633,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Systems Engineer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 634,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Web Designer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 635,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Web Developer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 636,
+    "fields": {
+      "parent_specialisation": 606,
+      "title": "Windows Administrator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 637,
+    "fields": {
+      "parent_specialisation": null,
+      "title": "Transportation and Moving"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 638,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Bus Driver"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 639,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Chauffeur"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 640,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Courier"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 641,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Crane Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 642,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Delivery Driver"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 643,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Distribution Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 644,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Dock Worker"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 645,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Driver Helper"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 646,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Equipment Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 647,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Forklift Driver"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 648,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Forklift Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 649,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Laborer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 650,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Loader"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 651,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Machine Operator"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 652,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Material Handler"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 653,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Package Handler"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 654,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Packer"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 655,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Route Sales Driver"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 656,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Shipping Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 657,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Shipping Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 658,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Shuttle Driver"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 659,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Terminal Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 660,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Transportation Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 661,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Transportation Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 662,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Truck Driver"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 663,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Warehouse Driver"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 664,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Warehouse Lead"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 665,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Warehouse Manager"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 666,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Warehouse Supervisor"
+    }
+  },
+  {
+    "model": "jobboard.specialisation",
+    "pk": 667,
+    "fields": {
+      "parent_specialisation": 637,
+      "title": "Warehouse Worker"
+    }
+  }
+]
