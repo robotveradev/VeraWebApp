@@ -55,8 +55,7 @@ class Action(models.Model):
         if self.pipeline:
             if self.pipeline.vacancy:
                 vacancy = self.pipeline.vacancy
-                oracle = OracleHandler()
-                return oracle.get_action(vacancy.company.contract_address, vacancy.uuid, self.index)
+                return OracleHandler().get_action(vacancy.company.contract_address, vacancy.uuid, self.index)
         return None
 
     @property

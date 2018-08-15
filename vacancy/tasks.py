@@ -4,7 +4,6 @@ import logging
 
 from celery import shared_task
 
-from jobboard.handlers.employer import EmployerHandler
 from jobboard.handlers.member import MemberInterface
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.tasks import save_txn, save_txn_to_history
@@ -22,10 +21,15 @@ def new_vacancy(vacancy_id):
         logger.warning('Vacancy {} not found and will not be published'.format(vacancy_id))
     else:
         mi = MemberInterface(contract_address=vacancy.created_by.contract_address)
-        txn_hash = mi.new_vacancy(vacancy.company.contract_address,
-                                  vacancy.uuid,
-                                  int(vacancy.allowed_amount) * 10 ** 18)
-        if txn_hash:
+        try:
+            txn_hash = mi.new_vacancy(vacancy.company.contract_address,
+                                      vacancy.uuid,
+                                      int(vacancy.allowed_amount) * 10 ** 18)
+        except Exception as e:
+            logger.error('Error deploy new vacancy: {}, vacancy deleted'.format(e))
+            vacancy.delete()
+            return False
+        else:
             save_txn_to_history.apply_async(args=(vacancy.created_by.id, txn_hash.hex(),
                                                   'Creation of a new vacancy: {}'.format(vacancy.title)), countdown=0.2)
             save_txn.apply_async(args=(txn_hash.hex(), 'NewVacancy', vacancy.created_by.id, vacancy.id), countdown=0.2)
@@ -80,25 +84,36 @@ def change_status(vacancy_id, member_id):
 
 
 @shared_task
-def change_vacancy_allowed_amount(vacancy_id):  # todo
+def change_vacancy_allowed_amount(vacancy_id, sender_id):
     try:
-        vacancy = Vacancy.objects.get(pk=vacancy_id)
-    except Vacancy.DoesNotExist:
-        logger.warning('Vacancy {} not found, allowed will not be changed'.format(vacancy_id))
+        sender = Member.objects.get(pk=sender_id)
+    except Member.DoesNotExist:
+        logger.warning('Member {} not found, vacancy allowed amount will not be changed'.format(sender_id))
         return False
     else:
-        emp_h = EmployerHandler(contract_address=vacancy.employer.contract_address)
-        oracle = OracleHandler()
-        old_vacancy = oracle.vacancy(vacancy.uuid)
-        if old_vacancy['allowed_amount'] != int(vacancy.allowed_amount) * 10 ** 18:
-            txn_hash = emp_h.change_vacancy_allowance_amount(vacancy.uuid, int(vacancy.allowed_amount) * 10 ** 18)
-            if txn_hash:
-                save_txn_to_history.apply_async(args=(vacancy.employer.user.id, txn_hash.hex(),
-                                                      'Vacancy allowed amount changed: {}'.format(vacancy.title)),
-                                                countdown=0.1)
-                save_txn.apply_async(
-                    args=(txn_hash.hex(), 'VacancyAllowedChanged', vacancy.employer.user.id, vacancy.id),
-                    countdown=0.1)
+        try:
+            vacancy = Vacancy.objects.get(pk=vacancy_id)
+        except Vacancy.DoesNotExist:
+            logger.warning('Vacancy {} not found, allowed will not be changed'.format(vacancy_id))
+            return False
+        else:
+            mi = MemberInterface(contract_address=sender.contract_address)
+
+            if vacancy.chain['allowed_amount'] != int(vacancy.allowed_amount) * 10 ** 18:
+                try:
+                    txn_hash = mi.change_vacancy_allowance_amount(vacancy.company.contract_address, vacancy.uuid,
+                                                                  int(vacancy.allowed_amount) * 10 ** 18)
+                except Exception as e:
+                    logger.error('Error changing vacancy allowed amount: {}'.format(e))
+                    return False
+                else:
+                    save_txn_to_history.apply_async(args=(sender_id, txn_hash.hex(),
+                                                          'Vacancy allowed amount changed: {}'.format(vacancy.title)),
+                                                    countdown=0.1)
+                    save_txn.apply_async(
+                        args=(txn_hash.hex(), 'VacancyAllowedChanged', sender_id, vacancy.id),
+                        countdown=0.1)
+                    return True
 
 
 @shared_task

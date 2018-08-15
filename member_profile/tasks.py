@@ -30,7 +30,7 @@ def change_member_status(member_id, status):
             save_txn.delay(txn_hash.hex(), 'ChangeStatus', member_id, member_id)
             save_txn_to_history.delay(member_id, txn_hash.hex(),
                                       'Status changed to {}'.format(OracleHandler().statuses[int(status)]))
-    return True
+        return True
 
 
 @shared_task

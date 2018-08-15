@@ -22,6 +22,7 @@ def new_action(action):
                                  appr=action['approvable'])
     except Exception as e:
         logger.warning('Cant create new action, {} {}'.format(action['id'], e))
+        return False
     else:
         vacancy = Vacancy.objects.get(uuid=action['vacancy_uuid'])
         save_txn_to_history.apply_async(args=(action['created_by'], txn_hash.hex(),
@@ -29,6 +30,7 @@ def new_action(action):
                                         countdown=0.1)
         save_txn.apply_async(args=(txn_hash.hex(), 'NewAction', action['created_by'], action['id'], vacancy.id),
                              countdown=0.1)
+        return True
 
 
 @shared_task
@@ -112,12 +114,14 @@ def action_with_candidate(vacancy_id, candidate_id, action, sender_id):
     except Vacancy.DoesNotExist:
         logger.warning(
             'Vacancy {} not found, action with candidate {} will not be provided'.format(vacancy_id, candidate_id))
+        return False
     else:
         try:
             candidate = Member.objects.get(pk=candidate_id)
         except Member.DoesNotExist:
             logger.warning('Candidate {} do not found, action with vacancy {} will not be provided'.format(candidate_id,
                                                                                                            vacancy_id))
+            return False
         else:
             mi = MemberInterface(contract_address=sender.contract_address)
             if action == 'approve':
@@ -137,6 +141,7 @@ def action_with_candidate(vacancy_id, candidate_id, action, sender_id):
                                               vacancy.title))
                 save_txn_to_history.delay(candidate_id, txn_hash.hex(),
                                           '{} on vacancy {}.'.format(action.capitalize(), vacancy.title))
+                return True
 
 
 @shared_task
@@ -146,14 +151,17 @@ def candidate_level_up(vacancy_id, candidate_id):
         candidate = Member.objects.get(pk=candidate_id)
     except Vacancy.DoesNotExist:
         logger.warning('Vacancy {} not found, candidate will not be leveled up.'.format(vacancy_id))
+        return False
     except Member.DoesNotExist:
         logger.warning('Member {} not found and will not be leveled up.'.format(candidate_id))
+        return False
     else:
         oracle = OracleHandler()
         try:
             txn_hash = oracle.level_up(vacancy.company.contract_address, vacancy.uuid, candidate.contract_address)
         except Exception as e:
             logger.error('Error auto level up member {} on vacancy {}: {}'.format(candidate_id, vacancy_id, e))
+            return False
         else:
             save_txn_to_history.delay(candidate_id, txn_hash.hex(), 'Level up on vacancy {}'.format(vacancy.title))
-    return True
+        return True

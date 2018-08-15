@@ -175,3 +175,10 @@ class MemberInterface:
                                                                                                  index)
         self.lockAccount()
         return txn_hash
+
+    def change_vacancy_allowance_amount(self, company_address, vac_uuid, allowed):
+        self.unlockAccount()
+        txn_hash = self.contract.transact({'from': self.account}).change_vacancy_allowance_amount(company_address,
+                                                                                                  vac_uuid, allowed)
+        self.lockAccount()
+        return txn_hash
