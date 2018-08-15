@@ -19,7 +19,9 @@ logger = logging.getLogger(__name__)
 
 @shared_task
 def verify_company(company_id):
-    """Must set company.verified = True if company verified successfully"""
+    """
+    Must set company.verified = True if company verified successfully
+    """
     return True
 
 
@@ -34,6 +36,7 @@ def deploy_new_company(company_id):
         instance = Company.objects.get(pk=company_id)
     except Company.DoesNotExist:
         logger.error('Company with id {} not found, contract will bot be deployed.'.format(company_id))
+        return False
     else:
         oracle = OracleHandler()
         w3 = utils.get_w3()
@@ -51,7 +54,7 @@ def deploy_new_company(company_id):
         try:
             txn_hash = obj.deploy(transaction={'from': oracle.account}, args=args)
         except Exception as e:
-            logger.warning('Error while deploy new company contract. Company {}, ex {}'.format(company_id, e))
+            logger.warning('Error while deploy new company contract. Company {}: {}'.format(company_id, e))
         else:
             logger.info('Lock account: {}'.format(oracle.lockAccount()))
             save_txn.delay(txn_hash.hex(), 'NewCompany', instance.created_by.id, company_id)
@@ -95,6 +98,7 @@ def change_member_role(company_address, member_id, sender_id, role):
         mi = MemberInterface(sender.contract_address)
         c_role = company_member_role(company_address, member.contract_address)
         if role == c_role:
+            logger.info('Member already {} in company {}'.format(role, company_address))
             return False
 
         if c_role == 'owner':

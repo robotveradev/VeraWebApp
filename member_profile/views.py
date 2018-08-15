@@ -98,7 +98,8 @@ class NewExperienceView(NewProfileFragmentMixin, CreateView):
 
     def process_request(self):
         organization_id = self.request.POST.get('organization_id')
-        if organization_id:
+        company = Company.objects.get(pk=organization_id)
+        if organization_id and self.request.user not in company.members:
             try:
                 RequestToCompany.objects.create(company_id=organization_id, member=self.request.user)
             except IntegrityError:

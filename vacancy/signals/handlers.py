@@ -23,6 +23,6 @@ def new_subscribe_entry(sender, instance, created, **kwargs):
 def change_vacancy_status(sender, instance, created, **kwargs):
     if instance.published:
         if hasattr(instance, 'change_status') and instance.change_status:
-            change_status.delay(instance.id, instance.change_by.id)
+            change_status.delay(instance.id, instance.changed_by.id)
         elif hasattr(instance, 'allowed_changed') and instance.allowed_changed:
-            change_vacancy_allowed_amount.delay(instance.id)
+            change_vacancy_allowed_amount.delay(instance.id, instance.changed_by.id)

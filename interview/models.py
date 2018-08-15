@@ -98,3 +98,5 @@ class InterviewPassed(models.Model):
     data = JSONField(blank=True,
                      null=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    duration = models.DurationField(blank=True,
+                                    null=True)

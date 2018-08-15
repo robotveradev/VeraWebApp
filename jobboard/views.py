@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, DetailView, RedirectView, ListView, FormView
 from web3.utils.validation import validate_address
 
+from company.models import Company
 from jobboard.forms import LearningForm, WorkedForm, CertificateForm, AchievementForm, VerifyFactForm, CustomFactForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
@@ -358,7 +359,6 @@ class CandidateProfileView(DetailView):
 
 
 class FindFieldView(View):
-    # todo убрать
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         if not is_authenticated(request.user):
@@ -369,22 +369,11 @@ class FindFieldView(View):
         return self.post(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        model = kwargs.get('model')
-        field = kwargs.get('field')
         name = request.POST.get('name')
-        from django.contrib.contenttypes.models import ContentType
-        try:
-            model_object = ContentType.objects.get(model=model)
-        except ContentType.DoesNotExist:
-            return JsonResponse({})
-        else:
-            model_class = model_object.model_class()
-            if not hasattr(model_class, field):
-                return JsonResponse({}, status=200)
-            filters = {'{}__icontains'.format(field): name}
-            finded = model_class.objects.values('id', field).filter(**filters)[:10]
-            dict_f = [{'id': i['id'], field: i['name']} for i in finded]
-            return JsonResponse(dict_f, safe=False, status=200)
+
+        finded = Company.objects.values('id', 'name').filter(name__icontains=name)
+        dict_f = [{'id': i['id'], 'name': i['name']} for i in finded]
+        return JsonResponse(dict_f, safe=False, status=200)
 
 
 class AddFactConfirmation(FormView):

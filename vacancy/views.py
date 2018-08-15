@@ -167,7 +167,7 @@ class ChangeVacancyStatus(RedirectView):
             if self.object.enabled is not None:
                 self.object.enabled = None
                 self.object.change_status = True
-                self.object.change_by = request.user
+                self.object.changed_by = request.user
                 self.object.save()
         else:
             for error in set(self.errors):
@@ -238,5 +238,6 @@ class UpdateAllowedView(UpdateView):
 
     def form_valid(self, form):
         form.instance.allowed_changed = True
+        form.instance.changed_by = self.request.user
         form.save()
         return HttpResponse('ok', status=200)

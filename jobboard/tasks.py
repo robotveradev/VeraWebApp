@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 import json
 import logging
 import os
+from datetime import datetime
 
 from celery import shared_task
 from celery.app.task import Task
@@ -194,7 +195,8 @@ def new_member_instance(user_id):
         try:
             txn_hash = obj.deploy(transaction={'from': oracle.account}, args=args)
         except Exception as e:
-            logger.warning('Error while deploy new member contract. User {}, ex {}'.format(user_id, e))
+            logger.warning('Error while deploy new member contract. User {}: {}'.format(user_id, e))
+            return False
         else:
             logger.info('Lock account: {}'.format(oracle.lockAccount()))
             save_txn.delay(txn_hash.hex(), 'NewMember', user_id, user_id)
@@ -211,13 +213,17 @@ def create_abi(abi, contract):
 
 @shared_task
 def withdraw_tokens(user_id, member_address, to_address, amount):
-    wi = WithdrawableInterface(member_address)
-    txn_hash = wi.withdraw(to_address, int(float(amount) * 10 ** 18))
-    save_txn_to_history.delay(user_id, txn_hash.hex(),
-                              'Withdraw {} Vera token from {} to {}'.format(amount,
-                                                                            member_address,
-                                                                            to_address))
-    save_txn.delay(txn_hash.hex(), 'Withdraw', user_id, user_id)
+    wi = WithdrawableInterface(contract_address=member_address)
+    try:
+        txn_hash = wi.withdraw(to_address, int(float(amount) * 10 ** 18))
+    except Exception as e:
+        logger.error('Error withdraw tokens: {}'.format(e))
+    else:
+        save_txn_to_history.delay(user_id, txn_hash.hex(),
+                                  'Withdraw {} Vera token from {} to {}'.format(amount,
+                                                                                member_address,
+                                                                                to_address))
+        save_txn.delay(txn_hash.hex(), 'Withdraw', user_id, user_id)
 
 
 class ProcessZoomusEvent(Task):
@@ -241,31 +247,43 @@ class ProcessZoomusEvent(Task):
                     method = getattr(self, event)
                     method(event_dict, meet)
 
-    def meeting_ended(self, event, meeting_object):
+    def meeting_started(self, event, meeting_object):
         passed = InterviewPassed()
         passed.interview = meeting_object.action_interview
         passed.candidate = meeting_object.candidate
+        passed.recruiter = meeting_object.recruiter
         passed.data = event
         passed.save()
-        meeting_object.delete()
+
+    def meeting_ended(self, event, meeting_object):
+        try:
+            passed = InterviewPassed.objects.get(interview=meeting_object.action_interview,
+                                                 candidate=meeting_object.candidate,
+                                                 recruiter=meeting_object.recruiter)
+        except InterviewPassed.DoesNotExist:
+            logger.warning('Interview pass object not found: {}'.format(event))
+        else:
+            passed.duration = datetime.now() - passed.date_created
+            passed.save()
+            meeting_object.delete()
 
     def participant_joined(self, event, meeting_object):
-        employer = meeting_object.action_interview.employer
+        recruiter = meeting_object.recruiter
         vacancy = meeting_object.action_interview.vacancy
         candidate = meeting_object.candidate
         message = 'Candidate {} for vacancy {} already started an interview. For join interview click link {}'.format(
-            candidate.full_name, vacancy.title, meeting_object.link_start
+            candidate.full_name or candidate.username, vacancy.title, meeting_object.link_start
         )
-        send_email.delay(message=message, to=employer.user.email)
+        send_email.delay(message=message, to=recruiter.email)
 
     def meeting_jbh(self, event, meeting_object):
-        employer = meeting_object.action_interview.employer
+        recruiter = meeting_object.recruiter
         vacancy = meeting_object.action_interview.vacancy
         candidate = meeting_object.candidate
         message = 'Employer {} for vacancy {} already started an interview. For join interview click link {}'.format(
-            employer.full_name, vacancy.title, meeting_object.link_join
+            recruiter.full_name or recruiter.username, vacancy.title, meeting_object.link_join
         )
-        send_email.delay(message=message, to=candidate.user.email)
+        send_email.delay(message=message, to=candidate.email)
 
 
 app.register_task(ProcessZoomusEvent())
