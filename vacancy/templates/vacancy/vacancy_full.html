@@ -1,8 +1,8 @@
 {% extends 'jobboard/base.html' %}
 
-{% load jobboard_tags pipeline_tags vacancy_tags static %}
+{% load jobboard_tags pipeline_tags vacancy_tags static company_tags %}
 
-{% block head_title %}Vera Oracle - Vacancy {{ vacancy.title }}{% endblock %}
+{% block head_title %} Vera Platform - Vacancy {{ vacancy.title }}{% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/pipeline.css' %}">
@@ -10,63 +10,40 @@
 
 {% block content %}
     {{ block.super }}
-
-    {% if user == vacancy.owner %}
+    {% if user.is_authenticated %}
+        {% member_company_role user vacancy.company as role %}
+    {% endif %}
+    {% if role == 'owner' %}
         <form id="change_vacancy_status" action="{% url 'change_vacancy_status' pk=vacancy.id %}" method="get"></form>
     {% endif %}
 
     <div class="uk-container uk-align-center">
-        <h4 data-hint="uk-text-bold">{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.company.name|title }}</small>
-            {% if vacancy.employer == role_object %}
+        <h4 class="uk-text-bold">{{ vacancy.title|title }}, <span class="uk-text-muted"><small>{{ vacancy.company.name|title }}</small>
+            {% if role %}
                 <a href="{% url 'vacancy_edit' pk=vacancy.id %}" data-uk-icon="file-edit"></a>
             {% endif %}
         </span></h4>
+
+
         <div class="uk-margin-large-top" data-uk-grid>
             <div class="uk-width-3-4">
-                <ul data-hint="vacancy-info" data-uk-tab="#profile_container">
-                    <li class="uk-active"><a class="uk-text-capitalize" href="#">Main</a></li>
-                    <li><a class="uk-text-capitalize" href="#">Working conditions</a></li>
-                    <li><a class="uk-text-capitalize" href="#">Vacancy description</a></li>
-                    <li><a class="uk-text-capitalize" href="#">Vacancy requirement</a></li>
+                <ul data-uk-tab="connect: #vacancy-info">
+                    <li class="uk-active"><a class="uk-text-capitalize" href="#">Info</a></li>
+                    <li><a class="uk-text-capitalize" href="#">Blockchain info</a></li>
                 </ul>
             </div>
         </div>
-        <div class="uk-margin-top-small uk-margin-medium-bottom" data-uk-grid>
+
+
+        <div class="uk-margin-medium-bottom" data-uk-grid>
             <div class="uk-width-3-4">
-                <div class="vr-window white uk-padding-small">
-                    <ul id="profile_container" class="uk-switcher">
-                        <li data-hint="main-info">
-                            <table class="uk-table uk-table-divider uk-table-small" width="100%">
-                                <colgroup>
-                                    <col width="20%">
-                                    <col width="80%">
-                                </colgroup>
-                                <tbody>
-                                <tr>
-                                    <td>Vacancy uuid</td>
-                                    <td>{{ vacancy.uuid }}</td>
-                                </tr>
-                                {% if vacancy.owner == user %}
-                                    <tr>
-                                        <td>
-                                            Allowance
-                                        </td>
-                                        <td>
-                                            {% if vacancy.published %}
-                                                {{ vacancy.allowed_amount }} Vera (
-                                                <a class="uk-text-meta vr-link" href="#increase"
-                                                   data-uk-toggle>increase</a>
-                                                )
-                                            {% else %}
-                                                <div data-uk-spinner="ratio: 0.4"></div>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                                </tbody>
-                            </table>
+                <ul id="vacancy-info" class="uk-switcher">
+                    <li>
+                        <div class="vr-window white uk-padding-small">
                             <h4 class="uk-text-bold">General vacancy info</h4>
-                            <table class="uk-table uk-table-divider uk-table-small" width="100%">
+                            <table style="table-layout: fixed"
+                                   class="uk-table uk-table-divider uk-table-small uk-margin-remove-bottom"
+                                   width="100%">
                                 <colgroup>
                                     <col width="20%">
                                     <col width="80%">
@@ -91,16 +68,6 @@
                                         </td>
                                     </tr>
                                 {% endif %}
-                                </tbody>
-                            </table>
-                        </li>
-                        <li>
-                            <table class="uk-table uk-table-divider uk-table-small" width="100%">
-                                <colgroup>
-                                    <col width="20%">
-                                    <col width="80%">
-                                </colgroup>
-                                <tbody>
                                 {% with vacancy.schedule.all as schedules %}
                                     {% if schedules %}
                                         <tr>
@@ -127,7 +94,7 @@
                                                 from {{ vacancy.salary_from }} $
                                             {% endif %}
                                         {% else %}
-                                            by agreement
+                                            By agreement.
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -135,35 +102,69 @@
                                     <td>Required experience</td>
                                     <td>{{ vacancy.experience }} years.</td>
                                 </tr>
+                                {% if vacancy.description %}
+                                    <tr>
+                                        <td colspan="2">
+                                            <div>
+                                                {{ vacancy.description|safe }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% if vacancy.requirement %}
+                                    <tr>
+                                        <td colspan="2">
+                                            {{ vacancy.requirement|safe }}
+                                        </td>
+                                    </tr>
+                                {% endif %}
                                 </tbody>
                             </table>
-                        </li>
-                        <li>
-                            <div>
-                                {% if vacancy.description %}
-                                    <div>
-                                        {{ vacancy.description|safe }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </li>
-                        <li>
-                            <div>
-                                {% if vacancy.requirement %}
-                                    <div>
-                                        {{ vacancy.requirement|safe }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="vr-window white uk-padding-small">
+                            <p class="uk-text-meta uk-text-justify">{% lorem 50 w random %}</p>
+                            <table class="uk-table vr-small-table uk-table-divider uk-table-small uk-margin-remove-bottom"
+                                   width="100%">
+                                <colgroup>
+                                    <col width="30%">
+                                    <col width="70%">
+                                </colgroup>
+                                <tbody>
+                                <tr>
+                                    <td>Vacancy uuid</td>
+                                    <td>{{ vacancy.uuid }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Company contract address</td>
+                                    <td>{% if vacancy.company.contract_address is not None %}
+                                        <img style="width: 16px; height: 16px;"
+                                             src="{{ vacancy.company.contract_address|get_blockies_png }}"
+                                             alt="">&nbsp;<a class="uk-link-reset" target="_blank"
+                                                             href="https://rinkeby.etherscan.io/address/{{ vacancy.company.contract_address }}">{{ vacancy.company.contract_address }}</a>
+                                    {% else %}
+                                        <div data-uk-spinner="ratio: 0.7"></div>
+                                    {% endif %}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </li>
+                </ul>
             </div>
             <div class="uk-width-1-4">
-                <div class="uk-padding-small white vr-window">
-                    {% if role_object == vacancy.employer %}
+                <div class="uk-padding-small white vr-window uk-position-relative">
+                    {% if role == 'owner' %}
                         <h5 class="uk-text-bold uk-margin-remove-top">Vacancy status</h5>
                         {% with vacancy.enabled as en %}
+                            {% if en is None %}
+                                <div class="uk-overlay-default uk-position-cover"></div>
+                                <div class="uk-overlay uk-position-center uk-dark">
+                                    <p data-uk-spinner="ratio: 0.4">Renewal vacancy status </p>
+                                </div>
+                            {% endif %}
                             <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
                                 <label class="uk-text-bold"><input class="uk-radio" type="radio" name="status"
                                                                    {% if en %}checked{% endif %}> Enabled
@@ -192,6 +193,31 @@
                         quibusdam repudiandae?
                     {% endif %}
                 </div>
+                <br>
+                {% if role %}
+                    <div class="uk-padding-small white vr-window uk-position-relative">
+                        <h5 class="uk-text-bold uk-margin-remove-top">Vacancy info</h5>
+                        <table class="uk-table uk-table-small vr-small-table">
+                            <tr>
+                                <td>
+                                    Allowance
+                                </td>
+                                <td class="uk-text-right">
+                                    {% if vacancy.published %}
+                                        {{ vacancy.chain_allowed_amount }} Vera
+                                        {% if role == 'owner' %}
+                                            (<a class="uk-text-meta vr-link" href="#increase"
+                                                data-uk-toggle>increase</a>)
+                                        {% endif %}
+                                    {% else %}
+                                        <div data-uk-spinner="ratio: 0.4"></div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                {% endif %}
             </div>
         </div>
         <div>
@@ -209,16 +235,21 @@
         {% if not user.is_authenticated %}
             {% include 'jobboard/include/login_modal.html' with button_text='Subscribe' %}
         {% else %}
-            {% if role_object == vacancy.employer %}
-                {% employer_pipeline_for_vacancy vacancy role_object %}
-            {% elif role == 'candidate' %}
-                {% candidate_pipeline_for_vacancy vacancy role_object %}
+            {% if role %}
+                {% if role == 'member' %}
+                    {#                    todo message that company member cannot apply vacancy #}
+                {% else %}
+                    {% employer_pipeline_for_vacancy vacancy role %}
+                {% endif %}
+            {% else %}
+                {% candidate_pipeline_for_vacancy vacancy user %}
             {% endif %}
         {% endif %}
     </div>
+
     {% csrf_token %}
 
-    {% if vacancy.owner == user %}
+    {% if role == 'owner' %}
         <div id="increase" data-uk-modal>
             <div class="uk-modal-dialog">
                 <button class="uk-modal-close-default" type="button" data-uk-close></button>
@@ -236,7 +267,7 @@
                             <label class="uk-form-label" for="new_allowed">Allowed amount</label>
                             <div class="uk-form-controls">
                                 <input id="new_allowed" name="allowed_amount" class="uk-input" type="number" step="1"
-                                       value="{{ vacancy.allowed_amount }}">
+                                       value="{{ vacancy.chain_allowed_amount }}">
                             </div>
                         </div>
                     </div>
@@ -255,7 +286,7 @@
 {% block extra_js %}
     <script src="{% static 'js/pipeline.js' %}"></script>
     {% if hints_enabled %}
-        {% if role == 'candidate' %}
+        {% if not role %}
             <script src="{% static 'js/hints/vacancy.js' %}"></script>
         {% endif %}
     {% endif %}

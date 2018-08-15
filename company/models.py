@@ -1,15 +1,22 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 
 from google_address.models import Address
-from jobboard.models import Employer
+from jobboard.handlers.oracle import OracleHandler
+from users.utils import company_member_role
 
 
 class Company(models.Model):
-    employer = models.ForeignKey(Employer,
-                                 on_delete=models.SET_NULL,
-                                 null=True,
-                                 related_name='companies')
+    contract_address = models.CharField(max_length=42,
+                                        blank=True,
+                                        null=True)
+    published = models.BooleanField(default=False)
+    created_by = models.ForeignKey('users.Member',
+                                   related_name='+',
+                                   on_delete=models.SET_NULL,
+                                   null=True)
+
     logo = models.ImageField(null=True)
     name = models.CharField(max_length=512,
                             null=False,
@@ -17,9 +24,7 @@ class Company(models.Model):
     tax_number = models.CharField(max_length=64,
                                   null=False,
                                   blank=False)
-    legal_address = models.ForeignKey(Address,
-                                      on_delete=models.SET_NULL,
-                                      null=True)
+    legal_address = models.CharField(max_length=255)
     work_sector = models.CharField(max_length=512)
     date_created = models.DateField(null=True,
                                     blank=True)
@@ -36,6 +41,28 @@ class Company(models.Model):
 
     def get_absolute_url(self):
         return reverse('company', kwargs={'pk': self.pk})
+
+    @property
+    def owners(self):
+        collaborators = self.collaborators
+        return collaborators.filter(pk__in=[member.id for member in collaborators if
+                                            company_member_role(self.contract_address,
+                                                                member.contract_address) == 'owner'])
+
+    @property
+    def collaborators(self):
+        members = self.members
+        return members.filter(pk__in=[member.id for member in members if
+                                      company_member_role(self.contract_address, member.contract_address) != 'member'])
+
+    @property
+    def members(self):
+        _model = get_user_model()
+        if not self.contract_address:
+            return _model.objects.none()
+        oracle = OracleHandler()
+        members = oracle.get_company_members(self.contract_address)
+        return _model.objects.filter(contract_address__in=members)
 
 
 class Office(models.Model):
@@ -62,3 +89,15 @@ class SocialLink(models.Model):
 
     def __str__(self):
         return '{}: {}'.format(self.company.name, self.link)
+
+
+class RequestToCompany(models.Model):
+    company = models.ForeignKey(Company,
+                                on_delete=models.CASCADE,
+                                related_name='invites')
+    member = models.ForeignKey('users.Member',
+                               on_delete=models.CASCADE,
+                               related_name='+')
+
+    class Meta:
+        unique_together = (('company', 'member'),)

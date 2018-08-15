@@ -15,7 +15,6 @@ USE_DJANGO_JQUERY = getattr(settings, 'USE_DJANGO_JQUERY', False)
 
 
 class AddressWidget(forms.TextInput):
-    components = [('country', 'country')]
 
     class Media:
         """Media defined as a dynamic property instead of an inner class."""
@@ -32,34 +31,6 @@ class AddressWidget(forms.TextInput):
         attrs['class'] = classes
         kwargs['attrs'] = attrs
         super(AddressWidget, self).__init__(*args, **kwargs)
-
-    def render(self, name, value, attrs=None, **kwargs):
-
-        # Can accept None, a dictionary of values or an Address object.
-        if value in (None, ''):
-            ad = {}
-        elif isinstance(value, dict):
-            ad = value
-        elif isinstance(value, (int, long)):
-            ad = Address.objects.get(pk=value)
-            ad = ad.as_dict()
-        else:
-            ad = value.as_dict()
-
-        # Generate the elements. We should create a suite of hidden fields
-        # For each individual component, and a visible field for the raw
-        # input. Begin by generating the raw input.
-        elems = [super(AddressWidget, self).render(name, ad.get('formatted', None), attrs, **kwargs)]
-
-        # Now add the hidden fields.
-        elems.append('<div id="%s_components">' % name)
-        for com in self.components:
-            elems.append('<input type="hidden" name="%s_%s" data-geo="%s" value="%s" />' % (
-                name, com[0], com[1], ad.get(com[0], ''))
-                         )
-        elems.append('</div>')
-
-        return mark_safe(unicode('\n'.join(elems)))
 
     def value_from_datadict(self, data, files, name):
         raw = data.get(name, '')

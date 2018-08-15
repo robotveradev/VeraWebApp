@@ -2,7 +2,6 @@ import json
 
 from django.conf import settings
 from solc import compile_files
-from solc.utils.string import force_bytes
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware
 
@@ -29,9 +28,14 @@ class CandidateHandler(object):
     def unlockAccount(self):
         self.web3.personal.unlockAccount(self.account, self.__password)
 
+    def lockAccount(self):
+        return self.web3.personal.lockAccount(self.account)
+
     def get_id(self):
         return self.contract.call().id()
 
     def subscribe(self, vac_uuid):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).subscribe(vac_uuid)
+        txn_hash = self.contract.transact({'from': self.account}).subscribe(vac_uuid)
+        self.lockAccount()
+        return txn_hash

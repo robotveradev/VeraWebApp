@@ -1,0 +1,44 @@
+{% extends 'jobboard/base.html' %}
+
+{% load material_form i18n static %}
+
+{% block head_title %}Profile - New achievement{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    {{ form.media }}
+    <div class="uk-container uk-align-center">
+        <h4 class="uk-text-bold">{% trans 'Add achievement' %}</h4>
+        {% if error %}
+            <span class="center red-text">{{ error }}</span>
+        {% endif %}
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    <form class="uk-form-horizontal" action="{% url 'new_achievement' %}" method="post">
+                        {% csrf_token %}
+                        {% form form=form %}{% endform %}
+                        <button class="uk-button uk-button-primary uk-align-right uk-button-small uk-margin-remove-bottom">
+                            Save
+                        </button>
+                        <div class="uk-clearfix"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">
+                        Achievement desc
+                    </h4>
+                    <p>{% lorem %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% if hints_enabled %}
+    {% block extra_js %}
+        <script src="{% static 'js/hints/new_achievement.js' %}"></script>
+    {% endblock %}
+{% endif %}

@@ -1,40 +1,44 @@
-{% load jobboard_tags vacancy_tags statistic_tags %}
-{% with item.company.employer|is_owner:role_object as owner %}
-    <div class="uk-box-shadow-medium uk-border uk-padding-small uk-margin-small white">
+{% load jobboard_tags vacancy_tags statistic_tags company_tags user_tags pipeline_tags %}
+{% member_company_role user item.company as role %}
+<div class="vr-window uk-margin-small white">
+    {% if role and show_info %}
         <div data-uk-grid>
-            <div class="{% if not selectable %}uk-width-2-3{% endif %}">
-                <div>
-                    {% if selectable %}
-                        {% with item|is_already_offer:candidate.profile as offer %}
-                            {% url 'offer_vacancy' vacancy_id=item.id profile_id=candidate.profile.id as offer_url %}
-                            <a class="uk-button uk-button-text{% if offer %} uk-text-muted{% endif %}"
-                               href="{% if offer %}#{% else %}{{ offer_url }}{% endif %}">{{ item.title }} (Offered)</a>
-                        {% endwith %}
-                    {% else %}
-                        <a class="uk-button uk-button-text"
-                           href="{% url 'vacancy' pk=item.id %}"> <span class="uk-text-bold">{{ item.company.name }}</span>: {{ item.title }}</a>
-                    {% endif %}
-                    {% if owner and editable %}
-                        <a href="{% url 'vacancy_edit' pk=item.id %}" data-uk-icon="icon: file-edit"></a>
-                    {% endif %}
-                </div>
-                <span class="uk-text-small">created {{ item.created_at|date }}
-                    {% if item.created_at != item.updated_at %},
-                        updated {{ item.updated_at|timesince }} ago{% endif %}
+        <div class="uk-width-3-4">
+    {% endif %}
+    <div class="uk-padding-small">
+        <div>
+            <div>
+                {% if selectable %}
+                    {% url 'offer_vacancy' vacancy_id=item.id member_id=candidate.id as offer_url %}
+
+                    <a class="uk-button uk-button-text" href="{{ offer_url }}">{{ item.title }}</a>
+                {% else %}
+                    <a class="uk-button uk-button-text"
+                       href="{% url 'vacancy' pk=item.id %}"> <span
+                            class="uk-text-bold">{{ item.company.name }}</span>: {{ item.title }}</a>
+                {% endif %}
+                {% if role and editable %}
+                    <a class="uk-align-right" href="{% url 'vacancy_edit' pk=item.id %}"
+                       data-uk-icon="icon: file-edit"></a>
+                {% endif %}
+            </div>
+            <span class="uk-text-small">created {{ item.created_at|date:'j E Y' }}
+                {% if item.created_at != item.updated_at %},
+                    updated {{ item.updated_at|timesince }} ago{% endif %}
             </span>
-                <div class="uk-text-small">
+            <div class="uk-text-small">
                     <span class="grey-text">
                         {% if item.city %}
                             {{ item.city|title }}
                         {% endif %}
                         {% if item.published %}
-                            {% if owner %}
-                                {{ item.allowed_amount }} Vera
+                            {% if role %}
+                                {{ item.chain_allowed_amount }} Vera
                             {% endif %}
                         {% else %}
                             <div data-uk-spinner="ratio:0.4"></div>
                         {% endif %}
-                        {% if owner and editable %}
+                        {% if role == 'owner' and editable %}
                             {% if item.published %}
                                 {% if item.enabled is not None %}
                                     <a href="{% url 'change_vacancy_status' pk=item.id %}">
@@ -53,11 +57,44 @@
                             {% endif %}
                         {% endif %}
                     </span>
-                </div>
             </div>
         </div>
-        {% if show_info %}
-            {% statistic item %}
-        {% endif %}
     </div>
-{% endwith %}
+    {% if role and show_info %}
+        </div>
+        <div class="uk-width-1-4">
+            {% statistic item %}
+        </div>
+        </div>
+    {% endif %}
+    {% if pipeline and not role %}
+        {% member_vacancy_pass item user as vacancy_passed %}
+        {% with user|member_current_action_index:item as cur_action %}
+            <div class="pipeline uk-padding-small uk-flex uk-flex-between blue lighten-2">
+                <div class="line"></div>
+                {% for action in item.pipeline.actions.all %}
+                    <div class="action{% if cur_action >= action.index %} passed{% endif %}"></div>
+                {% endfor %}
+            </div>
+            <div class="pipeline-footer uk-padding-small uk-padding-remove-vertical uk-text-right blue lighten-2 white-text">
+                {% if not vacancy_passed %}
+                    {% for action in item.pipeline.actions.all %}
+                        {% if action.index == cur_action %}
+                            {% if action.action_type.condition_of_passage %}
+                                {% if action|action_passed:user %}
+                                    Next step: wait for employer's approval
+                                {% else %}
+                                    Next step: pass the
+                                    <a class="white-text vr-link"
+                                       href="{% url 'process_action' pk=action.id %}">{{ action.action_type.condition_of_passage }}</a>
+                                {% endif %}
+                            {% else %}
+                                Next step: wait for employer's approval
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endwith %}
+    {% endif %}
+</div>

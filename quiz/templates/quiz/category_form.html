@@ -35,5 +35,7 @@
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/hints/new_category.js' %}"></script>
+    {% if hints_enabled %}
+        <script src="{% static 'js/hints/new_category.js' %}"></script>
+    {% endif %}
 {% endblock %}

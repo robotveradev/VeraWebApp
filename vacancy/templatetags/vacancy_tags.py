@@ -1,8 +1,9 @@
 from django import template
-from candidateprofile.models import Schedule, Busyness, CandidateProfile
+
 from jobboard.handlers.oracle import OracleHandler
 from jobboard.models import Specialisation, Keyword
-from vacancy.models import CandidateOnVacancy
+from member_profile.models import Schedule, Busyness, Profile
+from vacancy.models import MemberOnVacancy
 
 register = template.Library()
 
@@ -19,17 +20,17 @@ def get_jobs_with(item, type_s, _list):
         elif type_s == 'keyword':
             count = _list.filter(keywords__in=[item, ]).count()
         elif type_s == 'salary':
-            if isinstance(_list[0], CandidateProfile):
+            if isinstance(_list[0], Profile):
                 count = _list.filter(position__salary_from__gte=item).count()
             else:
                 count = _list.filter(salary_from__gte=item).count()
         elif type_s == 'busyness':
-            if isinstance(_list[0], CandidateProfile):
+            if isinstance(_list[0], Profile):
                 count = _list.filter(position__busyness__in=[item, ]).count()
             else:
                 count = _list.filter(busyness__in=[item, ]).count()
         elif type_s == 'schedule':
-            if isinstance(_list[0], CandidateProfile):
+            if isinstance(_list[0], Profile):
                 count = _list.filter(position__schedule__in=[item, ]).count()
             else:
                 count = _list.filter(schedule__in=[item, ]).count()
@@ -153,23 +154,16 @@ def get_real_filter_name(need_key):
 
 
 @register.filter
-def get_interview_fee(uuid):
-    oracle = OracleHandler()
-    fee_list = [int(oracle.get_action(uuid, i)['fee']) for i in range(oracle.get_vacancy_pipeline_length(uuid))]
-    return '-'.join([str(i) for i in fee_list]) if sum(fee_list) > 0 else 0
+def get_interview_fee(vacancy):
+    return '-'.join([str(i.chain.fee) for i in vacancy.pipeline.actions.all()])
 
 
 @register.filter
-def is_already_offer(vacancy, cp):
-    # TODO
-    return True
-
-
-@register.filter
-def may_apply_vacancy(candidate, vacancy):
-    if not candidate.contract_address:
+def may_apply_vacancy(member, vacancy):
+    if not member.contract_address:
         return False
     oracle = OracleHandler()
-    current_action_index = oracle.get_candidate_current_action_index(vacancy.uuid, candidate.contract_address)
-    already_subscribed = CandidateOnVacancy.objects.filter(candidate=candidate, vacancy=vacancy).exists()
-    return hasattr(candidate.profile, 'position') and current_action_index == -1 and not already_subscribed
+    current_action_index = oracle.get_member_current_action_index(vacancy.company.contract_address, vacancy.uuid,
+                                                                  member.contract_address)
+    already_subscribed = MemberOnVacancy.objects.filter(member=member, vacancy=vacancy).exists()
+    return current_action_index == -1 and not already_subscribed

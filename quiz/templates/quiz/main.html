@@ -1,25 +1,55 @@
 {% extends 'jobboard/base.html' %}
 
-{% load static %}
+{% load static jobboard_tags %}
 
-{% block head_title %} Vera Oracle Quiz {% endblock %}
+{% block head_title %}Vera Platform Quiz{% endblock %}
 
 {% block content %}
     {{ block.super }}
     <div data-hint="quiz_main" class="uk-container uk-align-center">
-        <h3>Quiz</h3>
-        {% if categories %}
-            <div data-hint="categories">
-                {% for category in categories %}
-                    {% include 'quiz/include/category.html' with item=category %}
-                {% endfor %}
+        <h4 class="uk-text-bold">Quizzes</h4>
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                {% if user.companies.exists %}
+                    {% for company in user.companies.all %}
+                        <div data-hint="categories" class="uk-margin-small-bottom">
+                            <div class="uk-padding-small vr-window white">
+                                <h5>{{ company.name }}</h5>
+                                {% if company.quiz_categories.exists %}
+                                    {% for category in company.quiz_categories.all %}
+                                        {% include 'quiz/include/category.html' with item=category %}
+                                    {% endfor %}
+                                {% else %}
+                                    Company doesnt has any quiz categories yet.
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="uk-padding-small vr-window white">
+                        You do not belong to any company.
+                    </div>
+
+                {% endif %}
             </div>
-        {% endif %}
-        <div class="uk-clearfix">
+            <div class="uk-width-1-4">
+                <div class="uk-padding-small vr-window white">
+                    <h4 class="uk-text-bold">
+                        Info
+                    </h4>
+                    <ul class="uk-list uk-list-bullet">
+                        <li>Companies: {{ user.companies.count }}&nbsp;pcs.</li>
+                        <li>Categories: {{ user|get_categories_count }}&nbsp;pcs.</li>
+                    </ul>
+                    {% if user.companies.exists %}
+                        <a data-hint="new_cat" href="{% url 'new_category' %}"
+                           class="uk-button uk-button-primary uk-button-small uk-margin-remove-bottom uk-align-right">
+                            New category</a>
+                        <div class="uk-clearfix"></div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <a data-hint="new_cat" href="{% url 'new_category' %}"
-           class="uk-button uk-button-primary uk-button-small uk-align-right">New
-            category</a>
     </div>
 {% endblock %}
 

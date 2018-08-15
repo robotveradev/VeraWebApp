@@ -1,6 +1,6 @@
 {% extends 'jobboard/base.html' %}
-{% load jobboard_tags w3_tags static %}
-{% block head_title %}VeraOracle - Profile {% endblock %}
+{% load jobboard_tags w3_tags static material_form %}
+{% block head_title %}Vera Platform - Profile {% endblock %}
 
 {% block content %}
     {{ block.super }}
@@ -9,13 +9,187 @@
         <script src="{% static 'js/hints/profile.js' %}"></script>
     {% endif %}
     <div class="uk-container uk-align-center">
-        <h4 data-hint="main_info" class="uk-text-bold">{{ role|title }} profile</h4>
-        {% if role == 'candidate' %}
-            {% include 'jobboard/include/candidate_profile.html' %}
-        {% elif role == 'employer' %}
-            {% include 'jobboard/include/employer_profile.html' %}
-        {% endif %}
+        <div class="uk-margin-large-top" data-uk-grid>
+            <div class="uk-width-1-1">
+                <ul data-uk-tab="connect: #company_container">
+                    <li class="uk-active"><a class="uk-text-capitalize" href="#">Profile</a></li>
+                    <li><a class="uk-text-capitalize" href="#">Facts</a></li>
+                    <li><a class="uk-text-capitalize" href="#">Achievements</a></li>
+                    <li><a data-hint="position" class="uk-text-capitalize" href="#">Position</a></li>
+                    <li><a class="uk-text-capitalize" href="#">Experience</a></li>
+                    <li><a class="uk-text-capitalize" href="#">Education</a></li>
+                    <li><a class="uk-text-capitalize" href="#">Additional education</a></li>
+                    <li><a class="uk-text-capitalize" href="#">Blockchain info</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="uk-margin-top-small uk-margin-large-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white">
+                    <ul id="company_container" class="uk-switcher">
+                        <li>
+                            {% include 'member_profile/include/main_profile_info.html' %}
+                        </li>
+                        <li>
+                            <div>
+                                {% if user.contract_address %}
+                                    {% facts user %}
+                                    {% include 'jobboard/include/add_fact.html' %}
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% with user.profile as profile %}
+                            <li>
+                                <div class="uk-padding-small">
+                                    {% with profile.achievements.all as achievements %}
+                                        {% if achievements %}
+                                            {% for achievement in achievements %}
+                                                <p class="uk-text-lead">{{ achievement.title }}</p>
+                                                <p>{{ achievement.text|safe }}</p>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p>You have no achievements added.</p>
+                                        {% endif %}
+                                    {% endwith %}
+                                    <a href="{% url 'new_achievement' %}"
+                                       class="uk-button uk-button-small uk-align-right uk-button-default uk-margin-remove-bottom">New
+                                        achievement entry</a>
+                                    <div class="uk-clearfix"></div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="uk-padding-small">
+                                    {% if profile.position %}
+                                        <div class="uk-article">
+                                            <p class="uk-text-lead">{{ profile.position.title }}
+                                                <a class="uk-align-right" href="{% url 'position_edit' %}"
+                                                   data-uk-icon="icon: file-edit"></a>
+                                            </p>
+                                            Salary from: {{ profile.position.salary_from }}$
+                                            <ul class="uk-list uk-list-bullet">
+                                                <li>{{ profile.position.busyness.all|join:', ' }}</li>
+                                                <li>{{ profile.position.schedule.all|join:', ' }}</li>
+                                            </ul>
+                                            {% if profile.position.description %}
+                                                <p>
+                                                    {{ profile.position.description|safe }}
+                                                </p>
+                                            {% endif %}
+                                            {% if profile.position.career_start %}
+                                                <div class="chip blue white-text uk-align-right">Career start</div>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <div data-hint="no-position">
+                                            <p>Career objective information is not available.</p>
+                                        </div>
+                                        <a data-hint="new-position" href="{% url 'new_position' %}"
+                                           class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">
+                                            Add career objective</a>
+                                        <div class="uk-clearfix"></div>
+                                    {% endif %}
+                                </div>
+                            </li>
+                            <li>
+                                <div class="uk-padding-small">
+                                    {% with profile.experience.all as experiences %}
+                                        {% if experiences %}
+                                            {% for experience in experiences %}
+                                                {% include 'member_profile/include/experience.html' %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <p>Experience information is not available.</p>
+                                        {% endif %}
+                                        <a href="{% url 'new_experience' %}"
+                                           class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">Add
+                                            experience info</a>
+                                        <div class="uk-clearfix"></div>
+                                    {% endwith %}
+                                </div>
+                            </li>
+                            <li>
+                                <div class="uk-padding-small">
+                                    {% with profile.education.all as educations %}
+                                        {% if educations %}
+                                            {% for education in educations %}
+                                                {% include 'member_profile/include/education.html' %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <p>Education information is not available.</p>
+                                        {% endif %}
+                                        <a href="{% url 'new_education' %}"
+                                           class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">Add
+                                            education
+                                            info</a>
+                                        <div class="uk-clearfix"></div>
+                                    {% endwith %}
+                                </div>
+                            </li>
+                            <li>
+                                <div class="uk-padding-small">
+                                    {% with profile.additional_education.all as add_educations %}
+                                        {% if add_educations %}
+                                            {% for add_education in add_educations %}
+                                                {% include 'member_profile/include/add_education.html' %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <p>Additional education information is not available.</p>
+                                        {% endif %}
+                                        <a href="{% url 'new_additional_education' %}"
+                                           class="uk-button uk-button-default uk-align-right uk-button-small uk-margin-remove-bottom">
+                                            Add additional education info
+                                        </a>
+                                        <div class="uk-clearfix"></div>
+                                    {% endwith %}
+                                </div>
+                            </li>
+                        {% endwith %}
+                        <li>
+                            <div class="uk-padding-small">
+                                <p class="uk-text-meta uk-text-justify">{% lorem 50 w random %}</p>
+                                <table class="uk-table vr-small-table uk-table-divider uk-table-small uk-margin-remove-bottom"
+                                       width="100%">
+                                    <colgroup>
+                                        <col width="30%">
+                                        <col width="70%">
+                                    </colgroup>
+                                    <tbody>
+                                    <tr>
+                                        <td>Contract address</td>
+                                        <td>
+                                            {% if user.contract_address is not None %}
+                                                <img style="width: 16px; height: 16px;"
+                                                     src="{{ user.contract_address|get_blockies_png }}"
+                                                     alt="">&nbsp;<a class="uk-link-reset" target="_blank"
+                                                                     href="https://rinkeby.etherscan.io/address/{{ user.contract_address }}">{{ user.contract_address }}</a>
+                                            {% else %}
+                                                <div data-uk-spinner="ratio: 0.7"></div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr data-hint="balance">
+                                        <td>Balance:</td>
+                                        <td>
+                                            {% get_balance user %}
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    {% if user.contract_address %}
+                        {% member_status user True %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
+    {% include 'member_profile/include/profile_forms.html' %}
 {% endblock %}
 {% block extra_js %}
     <script type="text/javascript" src="{% static 'js/script.js' %}"></script>

@@ -1,20 +1,23 @@
 {% extends 'jobboard/base.html' %}
 
-{% load pipeline_tags static material_form %}
+{% load pipeline_tags static material_form company_tags %}
 
-{% block head_title %}Vera Oracle - Action info{% endblock %}
+{% block head_title %}Vera Platform - Action info{% endblock %}
 
 {% block content %}
     {{ block.super }}
+    {% if user.is_authenticated %}
+        {% member_company_role user action.pipeline.vacancy.company as role %}
+    {% endif %}
     <div class="uk-container uk-align-center">
-        <h5 class="uk-text-bold">Action {{ action.title|lower }} information
-            {% if action.db.pipeline.vacancy.enabled is False %}
-                <a href="{% url 'delete_pipeline_action' pk=action.db.id %}"
+        <h5 class="uk-text-bold">Action {{ action.action_type.title|lower }} information
+            {% if action.pipeline.vacancy.enabled is False and role == 'owner' %}
+                <a href="{% url 'delete_pipeline_action' pk=action.id %}"
                    class="uk-align-right uk-button uk-button-small uk-button-default red white-text">delete action</a>
             {% endif %}
         </h5>
-        <p class="uk-article-meta">{{ action.approvable|yesno:'Approvable, Not approvable' }} pipeline
-            action, fee: {{ action.fee }} Vera Coin
+        <p class="uk-article-meta">{{ action.chain.approvable|yesno:'Approvable, Not approvable' }} pipeline
+            action, reward: {{ action.chain.fee }} Vera Coin
         </p>
         <div data-uk-grid>
             <div class="uk-width-1-2">
@@ -31,164 +34,118 @@
                         </p>
                         <ul class="uk-list uk-list-bullet">
 
-                            <li>
-                                Active candidates on vacancy: {{ action|candidates_on_vacancy_count }}
-                            </li>
-                            <li>Now at stage: {{ action.now|length }}</li>
-                            <li>Pass this stage: {{ action.pass|length }}</li>
+                            <li>Active candidates on vacancy: {{ action.pipeline.vacancy.candidates.count }}</li>
+                            <li>Now at stage: {{ action.candidates.count }}</li>
                         </ul>
                     </div>
 
                 </div>
             </div>
-            <div class="uk-width-1-2">
-                <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
-                    <h3 class="uk-legend uk-position-relative uk-margin-remove-bottom">
-                        Action change form
-                        <a class="uk-position-center-right toggle-icon" type="button"
-                           data-uk-toggle="target: #change-action; animation: uk-animation-slide-top-small"
-                           data-uk-icon="chevron-down"></a>
-                    </h3>
-                    <div id="change-action">
-                        {% if action.db|blocked %}
-                            <div class="uk-overlay-default uk-position-cover"></div>
-                            <div class="uk-overlay uk-position-center uk-dark">
-                                <p data-uk-spinner="ratio: 0.4">Apply action changes </p>
-                            </div>
-                        {% endif %}
-                        {% with action.db.pipeline.vacancy as vacancy %}
-                            {% if vacancy.enabled is True %}
-                                <p>
-                                    You have to <a class="uk-link-muted"
-                                                   href="{% url 'change_vacancy_status' pk=vacancy.id %}">disable</a>
-                                    vacancy before you can change vacancy action properties.
-                                </p>
-                            {% elif vacancy.enabled is False %}
-                                <form id="change-action" action="{% url 'change_pipeline_action' pk=action.db.id %}"
-                                      method="post"
-                                      class="uk-form-horizontal">
-
-                                    {% csrf_token %}
-                                    <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
-                                    {% form form=change_form %}{% endform %}
-                                    <button style="display: none;" id="save_action_changes"
-                                            class="uk-button uk-button-small uk-button-default uk-align-right uk-margin-remove-bottom">
-                                        save
-
-                                    </button>
-                                    <div class="uk-clearfix"></div>
-                                </form>
-                            {% else %}
-                                <div data-uk-spinner="ratio: 0.4">Checking the possibility of making changes in the
-                                    action
+            {% if role == 'owner' %}
+                <div class="uk-width-1-2">
+                    <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
+                        <h3 class="uk-legend uk-position-relative uk-margin-remove-bottom">
+                            Action change form
+                            <a class="uk-position-center-right toggle-icon" type="button"
+                               data-uk-toggle="target: #change-action; animation: uk-animation-slide-top-small"
+                               data-uk-icon="chevron-down"></a>
+                        </h3>
+                        <div id="change-action">
+                            {% if action|blocked %}
+                                <div class="uk-overlay-default uk-position-cover"></div>
+                                <div class="uk-overlay uk-position-center uk-dark">
+                                    <p data-uk-spinner="ratio: 0.4">Apply action changes </p>
                                 </div>
                             {% endif %}
-                        {% endwith %}
+                            {% with action.pipeline.vacancy as vacancy %}
+                                {% if vacancy.enabled is True %}
+                                    <p class="uk-padding-small uk-margin-remove-bottom uk-padding-remove-horizontal">
+                                        You
+                                        have to <a class="uk-link-muted"
+                                                   href="{% url 'change_vacancy_status' pk=vacancy.id %}">disable</a>
+                                        vacancy before you can change vacancy action properties.
+                                    </p>
+                                {% elif vacancy.enabled is False %}
+                                    <form id="change-action-form"
+                                          action="{% url 'change_pipeline_action' pk=action.id %}"
+                                          method="post" class="uk-form-horizontal">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="vacancy" value="{{ vacancy.id }}">
+                                        {% form form=change_form %}{% endform %}
+                                        <button style="display: none;" id="save_action_changes"
+                                                {% if role != 'owner' %}disabled{% endif %}
+                                                class="uk-button uk-button-small uk-button-default uk-align-right uk-margin-remove-bottom">
+                                            save
+                                        </button>
+                                        <div class="uk-clearfix"></div>
+                                    </form>
+                                {% else %}
+                                    <div data-uk-spinner="ratio: 0.4">Checking the possibility of making changes in
+                                        the
+                                        action
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
                     </div>
-
                 </div>
-            </div>
+            {% endif %}
         </div>
         <br/>
         {% actions_handler action %}
-        {% if action.now|length > 0 %}
-            <br/>
-            <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
-                <h3 class="uk-legend uk-position-relative uk-margin-remove-bottom">
+        {% if action.candidates.exists %}
+            <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white uk-margin-small-top uk-margin-medium-bottom">
+                <h4 class="uk-legend uk-position-relative uk-margin-remove-bottom">
                     Now at stage
                     <a class="uk-position-center-right toggle-icon" type="button"
                        data-uk-toggle="target: #now-at-stage; animation: uk-animation-slide-top-small"
                        data-uk-icon="chevron-down"></a>
-                </h3>
+                </h4>
                 <div id="now-at-stage">
-                    <table class="uk-table uk-table-small uk-table-divider">
+                    <table class="uk-table uk-table-small vr-small-table">
                         <thead>
                         <tr>
-                            <td>Candidate address</td>
-                            <td>Result</td>
-                            <td class="uk-text-right">Management</td>
+                            <th>Candidate address</th>
+                            <th>Result</th>
+                            <th class="uk-text-right">Management</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {% for item in action.now %}
-                            {% with item|get_candidate as candidate %}
-                                {% if candidate %}
-                                    <tr>
-                                        <td>
-                                            <a class="uk-link-text"
-                                               href="{% url 'candidate_profile' username=candidate.user.username %}">{{ candidate.full_name }}</a>
-                                        </td>
-                                        <td>
-                                            {% if action.db|action_passed:candidate %}
-                                                {% get_result_link candidate action.db %}
-                                            {% else %}
-                                                Not passed yet
-                                            {% endif %}</td>
-                                        <td class="uk-text-right">
-                                            {% if action.db.pipeline.vacancy.enabled %}
-                                                <div class="uk-text-right">
-                                                    {% url 'employer_approve_action' vacancy_id=action.db.pipeline.vacancy.id candidate_id=candidate.id as approve_url %}
-                                                    {% url 'employer_reset_candidate' vacancy_id=action.db.pipeline.vacancy.id candidate_id=candidate.id as reset_url %}
-                                                    <a class="uk-link-text" href="{{ approve_url }}">Level up</a>
-                                                    <a class="uk-link-text red-text" href="{{ reset_url }}">Drop</a>
-                                                </div>
-                                            {% else %}
-                                                Vacancy must be enabled
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            {% endwith %}
+                        {% for candidate in action.candidates %}
+                            {% if candidate %}
+                                <tr>
+                                    <td>
+                                        <a class="uk-link-text"
+                                           href="{% url 'member_profile' username=candidate.username %}">{% firstof candidate.full_name candidate.username %}</a>
+                                    </td>
+                                    <td>
+                                        {% get_result_link candidate action %}
+                                    </td>
+                                    <td class="uk-text-right">
+                                        {% if action.pipeline.vacancy.enabled %}
+                                            <div class="uk-text-right">
+                                                {% url 'employer_approve_action' vacancy_id=action.pipeline.vacancy.id candidate_id=candidate.id as approve_url %}
+                                                {% url 'employer_reset_candidate' vacancy_id=action.pipeline.vacancy.id candidate_id=candidate.id as reset_url %}
+                                                <a class="uk-link-text" href="{{ approve_url }}">Level up</a>
+                                                <a class="uk-link-text red-text" href="{{ reset_url }}">Drop</a>
+                                            </div>
+                                        {% else %}
+                                            Vacancy must be enabled
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
         {% endif %}
-        {% if action.pass|length > 0 %}
-            <br/>
-            <div class="uk-border uk-padding-small uk-box-shadow-medium uk-position-relative white">
-                <h3 class="uk-legend uk-position-relative uk-margin-remove-bottom">
-                    Pass this stage
-                    <a class="uk-position-center-right toggle-icon" type="button"
-                       data-uk-toggle="target: #pass-stage; animation: uk-animation-slide-top-small"
-                       data-uk-icon="chevron-down"></a>
-                </h3>
-                <div id="pass-stage">
-                    <table class="uk-table uk-table-small uk-table-divider">
-                        <thead>
-                        <tr>
-                            <td>Candidate address</td>
-                            <td class="uk-text-right">Result</td>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for item in action.pass %}
-                            {% with item|get_candidate as candidate %}
-                                {% if candidate %}
-                                    <tr>
-                                        <td><a class="uk-link-text"
-                                               href="{% url 'candidate_profile' username=candidate.user.username %}">{{ candidate.full_name }}</a>
-                                        </td>
-                                        <td class="uk-text-right">{% get_result_link candidate action.db %}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endwith %}
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% endif %}
-        <br/>
-        <div class="uk-align-right">
+        <div class="uk-align-right ">
             <a class="uk-button uk-button-primary uk-button-small"
-               href="{% url 'vacancy' pk=action.db.pipeline.vacancy.id %}">Back to vacancy</a>
+               href="{% url 'vacancy' pk=action.pipeline.vacancy.id %}">Back to vacancy</a>
         </div>
-        <div class="uk-clearfix">
-
-        </div>
-
+        <div class="uk-clearfix"></div>
     </div>
 {% endblock %}
 

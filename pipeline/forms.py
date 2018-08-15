@@ -4,7 +4,7 @@ from pipeline.models import Action
 
 
 class ActionChangeForm(forms.ModelForm):
-    fee = forms.IntegerField(required=False)
+    fee = forms.IntegerField(required=False, label='Reward')
     approvable = forms.BooleanField(required=False)
 
     def __init__(self, **kwargs):
@@ -15,4 +15,4 @@ class ActionChangeForm(forms.ModelForm):
 
     class Meta:
         model = Action
-        fields = ('action_type', )
+        fields = ('action_type',)

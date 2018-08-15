@@ -1,12 +1,14 @@
+import time
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
+from model_utils.models import SoftDeletableModel
 
 from jobboard.helpers import BaseAction
-from jobboard.models import Candidate
+from users.models import Member
 
 
 class ActionInterview(BaseAction, models.Model):
@@ -19,7 +21,7 @@ class ActionInterview(BaseAction, models.Model):
     end_date = models.DateField(blank=True,
                                 null=True,
                                 help_text=_('Date to you want to interview candidates'))
-    start_time = models.TimeField(default=now,
+    start_time = models.TimeField(default='08:00',
                                   help_text=_('Time from you want to interview'))
     end_time = models.TimeField(blank=True,
                                 null=True,
@@ -28,11 +30,8 @@ class ActionInterview(BaseAction, models.Model):
     duration = models.IntegerField(help_text=_('Interview duration'),
                                    default=10,
                                    validators=[
-                                       MinValueValidator(5, 'Interview duration cannot be less than 5 minutes'), ])
-
-    @property
-    def employer(self):
-        return self.action.pipeline.vacancy.employer
+                                       MinValueValidator(10, 'Interview duration cannot be less than 10 minutes'), ])
+    recruiters = models.ManyToManyField('users.Member')
 
     def get_result_url(self, **kwargs):
         pass
@@ -48,20 +47,25 @@ class ActionInterview(BaseAction, models.Model):
         abstract = False
 
 
-class ScheduledMeeting(models.Model):
+class ScheduledMeeting(SoftDeletableModel):
+    # all_objects = models.Manager()
     action_interview = models.ForeignKey(ActionInterview,
                                          on_delete=models.CASCADE,
                                          related_name='scheduled_meetings')
-    candidate = models.ForeignKey(Candidate,
+    recruiter = models.ForeignKey(Member,
                                   on_delete=models.CASCADE,
-                                  related_name='scheduled_meetings')
+                                  related_name='recruiter_scheduled_meetings')
+    candidate = models.ForeignKey(Member,
+                                  on_delete=models.CASCADE,
+                                  related_name='candidate_scheduled_meetings')
     uuid = models.CharField(max_length=32,
                             blank=False,
                             null=False)
     conf_id = models.CharField(max_length=32,
                                blank=False,
                                null=False)
-    link_start = models.URLField(blank=False,
+    link_start = models.URLField(max_length=768,
+                                 blank=False,
                                  null=False)
     link_join = models.URLField(blank=False,
                                 null=False)
@@ -78,16 +82,21 @@ class ScheduledMeeting(models.Model):
         return '{} {}'.format(self.date, self.time)
 
     class Meta:
-        unique_together = (('action_interview', 'candidate',),)
+        unique_together = (('action_interview', 'candidate', 'is_removed'),)
 
 
 class InterviewPassed(models.Model):
     interview = models.ForeignKey(ActionInterview,
                                   on_delete=models.CASCADE,
                                   related_name='passes')
-    candidate = models.ForeignKey(Candidate,
+    recruiter = models.ForeignKey(Member,
                                   on_delete=models.CASCADE,
-                                  related_name='passed_interview')
+                                  related_name='recruiter_passed_interviews')
+    candidate = models.ForeignKey(Member,
+                                  on_delete=models.CASCADE,
+                                  related_name='candidate_passed_interviews')
     data = JSONField(blank=True,
                      null=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    duration = models.DurationField(blank=True,
+                                    null=True)

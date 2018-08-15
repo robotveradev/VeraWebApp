@@ -1,0 +1,107 @@
+{% load material_form jobboard_tags %}
+<div class="vr-bg">
+    <div class="bg-top_1"></div>
+</div>
+<div class="uk-padding-small uk-padding-remove-top uk-padding-remove-right" data-uk-grid>
+    <div class="uk-width-1-5">
+        <div class="profile_main_left">
+            {% with user.profile.photo as photo %}
+                <div class="image-wrapper">
+                    {% if photo %}
+                        <img class="uk-border-rounded" width="100%"
+                             src="{{ photo.url }}"/>
+                    {% else %}
+                        <img class="uk-border-rounded" width="100%"
+                             src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png">
+                    {% endif %}
+                </div>
+            {% endwith %}
+        </div>
+    </div>
+    <div class="uk-width-4-5">
+        <table data-hint="main_info" class="uk-table uk-table-divider uk-table-small"
+               width="100%">
+            <colgroup>
+                <col width="30%">
+                <col width="70%">
+            </colgroup>
+            <tr>
+                <td>Name:</td>
+                <td>{% firstof user.full_name user.username %}</td>
+            </tr>
+            {% with user.profile as profile %}
+                {% if profile %}
+                    <tr>
+                        <td>Info:</td>
+                        <td>
+                            <div>
+                                {{ profile.sex|title }}{% if profile.birth_date %},
+                                    {{ profile.birth_date|date:'d E Y' }}
+                                    year of
+                                    birth{% endif %}{% if profile.level %}, education level:
+                                    {{ profile.level.title|lower }}{% endif %}
+                            </div>
+                            <div>
+                                {% if profile.address %}{{ profile.address|title }}{% endif %}
+                                        {% if profile.relocation %},
+                                    ready for transfer{% endif %}
+                                {% if profile.official_journey %},
+                                    ready
+                                    for official
+                                    journey{% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Languages:</td>
+                        <td>{% with profile.languages.all as langs %}
+                            {% for lang in langs %}
+                                <span class="uk-badge"
+                                      data-uk-tooltip="{{ lang.get_level_display }}">{{ lang.language.name|title }}</span>
+                            {% endfor %}
+                        {% endwith %}
+                            <a class="uk-link-text" href="#modal-new-language"
+                               data-uk-toggle><span
+                                    class="uk-badge"
+                                    data-uk-tooltip="new language"
+                                    data-uk-icon="plus"></span></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Citizenship:</td>
+                        <td>
+                            {% with profile.citizenship.all as citiz %}
+                                {% for cit in citiz %}
+                                    <span class="uk-badge">{{ cit.country.name|title }}</span>
+                                {% endfor %}
+                            {% endwith %}
+                            <a class="uk-link-text" href="#modal-new-citizenship"
+                               data-uk-toggle><span
+                                    class="uk-badge"
+                                    data-uk-tooltip="add citizenship entry"
+                                    data-uk-icon="plus"></span></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Work permit:</td>
+                        <td>
+                            {% with profile.work_permit.all as permits %}
+                                {% for permit in permits %}
+                                    <span class="uk-badge">{{ permit.country.name|title }}</span>
+                                {% endfor %}
+                            {% endwith %}
+                            <a class="uk-link-text" href="#modal-new-work_permit"
+                               data-uk-toggle><span
+                                    class="uk-badge"
+                                    data-uk-tooltip="add work permit entry"
+                                    data-uk-icon="plus"></span></a>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endwith %}
+        </table>
+        {% for item in user.profile.specialisations.all %}
+            <div class="chip white blue-text text-lighten-2 vr-chip-border">{{ item }}</div>
+        {% endfor %}
+    </div>
+</div>

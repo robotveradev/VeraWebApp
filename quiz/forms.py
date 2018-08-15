@@ -6,9 +6,9 @@ from quiz.models import Category
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['title', 'parent_category']
+        fields = ['company', 'title']
 
     def __init__(self, *args, **kwargs):
-        employer = kwargs.pop('employer')
+        member = kwargs.pop('member')
         super().__init__(*args, **kwargs)
-        self.fields['parent_category'].queryset = Category.objects.filter(employer=employer)
+        self.fields['company'].queryset = member.companies

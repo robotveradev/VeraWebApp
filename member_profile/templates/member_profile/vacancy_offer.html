@@ -1,0 +1,42 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}Vera Platform - Vacancy Offer{% endblock %}
+
+{% load jobboard_tags %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+        <h4 class="uk-text-bold">Vacancy offers</h4>
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    {% if vac_offers %}
+                        {% for item in vac_offers %}
+                            <h4 class="uk-text-bold">{{ item.vacancy.title|title }}<span
+                                    class="uk-text-small grey-text">, {{ item.vacancy.company.name }}</span></h4>
+                            <p>Hello! Please consider our vacancy <a
+                                    href="{% url 'vacancy' pk=item.vacancy.id %}">{{ item.vacancy.title|lower }}</a>.
+                            </p>
+                            <div class="uk-align-right uk-margin-remove-bottom">
+                                <a class="uk-button uk-button-small red white-text uk-button-default"
+                                   href="{% url 'hide_offer' pk=item.pk %}">Hide</a>
+                            </div>
+                            <div class="uk-clearfix"></div>
+                        {% endfor %}
+                    {% else %}
+                        You do not have any job offers
+                    {% endif %}
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">
+                        Offers desc
+                    </h4>
+                    <p>{% lorem 14 w random %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

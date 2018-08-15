@@ -1,39 +1,35 @@
 {% load quiz_tags %}
+
 {% for item in categories %}
-    <li class="uk-border uk-padding-small">
+    <li class="uk-border white uk-padding-small">
         <a class="uk-accordion-title" href="#">{{ item }}</a>
         <div class="uk-accordion-content">
-            <ul class="uk-margin-small-left" uk-accordion="multiple: true">
+            <ul class="uk-margin-small-left" data-uk-accordion="multiple: true">
                 {% if item.sub_categories.all %}
                     {% category item selected %}
                 {% endif %}
                 {% if item.questions.all %}
-                    <li class="uk-border uk-padding-small">
-                        <a href="#" class="uk-accordion-title green-text lighten-5">Category questions</a>
-                        <div class="uk-accordion-content">
-                            {% for question in item.questions.all %}
-                                <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
-                                    <label><input
-                                            value="{{ question.id }}"
-                                            name="questions"
-                                            class="uk-checkbox"
-                                            type="checkbox"
-                                            {% if question.id in selected %} checked{% endif %}
-                                            {% if question.answers.all|length < 1 %}disabled{% endif %}>
-                                        {{ question.question_text }}
-                                    </label>
-                                </div>
-                            {% endfor %}
-                            <div class="uk-align-right">
-                                <button type="button" class="select-all uk-button uk-button-small uk-button-default">
-                                    Select all
-                                </button>
-                            </div>
+                    {% for question in item.questions.all %}
+                        <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                            <label><input
+                                    value="{{ question.id }}"
+                                    name="questions"
+                                    class="uk-checkbox"
+                                    type="checkbox"
+                                    {% if question.id in selected %} checked{% endif %}
+                                    {% if question.answers.all|length < 1 %}disabled{% endif %}>
+                                {{ question.question_text|safe }}
+                            </label>
                         </div>
-                    </li>
+                    {% endfor %}
+                    <div class="uk-align-right uk-margin-remove">
+                        <button type="button" class="select-all uk-button uk-button-small uk-button-default">
+                            Select all
+                        </button>
+                    </div>
                 {% endif %}
                 {% if not item.sub_categories.all and not item.questions.all %}
-                    <div class="uk-alert-danger" uk-alert>
+                    <div class="uk-alert-danger" data-uk-alert>
                         <p>Empty category</p>
                     </div>
                 {% endif %}

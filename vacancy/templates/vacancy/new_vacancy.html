@@ -2,7 +2,7 @@
 
 {% load static jobboard_tags material_form i18n %}
 
-{% block head_title %} VeraOracle - New Vacancy {% endblock %}
+{% block head_title %} Vera Platform - New Vacancy {% endblock %}
 
 {% block content %}
     {{ block.super }}
@@ -11,22 +11,20 @@
         <div class="uk-margin-medium-top uk-margin-large-bottom" data-uk-grid>
             <div class="uk-width-3-4">
                 <div class="vr-window uk-padding-small white">
-                    {% if role_object.enabled == True %}
-                        {% if role_object.contract_address %}
-                            <form class="uk-form-horizontal" class="uk-form-horizontal uk-margin-large"
-                                  action="{% url 'new_vacancy' %}" method="post">
-                                {% csrf_token %}
-                                {% form form=form %}{% endform %}
-                                <button class="uk-button uk-button-primary uk-button-small uk-align-right uk-margin-remove-bottom">Continue
-                                </button>
+                    {% if user.contract_address %}
+                        <form class="uk-form-horizontal" class="uk-form-horizontal uk-margin-large"
+                              action="{% url 'new_vacancy' %}" method="post">
+                            {% csrf_token %}
+                            {% form form=form %}{% endform %}
+                            <button class="uk-button uk-button-primary uk-button-small uk-align-right uk-margin-remove-bottom">
+                                Continue
+                            </button>
                             <div class="uk-clearfix"></div>
-                            </form>
-                        {% else %}
-                            {% include 'jobboard/include/message.html' with message="Your contract doesn't ready yet" %}
-                        {% endif %}
+                        </form>
                     {% else %}
-                        {% include 'jobboard/include/message.html' with message="You must enable your main contract for create new vacancy" %}
+                        {% include 'jobboard/include/message.html' with message="Your contract doesn't ready yet" %}
                     {% endif %}
+
                 </div>
             </div>
             <div class="uk-width-1-4">

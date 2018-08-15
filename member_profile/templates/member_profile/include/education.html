@@ -1,0 +1,17 @@
+<p class="uk-text-lead">{{ education.institute }}{% if education.faculty %},
+    <small class="uk-text-muted">{{ education.faculty }}</small>{% endif %}
+    {% if user == profile.member %}
+        <a class="uk-align-right" href="{% url 'education_edit' pk=education.id %}" data-uk-icon="icon: file-edit"></a>
+    {% endif %}
+</p>
+{% if education.start %}
+    From {{ education.start|date:'d E Y' }}
+{% endif %}
+{% if education.end %}
+    to {{ education.end|date:'d E Y' }}
+{% endif %}
+{% if education.profession %}
+    <div>
+        {{ education.profession }}
+    </div>
+{% endif %}

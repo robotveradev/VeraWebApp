@@ -2,50 +2,74 @@
 
 {% load quiz_tags i18n static %}
 
-{% block head_title %}VeraOracle - examining...{% endblock %}
+{% block head_title %}Vera Platform - examining...{% endblock %}
 
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
         <h4 data-hint="examining-head"
             class="uk-text-bold">{% trans 'Test for ' %} {{ action.pipeline.vacancy.title|title }}</h4>
-        {% if exam %}
-            <form data-hint="questions" method="post">
-                <fieldset class="uk-fieldset">
-                    {% csrf_token %}
-                    <input type="hidden" name="exam_id" value="{{ exam.id }}">
-                    <input type="hidden" name="profile_id" value="{{ profile.id }}">
-                    {% with exam.questions.all as questions %}
-                        {% for question in questions %}
-                            <div class="uk-box-shadow-small uk-padding-small uk-margin-small white uk-border">
-                                {% include "quiz/question_kinds/"|add:question.kind.template_name|add:'_question.html' %}
-                            </div>
-                        {% endfor %}
-                    {% endwith %}
-                </fieldset>
-                <button class="uk-button uk-button-primary uk-button-small uk-align-right">Continue</button>
-            </form>
-        {% elif exam_passed %}
-            <div data-hint="passed">
-                <p class="uk-text-lead">
-                    You already pass this exam.
-                </p>
-                {% if exam_passed.processed %}
-                    <p>
-                        You scored {{ exam_passed.points }} points. Employer set passing grade
-                        {{ exam_passed.exam.passing_grade }} points.
-                    </p>
-                {% else %}
-                    <div data-uk-spinner="ratio: 0.4">The results of your exam are now being processed</div>
-                {% endif %}
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div>
+                    {% if exam %}
+                        <form data-hint="questions" method="post" id="exam-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="exam_id" value="{{ exam.id }}">
+                            <input type="hidden" name="profile_id" value="{{ profile.id }}">
+                            {% with exam.questions.all as questions %}
+                                {% for question in questions %}
+                                    <div class="uk-margin-small-bottom vr-window white uk-padding-small">
+                                        {% include "quiz/question_kinds/"|add:question.kind.template_name|add:'_question.html' %}
+                                    </div>
+                                {% endfor %}
+                            {% endwith %}
+                        </form>
+                    {% elif exam_passed %}
+                        <div class="uk-margin-small-bottom vr-window white uk-padding-small" data-hint="passed">
+                            <p class="uk-text-lead">
+                                You already pass this exam.
+                            </p>
+                            {% if exam_passed.processed %}
+                                <p>
+                                    You scored {{ exam_passed.points }} points. Employer set passing grade
+                                    {{ exam_passed.exam.passing_grade }} points.
+                                </p>
+                            {% else %}
+                                <div data-uk-spinner="ratio: 0.4">The results of your exam are now being processed</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        {% endif %}
-        <a data-hint="to-vacancy" class="uk-button uk-button-primary uk-button-small uk-align-right"
-           href="{% url 'vacancy' pk=action.pipeline.vacancy.pk %}">Back to vacancy</a>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    {% if not exam_passed %}
+                        <a id="send-exam" class="uk-button uk-button-primary uk-button-small uk-align-center">Send
+                            exam</a>
+                    {% endif %}
+                    <a data-hint="to-vacancy"
+                       class="uk-button uk-button-default uk-button-small uk-align-center uk-margin-remove-bottom"
+                       href="{% url 'vacancy' pk=action.pipeline.vacancy.pk %}">Back to vacancy</a>
+                </div>
+            </div>
+        </div>
+
     </div>
 {% endblock %}
 
 {% block extra_js %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#send-exam').on('click', function () {
+                UIkit.modal.confirm('Send exam? This action can not be undone').then(function () {
+                    $('#exam-form')[0].submit();
+                }, function () {
+                    console.log('Rejected.')
+                });
+            })
+        })
+    </script>
     {% if hints_enabled %}
         <script src="{% static 'js/hints/candidate_examining.js' %}"></script>
     {% endif %}

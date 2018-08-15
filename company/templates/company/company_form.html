@@ -2,20 +2,38 @@
 
 {% load static material_form %}
 
-{% block head_title %}Vera Oracle - Employer new company{% endblock %}
+{% block head_title %}Vera Platform - Employer new company{% endblock %}
 
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h3>Create new company</h3>
-        <form method="post" class="uk-form-horizontal" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% form form=form %}{% endform %}
-            <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
-                <label><input class="uk-checkbox" type="checkbox" required> I agree with processing of personal data</label>
+        <h4 class="uk-text-bold">Create new company</h4>
+        <div class="uk-margin-medium-top uk-margin-large-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window uk-padding-small white">
+                    <form method="post" class="uk-form-horizontal" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% form form=form %}{% endform %}
+                        <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                            <label><input class="uk-checkbox" type="checkbox" required> I agree with processing of
+                                personal data</label>
+                        </div>
+                        <button type="submit" class="uk-button uk-button-small uk-button-primary uk-align-right uk-margin-remove-bottom">Save
+                        </button>
+                    <div class="uk-clearfix"></div>
+                    </form>
+                </div>
             </div>
-            <button type="submit" class="uk-button uk-button-small uk-button-primary uk-align-right">Save</button>
-        </form>
+            <div class="uk-width-1-4">
+                <div class="vr-window uk-padding-small white">
+                    <h4 class="uk-text-bold">
+                        Company description
+                    </h4>
+                    <p>{% lorem %}</p>
+                </div>
+            </div>
+        </div>
+
     </div>
     {{ form.media }}
 {% endblock %}

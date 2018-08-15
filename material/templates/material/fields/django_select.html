@@ -5,7 +5,9 @@
     {% endattrs %}>
         {% part field prefix %}{% endpart %}
         {% part field control %}
-            <label class="uk-form-label" for="id_{{ bound_field.html_name }}">{{ bound_field.label }}</label>
+            <label class="uk-form-label" for="id_{{ bound_field.html_name }}">{{ bound_field.label }}
+                {% if field.required %}*{% endif %}
+            </label>
             <div class="uk-form-controls uk-margin-small-top">
                 <select{% attrs bound_field 'widget' default field.widget.attrs %}
                     id="id_{{ bound_field.html_name }}"
@@ -13,7 +15,7 @@
                     {% if field.required %} required{% endif %}
                     class="uk-select{% if bound_field.errors %} uk-form-danger{% endif %}"
                 {% endattrs %}>
-{#                    <option disabled selected>{{ bound_field.label }}</option>#}
+                    {#                    <option disabled selected>{{ bound_field.label }}</option>#}
                     {% part field options %}
                         {% for group, items in bound_field|select_options %}
                             {% if group %}

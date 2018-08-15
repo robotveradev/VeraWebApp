@@ -1,12 +1,13 @@
 from django import forms
 
-from company.models import Company, Office
+from company.models import Office
+from users.utils import company_member_role
 from .models import Vacancy
 
 
 class VacancyForm(forms.ModelForm):
     class Meta:
-        exclude = ('uuid', 'enabled', 'published',)
+        exclude = ('uuid', 'enabled', 'published', 'created_by')
         model = Vacancy
 
         labels = {
@@ -18,15 +19,20 @@ class VacancyForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        employer = kwargs.pop('employer')
+        member = kwargs.pop('member')
         super().__init__(*args, **kwargs)
-        self.fields['company'].queryset = Company.objects.filter(employer=employer)
+        qs = member.companies
+        owner_in = []
+        for company in qs:
+            if company_member_role(company.contract_address, member.contract_address) == 'owner':
+                owner_in.append(company.id)
+        self.fields['company'].queryset = member.companies.filter(id__in=owner_in)
         self.fields['office'].queryset = Office.objects.filter(company__in=self.fields['company'].queryset)
 
 
 class EditVacancyForm(forms.ModelForm):
     class Meta:
-        exclude = ('company', 'uuid', 'published', 'allowed_amount', 'enabled',)
+        exclude = ('company', 'uuid', 'published', 'allowed_amount', 'enabled', 'created_by')
         model = Vacancy
 
         labels = {

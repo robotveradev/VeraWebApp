@@ -1,7 +1,11 @@
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 
-from candidateprofile.models import Busyness, Schedule
+from jobboard.handlers.oracle import OracleHandler
+from member_profile.models import Busyness, Schedule
+from users.models import Member
 
 
 class Vacancy(models.Model):
@@ -10,9 +14,13 @@ class Vacancy(models.Model):
                                 null=False,
                                 on_delete=models.CASCADE,
                                 related_name='vacancies')
-    uuid = models.CharField(max_length=64,
+    uuid = models.CharField(max_length=66,
                             blank=False,
                             null=False)
+    created_by = models.ForeignKey('users.Member',
+                                   on_delete=models.SET_NULL,
+                                   null=True)
+
     title = models.CharField(max_length=255)
     specialisations = models.ManyToManyField('jobboard.Specialisation',
                                              blank=True)
@@ -51,38 +59,47 @@ class Vacancy(models.Model):
         return '{}: {}'.format(self.company.name, self.title)
 
     @property
-    def employer(self):
-        return self.company.employer
+    def candidates(self):
+        """
+        Filter for members subscribed to vacancy
+        :return: Members QuerySet
+        """
+        members = OracleHandler().get_members_on_vacancy(self.company.contract_address, self.uuid)
+        return get_user_model().objects.filter(contract_address__in=[i['contract_address'] for i in members])
 
     @property
-    def owner(self):
-        return self.company.employer.user
+    def chain_allowed_amount(self):
+        return OracleHandler().vacancy(self.company.contract_address, self.uuid)['allowed_amount'] / 10 ** 18
+
+    @property
+    def chain(self):
+        return OracleHandler().vacancy(self.company.contract_address, self.uuid)
 
     @property
     def user_field_name(self):
-        return 'company.employer'
+        return 'company.collaborators'
 
     class Meta:
         ordering = ('-updated_at',)
 
 
-class CandidateOnVacancy(models.Model):
-    candidate = models.ForeignKey('jobboard.Candidate',
-                                  on_delete=models.CASCADE)
+class MemberOnVacancy(models.Model):
+    member = models.ForeignKey(Member,
+                               on_delete=models.CASCADE)
     vacancy = models.ForeignKey(Vacancy,
                                 on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = (('candidate', 'vacancy'), )
+        unique_together = (('member', 'vacancy'),)
 
 
 class VacancyOffer(models.Model):
     vacancy = models.ForeignKey('vacancy.Vacancy',
                                 on_delete=models.CASCADE)
-    profile = models.ForeignKey('candidateprofile.CandidateProfile',
-                                on_delete=models.CASCADE,
-                                related_name='offers')
+    member = models.ForeignKey(Member,
+                               on_delete=models.CASCADE,
+                               related_name='offers')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
@@ -91,7 +108,7 @@ class VacancyOffer(models.Model):
                                    default='')
 
     class Meta:
-        unique_together = (("vacancy", "profile"),)
+        unique_together = (("vacancy", "member"),)
 
     def __str__(self):
         return 'Vacancy offer'

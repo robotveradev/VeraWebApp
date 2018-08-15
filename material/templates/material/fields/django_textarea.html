@@ -1,10 +1,12 @@
 {% load material_form material_form_internal %}
 {% part bound_field.field %}
     <div class="uk-margin">
-        <label class="uk-form-label" for="id_{{ bound_field.html_name }}">{{ bound_field.label }}</label>
+        <label class="uk-form-label" for="id_{{ bound_field.html_name }}">{{ bound_field.label }}
+            {% if field.required %}*{% endif %}
+        </label>
         <div{% attrs bound_field 'group' %}
         {% endattrs %}
-        class="uk-form-controls">
+                class="uk-form-controls">
             {% part field prefix %}{% endpart %}{% part field control %}
                 <textarea{% attrs bound_field 'widget' default field.widget.attrs %}
                     id="id_{{ bound_field.html_name }}"

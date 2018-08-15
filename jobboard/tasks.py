@@ -3,24 +3,31 @@ from __future__ import absolute_import, unicode_literals
 import json
 import logging
 import os
+from datetime import datetime
 
 from celery import shared_task
 from celery.app.task import Task
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
+from django.core.mail import send_mail
 from django.db.models import F
 from solc import compile_files
 from web3 import Web3, HTTPProvider
-from web3.middleware import geth_poa_middleware
 
+from company.models import Company
 from interview.models import ScheduledMeeting, InterviewPassed
+from jobboard.handlers.company import CompanyInterface
 from jobboard.handlers.oracle import OracleHandler
-from jobboard.models import Transaction, Employer, Candidate, TransactionHistory
+from jobboard.handlers.withdrawable import WithdrawableInterface
+from jobboard.models import Transaction, TransactionHistory
 from pipeline.models import Action
+from users.models import Member
 from vacancy.models import Vacancy
 from vera.celery import app
+from . import utils
 
-DELETE_ONLY_TXN = ['subscribe', 'empanswer', 'withdraw', 'tokenapprove', 'actionchanged', 'changestatus']
+DELETE_ONLY_TXN = ['subscribe', 'empanswer', 'withdraw', 'tokenapprove', 'actionchanged', 'changestatus',
+                   'addcompanymember', 'changecompanymember', 'membersubscribe', 'candidateactionupdown', 'addnewfact',
+                   'newfactconfirmation']
 
 logger = logging.getLogger(__name__)
 
@@ -67,33 +74,34 @@ class CheckTransaction(Task):
         except AssertionError:
             pass
 
-    def newemployer(self, txn):
+    def newmember(self, txn):
         try:
-            emp_o = Employer.objects.get(id=txn.obj_id)
-        except Employer.DoesNotExist:
+            member = Member.objects.get(id=txn.obj_id)
+        except Member.DoesNotExist:
             txn.delete()
         else:
             tnx_receipt = self.get_receipt(txn.txn_hash)
-            emp_o.contract_address = tnx_receipt['contractAddress']
-            emp_o.save()
+            member.contract_address = tnx_receipt['contractAddress']
+            member.save()
             self.delete_txn(txn)
-            add_to_oracle_tnx_hash = self.oracle.new_employer(tnx_receipt['contractAddress'])
-            save_txn.delay(add_to_oracle_tnx_hash.hex(), 'EmployerAdded', emp_o.user.id, emp_o.id)
-            print("NewEmployerContract: " + emp_o.full_name + ' ' + tnx_receipt['contractAddress'])
+            print("New Member contract: {} {}".format(member.full_name, tnx_receipt['contractAddress']))
 
-    def newcandidate(self, txn):
+    def newcompany(self, txn):
         try:
-            can_o = Candidate.objects.get(id=txn.obj_id)
-        except Candidate.DoesNotExist:
-            pass
+            company = Company.objects.get(id=txn.obj_id)
+        except Company.DoesNotExist:
+            logger.warning('Company with id {} not found. Member will not be added as company owner'.format(txn.obj_id))
+            txn.delete()
         else:
             tnx_receipt = self.get_receipt(txn.txn_hash)
-            can_o.contract_address = tnx_receipt['contractAddress']
-            can_o.save()
+            company.contract_address = tnx_receipt['contractAddress']
+            company.save()
+            oi = CompanyInterface(contract_address=tnx_receipt['contractAddress'])
+            txn_hash = oi.new_owner_member(company.created_by.contract_address)
+            save_txn_to_history.delay(company.created_by.id, txn_hash.hex(),
+                                      'Setting your member address as company owner')
             self.delete_txn(txn)
-            add_to_oracle_tnx_hash = self.oracle.new_candidate(tnx_receipt['contractAddress'])
-            save_txn.delay(add_to_oracle_tnx_hash.hex(), 'CandidateAdded', can_o.user.id, can_o.id)
-            print("NewCandidateContract: " + can_o.first_name + ' ' + tnx_receipt['contractAddress'])
+            print("New Company contract: {} {}".format(company.name, tnx_receipt['contractAddress']))
 
     def newvacancy(self, txn):
         try:
@@ -123,32 +131,9 @@ class CheckTransaction(Task):
         except Vacancy.DoesNotExist:
             pass
         else:
-            vac_o.enabled = self.oracle.vacancy(vac_o.uuid)['enabled']
+            vac_o.enabled = self.oracle.vacancy(vac_o.company.contract_address, vac_o.uuid)['enabled']
             vac_o.save()
             txn.delete()
-            print('Employer ({}) change vacancy ({}) enabled to: {}'.format(vac_o.employer.contract_address,
-                                                                            vac_o.uuid,
-                                                                            vac_o.enabled))
-
-    def employeradded(self, txn):
-        try:
-            emp_o = Employer.objects.get(id=txn.obj_id)
-        except Employer.DoesNotExist:
-            pass
-        else:
-            emp_o.enabled = True
-            emp_o.save()
-        self.delete_txn(txn)
-
-    def candidateadded(self, txn):
-        try:
-            can_o = Candidate.objects.get(id=txn.obj_id)
-        except Candidate.DoesNotExist:
-            pass
-        else:
-            can_o.enabled = True
-            can_o.save()
-        self.delete_txn(txn)
 
     def actiondeleted(self, txn):
         try:
@@ -167,7 +152,7 @@ app.register_task(CheckTransaction())
 @shared_task
 def save_txn_to_history(user_id, txn_hash, action):
     txn = TransactionHistory()
-    txn.user_id = user_id
+    txn.user = user_id
     txn.hash = txn_hash
     txn.action = action
     txn.save()
@@ -179,7 +164,7 @@ def save_txn(txn_hash, txn_type, user_id, obj_id, vac_id=None):
     txn = Transaction()
     txn.txn_hash = txn_hash
     txn.txn_type = txn_type
-    txn.user_id = user_id
+    txn.user = user_id
     txn.obj_id = obj_id
     txn.vac_id = vac_id
     txn.save()
@@ -188,44 +173,57 @@ def save_txn(txn_hash, txn_type, user_id, obj_id, vac_id=None):
 
 
 @shared_task
-def new_role_instance(instance_id, role):
+def new_member_instance(user_id):
     try:
-        role_class = ContentType.objects.get(app_label='jobboard', model=role.lower())
-    except ContentType.DoesNotExist:
-        pass
+        Member.objects.get(pk=user_id)
+    except Member.DoesNotExist:
+        logger.error('Member with id {} not found, contract will not be deployed.'.format(user_id))
     else:
-        instance = role_class.model_class().objects.get(pk=instance_id)
         oracle = OracleHandler()
-        web3 = Web3(Web3.HTTPProvider(settings.NODE_URL))
-        web3.middleware_stack.inject(geth_poa_middleware, layer=0)
-        contract_file = 'dapp/contracts/' + role + '.sol'
-        compile_sol = compile_files([contract_file, ], output_values=("abi", "ast", "bin", "bin-runtime",))
-        create_abi(compile_sol[contract_file + ':' + role]['abi'], role)
-        obj = web3.eth.contract(
-            abi=compile_sol[contract_file + ':' + role]['abi'],
-            bytecode=compile_sol[contract_file + ':' + role]['bin'],
-            bytecode_runtime=compile_sol[contract_file + ':' + role]['bin-runtime'],
+        w3 = utils.get_w3()
+        contract_file = 'dapp/contracts/Member.sol'
+        compile_sol = compile_files([contract_file, ],
+                                    output_values=("abi", "ast", "bin", "bin-runtime",))
+        create_abi(compile_sol[contract_file + ':Member']['abi'], 'Member')
+        obj = w3.eth.contract(
+            abi=compile_sol[contract_file + ':Member']['abi'],
+            bytecode=compile_sol[contract_file + ':Member']['bin'],
+            bytecode_runtime=compile_sol[contract_file + ':Member']['bin-runtime'],
         )
-        args = [web3.toHex(os.urandom(32)), ]
-        if isinstance(instance, Employer):
-            args.append(settings.VERA_COIN_CONTRACT_ADDRESS)
-        args.append(settings.VERA_ORACLE_CONTRACT_ADDRESS)
+        args = [settings.VERA_ORACLE_CONTRACT_ADDRESS, ]
         logger.info('Try to unlock account: {}.'.format(oracle.unlockAccount()))
-        txn_hash = obj.deploy(transaction={'from': oracle.account}, args=args)
-        if txn_hash:
-            save_txn.delay(txn_hash.hex(), 'New' + role, instance.user.id, instance.id)
-
-            save_txn_to_history.delay(instance.user.id, txn_hash.hex(),
-                                      'Creation of a new {} contract'.format(role))
+        try:
+            txn_hash = obj.deploy(transaction={'from': oracle.account}, args=args)
+        except Exception as e:
+            logger.warning('Error while deploy new member contract. User {}: {}'.format(user_id, e))
+            return False
         else:
-            instance.delete()
+            logger.info('Lock account: {}'.format(oracle.lockAccount()))
+            save_txn.delay(txn_hash.hex(), 'NewMember', user_id, user_id)
+            save_txn_to_history.delay(user_id, txn_hash.hex(),
+                                      'Creation of a new Member contract')
 
 
-def create_abi(abi, role):
-    abi_file = settings.ABI_PATH + role + '.abi.json'
+def create_abi(abi, contract):
+    abi_file = settings.ABI_PATH + contract + '.abi.json'
     if not os.path.exists(abi_file):
         with open(abi_file, 'w+') as f:
             f.write(json.dumps(abi))
+
+
+@shared_task
+def withdraw_tokens(user_id, member_address, to_address, amount):
+    wi = WithdrawableInterface(contract_address=member_address)
+    try:
+        txn_hash = wi.withdraw(to_address, int(float(amount) * 10 ** 18))
+    except Exception as e:
+        logger.error('Error withdraw tokens: {}'.format(e))
+    else:
+        save_txn_to_history.delay(user_id, txn_hash.hex(),
+                                  'Withdraw {} Vera token from {} to {}'.format(amount,
+                                                                                member_address,
+                                                                                to_address))
+        save_txn.delay(txn_hash.hex(), 'Withdraw', user_id, user_id)
 
 
 class ProcessZoomusEvent(Task):
@@ -233,6 +231,7 @@ class ProcessZoomusEvent(Task):
     soft_time_limit = 10 * 60
 
     def run(self, event_dict, *args, **kwargs):
+        event_dict = json.loads(event_dict)
         try:
             meeting_id = event_dict['payload']['meeting']['id']
             event = event_dict['event']
@@ -248,13 +247,65 @@ class ProcessZoomusEvent(Task):
                     method = getattr(self, event)
                     method(event_dict, meet)
 
-    def meeting_ended(self, event, meeting_object):
+    def meeting_started(self, event, meeting_object):
         passed = InterviewPassed()
         passed.interview = meeting_object.action_interview
         passed.candidate = meeting_object.candidate
+        passed.recruiter = meeting_object.recruiter
         passed.data = event
         passed.save()
-        meeting_object.delete()
+
+    def meeting_ended(self, event, meeting_object):
+        try:
+            passed = InterviewPassed.objects.get(interview=meeting_object.action_interview,
+                                                 candidate=meeting_object.candidate,
+                                                 recruiter=meeting_object.recruiter)
+        except InterviewPassed.DoesNotExist:
+            logger.warning('Interview pass object not found: {}'.format(event))
+        else:
+            passed.duration = datetime.now() - passed.date_created
+            passed.save()
+            meeting_object.delete()
+
+    def participant_joined(self, event, meeting_object):
+        recruiter = meeting_object.recruiter
+        vacancy = meeting_object.action_interview.vacancy
+        candidate = meeting_object.candidate
+        message = 'Candidate {} for vacancy {} already started an interview. For join interview click link {}'.format(
+            candidate.full_name or candidate.username, vacancy.title, meeting_object.link_start
+        )
+        send_email.delay(message=message, to=recruiter.email)
+
+    def meeting_jbh(self, event, meeting_object):
+        recruiter = meeting_object.recruiter
+        vacancy = meeting_object.action_interview.vacancy
+        candidate = meeting_object.candidate
+        message = 'Employer {} for vacancy {} already started an interview. For join interview click link {}'.format(
+            recruiter.full_name or recruiter.username, vacancy.title, meeting_object.link_join
+        )
+        send_email.delay(message=message, to=candidate.email)
 
 
 app.register_task(ProcessZoomusEvent())
+
+
+@shared_task
+def send_email(**kwargs):
+    to_email = kwargs.get('to')
+    message = kwargs.get('message')
+    if to_email and message:
+        send_mail(subject='Vera interview platform',
+                  from_email=settings.DEFAULT_FROM_EMAIL,
+                  recipient_list=[to_email, ],
+                  message=message)
+    return True
+
+
+class CheckSoonMeetings(Task):
+    name = 'CheckSoonMeetings'
+
+    def run(self, *args, **kwargs):
+        pass
+
+
+app.register_task(CheckSoonMeetings())

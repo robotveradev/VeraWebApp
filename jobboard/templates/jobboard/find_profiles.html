@@ -2,12 +2,12 @@
 
 {% load jobboard_tags vacancy_tags material_form %}
 
-{% block head_title %}Vera Oracle - Find employee{% endblock %}
+{% block head_title %}Vera Platform - Find employee{% endblock %}
 
 {% block content %}
     {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h3>Find an employee for your tasks!</h3>
+        <h4 class="uk-text-bold">Find an employee for your tasks!</h4>
         <div class="uk-margin-large-bottom" data-uk-grid>
             <div class="uk-width-1-5">
                 <div class="uk-box-shadow-small uk-padding-small white">
@@ -35,8 +35,8 @@
                     </div>
                 </div>
                 <div>
-                    {% for cp in cps %}
-                        {% include 'candidateprofile/include/profile_short.html' with candidate_info=True %}
+                    {% for profile in profiles %}
+                        {% include 'member_profile/include/profile_short.html' with candidate_info=True %}
                     {% empty %}
                         <div data-hint="filtered" class="uk-box-shadow-small uk-padding-small uk-margin-top white">
                             <h6 class="center">Profiles by conditions not found</h6>

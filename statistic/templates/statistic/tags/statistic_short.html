@@ -1,31 +1,13 @@
-<hr/>
-<div uk-grid>
-    <div class="uk-flex uk-width-expand">
+<div class="uk-padding-small">
+    <div>
         {% if all %}
-            <div><span class="amber-text">total views: </span><span class="grey-text">{{ all|default:0 }}&nbsp;</span>
+            <div><span class="blue-text">total&nbsp;views: </span><span
+                    class="grey-text">{{ all|default:0 }}&nbsp;</span>
             </div>
         {% endif %}
         {% if per_day %}
-            <div><span class="amber-text">total views today: </span><span
+            <div><span class="blue-text">total&nbsp;views&nbsp;today: </span><span
                     class="grey-text">{{ per_day|default:0 }}&nbsp;</span></div>
-        {% endif %}
-        {% if per_month %}
-            <div><span class="amber-text">views for the month: </span><span class="grey-text">{{ per_month|default:0 }}&nbsp;</span>
-            </div>
-        {% endif %}
-        {% if unique %}
-            <div><span class="amber-text text-darken-2">unique views: </span><span
-                    class="grey-text">{{ unique|default:0 }}&nbsp;</span>
-            </div>
-        {% endif %}
-        {% if unique_per_day %}
-            <div><span class="amber-text text-darken-2">unique views today: </span><span
-                    class="grey-text">{{ unique_per_day|default:0 }}&nbsp;</span></div>
-        {% endif %}
-        {% if unique_per_month %}
-            <div><span class="amber-text text-darken-2">unique views for the month: </span><span
-                    class="grey-text">{{ unique_per_month|default:0 }}</span>
-            </div>
         {% endif %}
     </div>
     <div class="uk-width-auto">

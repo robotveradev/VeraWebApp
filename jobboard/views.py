@@ -1,28 +1,33 @@
+from datetime import datetime
+
+from account.compat import is_authenticated
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import TemplateView, DetailView, RedirectView, ListView
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import TemplateView, DetailView, RedirectView, ListView, FormView
 from web3.utils.validation import validate_address
 
-from candidateprofile.forms import LanguageItemForm, CitizenshipForm, WorkPermitForm
-from candidateprofile.models import CandidateProfile
-from jobboard.forms import LearningForm, WorkedForm, CertificateForm, EmployerForm, CandidateForm, AchievementForm
+from company.models import Company
+from jobboard.forms import LearningForm, WorkedForm, CertificateForm, AchievementForm, VerifyFactForm, CustomFactForm
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.employer import EmployerHandler
-from jobboard.mixins import ChooseRoleMixin, OnlyEmployerMixin, OnlyCandidateMixin
 from jobboard.tasks import save_txn_to_history, save_txn
+from member_profile.forms import LanguageItemForm, CitizenshipForm, WorkPermitForm
+from member_profile.models import Profile
+from member_profile.tasks import new_fact_confirmation, new_member_fact
+from users.models import Member
 from vacancy.models import Vacancy
-from .decorators import choose_role_required
 from .filters import VacancyFilter, CPFilter
 from .handlers.oracle import OracleHandler
-from .models import Employer, TransactionHistory, Candidate
+from .models import TransactionHistory
 
 _EMPLOYER, _CANDIDATE = 'employer', 'candidate'
 
@@ -41,20 +46,11 @@ class FindJobView(TemplateView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
-        self.vacancies = Vacancy.objects.filter(published=True, enabled=True, company__employer__enabled=True)
+        self.vacancies = Vacancy.objects.filter(published=True, enabled=True)
         self.vacancies_filter = None
-        self.cvs = CandidateProfile.objects
         self.context = {}
 
-    def dispatch(self, request, *args, **kwargs):
-        self.request = request
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        self.context = super().get_context_data(**kwargs)
-
     def get(self, request, *args, **kwargs):
-        self.get_context_data(**kwargs)
         self.set_vacancies_filter()
         self.sort_vacancies_filter()
         paginator = Paginator(self.vacancies_filter, 15)
@@ -69,12 +65,9 @@ class FindJobView(TemplateView):
             self.set_filter_by_parameters()
 
     def set_filter_for_relevant_vacancies(self):
-        if self.request.role == _CANDIDATE:
-            cvs = self.cvs.filter(candidate=self.request.role_object, enabled=True)
-            specs_list = list(set([item['specialisations__id'] for item in cvs.values('specialisations__id') if
-                                   item['specialisations__id'] is not None]))
-            keywords_list = list(
-                set([item['keywords__id'] for item in cvs.values('keywords__id') if item['keywords__id'] is not None]))
+        if is_authenticated(self.request.user):
+            specs_list = list(set([i.id for i in self.request.user.profile.specialisations.all()]))
+            keywords_list = list(set([i.id for i in self.request.user.profile.keywords.all()]))
             vacs = self.vacancies.filter(Q(specialisations__in=specs_list) |
                                          Q(keywords__in=keywords_list)).distinct()
             self.vacancies_filter = vacs
@@ -103,8 +96,8 @@ class FindProfilesView(TemplateView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.request = None
-        self.cps = CandidateProfile.objects.filter(candidate__enabled=True)
-        self.cps_filter = None
+        self.profiles = Profile.objects.all()
+        self.profiles_filter = None
         self.vacs = Vacancy.objects.filter(enabled=True)
         self.context = {}
 
@@ -117,39 +110,39 @@ class FindProfilesView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         self.get_context_data(**kwargs)
-        self.set_cps_filter()
-        self.sort_cps_filter()
-        paginator = Paginator(self.cps_filter, 15)
-        self.context.update({'cps': paginator.get_page(request.GET.get('page')),
+        self.set_profiles_filter()
+        self.sort_profiles_filter()
+        paginator = Paginator(self.profiles_filter, 15)
+        self.context.update({'profiles': paginator.get_page(request.GET.get('page')),
                              'sorts': CPS_SORTS})
         return self.render_to_response(self.context)
 
-    def set_cps_filter(self):
+    def set_profiles_filter(self):
         if 'filter' not in self.request.GET:
-            self.set_filter_for_relevant_cps()
+            self.set_filter_for_relevant_profiles()
         else:
             self.set_filter_by_parameters()
 
-    def set_filter_for_relevant_cps(self):
-        if self.request.role == _EMPLOYER:
-            vacs = self.vacs.filter(company__employer=self.request.role_object, enabled=True)
+    def set_filter_for_relevant_profiles(self):
+        if is_authenticated(self.request.user):
+            vacs = Vacancy.objects.filter(company__in=self.request.user.companies, enabled=True)
             specs_list = list(set([item['specialisations__id'] for item in vacs.values('specialisations__id') if
                                    item['specialisations__id'] is not None]))
             keywords_list = list(
                 set([item['keywords__id'] for item in vacs.values('keywords__id') if item['keywords__id'] is not None]))
-            cps = self.cps.filter(Q(specialisations__in=specs_list) |
-                                  Q(keywords__in=keywords_list)).exclude(
-                candidate__contract_address=None).distinct()
-            self.cps_filter = cps
+            profiles = self.profiles.filter(Q(specialisations__in=specs_list) |
+                                            Q(keywords__in=keywords_list)).exclude(
+                member__contract_address=None).distinct()
+            self.profiles_filter = profiles
         else:
-            self.cps_filter = self.cps
-        self.context.update({'all': self.cps})
+            self.profiles_filter = self.profiles
+        self.context.update({'all': self.profiles})
 
     def set_filter_by_parameters(self):
-        self.cps_filter = CPFilter(self.request.GET, self.cps).qs
-        self.context.update({'all': self.cps_filter})
+        self.profiles_filter = CPFilter(self.request.GET, self.profiles).qs
+        self.context.update({'all': self.profiles_filter})
 
-    def sort_cps_filter(self):
+    def sort_profiles_filter(self):
         if 'sort' in self.request.GET:
             sort_by = get_item(CPS_SORTS, int(self.request.GET.get('sort')))
             if not sort_by:
@@ -157,90 +150,41 @@ class FindProfilesView(TemplateView):
         else:
             sort_by = CPS_SORTS[2]
         self.context.update({'selected_sort': sort_by})
-        self.cps_filter = self.cps_filter.order_by(sort_by['order'])
+        self.profiles_filter = self.profiles_filter.order_by(sort_by['order'])
 
 
-class ChooseRoleView(TemplateView):
-    template_name = 'jobboard/choose_role.html'
+class ProfileView(TemplateView):
+    template_name = 'jobboard/profile.html'
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        role = request.POST.get('role')
-        if role == _EMPLOYER:
-            _form = EmployerForm(request.POST)
-        elif role == _CANDIDATE:
-            _form = CandidateForm(request.POST)
-        else:
-            return redirect('choose_role')
-        if _form.is_valid():
-            role_o = _form.save(commit=False)
-            role_o.user = request.user
-            role_o.save()
-            if hasattr(request.GET, 'next'):
-                return HttpResponseRedirect(request.GET['next'])
-            if role == _CANDIDATE:
-                return redirect('complete_profile')
-            return redirect('profile')
-        else:
-            context = self.get_context_data(**kwargs)
-            context['errors'] = _form.errors
-            return self.render_to_response(context)
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.update(self.get_forms())
+        return ctx
 
     def get(self, request, *args, **kwargs):
-        if request.role is not None:
-            return redirect('profile')
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
-
-
-class ProfileView(ChooseRoleMixin, TemplateView):
-    template_name = 'jobboard/profile.html'
-
-    def get(self, request, *args, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if request.role is not None:
-            if request.role == _CANDIDATE and not hasattr(request.role_object, 'profile'):
-                return redirect('complete_profile')
-            context.update(self.get_current_object_data(request))
-        return self.render_to_response(context)
+        if not hasattr(request.user, 'profile'):
+            return redirect('complete_profile')
+        return super().get(request, *args, **kwargs)
 
     @staticmethod
-    def get_current_object_data(request):
-        data = {}
-        if request.role == _CANDIDATE:
-            data['learning_form'] = LearningForm()
-            data['worked_form'] = WorkedForm()
-            data['certificate_form'] = CertificateForm()
-            data['language_form'] = LanguageItemForm()
-            data['citizenship_form'] = CitizenshipForm()
-            data['work_permit_form'] = WorkPermitForm()
-            data['achievement_form'] = AchievementForm()
+    def get_forms():
+        data = {'learning_form': LearningForm(),
+                'worked_form': WorkedForm(),
+                'certificate_form': CertificateForm(),
+                'language_form': LanguageItemForm(),
+                'citizenship_form': CitizenshipForm(),
+                'work_permit_form': WorkPermitForm(),
+                'achievement_form': AchievementForm()}
         return data
 
 
-class EmployerAboutView(DetailView):
-    model = Employer
-    template_name = 'jobboard/employer_about.html'
-
-
-class ChangeContractStatus(ChooseRoleMixin, RedirectView):
-
-    def get(self, request, *args, **kwargs):
-        request.role_object.enabled = not request.role_object.enabled
-        request.role_object.save()
-        messages.success(request, 'Contract status has been changed')
-        return super().get(request, *args, **kwargs)
-
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse('profile')
-
-
-class TransactionsView(ChooseRoleMixin, ListView):
+class TransactionsView(ListView):
     model = TransactionHistory
-    paginate_by = 25
+    paginate_by = 10
     template_name = 'jobboard/transactions.html'
     ordering = '-created_at'
 
@@ -250,7 +194,12 @@ class TransactionsView(ChooseRoleMixin, ListView):
 
     def get_queryset(self):
         qu = super().get_queryset()
-        return qu.filter(user=self.request.user)
+        return qu.filter(user=self.request.user.id)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx.update({'count': self.get_queryset().count()})
+        return ctx
 
 
 def get_item(periods, f_id):
@@ -260,104 +209,89 @@ def get_item(periods, f_id):
     return False
 
 
-@login_required
-@choose_role_required
-def withdraw(request):
-    if request.method == 'POST':
+class WithdrawView(RedirectView):
+    pattern_name = 'profile'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.contract_address is None:
+            return super().get(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
         address = request.POST.get('address')
         amount = request.POST.get('amount')
-        if request.role_object.contract_address is None:
-            return redirect('profile')
         try:
             validate_address(address)
         except ValueError:
-            return HttpResponse('Invalid address')
+            messages.warning(request, 'Invalid address')
         else:
-            oracle = OracleHandler()
             coin_h = CoinHandler()
-            user_balance = coin_h.balanceOf(request.role_object.contract_address)
+            user_balance = coin_h.balanceOf(request.user.contract_address)
             if int(float(amount) * 10 ** 18) > user_balance:
-                return HttpResponse('You do not have so many coins', status=200)
-            else:
-                txn_hash = oracle.withdraw(request.role_object.contract_address, address, int(float(amount) * 10 ** 18))
-                save_txn_to_history.delay(request.role_object.user_id, txn_hash.hex(),
-                                          'Withdraw {} Vera token from {} to {}'.format(amount,
-                                                                                        request.role_object.contract_address,
-                                                                                        address))
-                save_txn.delay(txn_hash.hex(), 'Withdraw', request.user.id, request.role_object.id)
-    return redirect('profile')
+                return messages.warning(request, 'You do not have so many tokens')
+
+            from jobboard.tasks import withdraw_tokens
+            withdraw_tokens.delay(request.user.id, request.user.contract_address, address, amount)
+        return super().get(request, *args, **kwargs)
 
 
-@login_required
-@choose_role_required
-def check_agent(request):
-    if request.is_ajax():
-        if request.method == 'POST':
-            agent_address = request.POST.get('agent_address')
-            try:
-                validate_address(agent_address)
-            except ValueError:
-                return HttpResponse('Invalid address', status=400)
-            else:
-                emp_h = EmployerHandler(contract_address=request.role_object.contract_address)
-                if agent_address.casefold() == django_settings.WEB_ETH_COINBASE.casefold():
-                    return HttpResponse('oracle', status=200)
-                return HttpResponse(emp_h.is_agent(agent_address), status=200)
-        else:
-            return HttpResponse('You must use Post request', status=400)
+class NewFactView(FormView):
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+        self.f_type = None
+        self.member_address = None
 
-class GrantRevokeAgentView(ChooseRoleMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        action = kwargs['action']
-        if action not in ['revoke', 'grant']:
-            pass
-        else:
-            address = request.GET.get('address')
-            if address == django_settings.WEB_ETH_COINBASE:
-                pass
-            else:
-                try:
-                    validate_address(address)
-                except ValueError:
-                    pass
-                else:
-                    oracle = OracleHandler()
-                    if action == 'revoke':
-                        txn_hash = oracle.revoke_agent(request.role_object.contract_address, address)
-                    else:
-                        txn_hash = oracle.grant_agent(request.role_object.contract_address, address)
-                    save_txn_to_history.delay(request.user.id, txn_hash.hex(),
-                                              'Revoke access for agent {}'.format(address))
-        return redirect('profile')
-
-
-class NewFactView(OnlyCandidateMixin, View):
-
-    def post(self, request, *args, **kwargs):
-        f_type = request.POST.get('f_type')
-        if f_type not in ['learning', 'worked', 'certification']:
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        f_type = request.POST.get('f_type', None)
+        if f_type not in ['learning', 'worked', 'certification', 'custom']:
+            messages.info(request, 'Incorrect fact type')
             return redirect('profile')
+        self.f_type = f_type
+        self.member_address = request.POST.get('member_address', request.user.contract_address)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.request.method in ('POST', 'PUT') and self.f_type == 'custom':
+            data = kwargs['data'].copy()
+            data.update({'date': datetime.now().date()})
+            kwargs.update({
+                'data': data
+            })
+        return kwargs
+
+    def get_form_class(self):
+        if self.f_type == 'learning':
+            form = LearningForm
+        elif self.f_type == 'worked':
+            form = WorkedForm
+        elif self.f_type == 'certification':
+            form = CertificateForm
         else:
-            if f_type == 'learning':
-                form = LearningForm(request.POST)
-            elif f_type == 'worked':
-                form = WorkedForm(request.POST)
-            else:
-                form = CertificateForm(request.POST)
-            if form.is_valid():
-                fact = form.cleaned_data
-                fact.update({'type': f_type, 'from': request.role_object.contract_address})
-                oracle = OracleHandler()
-                oracle.unlockAccount()
-                txn_hash = oracle.new_fact(request.role_object.contract_address, fact)
-                save_txn_to_history.delay(request.role_object.user_id, txn_hash.hex(),
-                                          'New "{}" fact added'.format(f_type))
-        return redirect('profile')
+            form = CustomFactForm
+        return form
+
+    def form_invalid(self, form):
+        for error in form.errors['__all__'].as_data():
+            messages.warning(self.request, ', '.join(error))
+        return super().form_invalid(form)
+
+    def form_valid(self, form):
+        fact = form.cleaned_data
+        fact.update({'type': self.f_type})
+        new_member_fact.delay(fact, self.request.user.contract_address, self.member_address)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        if self.member_address == self.request.user.contract_address:
+            return reverse('profile')
+        return Member.objects.get(contract_address=self.member_address).get_absolute_url()
 
 
-class ApproveTokenView(OnlyEmployerMixin, RedirectView):
+class ApproveTokenView(RedirectView):
     pattern_name = 'profile'
 
     def __init__(self, **kwargs):
@@ -392,7 +326,7 @@ class ApproveTokenView(OnlyEmployerMixin, RedirectView):
         save_txn_to_history.delay(user_id, tnx_hash.hex(), 'Money approved for oracle')
 
 
-class GetFreeCoinsView(ChooseRoleMixin, RedirectView):
+class GetFreeCoinsView(RedirectView):
     pattern_name = 'profile'
 
     def __init__(self, **kwargs):
@@ -401,15 +335,64 @@ class GetFreeCoinsView(ChooseRoleMixin, RedirectView):
     def get(self, request, *args, **kwargs):
         coin_h = CoinHandler()
         OracleHandler().unlockAccount()
-        txn_hash = coin_h.transfer(request.role_object.contract_address, 1000 * 10 ** 18)
+        txn_hash = coin_h.transfer(request.user.contract_address, 10000 * 10 ** 18)
+        OracleHandler().lockAccount()
         save_txn_to_history.delay(request.user.id, txn_hash.hex(), 'Free coins added.')
         return super().get(request, *args, **kwargs)
 
 
 class CandidateProfileView(DetailView):
-    model = Candidate
-    template_name = 'jobboard/candidate.html'
+    model = Member
+    template_name = 'jobboard/member_profile.html'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.kwargs = None
 
     def get_object(self, queryset=None):
-        can = get_object_or_404(Candidate, user__username=self.kwargs.get('username'))
-        return can
+        return get_object_or_404(Member, username=self.kwargs.get('username'))
+
+    def get(self, request, *args, **kwargs):
+        if self.get_object() == request.user:
+            return redirect(reverse('profile'))
+        return super().get(request, *args, **kwargs)
+
+
+class FindFieldView(View):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        if not is_authenticated(request.user):
+            return HttpResponse(status=403)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        name = request.POST.get('name')
+
+        finded = Company.objects.values('id', 'name').filter(name__icontains=name)
+        dict_f = [{'id': i['id'], 'name': i['name']} for i in finded]
+        return JsonResponse(dict_f, safe=False, status=200)
+
+
+class AddFactConfirmation(FormView):
+    form_class = VerifyFactForm
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.request = None
+
+    @staticmethod
+    def redirect(form):
+        return redirect(Member.objects.get(pk=form.cleaned_data['member_id']).get_absolute_url())
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        new_fact_confirmation.delay(data['sender_address'], data['member_address'], data['fact_id'])
+        return self.redirect(form)
+
+    def form_invalid(self, form):
+        for e in form.errors['__all__'].as_data():
+            messages.warning(self.request, ', '.join(e))
+        return self.redirect(form)

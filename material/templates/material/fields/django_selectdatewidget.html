@@ -1,14 +1,14 @@
 {% load material_form material_form_internal %}
 <div class="uk-margin">
     {% part field label %}
-            <label for="{{ bound_field.id_for_label }}" class="uk-form-label
-                    {% part field add_label_class %}{{ form_label_class }}{% endpart %}">{{ bound_field.label }}</label>
+        <label for="{{ bound_field.id_for_label }}" class="uk-form-label
+                    {% part field add_label_class %}{{ form_label_class }}{% endpart %}">{{ bound_field.label }}
+            {% if field.required %}*{% endif %}
+        </label>
     {% endpart %}
     {% part field control %}
         <div class="uk-form-controls">
-
-
-        <div class="uk-grid-small" uk-grid>
+        <div class="uk-grid-small" data-uk-grid>
             {% with bound_field|select_date_widget_wrapper as wrapper %}
                 {% for select in wrapper.selects %}{% if select.type == "day" %}
                     <div class="uk-width-1-3@s">

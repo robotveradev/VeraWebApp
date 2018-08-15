@@ -1,0 +1,416 @@
+{% extends 'jobboard/base.html' %}
+{% load jobboard_tags w3_tags static user_tags %}
+{% block head_title %}Vera Platform - Profile {% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    {% vacancies_for_offer object user as offer_vacancies %}
+    <div class="uk-container uk-align-center uk-margin-large-bottom">
+        <h4 data-hint="uk-text-bold">{{ object.username|title }} profile</h4>
+        <div class="uk-margin-large-top" data-uk-grid>
+            <div class="uk-width-1-1">
+                <ul class="uk-child-width-expand" data-uk-tab="connect: #profile_contrainer">
+                    <li class="uk-active"><a class="uk-text-capitalize" href="#">Profile</a></li>
+                    <li><a class="uk-text-capitalize" href="#">Facts</a></li>
+                    {% with object.profile as profile %}
+                        {% if profile.achievements.exists %}
+                            <li><a class="uk-text-capitalize" href="#">Achievements</a></li>
+                        {% endif %}
+                        {% if profile.position %}
+                            <li><a class="uk-text-capitalize" href="#">Position</a></li>
+                        {% endif %}
+                        {% if profile.experience.exists %}
+                            <li><a class="uk-text-capitalize" href="#">Experience</a></li>
+                        {% endif %}
+                        <li><a class="uk-text-capitalize" href="#">Education</a></li>
+                    {% endwith %}
+                    {% if offer_vacancies.exists %}
+                        <li><a class="uk-text-capitalize" href="#">Offer vacancy</a></li>
+                    {% endif %}
+                    <li><a class="uk-text-capitalize" href="#">Blockchain info</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="uk-margin-top-small uk-margin-large-bottom uk-margin-medium-top">
+            <div>
+                <ul id="profile_contrainer" class="uk-switcher">
+                    <li>
+                        <div data-uk-grid>
+                            <div class="uk-width-3-4">
+                                <div class="vr-window white">
+                                    <div class="vr-bg">
+                                        <div class="bg-top_1"></div>
+                                    </div>
+                                    <div class="uk-padding-small uk-padding-remove-top uk-padding-remove-right"
+                                         data-uk-grid>
+                                        <div class="uk-width-1-5">
+                                            <div class="profile_main_left">
+                                                <div class="image-wrapper">
+                                                    {% with object.profile.photo as photo %}
+                                                        {% if photo %}
+                                                            <img class="uk-border-rounded" style="width: 100%"
+                                                                 src="{{ photo.url }}"/>
+                                                        {% else %}
+                                                            <img class="uk-border-rounded" style="width: 100%;"
+                                                                 src="https://blog.stylingandroid.com/wp-content/themes/lontano-pro/images/no-image-slide.png"
+                                                                 alt="">
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="uk-width-4-5">
+                                            <table data-hint="main_info"
+                                                   class="uk-table uk-table-divider uk-table-small"
+                                                   width="100%">
+                                                <colgroup>
+                                                    <col width="30%">
+                                                    <col width="70%">
+                                                </colgroup>
+                                                <tr>
+                                                    <td>Name:</td>
+                                                    <td>{% firstof object.full_name object.username %}</td>
+                                                </tr>
+                                                {% with object.profile as profile %}
+                                                    <tr>
+                                                        <td>Info:</td>
+                                                        <td>
+                                                            <div>
+                                                                {{ profile.sex|title }}{% if profile.birth_date %},
+                                                                    {{ profile.birth_date|date:'d E Y' }}
+                                                                    year of
+                                                                    birth{% endif %}{% if profile.level %},
+                                                                    education
+                                                                    level:
+                                                                    {{ profile.level.title|lower }}{% endif %}
+                                                            </div>
+                                                            <div>
+                                                                {% if profile.address %}
+                                                                    {{ profile.address|title }}{% endif %}
+                                                                {% if profile.relocation %}, ready
+                                                                    for
+                                                                    transfer{% endif %}
+                                                                {% if profile.official_journey %}
+                                                                    , ready
+                                                                    for official journey{% endif %}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Languages:</td>
+                                                        <td>{% with profile.languages.all as langs %}
+                                                            {% for lang in langs %}
+                                                                <span class="uk-badge"
+                                                                      data-uk-tooltip="{{ lang.get_level_display }}">{{ lang.language.name|title }}</span>
+                                                            {% empty %}
+                                                                not indicated
+                                                            {% endfor %}
+                                                        {% endwith %}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Citizenship:</td>
+                                                        <td>
+                                                            {% with profile.citizenship.all as citiz %}
+                                                                {% for cit in citiz %}
+                                                                    <span class="uk-badge">{{ cit.country.name|title }}</span>
+                                                                {% empty %}
+                                                                    not indicated
+                                                                {% endfor %}
+                                                            {% endwith %}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Work permit:</td>
+                                                        <td>
+                                                            {% with profile.work_permit.all as permits %}
+                                                                {% for permit in permits %}
+                                                                    <span class="uk-badge">{{ permit.country.name|title }}</span>
+                                                                {% empty %}
+                                                                    not indicated
+                                                                {% endfor %}
+                                                            {% endwith %}
+                                                        </td>
+                                                    </tr>
+                                                {% endwith %}
+                                            </table>
+                                            {% for item in object.profile.specialisations.all %}
+                                                <div class="chip vr-chip-border white blue-text text-lighten-2">{{ item }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-4">
+                                <div class="vr-window white uk-padding-small">
+                                    {% if user.is_authenticated %}
+                                        <h4 class="uk-text-bold">
+                                            Member profile desc
+                                        </h4>
+                                        <p>{% lorem %}</p>
+                                    {% else %}
+                                        {% include 'jobboard/include/login_modal.html' with head_message='Would you like him to join the company?' %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                    </li>
+                    <li>
+                        <div data-uk-grid>
+                            <div class="uk-width-3-4">
+                                <div class="vr-window white">
+                                    {% facts object %}
+                                </div>
+                            </div>
+                            <div class="uk-width-1-4">
+                                <div class="vr-window white uk-padding-small">
+                                    {% if user.is_authenticated %}
+                                        <h4 class="uk-text-bold">
+                                            Facts desc
+                                        </h4>
+                                        <p>Confirm the facts of the participants and add new ones.</p>
+                                        <div class="uk-align-right uk-margin-remove-bottom">
+                                            <button class="uk-button uk-button-small uk-button-primary"
+                                                    uk-toggle="target: #add-fact-modal">
+                                                Add custom fact
+                                            </button>
+                                            <div id="add-fact-modal" uk-modal>
+                                                <div class="uk-modal-dialog">
+                                                    <button class="uk-modal-close-default" type="button"
+                                                            uk-close></button>
+                                                    <div class="uk-modal-header">
+                                                        <h2 class="uk-modal-title">Add custom fact</h2>
+                                                    </div>
+                                                    <form action="{% url 'new_fact' %}" method="post">
+                                                        <div class="uk-modal-body uk-padding-small">
+                                                            {% csrf_token %}
+                                                            <input type="hidden" name="f_type" value="custom">
+                                                            <input type="hidden" name="member_address"
+                                                                   value="{{ object.contract_address }}"/>
+                                                            <div class="uk-margin">
+                                                                <label for="id_title"
+                                                                       class="uk-form-label">Title</label>
+                                                                <div class="uk-form-controls uk-margin-small-top">
+                                                                    <input type="text" maxlength="31" id="id_title"
+                                                                           class="uk-input" placeholder="Fact title"
+                                                                           name="title">
+                                                                </div>
+                                                            </div>
+                                                            <div class="uk-margin">
+                                                                <textarea class="uk-textarea simple" rows="5"
+                                                                          maxlength="255" name="desc"
+                                                                          placeholder="Enter fact here, max 255 characters"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="uk-modal-footer">
+                                                            <div class="uk-align-right">
+                                                                <button class="uk-button uk-button-small uk-button-default uk-modal-close"
+                                                                        type="reset">close
+                                                                </button>
+                                                                <button class="uk-button uk-button-small uk-button-primary"
+                                                                        type="submit">send
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="uk-clearfix"></div>
+                                    {% else %}
+                                        {% include 'jobboard/include/login_modal.html' with head_message='Would you like him to join the company?' %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% with object.profile as profile %}
+                        {% if profile.achievements.exists %}
+                            <li>
+                                <div data-uk-grid>
+                                    <div class="uk-width-3-4">
+                                        <div class="vr-window white uk-padding-small">
+                                            {% with profile.achievements.all as achievements %}
+                                                {% if achievements %}
+                                                    {% for achievement in achievements %}
+                                                        <p class="uk-text-lead">{{ achievement.title }}</p>
+                                                        <p>{{ achievement.text|safe }}</p>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    Member have no achievements added.
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                    <div class="uk-width-1-4">
+                                        <div class="vr-window white uk-padding-small">
+                                            {% if user.is_authenticated %}
+                                                <h4 class="uk-text-bold">
+                                                    Achievements desc
+                                                </h4>
+                                                <p>{% lorem %}</p>
+                                            {% else %}
+                                                {% include 'jobboard/include/login_modal.html' with head_message='Would you like him to join the company?' %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endif %}
+                        {% if profile.position %}
+                            <li>
+                                <div data-uk-grid>
+                                    <div class="uk-width-3-4">
+                                        <div class="vr-window white uk-padding-small">
+                                            <div class="uk-padding-small">
+                                                <div class="uk-article">
+                                                    <p class="uk-text-lead">{{ profile.position.title }}</p>
+                                                    Salary from: {{ profile.position.salary_from }}$
+                                                    <ul class="uk-list uk-list-bullet">
+                                                        <li>{{ profile.position.busyness.all|join:', ' }}</li>
+                                                        <li>{{ profile.position.schedule.all|join:', ' }}</li>
+                                                    </ul>
+                                                    {% if profile.position.description %}
+                                                        <p>
+                                                            {{ profile.position.description|safe }}
+                                                        </p>
+                                                    {% endif %}
+                                                    {% if profile.position.career_start %}
+                                                        <div class="chip blue-text white text-lighten-2 vr-chip-border uk-align-right">
+                                                            Career start
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="uk-width-1-4">
+                                        <div class="vr-window white uk-padding-small">
+                                            <h4 class="uk-text-bold">Position desc</h4>
+                                            <p>{% lorem 20 w random %}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endif %}
+                        {% with profile.experience.all as experiences %}
+                            {% if experiences %}
+                                <li>
+                                    <div data-uk-grid>
+                                        <div class="uk-width-3-4">
+                                            <div class="vr-window white uk-padding-small">
+                                                {% for experience in experiences %}
+                                                    {% include 'member_profile/include/experience.html' %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <div class="uk-width-1-4">
+                                            <div class="vr-window white uk-padding-small">
+                                                <h4 class="uk-text-bold">Experiense desc</h4>
+                                                <p>{% lorem 20 w random %}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endif %}
+                        {% endwith %}
+
+                        <li>
+                            <div data-uk-grid>
+                                <div class="uk-width-3-4">
+                                    <div class="vr-window white uk-padding-small">
+                                        {% for education in profile.education.all %}
+                                            {% include 'member_profile/include/education.html' %}
+                                        {% empty %}
+                                            <p>Education information not provided.</p>
+                                        {% endfor %}
+
+                                        {% if profile.additional_education.exists %}
+                                            <h5 class="uk-text-bold">Additional courses</h5>
+                                            {% for add_education in profile.additional_education.all %}
+                                                {% include 'member_profile/include/add_education.html' %}
+                                            {% endfor %}
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-4">
+                                    <div class="vr-window white uk-padding-small">
+                                        <h4 class="uk-text-bold">Education desc</h4>
+                                        <p>{% lorem %}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                    {% endwith %}
+                    {% if offer_vacancies.exists %}
+                        <li>
+                            <div data-uk-grid>
+                                <div class="uk-width-3-4">
+                                    <div class="vr-window white">
+                                        {% include 'vacancy/includes/offers.html' with items=offer_vacancies.all candidate=object %}
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-4">
+                                    <div class="vr-window white uk-padding-small">
+                                        <h4 class="uk-text-bold">Offer vacancy</h4>
+                                        {% if object.job_status == 2 %}
+                                            <p>{% firstof object.full_name object.username %}
+                                                at the moment does not accept job invitations.</p>
+                                        {% else %}
+                                            <p>{% lorem 14 w random %}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {% endif %}
+                    <li>
+                        <div data-uk-grid>
+                            <div class="uk-width-3-4">
+                                <div class="vr-window white uk-padding-small">
+                                    <p class="uk-text-meta">
+                                        {% lorem 40 w random %}
+                                    </p>
+                                    <table data-hint="main_info"
+                                           class="uk-table uk-table-divider uk-table-small uk-margin-remove-bottom"
+                                           width="100%">
+                                        <colgroup>
+                                            <col width="30%">
+                                            <col width="70%">
+                                        </colgroup>
+                                        <tr>
+                                            <td>Contract address</td>
+                                            <td>
+                                                {% if object.contract_address is not None %}
+                                                    <img style="width: 16px; height: 16px;"
+                                                         src="{{ object.contract_address|get_blockies_png }}"
+                                                         alt="">&nbsp;<a class="uk-link-reset" target="_blank"
+                                                                         href="https://rinkeby.etherscan.io/address/{{ object.contract_address }}">{{ object.contract_address }}</a>
+                                                {% else %}
+                                                    <div data-uk-spinner="ratio: 0.7"></div>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </div>
+                            </div>
+                            <div class="uk-width-1-4">
+                                <div class="vr-window white uk-padding-small">
+                                    <h4 class="uk-text-bold">
+                                        Blockchain info
+                                    </h4>
+                                    <p>{% lorem 20 w random %}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

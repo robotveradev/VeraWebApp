@@ -5,8 +5,8 @@
         <h3 class="uk-legend uk-margin-remove-bottom uk-position-relative">
             Action exam
             <a class="uk-position-center-right toggle-icon" type="button"
-                  data-uk-toggle="target: #exam-list; animation: uk-animation-slide-top-small"
-                  data-uk-icon="chevron-down"></a>
+               data-uk-toggle="target: #exam-list; animation: uk-animation-slide-top-small"
+               data-uk-icon="chevron-down"></a>
         </h3>
         <div id="exam-list">
             {% regroup question_list by category as question_list %}
@@ -21,16 +21,16 @@
                            max="{{ exam.max_points }}" step="1">
                 </div>
                 {% for item in question_list %}
-                    <h4>{{ item.grouper }}</h4>
-                    <ul class="uk-list uk-list-divider uk-margin-left">
+                    <h4 class="uk-text-bold uk-margin-remove-top uk-margin-small-bottom">{{ item.grouper }}</h4>
+                    <ul class="uk-list uk-margin-left">
                         {% for question in item.list %}
-                            <li uk-grid>
-                                <div class="uk-width-expand">
-                                    {{ question.question_text }}
+                            <li>
+                                <div data-uk-grid>
+                                    <div class="uk-width-expand">
+                                        {{ question.question_text|safe }}
+                                    </div>
                                 </div>
-                                <div class="uk-width-auto">
-                                    <small class="uk-text-muted">{{ question.answers.all|get_right|join:', ' }}</small>
-                                </div>
+
                             </li>
                         {% endfor %}
                     </ul>
@@ -39,7 +39,7 @@
                 <p>{% trans 'Action does not have exam yet' %}</p>
             {% endif %}
             <div class="uk-align-right uk-margin-remove-bottom">
-                <a href="{% url 'action_exam_new' pk=action.db.id %}"
+                <a href="{% url 'action_exam_new' pk=action.id %}"
                    class="uk-button uk-button-primary uk-button-small">
                     {% trans 'Add question' %}
                 </a>

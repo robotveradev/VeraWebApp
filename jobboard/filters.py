@@ -1,11 +1,6 @@
-from ast import dump
-
 import django_filters
-from django.db.models import Q
-from django import forms
 
-from candidateprofile.models import CandidateProfile, Busyness, Schedule
-from jobboard.models import Specialisation
+from member_profile.models import Profile, Busyness, Schedule
 from vacancy.models import Vacancy
 
 
@@ -35,5 +30,5 @@ class CPFilter(django_filters.FilterSet):
         return queryset.filter(position__salary_from__gte=value)
 
     class Meta:
-        model = CandidateProfile
+        model = Profile
         fields = ["specialisations", "keywords", "position__salary_from", "position__busyness", "position__schedule", ]

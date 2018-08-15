@@ -29,9 +29,10 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.google',
-    'candidateprofile',
+    # 'allauth.socialaccount.providers.facebook',
+    # 'allauth.socialaccount.providers.google',
+    # 'allauth.socialaccount.providers.linkedin_oauth2',
+    'member_profile',
     'vacancy',
     'quiz',
     'interview',
@@ -43,11 +44,18 @@ INSTALLED_APPS = [
     'company',
     'google_address',
     'rest_framework',
+    'django_select2',
+    'django_object_actions',
 ]
+
+if DEBUG:
+    INSTALLED_APPS += [
+        'django_extensions'
+    ]
 
 SITE_ID = 3
 
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.Member'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -56,7 +64,6 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'jobboard.v_middleware.NodeMiddleware',
-    'jobboard.v_middleware.RoleMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -74,8 +81,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'jobboard.context_processors.roles',
                 'jobboard.context_processors.hints',
+                'jobboard.context_processors.txns',
             ],
         },
     },
@@ -197,6 +204,8 @@ SOCIALACCOUNT_FORMS = {'signup': 'users.forms.CustomSocialSignupForm'}
 
 ACCOUNT_ADAPTER = 'users.adapter.CustomAccountAdapter'
 
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
+
 ACCOUNT_SESSION_REMEMBER = False
 
 SOCIALACCOUNT_AUTO_SIGNUP = False
@@ -204,7 +213,7 @@ SOCIALACCOUNT_AUTO_SIGNUP = False
 LOGIN_REDIRECT_URL = reverse_lazy('profile')
 
 # Hints settings
-HINTS_ENABLED = os.getenv('HINTS_ENABLED', True)
+HINTS_ENABLED = os.getenv('HINTS_ENABLED', False)
 
 # Google address settings
 GOOGLE_ADDRESS = {
@@ -238,13 +247,6 @@ ZOOMUS_API_KEY = os.getenv('ZOOMUS_API_KEY', '')
 ZOOMUS_API_SECRET = os.getenv('ZOOMUS_API_SECRET', '')
 
 ZOOMUS_USER_ID = os.getenv('ZOOMUS_USER_ID', '')
-
-# email
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
 
 
 if DEBUG:

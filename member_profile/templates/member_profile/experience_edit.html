@@ -1,0 +1,38 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}Vera Platform - Experience {{ position_o.title|title }} edit{% endblock %}
+
+{% load material_form i18n %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="uk-container uk-align-center">
+
+        <h4 class="uk-text-bold">{% trans 'Edit Experience' %} {{ object.position|title }}</h4>
+        {% if error %}
+            <span class="center red-text">{{ error }}</span>
+        {% endif %}
+        <div class="uk-margin-medium-top uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-3-4">
+                <div class="vr-window white uk-padding-small">
+                    <form class="uk-form-horizontal" action="{% url 'experience_edit' pk=object.id %}" method="post">
+                        {% csrf_token %}
+                        {% form form=form %}{% endform %}
+                        <button class="uk-button uk-button-primary uk-align-right uk-button-small uk-margin-remove-bottom">
+                            Save
+                        </button>
+                        <div class="uk-clearfix"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="uk-width-1-4">
+                <div class="vr-window white uk-padding-small">
+                    <h4 class="uk-text-bold">
+                        Education edit
+                    </h4>
+                    <p>{% lorem %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

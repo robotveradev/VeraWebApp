@@ -1,8 +1,9 @@
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
+from django_object_actions import DjangoObjectActions
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, InviteCode
+from .models import Member, InviteCode
 
 
 def make_phones_verified(modeladmin, request, queryset):
@@ -19,12 +20,26 @@ def make_phones_unverified(modeladmin, request, queryset):
 make_phones_unverified.short_description = "Mark selected user phones as unverified"
 
 
-class CustomUserAdmin(UserAdmin):
+class MemberAdmin(DjangoObjectActions, UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
-    model = CustomUser
-    list_display = ['email', 'username', 'country_code', 'phone_number', 'phone_number_verified']
+    model = Member
+    list_display = ['email', 'username', 'country_code', 'phone_number', 'contract_address', 'verified']
     actions = [make_phones_verified, make_phones_unverified, ]
+
+    def verify(self, request, obj):
+        if obj.verified:
+            messages.info(request, 'Member already verified')
+        elif not obj.contract_address:
+            messages.warning(request, 'Member cannot be verified')
+        else:
+            obj.verify()
+            messages.info(request, 'Member verified')
+
+    verify.label = "Verify"
+    verify.short_description = "Verify member"
+
+    change_actions = ('verify',)
 
 
 def make_links(n):
@@ -62,5 +77,5 @@ class InviteCodeAdmin(admin.ModelAdmin):
         model = InviteCode
 
 
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Member, MemberAdmin)
 admin.site.register(InviteCode, InviteCodeAdmin)

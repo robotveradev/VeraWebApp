@@ -29,49 +29,72 @@ class EmployerHandler(object):
     def unlockAccount(self):
         self.web3.personal.unlockAccount(self.account, self.__password)
 
+    def lockAccount(self):
+        return self.web3.personal.lockAccount(self.account)
+
     def get_id(self):
         return self.contract.call().id()
 
     def disable_vac(self, vac_uuid):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).disable_vac(vac_uuid)
+        txn_hash = self.contract.transact({'from': self.account}).disable_vac(vac_uuid)
+        self.lockAccount()
+        return txn_hash
 
     def enable_vac(self, vac_uuid):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).enable_vac(vac_uuid)
+        txn_hash = self.contract.transact({'from': self.account}).enable_vac(vac_uuid)
+        self.lockAccount()
+        return txn_hash
 
     def approve_level_up(self, vac_uuid, can_address):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).approve_level_up(vac_uuid, can_address)
+        txn_hash = self.contract.transact({'from': self.account}).approve_level_up(vac_uuid, can_address)
+        self.lockAccount()
+        return txn_hash
 
     def reset_candidate_action(self, vac_uuid, can_address):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).reset_candidate_action(vac_uuid, can_address)
+        txn_hash = self.contract.transact({'from': self.account}).reset_candidate_action(vac_uuid, can_address)
+        self.lockAccount()
+        return txn_hash
 
     def approve_money(self, amount):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).approve_money(amount)
+        txn_hash = self.contract.transact({'from': self.account}).approve_money(amount)
+        self.lockAccount()
+        return txn_hash
 
     def new_action(self, vac_uuid, title, fee, appr):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).new_vacancy_pipeline_action(vac_uuid,
-                                                                                          force_bytes(title),
-                                                                                          int(float(fee)) * 10 ** 18,
-                                                                                          appr)
+        txn_hash = self.contract.transact({'from': self.account}).new_vacancy_pipeline_action(vac_uuid,
+                                                                                              force_bytes(title),
+                                                                                              int(float(
+                                                                                                  fee)) * 10 ** 18,
+                                                                                              appr)
+        self.lockAccount()
+        return txn_hash
 
     def change_action(self, vac_uuid, index, title, fee, appr):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).change_vacancy_pipeline_action(vac_uuid,
-                                                                                             index,
-                                                                                             force_bytes(title),
-                                                                                             int(float(fee)) * 10 ** 18,
-                                                                                             appr)
+        txn_hash = self.contract.transact({'from': self.account}).change_vacancy_pipeline_action(vac_uuid,
+                                                                                                 index,
+                                                                                                 force_bytes(title),
+                                                                                                 int(float(
+                                                                                                     fee)) * 10 ** 18,
+                                                                                                 appr)
+        self.lockAccount()
+        return txn_hash
 
     def delete_action(self, vac_uuid, index):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).delete_vacancy_pipeline_action(vac_uuid,
-                                                                                             index)
+        txn_hash = self.contract.transact({'from': self.account}).delete_vacancy_pipeline_action(vac_uuid,
+                                                                                                 index)
+        self.lockAccount()
+        return txn_hash
 
     def change_vacancy_allowance_amount(self, vac_uuid, allowed):
         self.unlockAccount()
-        return self.contract.transact({'from': self.account}).change_vacancy_allowance_amount(vac_uuid, allowed)
+        txn_hash = self.contract.transact({'from': self.account}).change_vacancy_allowance_amount(vac_uuid, allowed)
+        self.lockAccount()
+        return txn_hash

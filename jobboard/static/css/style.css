@@ -48,6 +48,11 @@ a.uk-button {
     color: #f0506e
 }
 
+.uk-alert-info {
+    background: #64B5F6;
+    color: white
+}
+
 .error {
     color: red;
 }
@@ -99,10 +104,6 @@ a.uk-button {
     border: 1px solid red;
 }
 
-.uk-input, .uk-select, .uk-textarea {
-    border: 2px solid #bababa;
-}
-
 .toggle-icon {
     cursor: pointer;
 }
@@ -145,7 +146,8 @@ a.uk-button {
     background: #64B5F6;
 }
 
-.uk-input[type=text], .uk-input[type=password], .uk-input[type=number], .uk-input[type=date], .uk-input[type=email], .uk-select {
+.uk-input[type=text], .uk-input[type=password], .uk-input[type=number],
+.uk-input[type=date], .uk-input[type=email], .uk-select, .uk-input[type=time], .uk-input[type=url], .uk-textarea {
     border: 1px solid #aad9fd;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
@@ -155,4 +157,196 @@ a.uk-button {
 .vr-chip-border {
     border: 1px solid #64b5f6;
     border-radius: 25px;
+}
+
+table.uk-table-divider tr:first-child {
+    border-top: none;
+}
+
+.vr-bg {
+    height: 175px;
+    position: relative;
+}
+
+.bg-top_1, .bg-top_2 {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px
+}
+
+.bg-top_1 {
+    background: url(./../img/header-wave-1280.svg) no-repeat center bottom;
+}
+
+.bg-top_2 {
+    background: url(./../img/header-wave-1280-blue.svg) no-repeat center bottom;
+}
+
+.vr-bg > .company > img {
+    position: absolute;
+    z-index: 3;
+    height: 100px;
+    width: 100px;
+    left: 30px;
+    top: 30px;
+    border-radius: 50%;
+}
+
+.vr-bg > .company > h2 {
+    position: absolute;
+    z-index: 3;
+    height: 100px;
+    left: 160px;
+    top: 10px;
+    color: white;
+}
+
+.profile_main_left {
+    text-align: center;
+}
+
+.profile_main_left .image-wrapper {
+    /*min-height: 142px;*/
+    /*background: white;*/
+    border-radius: 5px;
+    /*box-shadow: 0 2px 2px 0 lightgrey;*/
+    transform: translateY(-100px);
+}
+
+.company-item {
+    display: grid;
+    grid-template-columns: 10% auto;
+    background: white;
+}
+
+.company > div {
+    text-align: center;
+}
+
+.company-item > div.img > img {
+    max-width: 100%;
+}
+
+.uk-form-icon:not(.uk-form-icon-flip) + .uk-select {
+    padding-left: 40px;
+}
+
+.vr-small-table td, .vr-small-table th {
+    padding: 5px 0;
+}
+
+.vr-dropdown {
+    display: none;
+    height: auto;
+    position: absolute;
+    z-index: 5;
+    border: 1px solid lightgray;
+    border-radius: 3px;
+    padding: 1px;
+    box-shadow: -1px 1px 6px 0 lightgrey;
+}
+
+.vr-dropdown > span {
+    padding: 5px 5px 5px 27px;
+    display: block;
+    background: white;
+    position: relative;
+    cursor: pointer;
+}
+
+.vr-dropdown > span > i {
+    position: absolute;
+    left: 4px;
+    top: 5px;
+}
+
+.vr-dropdown > span:not(:last-child) {
+    border-bottom: 1px solid lightgray;
+}
+
+.companies-list li {
+    border-right: 3px solid blue;
+    margin-bottom: 10px;
+}
+
+.companies-list > li:first-child {
+    border-top-right-radius: 10px;
+}
+
+.companies-list > li:last-child {
+    border-bottom-right-radius: 10px;
+}
+
+.pipeline {
+    /*border-top: 1px solid grey;*/
+    position: relative;
+    padding: 7px 10px;
+}
+
+.pipeline .line {
+    position: absolute;
+    border-top: 3px solid white;
+    width: 97%;
+    top: 15px;
+}
+
+.pipeline .action {
+    width: 10px;
+    height: 10px;
+    border: 4px solid #f3f6fd;
+    border-radius: 50%;
+    z-index: 1;
+    background: white;
+    position: relative;
+}
+
+.pipeline .action.passed:after {
+    background: #4caf50;
+}
+
+.pipeline .action:after {
+    content: ' ';
+    width: 8px;
+    height: 8px;
+    border: 1px solid #4caf50;
+    position: absolute;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+}
+
+a.company-link {
+    margin-left: 10px;
+}
+
+.pipeline-footer {
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    font-size: .8rem;
+    line-height: .8rem;
+}
+
+.fact-item:not(:last-child) {
+    border-bottom: 1px solid grey;
+}
+
+.confirm-link {
+    cursor: pointer;
+}
+
+span.feedback-count {
+    background: #64b5f6;
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    line-height: 15px;
+    text-align: center;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.6rem;
+    top: 25px;
+    right: 0;
 }

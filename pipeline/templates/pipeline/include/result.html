@@ -1,5 +1,9 @@
-{% if url %}
-    <a class="uk-text-muted" href="{{ url }}">results</a>
-{% else %}
+{% if no_action_provided %}
     action has no results
+{% else %}
+    {% if url %}
+        <a class="uk-text-muted" href="{{ url }}">results</a>
+    {% else %}
+        not passed yet
+    {% endif %}
 {% endif %}

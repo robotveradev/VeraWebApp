@@ -1,0 +1,39 @@
+{% extends 'jobboard/base.html' %}
+
+{% block head_title %}Vera Platform - Profile edit{% endblock %}
+
+{% load material_form %}
+
+{% block content %}
+    {{ block.super }}
+    {{ form.media }}
+    <div class="uk-container uk-align-center">
+        <div class="uk-margin-medium-top uk-margin-medium-bottom">
+            <h4 class="uk-text-bold">Edit profile</h4>
+            <div data-uk-grid>
+                <div class="uk-width-3-4">
+                    <div class="vr-window white uk-padding-small">
+                        {% if error %}
+                            <span class="center red-text">{{ error }}</span>
+                        {% endif %}
+                        <form class="uk-form-horizontal" enctype="multipart/form-data" method="post">
+                            {% csrf_token %}
+                            {% form form=form %}{% endform %}
+                            <button class="uk-button uk-button-primary uk-align-right uk-button-small uk-margin-remove-bottom">
+                                Save
+                            </button>
+                            <div class="uk-clearfix"></div>
+                        </form>
+                    </div>
+                </div>
+                <div class="uk-width-1-4">
+                    <div class="vr-window white uk-padding-small">
+                        <h4 class="uk-text-bold">Edit profile desc</h4>
+                        <p>{% lorem %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

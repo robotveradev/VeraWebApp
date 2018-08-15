@@ -3,24 +3,27 @@ import json
 import re
 from urllib.parse import urlencode
 
+import date_converter
 from django import template
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.utils.safestring import mark_safe
 
-from candidateprofile.models import CandidateProfile
 from jobboard import blockies
 from jobboard.handlers.coin import CoinHandler
 from jobboard.handlers.oracle import OracleHandler
+from jobboard.messages import MESSAGES
 from jobboard.models import Transaction
+from member_profile.models import Profile
 from quiz.models import ActionExam
-from vacancy.models import Vacancy, CandidateOnVacancy, VacancyOffer
+from vacancy.models import Vacancy, MemberOnVacancy, VacancyOffer
 
 register = template.Library()
 
 
 @register.filter(name='has_profile')
 def has_profile(user_id):
-    return CandidateProfile.objects.filter(candidate__user_id=user_id).exists()
+    return Profile.objects.filter(candidate__user_id=user_id).exists()
 
 
 def get_coin_symbol(id):
@@ -30,7 +33,7 @@ def get_coin_symbol(id):
 
 @register.inclusion_tag("jobboard/tags/candidates.html")
 def get_candidates(vacancy):
-    args = {'vacancy': vacancy, 'profiles': CandidateOnVacancy.objects.filter(vacancy=vacancy)}
+    args = {'vacancy': vacancy, 'profiles': MemberOnVacancy.objects.filter(vacancy=vacancy)}
     return args
 
 
@@ -59,13 +62,19 @@ def is_enabled_vacancy(vacancy_id):
     return vacancy_obj.enabled
 
 
-@register.inclusion_tag('jobboard/tags/balances.html')
-def get_balance(user, address, role):
-    if address is None:
-        return {'balance': None, 'user': user}
+@register.filter
+def balance(address):
     coin_h = CoinHandler()
-    return {'balance': coin_h.balanceOf(address) / 10 ** 18, 'user': user,
-            'test': settings.NET_URL.startswith('https://rinkeby'), 'role': role}
+    return coin_h.balanceOf(address) / 10 ** 18
+
+
+@register.inclusion_tag('jobboard/tags/balances.html')
+def get_balance(user):
+    if user.contract_address is None:
+        return {'balance': None, 'user': user}
+
+    return {'balance': balance(user.contract_address), 'user': user,
+            'testnet': settings.NET_URL.startswith('https://rinkeby')}
 
 
 @register.inclusion_tag('jobboard/tags/allowance.html')
@@ -89,32 +98,44 @@ def get_vacancy(vac_uuid):
         return None
 
 
-@register.inclusion_tag('jobboard/tags/facts.html')
-def get_facts(candidate):
+@register.inclusion_tag('jobboard/tags/facts.html', takes_context=True)
+def facts(context, member):
+    date_fields = ['date_from', 'date_up_to', 'date_of_receiving']
     args = {}
-    if candidate.contract_address:
+    if member.contract_address:
         oracle = OracleHandler()
-        fact_keys = oracle.facts_keys(candidate.contract_address)
-        facts = []
+        fact_keys = oracle.facts_keys(member.contract_address)
+        facts_dict = []
         for item in fact_keys:
-            fact = oracle.fact(candidate.contract_address, item)
-            facts.append({'id': item,
-                          'from': fact[0],
-                          'date': datetime.datetime.fromtimestamp(int(fact[1])),
-                          'fact': json.loads(fact[2])})
-        args['facts'] = facts
-        args['candidate'] = candidate
-    return args
+            fact = oracle.fact(member.contract_address, item)
+            f = json.loads(fact[2])
+            for date_item in date_fields:
+                if date_item in f:
+                    f[date_item] = date_converter.string_to_date(f[date_item], current_format='%Y-%m-%dT%H:%M:%S')
+
+            facts_dict.append({'id': item,
+                               'from': fact[0],
+                               'date': datetime.datetime.fromtimestamp(int(fact[1])),
+                               'fact': f})
+        args['facts'] = facts_dict
+        args['member'] = member
+        context.update(args)
+    return context
 
 
-def check_fact(f_id):
-    return False
+@register.filter
+def confirmations(address, f_id):
+    oracle = OracleHandler()
+    return oracle.member_facts_confirmations_count(address, f_id)
 
 
-@register.filter(name='is_fact_verify')
-def is_fact_verify(address, f_id):
-    # TODO change for oracle
-    return False
+@register.simple_tag
+def is_member_verify_fact(sender_address, member_address, fact_id, txns):
+    transact_now = False
+    for item in txns:
+        if item.obj_id == fact_id:
+            transact_now = True
+    return transact_now or OracleHandler().member_fact_confirmations(sender_address, member_address, fact_id)
 
 
 @register.filter(name='parse_addresses')
@@ -138,10 +159,8 @@ def paginator_pages(current_page, max_page):
             return range(current_page - 2, current_page + 3)
 
 
-@register.filter(name='need_dots')
+@register.filter
 def need_dots(first, next_o):
-    # print('first: {}, next: {}'.format(first, next_o))
-    # return False
     if next_o - first > 1:
         return True
     return False
@@ -154,7 +173,7 @@ def is_owner(user, current_user):
 
 @register.filter(name='can_withdraw')
 def can_withdraw(user):
-    return not bool(Transaction.objects.values('id').filter(user=user, txn_type='Withdraw').count())
+    return not Transaction.objects.values('id').filter(user=user.id, txn_type='Withdraw').exists()
 
 
 @register.filter(name='get_url_without')
@@ -175,8 +194,8 @@ def get_blockies_png(address):
 
 
 @register.filter(name='offers_count')
-def offers_count(candidate):
-    return VacancyOffer.objects.filter(profile__candidate=candidate, is_active=True).count()
+def offers_count(member):
+    return VacancyOffer.objects.filter(member=member, is_active=True).count()
 
 
 @register.simple_tag
@@ -189,13 +208,54 @@ def approve_pending(user_id):
     return Transaction.objects.filter(user_id=user_id, txn_type='tokenApprove').exists()
 
 
-@register.inclusion_tag('jobboard/include/candidate_status.html')
-def job_status(candidate, only_status=True):
+@register.inclusion_tag('jobboard/include/candidate_status.html', takes_context=True)
+def member_status(context, member, for_change=False):
     oracle = OracleHandler()
-    status = oracle.candidate_status(candidate.contract_address)
+    status = oracle.member_status(member.contract_address)
     return {
         'statuses': [{'id': i, 'status': v} for i, v in enumerate(oracle.statuses)],
         'status': status,
-        'only_status': only_status,
-        'now_pending': Transaction.objects.filter(user=candidate.user, txn_type='ChangeStatus').exists()
+        'for_change': for_change,
+        'now_pending': context['txns'].filter(txn_type='ChangeStatus').exists()
     }
+
+
+@register.filter
+def get_categories_count(member):
+    count = 0
+    for item in member.companies.all():
+        count += item.quiz_categories.count()
+    return count
+
+
+@register.inclusion_tag('jobboard/tags/blocked_with_tnx.html')
+def check_txn(txns, action_type, obj_id):
+    b = txns.filter(txn_type=action_type, obj_id=obj_id)
+    message = b.exists() and MESSAGES[action_type] or MESSAGES['Not_' + action_type]
+    return {
+        'message': mark_safe(message)
+    }
+
+
+@register.filter
+def txn_message_with_link(txn):
+    try:
+        message = MESSAGES[txn.txn_type]
+    except KeyError:
+        message = 'Transaction now pending...'
+    link = '<a href="{}" target="_blank" class="vr-link white-text">{}</a>'
+    return mark_safe(link.format(net_url() + 'tx/' + txn.txn_hash, message))
+
+
+@register.filter(name='times')
+def times(number):
+    return range(number)
+
+
+@register.simple_tag
+def vacancies_for_offer(member, current_user):
+    companies = current_user.companies.filter(
+        id__in=[i.id for i in current_user.companies if current_user in i.collaborators]) \
+        .exclude(id__in=[i.id for i in member.companies])
+    qs = Vacancy.objects.filter(company__in=companies)
+    return qs.exclude(id__in=member.vacancies.values_list('id'))

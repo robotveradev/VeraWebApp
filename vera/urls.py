@@ -19,46 +19,48 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
-from candidateprofile import views as cp_views
 from company import views as company_views
 from interview import views as interview_views
 from jobboard import views as jobboard_views
 from jobboard.zoomus_endpoint import ZoomusEndpointView
+from member_profile import views as cp_views
 from pipeline import views as pipeline_views
 from quiz import views as quiz_views
 from statistic import views as statistic_views
 from users import views as users_views
 from vacancy import views as vacancy_views
 
+admin.site.site_header = 'Vera Job Board Admin panel'
+admin.site.index_title = 'Job Board administration'
+
 basic = [
     path('', TemplateView.as_view(template_name='jobboard/index.html'), name='index'),
+    path('select2/', include('django_select2.urls')),
+    path('field/<str:model>/<str:field>/', jobboard_views.FindFieldView.as_view()),
     path('invite/<uuid:code>/', users_views.InviteView.as_view()),
-    path('role/', jobboard_views.ChooseRoleView.as_view(), name='choose_role'),
     path('admin/', admin.site.urls),
     path('accounts/settings/', TemplateView.as_view(template_name='users/settings.html'), name='settings_page'),
     path('accounts/', include("allauth.urls")),
     path('vacancies/', jobboard_views.FindJobView.as_view(), name='find_job'),
     path('profiles/', jobboard_views.FindProfilesView.as_view(), name='find_profiles'),
     path('help/', TemplateView.as_view(template_name='jobboard/user_help.html'), name='user_help'),
-    path('contract/status/change/', jobboard_views.ChangeContractStatus.as_view(), name='change_contract_status'),
     path('transactions/', jobboard_views.TransactionsView.as_view(), name='transactions'),
-    path('withdraw/', jobboard_views.withdraw, name='withdraw'),
+    path('withdraw/', jobboard_views.WithdrawView.as_view(), name='withdraw'),
     path('approve/', jobboard_views.ApproveTokenView.as_view(), name='approve'),
-    path('check_agent/', jobboard_views.check_agent, name='check_agent'),
-    path('agent/<slug:action>/', jobboard_views.GrantRevokeAgentView.as_view(), name='grant_agent'),
     path('fact/new/', jobboard_views.NewFactView.as_view(), name='new_fact'),
+    path('fact/verify/', jobboard_views.AddFactConfirmation.as_view(), name='verify_fact'),
     path('free/coins/', jobboard_views.GetFreeCoinsView.as_view(), name='free_coins'),
 ]
 
 candidate_urlpatterns = [
     path('profile/complete/', cp_views.CompleteProfileView.as_view(), name='complete_profile'),
     path('profile/', jobboard_views.ProfileView.as_view(), name='profile'),
-    path('profile/id/<slug:username>/', jobboard_views.CandidateProfileView.as_view(), name='candidate_profile'),
+    path('profile/id/<str:username>/', jobboard_views.CandidateProfileView.as_view(), name='member_profile'),
     path('profile/new/language/', cp_views.NewLanguageView.as_view(), name='new_language'),
     path('profile/new/citizenship/', cp_views.NewCitizenshipView.as_view(), name='new_citizenship'),
     path('profile/new/workpermit/', cp_views.NewWorkPermitView.as_view(), name='new_work_permit'),
     path('status/change/', cp_views.ChangeStatusView.as_view(), name='change_status'),
-    path('my/vacancies/', cp_views.CandidateVacanciesView.as_view(), name='candidate_vacancies'),
+    path('my/vacancies/', cp_views.MemberVacanciesView.as_view(), name='candidate_vacancies'),
 ]
 
 profile_urlpatterns = [
@@ -67,6 +69,9 @@ profile_urlpatterns = [
     path('position/edit/', cp_views.PositionEditView.as_view(), name='position_edit'),
     path('education/new/', cp_views.NewEducationView.as_view(), name='new_education'),
     path('education/<int:pk>/edit/', cp_views.EducationEditView.as_view(), name='education_edit'),
+    path('education/additional/new/', cp_views.NewAdditionalEducationView.as_view(), name='new_additional_education'),
+    path('education/additional/<int:pk>/edit/', cp_views.AdditionalEducationEditView.as_view(),
+         name='additional_education_edit'),
     path('experience/new/', cp_views.NewExperienceView.as_view(), name='new_experience'),
     path('experience/<int:pk>/edit/', cp_views.ExperienceEditView.as_view(), name='experience_edit'),
     path('offer/', cp_views.VacancyOfferView.as_view(), name='offers'),
@@ -76,19 +81,19 @@ profile_urlpatterns = [
 
 vacancy_urlpatterns = [
     path('vacancy/new/', vacancy_views.CreateVacancyView.as_view(), name='new_vacancy'),
-    path('vacancy/<int:vacancy_id>/offer/<int:profile_id>/', vacancy_views.OfferVacancyView.as_view(),
+    path('vacancy/<int:vacancy_id>/offer/<int:member_id>/', vacancy_views.OfferVacancyView.as_view(),
          name='offer_vacancy'),
     path('vacancy/<int:vacancy_id>/subscribe/<int:candidate_id>/', vacancy_views.SubscribeToVacancyView.as_view(),
          name='subscribe_to_vacancy'),
     path('vacancy/<int:pk>/', vacancy_views.VacancyView.as_view(), name='vacancy'),
     path('vacancy/<int:pk>/edit/', vacancy_views.VacancyEditView.as_view(), name='vacancy_edit'),
     path('vacancy/<int:pk>/status/change/', vacancy_views.ChangeVacancyStatus.as_view(), name='change_vacancy_status'),
-    path('vacancy/all/', vacancy_views.VacanciesListView.as_view(), name='vacancy_all'),
     path('vacancy/<int:pk>/update_allowed/', vacancy_views.UpdateAllowedView.as_view(), name='update_allowed'),
 ]
 
 quiz_urlpatterns = [
     path('quiz/', quiz_views.QuizIndexPage.as_view(), name='quiz_index'),
+    path('quiz/company/<int:pk>', quiz_views.QuizCompanyPage.as_view(), name='quiz_index'),
     path('quiz/category/<int:pk>', quiz_views.CategoryView.as_view(), name='category'),
     path('quiz/category/new/', quiz_views.NewCategoryView.as_view(), name='new_category'),
     path('quiz/category/<int:category_id>/question/new/', quiz_views.NewQuestionView.as_view(), name='new_question'),
@@ -103,14 +108,16 @@ quiz_urlpatterns = [
     path('quiz/action/<int:pk>/exam/', quiz_views.ActionExamView.as_view(), name='action_exam'),
 ]
 
-employer_urlpatterns = [
-    path('employer/<int:pk>/about/', jobboard_views.EmployerAboutView.as_view(), name='employer_about'),
+company_urlpatterns = [
     path('companies/', company_views.CompaniesView.as_view(), name='companies'),
     path('company/new/', company_views.NewCompanyView.as_view(), name='new_company'),
+    path('company/<int:pk>/edit/', company_views.CompanyEditView.as_view(), name='edit_company'),
     path('company/<int:pk>', company_views.CompanyDetailsView.as_view(), name='company'),
     path('company/<int:pk>/delete/', company_views.CompanyDeleteView.as_view(), name='delete_company'),
     path('company/<int:pk>/office/new/', company_views.CompanyNewOfficeView.as_view(), name='new_office'),
     path('soclink/new/', company_views.NewSocialLink.as_view(), name='new_social_link'),
+    path('company/add/member/', company_views.AddCompanyMember.as_view(), name='process_member_add'),
+    path('company/change/mmeber/', company_views.ChangeCompanyMember.as_view(), name='change_company_member'),
 ]
 
 statistic_urlpatterns = [
@@ -150,7 +157,7 @@ interview_urlpatterns = [
 ]
 
 zoomus_urlpatterns = [
-    path('zoomus/', ZoomusEndpointView.as_view(),)
+    path('zoomus/', ZoomusEndpointView.as_view(), )
 ]
 
 urlpatterns = basic + \
@@ -158,7 +165,7 @@ urlpatterns = basic + \
               vacancy_urlpatterns + \
               quiz_urlpatterns + \
               profile_urlpatterns + \
-              employer_urlpatterns + \
+              company_urlpatterns + \
               statistic_urlpatterns + \
               pipeline_urlpatterns + \
               interview_urlpatterns + \

@@ -1,41 +1,75 @@
 {% extends 'jobboard/base.html' %}
 
-{% load jobboard_tags %}
+{% load jobboard_tags w3_tags static %}
 
-{% block head_title %}Vera Oracle - User transactions{% endblock %}
+{% block head_title %}Vera Platform - User transactions{% endblock %}
 
 {% block content %}
-{{ block.super }}
+    {{ block.super }}
     <div class="uk-container uk-align-center">
-        <h4>Your transactions</h4>
-        <table class="uk-table uk-table-divider uk-table-small">
-            <thead>
-            <tr>
-                <th>Tx hash</th>
-                <th>Action</th>
-                <th class="right">Date</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for txn in object_list %}
-                <tr>
-                    <td><a class="uk-button uk-button-text" target="_blank"
-                           href="{% net_url %}tx/{{ txn.hash }}">{{ txn.hash|truncatechars:30 }}</a>
-                    </td>
-                    <td>{{ txn.action|parse_addresses|safe }}</td>
-                    <td class="right">{{ txn.created_at|date:'d E Y, H:i:s, e' }}</td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="3">
-                        There is no transactions yet.
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% if is_paginated %}
-            {% include 'jobboard/include/paginator.html' with paginate=page_obj %}
-        {% endif %}
+        <h4 class="uk-text-bold">Your transactions</h4>
+        <div class="uk-margin-medium-bottom" data-uk-grid>
+            <div class="uk-width-4-5">
+                <div class="uk-padding-small white vr-window">
+                    <table class="uk-table uk-table-divider uk-table-small uk-width-1-1">
+                    <colgroup>
+                        <col width="5%">
+                        <col width="15%">
+                        <col width="50%">
+                        <col width="30%">
+                    </colgroup>
+                        <thead>
+                        <tr>
+                            <th class="uk-text-center">Mined</th>
+                            <th>Tx hash</th>
+                            <th>Action</th>
+                            <th class="uk-text-right">Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for txn in object_list %}
+                            <tr>
+                            <td data-success="false" data-txn="{{ txn.hash }}" class="uk-text-center txn-status">
+                                <div data-uk-spinner="ratio: 0.5"></div>
+                            </td>
+                                <td><a class="uk-button uk-button-text" target="_blank"
+                                       href="{% net_url %}tx/{{ txn.hash }}">{{ txn.hash|truncatechars:30 }}</a>
+                                </td>
+                                <td>{{ txn.action|truncatechars:30 }}</td>
+                                <td class="uk-text-right">{{ txn.created_at|date:'d E Y, H:i:s, e' }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3">
+                                    There is no transactions yet.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if is_paginated %}
+                        {% include 'jobboard/include/paginator.html' with paginate=page_obj %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="uk-width-1-5">
+                <div class="uk-padding-small vr-window white">
+                    <h5 class="uk-text-bold"></h5>
+                    <ul class="uk-list uk-list-dotted">
+                        <li>Total transactions: <span class="green-text">{{ count }}</span></li>
+                        <li>Next block in: <span class="green-text" id="time_to_block"
+                                                 data-per-block="{{ 3|time_per_block }}">{{ 3|next_block_in }}</span><span
+                                class="green-text">&nbsp;sec</span></li>
+                        <li id="now-pending">Now pending: <span class="green-text">0</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+    <script src="{% static 'js/transactions.js' %}"></script>
 {% endblock %}

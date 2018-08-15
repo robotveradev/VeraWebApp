@@ -1,5 +1,8 @@
-<div class="uk-clearfix"></div>
-<button class="uk-button uk-button-primary uk-margin-small-right uk-button-small uk-align-right" type="button"
+{% if head_message %}
+    <p>{{ head_message }}</p>
+{% endif %}
+<button class="uk-button uk-button-primary uk-margin-small-right uk-button-small uk-align-right uk-margin-remove-bottom"
+        type="button"
         data-uk-toggle="target: #modal-login-required">
     {% if button_text %}
         {{ button_text }}
@@ -7,18 +10,28 @@
         Apply
     {% endif %}
 </button>
-<div id="modal-login-required" data-uk-modal>
-    <div class="uk-modal-dialog uk-modal-body">
-        <h2 class="uk-modal-title">Login required</h2>
-        {% if message %}
-            {{ message }}
-        {% else %}
-            You must login to continue
-        {% endif %}
-        <p class="uk-text-right">
+<div class="uk-clearfix"></div>
 
-            <a href="{% url 'account_login' %}?next={{ request.META.PATH_INFO }}" class="uk-button uk-button-primary uk-button-small" type="button">Login</a>
-            <a href="{% url 'account_signup' %}" class="uk-button uk-button-default uk-button-small" type="button">Register</a>
-        </p>
+<div id="modal-login-required" data-uk-modal>
+    <div class="uk-modal-dialog">
+        <button class="uk-modal-close-default" type="button" data-uk-close></button>
+        <div class="uk-modal-header">
+            <h2 class="uk-modal-title">Login required</h2>
+        </div>
+        <div class="uk-modal-body">
+            {% if message %}
+                {{ message }}
+            {% else %}
+                You must login to continue
+            {% endif %}
+        </div>
+        <div class="uk-modal-footer">
+            <div class="uk-align-right">
+                <a href="{% url 'account_login' %}?next={{ request.META.PATH_INFO }}"
+                   class="uk-button uk-button-primary uk-button-small" type="button">Login</a>
+                <a href="{% url 'account_signup' %}" class="uk-button uk-button-default uk-button-small" type="button">Register</a>
+            </div>
+
+        </div>
     </div>
 </div>

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import UserManager
 
 
-class CustomUserManager(UserManager):
+class MemberManager(UserManager):
     use_in_migrations = True
 
     def _create_user(self, phone_number, password, **extra_fields):
@@ -20,6 +20,7 @@ class CustomUserManager(UserManager):
     def create_superuser(self, phone_number, password, **extra_fields):
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('tax_number', 'admin')
 
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')

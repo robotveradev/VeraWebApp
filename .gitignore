@@ -127,3 +127,4 @@ pip-selfcheck.json
 celerybeat-schedule.db
 db.sqlite3
 statistic.sqlite3
+/deploy_contracts.py

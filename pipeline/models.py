@@ -1,6 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 
+from jobboard.handlers.oracle import OracleHandler
 from quiz.models import ActionExam
 
 
@@ -14,11 +16,7 @@ class Pipeline(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return 'Pipeline for {}'.format(self.vacancy.title)
-
-    @property
-    def owner(self):
-        return self.vacancy.employer
+        return 'Pipeline for vacancy'
 
 
 class ActionType(models.Model):
@@ -45,9 +43,27 @@ class Action(models.Model):
                                     related_name='actions')
     index = models.SmallIntegerField(default=0)
     published = models.BooleanField(default=False)
+    to_delete = models.BooleanField(default=False)
 
     def __str__(self):
-        return '{} action'.format(self.pipeline.vacancy.title if self.pipeline and self.pipeline.vacancy else '')
+        return 'Pipeline action'
+
+    @property
+    def chain(self):
+        if not self.published:
+            return None
+        if self.pipeline:
+            if self.pipeline.vacancy:
+                vacancy = self.pipeline.vacancy
+                return OracleHandler().get_action(vacancy.company.contract_address, vacancy.uuid, self.index)
+        return None
+
+    @property
+    def candidates(self):
+        action = self.chain
+        if not self.published:
+            return get_user_model().objects.none()
+        return get_user_model().objects.filter(contract_address__in=action.candidates)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -57,13 +73,6 @@ class Action(models.Model):
 
     def get_absolute_url(self):
         return reverse('action_details', kwargs={'pk': self.id})
-
-    def new_exam(self):
-        ActionExam.objects.create(action=self)
-
-    @property
-    def owner(self):
-        return self.pipeline.vacancy.employer.user
 
     class Meta:
         ordering = ('index',)

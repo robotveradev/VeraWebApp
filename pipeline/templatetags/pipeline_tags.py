@@ -3,8 +3,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
 from jobboard.handlers.oracle import OracleHandler
-from jobboard.models import Candidate, Transaction
+from jobboard.models import Transaction
 from pipeline.models import Action, ActionType
+from users.models import Member
 from vacancy.models import Vacancy
 
 register = template.Library()
@@ -51,32 +52,28 @@ def get_item(dictionary, key):
 
 @register.filter
 def question_result(answers, question_id):
+    context = []
     try:
-        context = [int(answers['question_' + str(question_id)])]
-        return context
+        ans = answers['question_' + str(question_id)]
     except KeyError:
-        return []
+        return context
+    else:
+        if isinstance(ans, list):
+            context = [int(i) for i in ans]
+        else:
+            try:
+                context = [int(ans), ]
+            except ValueError:
+                context = [ans, ]
+        return context
 
 
-def vacancy_actions(vacancy):
-    oracle = OracleHandler()
-    pipeline_length = oracle.get_vacancy_pipeline_length(vacancy.uuid)
-    actions = [oracle.get_action(vacancy.uuid, i) for i in range(pipeline_length)]
-    db_actions = Action.objects.filter(pipeline__vacancy=vacancy)
-    res = [{**i, 'db': j} for i in actions for j in db_actions if i['id'] == j.index]
-    return res
-
-
-@register.inclusion_tag('pipeline/employer_pipeline.html')
-def employer_pipeline_for_vacancy(vacancy, user):
-    oracle = OracleHandler()
-    cands_on_action = oracle.get_candidates_on_vacancy_by_action_count(vacancy.uuid)
-    vac_actions = vacancy_actions(vacancy)
-    cont_actions = [{**i, 'cans': i['id'] in cands_on_action and cands_on_action[i['id']] or 0} for i in vac_actions]
-    return {'actions': cont_actions,
-            'vacancy': vacancy,
-            'types': ActionType.objects.all(),
-            'user': user}
+@register.inclusion_tag('pipeline/employer_pipeline.html', takes_context=True)
+def employer_pipeline_for_vacancy(context, vacancy, role):
+    context.update({'vacancy': vacancy,
+                    'types': ActionType.objects.all(),
+                    'role': role})
+    return context
 
 
 @register.filter
@@ -93,11 +90,11 @@ def employer_pipeline_action_config_link(action):
 
 @register.inclusion_tag('pipeline/include/actions_handler.html')
 def actions_handler(action):
-    cond = action['db'].action_type.condition_of_passage
+    cond = action.action_type.condition_of_passage
     context = {'type': cond or None, 'action': action}
     if cond:
-        if hasattr(action['db'], cond):
-            context.update({cond: getattr(action['db'], cond, None)})
+        if hasattr(action, cond):
+            context.update({cond: getattr(action, cond, None)})
     return context
 
 
@@ -119,25 +116,19 @@ def blocked(action):
     return Transaction.objects.filter(obj_id=action.id, txn_type='ActionChanged').exists()
 
 
-@register.filter
-def candidates_on_vacancy_count(actions):
-    return sum([len(actions['pass']), len(actions['now']), len(actions['rest'])])
-
-
 @register.inclusion_tag('pipeline/include/candidate_pipeline_for_vacancy.html')
-def candidate_pipeline_for_vacancy(vacancy, candidate):
-    actions = vacancy_actions(vacancy)
-    oracle = OracleHandler()
-    candidate_current_action_index = oracle.get_candidate_current_action_index(vacancy.uuid, candidate.contract_address)
-    if not oracle.candidate_passed(vacancy.uuid, candidate.contract_address):
-        return {
-            'actions': actions,
-            'candidate_current_action_index': candidate_current_action_index,
-            'candidate': candidate,
-            'vacancy': vacancy
-        }
-    else:
-        return {'pass': True, 'vacancy': vacancy}
+def candidate_pipeline_for_vacancy(vacancy, user):
+    return {
+        'candidate_current_action_index': user.current_action_index(vacancy),
+        'candidate': user,
+        'vacancy': vacancy
+    }
+
+
+@register.simple_tag
+def member_vacancy_pass(vacancy, member):
+    return OracleHandler().member_vacancy_passed(vacancy.company.contract_address, vacancy.uuid,
+                                                 member.contract_address)
 
 
 @register.filter
@@ -146,10 +137,10 @@ def get(arr, i):
 
 
 @register.filter
-def get_candidate(candidate_contract_address):
+def get_member(member_contract_address):
     try:
-        return Candidate.objects.get(contract_address=candidate_contract_address)
-    except Candidate.DoesNotExist:
+        return Member.objects.get(contract_address=member_contract_address)
+    except Member.DoesNotExist:
         return None
 
 
@@ -170,10 +161,10 @@ def action_passed(action, candidate):
 
 
 @register.filter
-def vacancy_candidates(vacancy_uuid):
+def vacancy_members(vacancy):
     oracle = OracleHandler()
-    candidates = oracle.get_candidates_on_vacancy(vacancy_uuid, True, True)
-    return candidates
+    members = oracle.get_members_on_vacancy(vacancy.company.contract_address, vacancy.uuid, True, True)
+    return members
 
 
 @register.filter
@@ -193,7 +184,7 @@ def get_pending_actions_count(vacancy_id):
 
 @register.filter
 def full_payment(actions):
-    return sum([i['fee'] for i in actions])
+    return sum([i.chain.fee if i.chain else 0 for i in actions])
 
 
 @register.filter
