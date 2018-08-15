@@ -15,10 +15,14 @@ Django==2.0.3
 django-allauth==0.36.0
 django-appconf==1.0.2
 django-braces==1.12.0
+django-extensions==2.1.0
 django-filter==1.1.0
+django-google-address==1.1.0
 django-model-utils==3.1.1
-django-private-chat==0.1.8
+django-object-actions==1.0.0
+django-select2==6.1.1
 django-user-accounts==2.0.3
+django-webpack-loader==0.6.0
 djangorestframework==3.8.2
 easy-date==0.1.4
 eth-abi==1.1.1
@@ -32,6 +36,7 @@ eth-utils==1.0.3
 gunicorn==19.7.1
 hexbytes==0.1.0
 idna==2.6
+inflection==0.3.1
 ipython==6.2.1
 ipython-genutils==0.2.0
 jamspell==0.0.9
@@ -75,4 +80,3 @@ vine==1.1.4
 wcwidth==0.1.7
 web3==4.3.0
 websockets==5.0.1
-mysqlclient
