@@ -5,6 +5,7 @@ from django_select2.forms import ModelSelect2TagWidget
 
 from company.models import Company
 from company.widgets import AddressWidget
+
 from .models import Profile, Position, Education, Experience, LanguageItem, Citizenship, WorkPermit, AdditionalEducation
 
 
@@ -34,7 +35,7 @@ class ProfileForm(forms.ModelForm):
                 years=[i for i in range(1950, now().year - 17)][::-1],
                 empty_label=('Select year of birth', 'month of birth', 'day of birth'),
             ),
-            'address': AddressWidget()
+            'address': AddressWidget(),
         }
 
 

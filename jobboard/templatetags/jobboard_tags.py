@@ -4,6 +4,7 @@ import re
 from urllib.parse import urlencode
 
 import date_converter
+from account.compat import is_authenticated
 from django import template
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -254,6 +255,8 @@ def times(number):
 
 @register.simple_tag
 def vacancies_for_offer(member, current_user):
+    if not is_authenticated(current_user):
+        return None
     companies = current_user.companies.filter(
         id__in=[i.id for i in current_user.companies if current_user in i.collaborators]) \
         .exclude(id__in=[i.id for i in member.companies])

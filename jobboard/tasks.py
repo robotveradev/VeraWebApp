@@ -10,6 +10,7 @@ from celery.app.task import Task
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import F
+from django.utils import timezone
 from solc import compile_files
 from web3 import Web3, HTTPProvider
 
@@ -263,7 +264,7 @@ class ProcessZoomusEvent(Task):
         except InterviewPassed.DoesNotExist:
             logger.warning('Interview pass object not found: {}'.format(event))
         else:
-            passed.duration = datetime.now() - passed.date_created
+            passed.duration = timezone.now() - passed.date_created
             passed.save()
             meeting_object.delete()
 

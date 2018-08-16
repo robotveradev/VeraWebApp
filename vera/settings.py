@@ -1,4 +1,5 @@
 import os
+
 from django.urls import reverse_lazy
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -248,6 +249,7 @@ ZOOMUS_API_SECRET = os.getenv('ZOOMUS_API_SECRET', '')
 
 ZOOMUS_USER_ID = os.getenv('ZOOMUS_USER_ID', '')
 
+DEFAULT_INTERVIEW_END_DATE = 2  # weeks to set end interview date if not set
 
 if DEBUG:
     try:

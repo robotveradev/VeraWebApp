@@ -33,6 +33,8 @@ class NewActionInterviewView(CreateView):
 
     def form_valid(self, form):
         form.instance.action = self.action
+        if not form.cleaned_data['end_date']:
+            form.instance.end_date = form.instance.start_date + timedelta(weeks=settings.DEFAULT_INTERVIEW_END_DATE)
         return super().form_valid(form)
 
     def get_success_url(self):
