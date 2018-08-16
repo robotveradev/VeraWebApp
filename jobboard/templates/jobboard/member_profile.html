@@ -264,25 +264,24 @@
                                 <div data-uk-grid>
                                     <div class="uk-width-3-4">
                                         <div class="vr-window white uk-padding-small">
-                                            <div class="uk-padding-small">
-                                                <div class="uk-article">
-                                                    <p class="uk-text-lead">{{ profile.position.title }}</p>
-                                                    Salary from: {{ profile.position.salary_from }}$
-                                                    <ul class="uk-list uk-list-bullet">
-                                                        <li>{{ profile.position.busyness.all|join:', ' }}</li>
-                                                        <li>{{ profile.position.schedule.all|join:', ' }}</li>
-                                                    </ul>
-                                                    {% if profile.position.description %}
-                                                        <p>
-                                                            {{ profile.position.description|safe }}
-                                                        </p>
-                                                    {% endif %}
-                                                    {% if profile.position.career_start %}
-                                                        <div class="chip blue-text white text-lighten-2 vr-chip-border uk-align-right">
-                                                            Career start
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
+
+                                            <div class="uk-article">
+                                                <p class="uk-text-lead">{{ profile.position.title }}</p>
+                                                Salary from: {{ profile.position.salary_from }}$
+                                                <ul class="uk-list uk-list-bullet">
+                                                    <li>{{ profile.position.busyness.all|join:', ' }}</li>
+                                                    <li>{{ profile.position.schedule.all|join:', ' }}</li>
+                                                </ul>
+                                                {% if profile.position.description %}
+                                                    <p>
+                                                        {{ profile.position.description|safe }}
+                                                    </p>
+                                                {% endif %}
+                                                {% if profile.position.career_start %}
+                                                    <div class="chip blue-text white text-lighten-2 vr-chip-border uk-align-right">
+                                                        Career start
+                                                    </div>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>

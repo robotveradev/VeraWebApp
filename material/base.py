@@ -3,6 +3,7 @@
 import re
 import warnings
 from functools import partial
+
 from django.template import TemplateDoesNotExist
 from django.template.loader import get_template, select_template
 from django.utils import six
@@ -77,6 +78,7 @@ def _get_field_template(template_pack, field):
             cls.__name__.lower())
         for cls in type(field.widget).mro()[:-2]
     ]
+    print(widget_templates)
 
     field_templates = [
         '{}_{}/{}'.format(
@@ -126,7 +128,7 @@ class Row(LayoutNode):
 
     template_name = 'layout/row.html'
 
-    def __init__(self, *elements, **kwargs):    # noqa: D102
+    def __init__(self, *elements, **kwargs):  # noqa: D102
         self.elements = _convert_to_field(elements)
         self.row_id = kwargs.pop('row_id', None)
 
@@ -141,7 +143,7 @@ class Row(LayoutNode):
             if container_size % elements_span != 0:
                 warnings.warn(
                     "Can't equally divide container {} for {} span elements"
-                    .format(container_size, self.elements)
+                        .format(container_size, self.elements)
                 )
 
             span_multiplier = container_size // elements_span

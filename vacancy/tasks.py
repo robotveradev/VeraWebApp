@@ -57,6 +57,7 @@ def change_status(vacancy_id, member_id):
 
             mi = MemberInterface(contract_address=sender.contract_address)
             try:
+                mi.approve_company_tokens(company.contract_address, 0)
                 txn_hash = mi.approve_company_tokens(company.contract_address, allowed_for_vacancies)
             except Exception as e:
                 logger.warning('Cannot approve company tokens: {}'.format(e))

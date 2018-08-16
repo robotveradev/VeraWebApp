@@ -26,6 +26,9 @@ class Specialisation(models.Model):
         if self.parent_specialisation is not None:
             return str(self.parent_specialisation)
 
+    class Meta:
+        ordering = ('id',)
+
 
 class Transaction(models.Model):
     user = models.SmallIntegerField(default=0)
