@@ -81,14 +81,14 @@ class Member(AbstractUser):
         Is member verified in system
         :return: bool
         """
-        return OracleHandler().member_verified(self.contract_address)
+        return self.contract_address and OracleHandler().member_verified(self.contract_address)
 
     def verify(self):
         """
         Verify user
         :return: txn_hash in hex object
         """
-        return OracleHandler().verify_member(self.contract_address)
+        return self.contract_address and OracleHandler().verify_member(self.contract_address)
 
     def get_short_name(self):
         """
