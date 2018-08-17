@@ -1,0 +1,9 @@
+CREATE DATABASE IF NOT EXISTS vera_db;
+CREATE DATABASE IF NOT EXISTS vera_stat;
+
+CREATE USER IF NOT EXISTS 'vera_admin'@'%' IDENTIFIED BY '123';
+
+GRANT ALL PRIVILEGES ON vera_stat.* TO 'vera_admin'@'%';
+GRANT ALL PRIVILEGES ON vera_db.* TO 'vera_admin'@'%';
+
+FLUSH PRIVILEGES ;

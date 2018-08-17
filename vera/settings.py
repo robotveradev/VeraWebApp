@@ -1,5 +1,4 @@
 import os
-
 from django.urls import reverse_lazy
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'btcha4=9_!7*hhjka8b^m2cjih06y0amiin-ftcaweq$myl(g8_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG_MODE', False)
 
 ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS', '')]
 
@@ -30,9 +29,9 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.facebook',
-    # 'allauth.socialaccount.providers.google',
-    # 'allauth.socialaccount.providers.linkedin_oauth2',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.linkedin_oauth2',
     'member_profile',
     'vacancy',
     'quiz',
@@ -54,7 +53,7 @@ if DEBUG:
         'django_extensions'
     ]
 
-SITE_ID = 3
+SITE_ID = os.getenv('SITE_ID', 1)
 
 AUTH_USER_MODEL = 'users.Member'
 
@@ -178,7 +177,7 @@ COINBASE_PASSWORD_SECRET = os.getenv('COINBASE_PASSWORD', '')
 
 ABI_PATH = 'jobboard/handlers/abi/'
 
-NODE_URL = 'http://' + os.getenv('NODE_URL', 'localhost') + ':8545'
+NODE_URL = os.getenv('NODE_URL', 'http://localhost:8545')
 
 NET_URL = os.getenv('NET_URL', '')
 
@@ -250,6 +249,40 @@ ZOOMUS_API_SECRET = os.getenv('ZOOMUS_API_SECRET', '')
 ZOOMUS_USER_ID = os.getenv('ZOOMUS_USER_ID', '')
 
 DEFAULT_INTERVIEW_END_DATE = 2  # weeks to set end interview date if not set
+
+# Email
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp-pulse.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+
+# Celery
+CELERY_BROKER_URL = 'amqp://localhost'
+
+# Rabbit
+RABBIT_HOSTNAME = os.environ.get('RABBIT_PORT_5672_TCP', 'rabbit')
+
+if RABBIT_HOSTNAME.startswith('tcp://'):
+    RABBIT_HOSTNAME = RABBIT_HOSTNAME.split('//')[1]
+
+BROKER_URL = os.environ.get('BROKER_URL', '')
+
+if not BROKER_URL:
+    BROKER_URL = 'amqp://{user}:{password}@{hostname}/{vhost}/'.format(
+        user=os.environ.get('RABBIT_ENV_USER', 'guest'),
+        password=os.environ.get('RABBIT_ENV_RABBITMQ_PASS', 'guest'),
+        hostname=RABBIT_HOSTNAME,
+        vhost=os.environ.get('RABBIT_ENV_VHOST', ''))
+
+# We don't want to have dead connections stored on rabbitmq, so we have to negotiate using heartbeats
+BROKER_HEARTBEAT = '?heartbeat=30'
+if not BROKER_URL.endswith(BROKER_HEARTBEAT):
+    BROKER_URL += BROKER_HEARTBEAT
+
+BROKER_POOL_LIMIT = 1
+BROKER_CONNECTION_TIMEOUT = 10
 
 if DEBUG:
     try:

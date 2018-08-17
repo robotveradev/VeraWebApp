@@ -119,7 +119,6 @@ venv.bak/
 [Ll]ib
 [Ll]ib64
 [Ll]ocal
-[Ss]cripts
 pyvenv.cfg
 .venv
 pip-selfcheck.json
@@ -128,3 +127,8 @@ celerybeat-schedule.db
 db.sqlite3
 statistic.sqlite3
 /deploy_contracts.py
+/vera.env
+/mysql.env
+docker-compose.dev.yml
+Dockerfile.python
+ssl

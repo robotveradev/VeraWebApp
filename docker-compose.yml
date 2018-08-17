@@ -1,0 +1,76 @@
+version: '3'
+
+services:
+# database container
+  db:
+    image: mysql:5.7.22
+    command: --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./volumes/dbdump:/docker-entrypoint-initdb.d
+    restart: always
+    env_file:
+      - mysql.env
+
+# django container
+  vera:
+    image: vera_main:latest
+    restart: always
+    deploy:
+      replicas: 10
+    command: ./run_server.sh
+    environment:
+      - DB_HOST=db
+      - PRODUCTION=1
+      - ALLOWED_HOSTS=.vera.wtf
+    env_file:
+      - vera.env
+    ports:
+      - "9090:9999"
+    volumes:
+      - ./volumes/static:/static
+    depends_on:
+      - db
+      - celery
+
+# Celery
+  celery:
+    image: vera_main:latest
+    restart: always
+    deploy:
+      replicas: 1
+    command: ./run_celery.sh
+    environment:
+      - DB_HOST=db
+      - PRODUCTION=1
+      - ALLOWED_HOSTS=.vera.wtf
+    env_file:
+      - vera.env
+    volumes:
+      - ./volumes/static:/static
+    depends_on:
+      - db
+      - rabbit
+
+
+# RabbitMQ
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:alpine
+
+# nginx container
+  nginx:
+    image: nginx:stable-alpine
+    restart: always
+    ports:
+      - "80:8888"
+      - "443:443"
+    volumes:
+      - ./volumes/ssl:/opt/ssl
+      - ./volumes/static:/static
+      - ./volumes/media:/media
+      - ./volumes/nginx:/etc/nginx/conf.d
+
+# create or declare existing volume
+volumes:
+  dbdata:
