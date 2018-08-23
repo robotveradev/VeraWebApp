@@ -19,8 +19,7 @@ def candidate_pass_exam(sender, instance, created, **kwargs):
             cci = oracle.get_member_current_action_index(vacancy.company.contract_address, vacancy.uuid,
                                                          instance.candidate.contract_address)
             if cci == instance.exam.action.index:
-                action_bch = oracle.get_action(vacancy.company.contract_address, vacancy.uuid, cci)
-                if not action_bch['approvable']:
+                if not instance.exam.action.chain.approvable:
                     candidate_level_up.delay(vacancy.id, instance.candidate.id)
 
 
