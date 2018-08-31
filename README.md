@@ -3,7 +3,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/robotveradev/VeraWebApp.svg)
 ![GitHub release](https://img.shields.io/github/release/robotveradev/VeraWebApp.svg)
 [![Project website](https://img.shields.io/website-up-down-green-red/http/vera.jobs.svg?label=project-site)](https://vera.jobs)
-[![Demo website](https://img.shields.io/website-up-down-green-red/http/demo.vera.jobs.svg?label=demo-site)](https://vera.wtf)
+[![Demo website](https://img.shields.io/website-up-down-green-red/http/demo.vera.jobs.svg?label=demo-site)](https://demo.vera.jobs)
 ![License](https://img.shields.io/github/license/robotveradev/VeraWebApp.svg)
 
 ## VERA Web Application
@@ -61,7 +61,32 @@ or passing each step.
 
 ### Demo
 
-You can try our product at [demo.vera.jobs](https://demo.vera.jobs).
+You can [deploy](DEPLOYMENT.md) your own copy of the platform anytime. But Easier options to look at the platform are:
+* Try our demo at [demo.vera.jobs](https://demo.vera.jobs);
+* See [screens](SCREENSHOTS.md) of the intarfaces and views;
+* Watch [screencast](https://www.youtube.com/playlist?list=PLGRpxDadlmTP4SHkzDI_bu3AGFySxHipb) covering the entire process 
+from registering to employing (no sound, sorry).
+
+
+## RoadMap
+
+**Release 3.0**
+* Decentralized and [Self-Sovereign identities](https://www.ibm.com/blogs/blockchain/2018/06/self-sovereign-identity-why-blockchain/) integration - [uPort](https://www.uport.me) and other emerging DID
+ standards for Single-Sign-On, hiring logic and token operations;
+* Embedded token to fiat currencies exchange functionality for fiat deposit and withdrawal;
+* Built-in marketplace of pluggable modules where third-party developers could publish their code (pipeline actions, 
+ insights engines, dashboard elements and so on);
+* Integration with labour smart contracts (on-boarding to contract-governed organisation).
+* Implement AI-based services as pipeline action: automated voice surveys, automated video interviews with emotion recognition.
+
+**Radar**
+
+* Implement web-of-trust principles to establish the authenticity of persons and organizations and their attributes like
+ reputation in a trusted and decentralized way.
+* Decentralized peer-to-peer PII disclosure protocol compliant with data protection regulations.
+* Redesign the service as totally decentralized autonomous agents network covering most of the valuable actions: 
+ candidate to employer matching, prediction, advisory, automated interviews, tests and assessments.
+
 
 ## Ethereum smart contracts
 
