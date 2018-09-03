@@ -9,7 +9,7 @@ assert settings.COINBASE_PASSWORD_SECRET != '', 'Coinbase password not provider'
 
 app = Celery('vera')
 
-app.config_from_object('django.conf:settings', namespace='CELERY')
+app.config_from_object('django.conf:settings')
 
 app.autodiscover_tasks()
 

@@ -1,0 +1,15 @@
+.gitignore
+.gitmodules
+.idea
+*.md
+vera.env
+vars.sh
+LICENSE
+Dockerfile*
+dbdump
+nginx
+scripts
+send.sh
+sendto.sh
+package
+volumes
