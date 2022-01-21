@@ -36,7 +36,7 @@ gunicorn==19.7.1
 hexbytes==0.1.0
 idna==2.6
 inflection==0.3.1
-ipython==6.2.1
+ipython==7.16.3
 ipython-genutils==0.2.0
 jamspell==0.0.9
 jedi==0.11.1
